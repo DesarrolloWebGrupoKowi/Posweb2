@@ -37,7 +37,7 @@
                                 <a class="nav-link d-flex align-items-center text-white text-decoration-none dropdown-toggle"
                                     href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown"
                                     aria-expanded="false">
-                                    <strong>Iniciar Sesión del cochi</strong>
+                                    <strong>Iniciar Sesión</strong>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark text-small shadow"
                                     aria-labelledby="navbarDropdownMenuLink">
