@@ -1,0 +1,164 @@
+body {
+    background-color: #eee;
+}
+
+#ddUsuario {
+    margin-right: 15vh;
+}
+
+#imgLogo {
+    margin-left: 15vh;
+}
+
+#ddLogin {
+    margin-right: 15vh;
+}
+
+.Agregar {
+    float: right;
+}
+
+.titulo {
+    text-align: center;
+}
+
+.tituloUsuario {
+    text-align: center;
+}
+
+.material-icons {
+    color: rgb(255, 145, 0);
+}
+
+.bIcons {
+    color: orange;
+}
+
+.eliminar {
+    color: red;
+}
+
+.editar {
+    color: orange;
+}
+
+.activar {
+    color: blue;
+}
+
+.cambiarPass {
+    color: blue;
+}
+
+.ver {
+    float: right;
+}
+
+.guardar {
+    color: white;
+}
+
+.back {
+    color: white;
+}
+
+table tr:hover {
+    border: 2px rgba(252, 162, 26, 255);
+}
+
+.cuchi {
+    background-color: white;
+    margin-top: 2%;
+    border-radius: 20px;
+    box-shadow: 0 20px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+.cabeceraInfo {
+    color: #fff;
+    background-color: rgb(179, 179, 179);
+    border-color: rgb(179, 179, 179);
+}
+
+.alinearDerecha {
+    float: right;
+}
+
+.alinearIzquierda {
+    float: left;
+}
+
+.personalizadoContainer {
+    width: 95%;
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-right: auto;
+    margin-left: auto
+}
+
+.alinearCentro {
+    text-align: center;
+}
+
+.btnRemove {
+    background-color: red;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.btnAgregar {
+    background-color: rgb(250, 175, 35);
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.check {
+    color: black;
+}
+
+.btn {
+    border-radius: 20px;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.btn:active {
+    transform: scale(1.2);
+}
+
+.pagination>li>a,
+.pagination>li>span {
+    color: orange;
+}
+
+.card-icon {
+    background: linear-gradient(60deg, #ff9900, #ff9900);
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, .14), 0 7px 10px -5px rgba(255, 152, 0, .4);
+    border-radius: 6px;
+    padding: 10px;
+    float: center;
+}
+
+.alertaEdit {
+    background: linear-gradient(60deg, #ff9900, #ff9900);
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, .14), 0 7px 10px -5px rgba(255, 152, 0, .4);
+    border-radius: 6px;
+    padding: 15px;
+    float: center;
+}
+
+.alertaAdd {
+    background: linear-gradient(60deg, #1eff00, #1eff00);
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, .14), 0 7px 10px -5px rgba(255, 152, 0, .4);
+    border-radius: 6px;
+    padding: 15px;
+    float: center;
+}
+
+a:active {
+    transform: scale(1.1);
+}

@@ -1,0 +1,124 @@
+#pos {
+    border-radius: 10px;
+    height: 75vh;
+}
+
+#opciones {
+    border-radius: 10px;
+}
+
+.lKowi:active {
+    transform: scale(1.1);
+}
+
+#subtotal,
+#iva,
+#total,
+#botones {
+    border-radius: 10px;
+    height: 13vh;
+    display: grid;
+    place-content: center;
+    text-align: center;
+}
+
+#divCountArticulo {
+    border-radius: 5px;
+    /*background-color: #eee;*/
+}
+
+.btnOpcion {
+    background-color: orange;
+    border: 1px solid orange;
+    border-radius: 5px;
+    color: black;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+    width: 20vh;
+    height: 6vh;
+}
+
+.btnOpcion:hover {
+    background-color: rgba(245, 178, 53, 0.959);
+    border: 1px solid orange;
+    color: white;
+}
+
+.btnOpciones {
+    background-color: orange;
+    border: 1px solid orange;
+    border-radius: 5px;
+    color: black;
+    text-align: center;
+    cursor: pointer;
+    width: 15vh;
+    height: 8vh;
+}
+
+.btnOpciones:hover {
+    background-color: rgba(245, 178, 53, 0.959);
+    border: 1px solid orange;
+    color: white;
+}
+
+.DetalleMultiPagoPos {
+    height: 20vh;
+}
+
+.txtPos {
+    font-size: 22px;
+}
+
+.btnPagar {
+    background-color: black;
+    border: 1px solid white;
+    border-radius: 5px;
+    color: white;
+    font-size: 17px;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    width: 20vh;
+    height: 6vh;
+}
+
+.btnPagar:hover {
+    background-color: white;
+    border: 1px solid orange;
+    color: black;
+}
+
+i {
+    cursor: pointer;
+}
+
+td {
+    font-size: 19px;
+}
+
+.cambio {
+    position: absolute;
+    margin-left: 80vh;
+    margin-top: 20vh;
+    border-radius: 15px;
+    /*height: 25vh;
+    width: 25vh;*/
+    background-color: white;
+    box-shadow: 0 .5rem 1rem orange;
+}
+
+#txtPago {
+    font-size: 22px;
+}
+
+.dinCambio {
+    display: grid;
+    text-align: center;
+}
+
+#alerta {
+    position: absolute;
+    width: 98%;
+}
