@@ -17,6 +17,7 @@
                                 <th>Iva</th>
                                 <th>Importe</th>
                                 <th>Paquete</th>
+                                <th>Cliente Pedido</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,6 +31,7 @@
                                         <td>{{ number_format($detalle->IvaArticulo, 2) }}</td>
                                         <td>{{ number_format($detalle->ImporteArticulo, 2) }}</td>
                                         <td>{{ $detalle->NomPaquete }}</td>
+                                        <td>{{ $detalle->Cliente }}</td>
                                     </tr>
                                 @endforeach
                             </tr>

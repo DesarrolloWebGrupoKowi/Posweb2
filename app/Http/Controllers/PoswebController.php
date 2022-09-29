@@ -1910,7 +1910,8 @@ class PoswebController extends Controller
 
         $tickets = DatEncabezado::with(['detalle' => function ($detalle){
             $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
-                ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete');
+                ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
+                ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
         }, 'TipoPago', 'SolicitudFactura'])
                     ->where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha)
