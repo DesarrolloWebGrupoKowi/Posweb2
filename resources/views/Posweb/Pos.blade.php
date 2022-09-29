@@ -130,9 +130,11 @@
                     <div class="col-6">
                         <button id="btnPedidos" class="position-relative shadow btnOpcion">
                             <i class="fa fa-cart-plus"></i> PEDIDOS
+                            @if ($pedidosPendientes > 0)
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                 {{ $pedidosPendientes }}
                             </span>
+                            @endif
                         </button>
                     </div>
                 </div>
