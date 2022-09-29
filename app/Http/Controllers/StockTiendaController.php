@@ -23,6 +23,7 @@ class StockTiendaController extends Controller
         $stocks = InventarioTienda::with('Articulo')
             ->where('IdTienda', $idTienda)
             ->where('CodArticulo', 'like', '%'.$codArticulo.'%')
+            ->orderBy('CodArticulo')
             ->get();
 
         $totalStock = InventarioTienda::where('IdTienda', $idTienda)

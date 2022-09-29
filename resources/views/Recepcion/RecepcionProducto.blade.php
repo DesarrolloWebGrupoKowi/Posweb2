@@ -114,11 +114,12 @@
             @if (!empty($detalleRecepcion))
                 <div class="d-flex justify-content-end mb-3">
                     <div class="col-auto me-4">
-                        <button class="btn btn-warning">
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalConfirmarRecepcion">
                             <i class="fa fa-save"></i> Guardar
                         </button>
                     </div>
                 </div>
+                @include('Recepcion.ModalConfirmarRecepcion')
             @endif
         </form>
     </div>
