@@ -18,7 +18,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="">Fecha a Recoger</label>
-                        <input class="form-control" type="date" name="FechaRecoger" min="{{ $fechaHoy }}" max="{{ $manana }}" required>
+                        <input class="form-control" type="date" name="FechaRecoger" min="{{ $fechaHoy }}" max="{{ $fechaHoy }}" required>
                     </div>
             </div>
             <div class="modal-footer">
