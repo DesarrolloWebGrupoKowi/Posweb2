@@ -32,14 +32,20 @@ class CajasController extends Controller
 
         $cajasTienda = DB::table('DatCajas as a')
             ->leftJoin('CatTiendas as b', 'b.IdTienda', 'a.IdTienda')
-            ->where('a.Status', 0)
             ->where('a.IdTienda', $idTienda)
             ->get();
 
-        $cajas = Caja::where('Status', 0)
-            ->get();
+        $cajasTiendaAgregadas = DB::table('DatCajas as a')
+            ->leftJoin('CatTiendas as b', 'b.IdTienda', 'a.IdTienda')
+            ->where('a.IdTienda', $idTienda)
+            ->pluck('IdCaja');
 
-        //return $cajasTienda;
+        $cajas = Caja::where('Status', 0)
+            ->whereNotIn('IdCaja', $cajasTiendaAgregadas)
+            ->get();
+        
+        //return $cajas;
+
 
         return view('Cajas.CajasTienda', compact('tiendas', 'cajasTienda', 'idTienda', 'cajas')); 
     }
@@ -54,8 +60,8 @@ class CajasController extends Controller
             DatCaja::insert([
                 'IdTienda' => $idTienda,
                 'IdCaja' => $idCaja,
-                'Activa' => 0,
-                'Status' => 0
+                'Activa' => 1,
+                'Status' => 1
             ]);
 
             DB::commit();

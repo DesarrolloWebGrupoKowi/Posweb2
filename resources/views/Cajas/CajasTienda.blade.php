@@ -9,17 +9,21 @@
             <div class="row">
                 <div class="col-auto">
                     <select class="form-select shadow" name="idTienda" id="idTienda">
+                        <option value="">Seleccione Tienda</option>
                         @foreach ($tiendas as $tienda)
                             <option {!! $tienda->IdTienda == $idTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
                             </option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col d-flex justify-content-end">
-                    <button type="button" class="btn card shadow" data-bs-toggle="modal" data-bs-target="#ModalAgregarCajaTienda">
-                        <span class="material-icons">add_circle</span>
-                    </button>
-                </div>
+                @if (!empty($idTienda))
+                    <div class="col d-flex justify-content-end">
+                        <button type="button" class="btn card shadow" data-bs-toggle="modal"
+                            data-bs-target="#ModalAgregarCajaTienda">
+                            <span class="material-icons">add_circle</span>
+                        </button>
+                    </div>
+                @endif
             </div>
         </form>
     </div>
@@ -28,21 +32,25 @@
             <thead class="table-dark">
                 <tr>
                     <th>Tienda</th>
-                    <th>Caja Activa</th>
+                    <th>Caja(s)</th>
                 </tr>
             </thead>
             <tbody>
-                @if ($cajasTienda->count() == 0)
+                @if ($cajasTienda->count() == 0 && !empty($idTienda))
                     <tr>
                         <th colspan="2">No Hay Cajas!</th>
                     </tr>
+                @elseif($cajasTienda->count() == 0 && empty($idTienda))
+                    <tr>
+                        <th colspan="2">Seleccione Tienda!</th>
+                    </tr>
                 @else
-                @foreach ($cajasTienda as $cajaTienda)
-                <tr>
-                    <td>{{ $cajaTienda->NomTienda }}</td>
-                    <td>{{ $cajaTienda->IdCaja }}</td>
-                </tr>
-            @endforeach
+                    @foreach ($cajasTienda as $cajaTienda)
+                        <tr>
+                            <td>{{ $cajaTienda->NomTienda }}</td>
+                            <td>{{ $cajaTienda->IdCaja }}</td>
+                        </tr>
+                    @endforeach
                 @endif
             </tbody>
         </table>

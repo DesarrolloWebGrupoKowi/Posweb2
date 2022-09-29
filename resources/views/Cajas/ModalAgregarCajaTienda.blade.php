@@ -15,7 +15,8 @@
                             <label for="">Tienda:</label>
                             <select class="form-select shadow" name="idTiendaCaja" id="idTiendaCaja">
                                 @foreach ($tiendas as $tienda)
-                                    <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}</option>
+                                    <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} {!! $idTienda != $tienda->IdTienda ? 'disabled' : '' !!}
+                                        value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -23,11 +24,16 @@
                     <div class="row">
                         <div class="col-auto">
                             <label for="">Numero de Caja:</label>
-                            <select class="form-select shadow" name="idCaja" id="idCaja">
-                                @foreach ($cajas as $caja)
-                                    <option value="{{ $caja->IdCaja }}">{{ $caja->NumCaja }}</option>
-                                @endforeach
-                            </select>
+                            @if ($cajas->count() == 0)
+                                <h5><i style="color: red" class="fa fa-exclamation-triangle"></i> No Hay Cajas por
+                                    Agregar <i style="color:red" class="fa fa-exclamation-triangle"></i></h5>
+                            @else
+                                <select class="form-select shadow" name="idCaja" id="idCaja">
+                                    @foreach ($cajas as $caja)
+                                        <option value="{{ $caja->IdCaja }}">{{ $caja->NumCaja }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -35,9 +41,11 @@
                     <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
                         <i class="fa fa-close"></i> Cerrar
                     </button>
-                    <button type="submit" class="btn btn-sm btn-warning">
-                        <i class="fa fa-save"></i> Crear
-                    </button>
+                    @if ($cajas->count() > 0)
+                        <button type="submit" class="btn btn-sm btn-warning">
+                            <i class="fa fa-save"></i> Crear
+                        </button>
+                    @endif
                 </div>
             </form>
         </div>
