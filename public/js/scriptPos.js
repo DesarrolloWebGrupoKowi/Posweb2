@@ -57,7 +57,7 @@ if (visiblechkCancelarDescuento) {
 const btnPedidos = document.getElementById('btnPedidos');
 
 btnPedidos.addEventListener('click', function() {
-    location.href = '/Pedidos';
+    location.href = '/PedidosGuardados';
 });
 
 //Ocultar alerta pasados 4 segundos

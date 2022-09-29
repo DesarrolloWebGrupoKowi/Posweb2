@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -138,10 +137,14 @@ class PoswebController extends Controller
         $paquetes = CatPaquete::where('Status', 0)
             ->get();
 
+        $pedidosPendientes = DatEncPedido::where('IdTienda', $idTienda)
+            ->where('Status', 0)
+            ->count();
+
         return view('Posweb.Pos', compact('usuario', 'fechaHoy', 'preventa', 'subTotalPreventa', 'ivaPreventa', 'totalPreventa', 
                     'idTienda', 'banderaMultiPago', 'datTipoPago', 'caja', 'tiposPago', 'bancos', 
                     'nombre', 'apellido', 'cliente', 'creditoDisponible', 'banArticuloSinPrecio', 
-                    'monederoEmpleado', 'monederoDescuento', 'paquetes'));
+                    'monederoEmpleado', 'monederoDescuento', 'paquetes', 'pedidosPendientes'));
     }
 
     public function EliminarPago($idDatTipoPago){

@@ -128,8 +128,11 @@
                         </button>
                     </div>
                     <div class="col-6">
-                        <button id="btnPedidos" class="btnOpcion">
+                        <button id="btnPedidos" class="position-relative shadow btnOpcion">
                             <i class="fa fa-cart-plus"></i> PEDIDOS
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $pedidosPendientes }}
+                            </span>
                         </button>
                     </div>
                 </div>
