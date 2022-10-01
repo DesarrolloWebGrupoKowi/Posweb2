@@ -546,6 +546,16 @@ Route::post('/EditarPaqueteExistente/{idPaquete}', 'App\Http\Controllers\Paquete
 Route::post('/EliminarPaquete/{idPaquete}', 'App\Http\Controllers\PaquetesController@EliminarPaquete');
 
 //+============================================================================================================================================+//
+//TransaccionProducto
+Route::get('/TransaccionProducto', 'App\Http\Controllers\TransaccionProductoController@TransaccionProducto');
+
+//BuscarArticuloTransaccion
+Route::get('/BuscarArticuloTransaccion', 'App\Http\Controllers\TransaccionProductoController@BuscarArticuloTransaccion');
+
+//GuardarTransaccion
+Route::post('/GuardarTransaccion', 'App\Http\Controllers\TransaccionProductoController@GuardarTransaccion');
+
+//+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
 

@@ -1,0 +1,151 @@
+@extends('plantillaBase.masterblade')
+@section('title', 'Transacción de Producto')
+@section('contenido')
+    <div class="container mb-3">
+        <div class="d-flex justify-content-center">
+            <h2 class="card shadow p-1">Transacción de Producto</h2>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-auto">
+                <div class="input-group mb-3 shadow">
+                    <span class="input-group-text">Origen</span>
+                    <span class="input-group-text bg-white">{{ $nomTienda }}</span>
+                </div>
+            </div>
+            <div class="col-auto">
+                <form id="formTransaccion" action="/GuardarTransaccion" method="POST">
+                    @csrf
+                    <div id="contenedorTransaccion" class="container">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Destino</span>
+                            <select class="form-select shadow" name="idTiendaDestino" id="idTiendaDestino">
+                                @foreach ($tiendas as $tienda)
+                                    <option value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Código Articulo</span>
+                    <input class="form-control" id="codArticulo" name="codArticulo" type="text" placeholder="Escribe">
+                    <span id="nomArticulo" class="input-group-text bg-white">...</span>
+                </div>
+            </div>
+            <div class="col-auto">
+                <button id="btnAgregar" hidden class="btn btn-warning shadow">
+                    <i class="fa fa-check"></i> Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="d-flex justify-content-end me-3">
+            <h4>Articulos: (<span id="countArticulos">0</span>)</h4>
+        </div>
+        <table id="tblTransaccion" class="table table-responsive table-striped shadow">
+            <thead class="table-dark">
+                <tr>
+                    <th>Código</th>
+                    <th>Articulo</th>
+                    <th>Cantidad</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            <div class="col-auto">
+                <button hidden type="button" id="btnTransaccionarProducto" class="btn btn-warning shadow">
+                    <i class="fa fa-save"></i> Transaccionar Producto
+                </button>
+            </div>
+        </div>
+    </div>
+    @include('TransaccionProducto.ModalConfirmarTransaccion')
+    @include('TransaccionProducto.ModalSinCantidadArticulos')
+
+    <script>
+        document.getElementById('codArticulo').addEventListener('input', function(e) {
+            fetch('/BuscarArticuloTransaccion?codArticulo=' + e.target.value)
+                .then(res => res.text())
+                .then(respuesta => {
+                    if (respuesta == ' - ') {
+                        document.querySelector('#nomArticulo').innerHTML = '<i class="fa fa-clock-o"></i>';
+                        document.getElementById('btnAgregar').hidden = true;
+                    } else {
+                        document.querySelector('#nomArticulo').innerHTML = respuesta;
+                        document.getElementById('btnAgregar').hidden = false;
+                    }
+                });
+        });
+
+        document.getElementById('btnAgregar').addEventListener('click', (e) => {
+            document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
+                '<td>' + document.getElementById('codArticulo').value + '</td>' +
+                '<td>' + document.querySelector('#nomArticulo').textContent + '</td>' +
+                '<td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>' +
+                '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
+                '</tr>';
+            codArticulo.value = '';
+            document.querySelector('#nomArticulo').innerHTML = '...';
+            document.getElementById('btnAgregar').hidden = true;
+            document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows.length -1;
+            if (document.getElementById('tblTransaccion').rows.length > 1) {
+                document.getElementById('btnTransaccionarProducto').hidden = false;
+            }
+        });
+
+        $(document).on('click', '.btnEliminarArticulo', function() {
+            $(event.target).closest('tr').remove();
+            document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows.length -1
+            if (document.getElementById('tblTransaccion').rows.length == 1) {
+                document.getElementById('btnTransaccionarProducto').hidden = true;
+            }
+        });
+
+        document.getElementById('btnTransaccionarProducto').addEventListener('click', (e) => {
+            var hijos = $(document.getElementById('contenedorTransaccion')).find('input').length;
+            if (hijos > 0) {
+                $(document.getElementById('contenedorTransaccion')).find('input').remove();
+            }
+
+            var aux = 0;
+
+            var tbl = $('#tblTransaccion tr:has(td)').map(function(i, v) {
+                var $td = $('td', this);
+
+                var cArticulo = document.getElementById('contenedorTransaccion').appendChild(document
+                    .createElement('input'));
+                cArticulo.name = 'CodArticulo[]';
+                cArticulo.setAttribute("hidden", "true");
+                cArticulo.value = $td.eq(0).text();
+
+                var nArticulo = document.getElementById('contenedorTransaccion').appendChild(document
+                    .createElement('input'));
+                nArticulo.name = 'CantArticulo[]';
+                nArticulo.setAttribute("hidden", "true");
+                nArticulo.value = $td.eq(2).find('input[type="number"]').val();
+
+                
+
+                $('#tblTransaccion tr:has(td)').map(function(i, v) {
+                    var $fila = $('td', this);
+                    $cantidad = $fila.eq(2).find('input[type="number"]').val();
+
+                    $cantidad == '' || $cantidad == 0 || $cantidad < 0 ? aux = aux + 1 : '';
+                });
+            });
+
+            aux == 0 ? $('#ModalConfirmarTransaccion').modal('show') : $('#ModalSinCantidadArticulos').modal('show');
+        })
+    </script>
+@endsection
