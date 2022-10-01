@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Articulo;
 use App\Models\Tienda;
+use App\Models\TransaccionTienda;
 
 class TransaccionProductoController extends Controller
 {
@@ -16,7 +17,11 @@ class TransaccionProductoController extends Controller
         $nomTienda = Tienda::where('IdTienda', $idTienda)
             ->value('NomTienda');
 
+        $destinosTienda = TransaccionTienda::where('IdTienda', $idTienda)
+            ->pluck('IdTiendaDestino');
+
         $tiendas = Tienda::where('Status', 0)
+            ->whereIn('IdTienda', $destinosTienda)
             ->get();
 
         return view('TransaccionProducto.TransaccionProducto', compact('nomTienda', 'tiendas'));

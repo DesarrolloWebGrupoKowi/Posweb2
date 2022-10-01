@@ -20,58 +20,64 @@
                     <div id="contenedorTransaccion" class="container">
                         <div class="input-group mb-3">
                             <span class="input-group-text">Destino</span>
-                            <select class="form-select shadow" name="idTiendaDestino" id="idTiendaDestino">
-                                @foreach ($tiendas as $tienda)
-                                    <option value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}</option>
-                                @endforeach
-                            </select>
+                            @if ($tiendas->count() == 0)
+                                <span class="input-group-text bg-danger text-white">No Hay Tiendas Destino Agregadas</span>
+                            @else
+                                <select class="form-select shadow" name="idTiendaDestino" id="idTiendaDestino">
+                                    @foreach ($tiendas as $tienda)
+                                        <option value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="row">
-            <div class="col-auto">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">Código Articulo</span>
-                    <input class="form-control" id="codArticulo" name="codArticulo" type="text" placeholder="Escribe">
-                    <span id="nomArticulo" class="input-group-text bg-white">...</span>
+    </div>
+    @if ($tiendas->count() > 0)
+        <div class="container">
+            <div class="row">
+                <div class="col-auto">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Código Articulo</span>
+                        <input class="form-control" id="codArticulo" name="codArticulo" type="text" placeholder="Escribe">
+                        <span id="nomArticulo" class="input-group-text bg-white">...</span>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button id="btnAgregar" hidden class="btn btn-warning shadow">
+                        <i class="fa fa-check"></i> Agregar
+                    </button>
                 </div>
             </div>
-            <div class="col-auto">
-                <button id="btnAgregar" hidden class="btn btn-warning shadow">
-                    <i class="fa fa-check"></i> Agregar
-                </button>
+            <div class="d-flex justify-content-end me-3">
+                <h4>Articulos: (<span id="countArticulos">0</span>)</h4>
+            </div>
+            <table id="tblTransaccion" class="table table-responsive table-striped shadow">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Articulo</th>
+                        <th>Cantidad</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="container">
+            <div class="d-flex justify-content-center">
+                <div class="col-auto">
+                    <button hidden type="button" id="btnTransaccionarProducto" class="btn btn-warning shadow">
+                        <i class="fa fa-save"></i> Transaccionar Producto
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="container">
-        <div class="d-flex justify-content-end me-3">
-            <h4>Articulos: (<span id="countArticulos">0</span>)</h4>
-        </div>
-        <table id="tblTransaccion" class="table table-responsive table-striped shadow">
-            <thead class="table-dark">
-                <tr>
-                    <th>Código</th>
-                    <th>Articulo</th>
-                    <th>Cantidad</th>
-                    <th>Eliminar</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <div class="container">
-        <div class="d-flex justify-content-center">
-            <div class="col-auto">
-                <button hidden type="button" id="btnTransaccionarProducto" class="btn btn-warning shadow">
-                    <i class="fa fa-save"></i> Transaccionar Producto
-                </button>
-            </div>
-        </div>
-    </div>
-    @include('TransaccionProducto.ModalConfirmarTransaccion')
-    @include('TransaccionProducto.ModalSinCantidadArticulos')
+        @include('TransaccionProducto.ModalConfirmarTransaccion')
+        @include('TransaccionProducto.ModalSinCantidadArticulos')
+    @endif
 
     <script>
         document.getElementById('codArticulo').addEventListener('input', function(e) {
@@ -98,7 +104,8 @@
             codArticulo.value = '';
             document.querySelector('#nomArticulo').innerHTML = '...';
             document.getElementById('btnAgregar').hidden = true;
-            document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows.length -1;
+            document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows
+                .length - 1;
             if (document.getElementById('tblTransaccion').rows.length > 1) {
                 document.getElementById('btnTransaccionarProducto').hidden = false;
             }
@@ -106,7 +113,8 @@
 
         $(document).on('click', '.btnEliminarArticulo', function() {
             $(event.target).closest('tr').remove();
-            document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows.length -1
+            document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows
+                .length - 1
             if (document.getElementById('tblTransaccion').rows.length == 1) {
                 document.getElementById('btnTransaccionarProducto').hidden = true;
             }
@@ -135,7 +143,7 @@
                 nArticulo.setAttribute("hidden", "true");
                 nArticulo.value = $td.eq(2).find('input[type="number"]').val();
 
-                
+
 
                 $('#tblTransaccion tr:has(td)').map(function(i, v) {
                     var $fila = $('td', this);
@@ -145,7 +153,8 @@
                 });
             });
 
-            aux == 0 ? $('#ModalConfirmarTransaccion').modal('show') : $('#ModalSinCantidadArticulos').modal('show');
+            aux == 0 ? $('#ModalConfirmarTransaccion').modal('show') : $('#ModalSinCantidadArticulos').modal(
+                'show');
         })
     </script>
 @endsection

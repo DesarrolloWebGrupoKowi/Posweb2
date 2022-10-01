@@ -556,6 +556,16 @@ Route::get('/BuscarArticuloTransaccion', 'App\Http\Controllers\TransaccionProduc
 Route::post('/GuardarTransaccion', 'App\Http\Controllers\TransaccionProductoController@GuardarTransaccion');
 
 //+============================================================================================================================================+//
+//TransaccionesTienda
+Route::get('/TransaccionesTienda', 'App\Http\Controllers\TransaccionesTiendaController@TransaccionesTienda');
+
+//AgregarTransaccionTienda
+Route::post('/AgregarTransaccionTienda/{idTienda}', 'App\Http\Controllers\TransaccionesTiendaController@AgregarTransaccionTienda');
+
+//EliminarTransaccionTienda
+Route::post('/EliminarTransaccionTienda/{idTienda}', 'App\Http\Controllers\TransaccionesTiendaController@EliminarTransaccionTienda');
+
+//+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
 
