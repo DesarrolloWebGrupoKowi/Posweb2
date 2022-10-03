@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Articulo;
 use App\Models\Tienda;
 use App\Models\TransaccionTienda;
+use App\Models\DatInventario;
+use App\Models\CapRecepcion;
+use App\Models\DatRecepcion;
 
 class TransaccionProductoController extends Controller
 {
@@ -53,8 +56,40 @@ class TransaccionProductoController extends Controller
         $idTiendaDestino = $request->idTiendaDestino;
         $codsArticulo = $request->CodArticulo;
         $cantsArticulo = $request->CantArticulo;
+        
+        try {
+            DB::beginTransaction();
 
-        return $request->all();
+            $almacen = Tienda::where('IdTienda', $idTiendaDestino)
+                ->value('Almacen');
+
+            $capRecepcion = new CapRecepcion();
+            $capRecepcion->FechaLlegada = date('d-m-y H:i:s');
+            $capRecepcion->PackingList = 'TRANSFERENCIA';
+            $capRecepcion->Almacen = $almacen;
+            $capRecepcion->IdStatusRecepcion = 1;
+            $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
+            $capRecepcion->save();
+            
+
+            foreach ($codsArticulo as $keyCodArticulo => $codArticulo) {
+                foreach ($cantsArticulo as $keyCantArticulo => $cantArticulo) {
+                    DatRecepcion::insert([
+                        'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
+                        'CodArticulo' => $codArticulo,
+                        'CantEnviada' => $cantArticulo,
+                        'IdStatusRecepcion' => 1
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return back()->with('msjAdd', 'Transferencia Exitosa!');
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
 
     }
 }

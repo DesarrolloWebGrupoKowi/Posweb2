@@ -10,6 +10,7 @@ use App\Models\StatusRecepcion;
 class CapRecepcion extends Model
 {
     use HasFactory;
+    protected $connection = 'server';
     protected $table = 'CapRecepcion';
     protected $fillable = ['FechaRecepcion', 'PackingList', 'Almacen', 'Organization_Id', 'MotivoCancelacion', 'FechaCancelacion', 'IdStatusRecepcion'];
     public $timestamps = false;
