@@ -9,6 +9,7 @@ use App\Models\CapRecepcion;
 class DatRecepcion extends Model
 {
     use HasFactory;
+    protected $connection = 'server';
     protected $table = 'DatRecepcion';
     protected $fillable = ['IdCapRecepcion', 'IdArticulo', 'CantEnviada', 'CantRecepcionada', 'Almacen', 'PackingList', 'IdStatusRecepcion'];
     public $timestamps = false;
