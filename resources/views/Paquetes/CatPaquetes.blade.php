@@ -78,6 +78,7 @@
             </div>
         </div>
     </div>
+    @include('Paquetes.ModalArticuloRepetido')
 
     <script>
         document.getElementById('codArticulo').addEventListener('input', function(e) {
@@ -106,7 +107,19 @@
             const nomArticuloValid = document.querySelector('.nomArticuloValid');
 
             if (e.key == 'Enter') {
-                if (codArticulo.value != '' && nomArticulo.textContent != '' && nomArticuloValid.textContent !=
+                var contCodigosRepetidos = 0;
+                $('#tblArticulos tr:has(td)').map(function(i, v) {
+                    var $fila = $('td', this);
+                    $codArticulo = $fila.eq(0).text();
+
+                    document.getElementById('codArticulo').value == $codArticulo ? contCodigosRepetidos =
+                        contCodigosRepetidos + 1 : '';
+                });
+
+                if(contCodigosRepetidos > 0){
+                    $('#ModalArticuloRpetido').modal('show');
+                }else{
+                    if (codArticulo.value != '' && nomArticulo.textContent != '' && nomArticuloValid.textContent !=
                     '') {
                     document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
                         '<td>' + codArticulo.value + '</td>' +
@@ -119,13 +132,14 @@
                     codArticulo.value = '';
                     nomArticulo.textContent = '';
                 }
+                }
             }
         })
 
         $(document).on('click', '.btnEliminarArticulo', function() {
             $(event.target).closest('tr').remove();
 
-            if(document.getElementById('tblArticulos').rows.length == 2){
+            if (document.getElementById('tblArticulos').rows.length == 2) {
                 document.querySelector('.totalPaquete').textContent = '';
             }
             $importe = 0;
