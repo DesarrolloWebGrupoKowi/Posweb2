@@ -69,6 +69,12 @@ class TransaccionProductoController extends Controller
             $almacen = Tienda::where('IdTienda', $idTiendaDestino)
                 ->value('Almacen');
 
+            $nomDestinoTienda = Tienda::where('IdTienda', $idTiendaDestino)
+                ->value('NomTienda');
+
+            $correoDestinoTienda = Tienda::where('IdTienda', $idTiendaDestino)
+                ->value('Correo');
+
             $nomOrigenTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->value('NomTienda');
         
@@ -117,16 +123,24 @@ class TransaccionProductoController extends Controller
                     ->update([
                         'StockArticulo' => $stockArticulo - $cantArticulo
                     ]);
+            }
 
-                }
+            //Envio de Correo de Trasnferencia de Producto
+            $asunto = 'Se Ha Realizado Una Nueva Transferencia de Producto';
+            $mensaje = 'Envia: ' . $nomOrigenTienda . '. Recibe: ' . $nomDestinoTienda . '. Id de Recepción: ' . $capRecepcion->IdCapRecepcion;
+
+            $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; ". $correoDestinoTienda ."', '".$asunto."', '".$mensaje."'";
+            DB::statement($enviarCorreo);
                 
-                DB::commit();
-                DB::connection('server')->commit();
-                return back()->with('msjAdd', 'Transferencia Exitosa!');
+            DB::commit();
+            DB::connection('server')->commit();
+            return back()->with('msjAdd', 'Transferencia Exitosa!');
+
         } catch (\Throwable $th) {
             DB::rollback();
             DB::connection('server')->rollback();
-            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            //return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            return $th;
         }
     }
 }

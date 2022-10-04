@@ -37,6 +37,13 @@ class PruebasController extends Controller
 {
     public function pruebas(Request $request){
 
+        $nomOrigenTienda = 'KOWI EXPRESS SAN JOSE DEL CABO';
+        $nomDestinoTienda = 'KOWI EXPRESS TALAMANTE';
+
+
+        $mensaje = nl2br("Envia: $nomOrigenTienda \nRecibe: $nomDestinoTienda \nId de Recepción: 30");
+
+        return $mensaje;
 
         $referencia = 'KOWI EXPRESS SAN JOSE DEL CABO';
 
