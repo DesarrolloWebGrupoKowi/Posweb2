@@ -20,8 +20,9 @@ class RecepcionController extends Controller
             ->first();
 
         $recepcion = CapRecepcion::with('StatusRecepcion')
-            ->where('Almacen', $tienda->Almacen)
-            ->where('IdStatusRecepcion', 1)
+            ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
+            ->where('CapRecepcion.Almacen', $tienda->Almacen)
+            ->where('CapRecepcion.IdStatusRecepcion', 1)
             ->get();
 
         $idRecepcion = $request->idRecepcion;
