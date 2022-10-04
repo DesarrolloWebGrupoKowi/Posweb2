@@ -27,7 +27,7 @@ class RecepcionController extends Controller
         $idRecepcion = $request->idRecepcion;
         empty($idRecepcion) ? $idRecepcion = 0 : $idRecepcion = $idRecepcion;
 
-        $detalleRecepcion = DB::select("select c.PackingList, c.Almacen, a.*, b.NomArticulo".
+        $detalleRecepcion = DB::connection('server')->select("select c.PackingList, c.Almacen, a.*, b.NomArticulo".
                                         " from DatRecepcion as a".
                                         " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
                                         " left join CapRecepcion as c on c.IdCapRecepcion=a.IdCapRecepcion".
