@@ -92,7 +92,7 @@ class TransaccionProductoController extends Controller
                 ]);
 
                 $stockArticulo = InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('CodArticulo', $keyCodArticulo)
+                    ->where('CodArticulo', ''.$keyCodArticulo.'')
                     ->value('StockArticulo');
 
                 InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -107,8 +107,7 @@ class TransaccionProductoController extends Controller
                 return back()->with('msjAdd', 'Transferencia Exitosa!');
         } catch (\Throwable $th) {
             DB::rollback();
-            //return back()->with('msjdelete', 'Error: ' . $th->getMessage());
-            return $th;
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
     }
