@@ -21,7 +21,10 @@ class DatDetalle extends Model
         'ImporteArticulo', 
         'IvaArticulo', 
         'SubTotalArticulo', 
-        'IdPedido'
+        'IdPaquete',
+        'IdPedido',
+        'IdDatPrecios',
+        'Linea'
     ];
 
     protected $primaryKey = 'IdDetalle';

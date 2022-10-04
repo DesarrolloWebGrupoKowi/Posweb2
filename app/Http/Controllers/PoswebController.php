@@ -940,7 +940,8 @@ class PoswebController extends Controller
                     'SubTotalArticulo' => $detalle->SubTotalArticulo,
                     'IdPaquete' => $detalle->IdPaquete,
                     'IdPedido' => $detalle->IdPedido,
-                    'IdDatPrecios' => $detalle->IdDatPrecios
+                    'IdDatPrecios' => $detalle->IdDatPrecios,
+                    'Linea' => $index+1
                 ]);
             }
 
