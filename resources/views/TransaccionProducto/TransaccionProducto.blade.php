@@ -81,6 +81,7 @@
         </div>
         @include('TransaccionProducto.ModalConfirmarTransaccion')
         @include('TransaccionProducto.ModalSinCantidadArticulos')
+        @include('TransaccionProducto.ModalArticuloRepetido')
     @endif
 
     <script>
@@ -102,19 +103,32 @@
         });
 
         document.getElementById('btnAgregar').addEventListener('click', (e) => {
-            document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
+            var contCodigosRepetidos = 0;
+            $('#tblTransaccion tr:has(td)').map(function(i, v) {
+                    var $fila = $('td', this);
+                    $codArticulo = $fila.eq(0).text();
+                    
+                    document.getElementById('codArticulo').value == $codArticulo ? contCodigosRepetidos = contCodigosRepetidos + 1 : '';
+            });
+
+            if(contCodigosRepetidos > 0){
+                $('#ModalArticuloRpetido').modal('show');
+            }
+            else{
+                document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
                 '<td>' + document.getElementById('codArticulo').value + '</td>' +
                 '<td>' + document.querySelector('#nomArticulo').textContent + '</td>' +
                 '<td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>' +
                 '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
                 '</tr>';
-            codArticulo.value = '';
-            document.querySelector('#nomArticulo').innerHTML = '...';
-            document.getElementById('btnAgregar').hidden = true;
-            document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows
-                .length - 1;
-            if (document.getElementById('tblTransaccion').rows.length > 1) {
-                document.getElementById('btnTransaccionarProducto').hidden = false;
+                codArticulo.value = '';
+                document.querySelector('#nomArticulo').innerHTML = '...';
+                document.getElementById('btnAgregar').hidden = true;
+                document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows
+                    .length - 1;
+                if (document.getElementById('tblTransaccion').rows.length > 1) {
+                    document.getElementById('btnTransaccionarProducto').hidden = false;
+                }
             }
         });
 
