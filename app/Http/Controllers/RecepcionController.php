@@ -218,15 +218,29 @@ class RecepcionController extends Controller
     public function CancelarRecepcion($idRecepcion, Request $request){
         $motivoCancelacion = $request->motivoCancelacion;
 
-        CapRecepcion::where('IdCapRecepcion', $idRecepcion)
-            ->update([
-                'IdStatusRecepcion' => 3,
-                'FechaCancelacion' => date('d-m-Y H:i:s'),
-                'MotivoCancelacion' => $motivoCancelacion,
-                'IdUsuario' => Auth::user()->IdUsuario
-            ]);
+        try {
+            DB::connection('server')->beginTransaction();
+            
+            CapRecepcion::where('IdCapRecepcion', $idRecepcion)
+                ->update([
+                    'IdStatusRecepcion' => 3,
+                    'FechaCancelacion' => date('d-m-Y H:i:s'),
+                    'MotivoCancelacion' => $motivoCancelacion,
+                    'IdUsuario' => Auth::user()->IdUsuario
+                ]);
 
-        return redirect('RecepcionProducto')->with('msjdelete', 'Recepción Cancelada!');
+            DatRecepcion::where('IdCapRecepcion', $idRecepcion)
+                ->update([
+                    'IdStatusRecepcion' => 3
+                ]);
+
+            DB::connection('server')->commit();
+        } catch (\Throwable $th) {
+            DB::connection('server')->rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+
+        return redirect('RecepcionProducto')->with('msjdelete', 'Recepción Cancelada Correctamente!');
     }
 
     public function ReporteRecepciones(Request $request){
