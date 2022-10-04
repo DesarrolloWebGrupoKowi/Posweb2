@@ -146,6 +146,7 @@ class RecepcionController extends Controller
         }
 
         try {
+            DB::connection('server')->beginTransaction();
             DB::beginTransaction();
             foreach ($chkArticulo as $key => $referencia) {
                 foreach ($cantRecepcionada as $codArticulo => $cRecepcionada) {
@@ -205,11 +206,13 @@ class RecepcionController extends Controller
                         'IdUsuario' => Auth::user()->IdUsuario
                     ]);
             }
+            DB::connection('server')->commit();
             DB::commit();
     
             return redirect('RecepcionProducto')->with('msjAdd', 'Productos Recepcionados Correctamente!');
 
         } catch (\Throwable $th) {
+            DB::connection('server')->rollback();
             DB::rollBack();
             return redirect('RecepcionProducto')->with('msjdelete', 'Error'. $th->getMessage());
         }
