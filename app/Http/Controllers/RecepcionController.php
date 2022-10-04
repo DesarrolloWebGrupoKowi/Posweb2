@@ -63,11 +63,11 @@ class RecepcionController extends Controller
         $articuloPendiente = 1;
         
         if($radioBuscar == 'codigo'){
-            $dRecepcion = DB::table('CapRecepcion as a')
-                ->leftJoin('DatRecepcion as b', 'b.IdCapRecepcion', 'b.IdCapRecepcion')
+            $dRecepcion = DB::connection('server')->table('CapRecepcion as a')
+                ->leftJoin('DatRecepcion as b', 'b.IdCapRecepcion', 'a.IdCapRecepcion')
                 ->where('a.Almacen', $tienda->Almacen)
+                ->whereNull('a.FechaRecepcion')
                 ->where('a.IdStatusRecepcion', 1)
-                ->where('b.IdStatusRecepcion', 1)
                 ->where('b.CodArticulo', $filtroArticulo)
                 ->get();
 
@@ -184,7 +184,7 @@ class RecepcionController extends Controller
                             'CantArticulo' => $cRecepcionada,
                             'FechaMovimiento' => date('d-m-Y H:i:s'),
                             'Referencia' => $referencia,
-                            'IdMovimiento' => $referencia == 'MANUAL' ? 3 : 1,
+                            'IdMovimiento' => $referencia == 'MANUAL' ? 3 : $referencia == 'TRANSFERENCIA' ? 2 : 1,
                             'IdUsuario' => Auth::user()->IdUsuario
                         ]);
                     }

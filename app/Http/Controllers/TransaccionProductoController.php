@@ -143,8 +143,8 @@ class TransaccionProductoController extends Controller
         } catch (\Throwable $th) {
             DB::rollback();
             DB::connection('server')->rollback();
-            //return back()->with('msjdelete', 'Error: ' . $th->getMessage());
-            return $th;
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            //return $th;
         }
     }
 }
