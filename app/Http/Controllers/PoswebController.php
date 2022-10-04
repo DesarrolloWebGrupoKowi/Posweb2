@@ -771,210 +771,481 @@ class PoswebController extends Controller
                     ->distinct()
                     ->first();
 
-        if($multipago->MultiPago == null){
-            $idTipoPago = $request->tipoPago;
-
-            $idUsuario = Auth::user()->IdUsuario;
-
-            $idTienda = Auth::user()->usuarioTienda->IdTienda;
-
-            $preventaIdPedido = PreventaTmp::select('IdPedido')
-                        ->distinct()
+        try {
+            DB::beginTransaction();
+            if($multipago->MultiPago == null){
+                $idTipoPago = $request->tipoPago;
+    
+                $idUsuario = Auth::user()->IdUsuario;
+    
+                $idTienda = Auth::user()->usuarioTienda->IdTienda;
+    
+                $preventaIdPedido = PreventaTmp::select('IdPedido')
+                            ->distinct()
+                            ->where('IdTienda', $idTienda)
+                            ->whereNotNull('IdPedido')
+                            ->first();
+    
+                empty($preventaIdPedido) ? $idPedidoDist = null : $idPedidoDist = $preventaIdPedido->IdPedido;
+    
+                $pago = $request->txtPago;
+    
+                $detalle = PreventaTmp::where('IdTienda', $idTienda)
+                            ->get();
+    
+                $subTotal = PreventaTmp::where('IdTienda', $idTienda)
+                        ->sum('SubTotalArticulo');
+                        
+                $subTotalVenta = number_format($subTotal, 2);
+    
+                $iva = PreventaTmp::where('IdTienda', $idTienda)
+                        ->sum('IvaArticulo');
+                $ivaVenta = number_format($iva, 2);
+    
+                $totalVenta = PreventaTmp::where('IdTienda', $idTienda)
+                        ->sum('ImporteArticulo') - $temporalPos->MonederoDescuento;
+    
+                $idTicket = DatEncabezado::where('IdTienda', $idTienda)
+                        ->whereDate('FechaVenta', date('d-m-Y'))
+                        ->max('IdTicket')+1;
+    
+                $caja = DB::table('DatCajas as a')
+                        ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
                         ->where('IdTienda', $idTienda)
-                        ->whereNotNull('IdPedido')
+                        ->where('a.Activa', 0)
+                        ->where('a.Status', 0)
                         ->first();
-
-            empty($preventaIdPedido) ? $idPedidoDist = null : $idPedidoDist = $preventaIdPedido->IdPedido;
-
-            $pago = $request->txtPago;
-
-            $detalle = PreventaTmp::where('IdTienda', $idTienda)
-                        ->get();
-
-            $subTotal = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('SubTotalArticulo');
+    
+                if(empty($caja)){
+                    return redirect('Pos')->with('Pos', 'La Tienda No Tiene Caja Activa, Comuniquese con Sistemas!');
+                }
+    
+                if($idTipoPago == 2){
+                    $cliente = Empleado::with('LimiteCredito')
+                            ->where('NumNomina', $numNomina)
+                            ->first();
+    
+                    $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
+                            ->where('StatusCredito', 0)
+                            ->where('StatusVenta', 0)
+                            ->sum('ImporteArticulo');
+    
+                    $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
+    
+                    $date1 = new DateTime($cliente->Fecha_Ingreso);
+                    $date2 = new DateTime(date('Y-m-d'));
+                    $diff = $date1->diff($date2);
+            
+                    $diasTrabajados = $diff->days;
+    
+                    if($diasTrabajados <= 30){
+                        return redirect()->route('Pos')->with('Pos', 'El Empleado no puede llevar a Crédito, al no tener más de 30 dias trabajados. Dias Trabajados: '. $diasTrabajados);
+                    }
+    
+                    if($pago > $creditoDisponible){
+                        return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
+                    }
+                }
+    
+                if($idTipoPago == 7){
+                    $temporalPos = TemporalPos::first();
+                    $numNomina = $temporalPos->NumNomina;
+                    $descuentoMonedero = $temporalPos->MonederoDescuento;
+    
+                    $monederoE = MonederoElectronico::where('Status', 0)
+                        ->first();
+    
+                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+                        ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
+                        ->sum('MonederoPorGastar') - $descuentoMonedero;
+    
+                    $importeProcesado = DB::table('DatVentaTmp as a')
+                        ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
+                        ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->where('b.IdGrupo', $monederoE->IdGrupo)
+                        ->sum('a.ImporteArticulo');
+    
+                    $pagoMonedero = $pago;
+    
+                    //Validaciones de Monedero Electrónico
+                    if($pagoMonedero > $monederoEmpleado){
+                        return redirect()->route('Pos')->with('Pos', 'Saldo en Monedero Insuficiente, Saldo Actual: $' . number_format($monederoEmpleado, 2));
+                    }
+    
+                    if($importeProcesado == 0){
+                        return redirect()->route('Pos')->with('Pos', 'No Puede Pagar Con Monedero Electrónico Porque No Lleva Producto Procesado!');
+                    }
+    
+                    if($pagoMonedero > $importeProcesado){
+                        return redirect()->route('Pos')->with('Pos', 'Solo Puede Pagar $' . number_format($importeProcesado, 2) . ' En Monedero Electrónico!');
+                    }
+    
+                    TemporalPos::where('TemporalPos', 1)
+                        ->update([
+                            'MonederoDescuento' => $pagoMonedero
+                        ]);
+                }   
+                
+                if($idTipoPago != 1 && $pago > $totalVenta){
+                    return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
+                }
+    
+                DB::table('DatEncabezado')
+                    ->insert([
+                        'IdEncabezado' => 0, 
+                        'IdTienda' => $idTienda,
+                        'IdDatCaja' => $caja->IdDatCajas,
+                        'IdTicket' => $idTicket,
+                        'FechaVenta' => date('d-m-Y H:i:s'),
+                        'IdUsuario' => $idUsuario,
+                        'SubTotal' => $subTotalVenta,
+                        'Iva' => $ivaVenta,
+                        'Promocion' => null,
+                        'ImporteVenta' => $totalVenta,
+                        'StatusVenta' => 0,
+                        'MotivoCancel' => null,
+                        'FechaCancelacion' => null,
+                        'FechaCreacion' => null,
+                        'SolicitudFE' => null,
+                        'IdMetodoPago' => null,
+                        'IdUsoCFDI' => null,
+                        'IdFormaPago' => null,
+                        'FolioCupon' => null,
+                        'NumNomina' => $numNomina
+                    ]);
+    
+                $idDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
+                                ->max('IdDatEncabezado');
+    
+                $idEncabezado = $idTienda . $caja->NumCaja . $idDatEncabezado;
+    
+                DatEncabezado::where('IdTienda', $idTienda)
+                    ->where('IdDatEncabezado', $idDatEncabezado)
+                    ->update([
+                        'IdEncabezado' => $idEncabezado
+                    ]);
+    
+                $preventa = PreventaTmp::where('IdTienda', $idTienda)
+                    ->get();
+            
+                foreach ($preventa as $index => $detalle) {
+                    DatDetalle::insert([
+                        'IdEncabezado' => $idEncabezado,
+                        'IdArticulo' => $detalle->IdArticulo,
+                        'CantArticulo' => $detalle->CantArticulo,
+                        'PrecioArticulo' => $detalle->PrecioVenta,
+                        'IdListaPrecio' => $detalle->IdListaPrecio,
+                        'PrecioRecorte' => null,
+                        'CapturaManual' => null,
+                        'ImporteArticulo' => $detalle->ImporteArticulo,
+                        'IvaArticulo' => $detalle->IvaArticulo,
+                        'SubTotalArticulo' => $detalle->SubTotalArticulo,
+                        'IdPaquete' => $detalle->IdPaquete,
+                        'IdPedido' => $detalle->IdPedido,
+                        'IdDatPrecios' => $detalle->IdDatPrecios,
+                        'Linea' => $index+1
+                    ]);
+                }
+    
+                $importeVenta = PreventaTmp::where('IdTienda', $idTienda)
+                            ->select('ImporteArticulo')
+                            ->sum('ImporteArticulo');
+    
+                //Si hay IdPedido en el detalle para marcarlo como vendido
+                if($idPedidoDist != null){
+                    DatEncPedido::where('IdTienda', $idTienda)
+                            ->where('IdPedido', $idPedidoDist)
+                            ->update([
+                                'Status' => 2
+                            ]);
+                }   
+    
+                if($pago > $importeVenta || $pago == $importeVenta){
+    
+                    $restanteSinFormat = $pago - $importeVenta;
+                    $restante = number_format($restanteSinFormat, 2);
+                
+                    DatTipoPago::insert([
+                        'IdEncabezado' => $idEncabezado,
+                        'IdTipoPago' => $idTipoPago,
+                        'Pago' => $pago,
+                        'Restante' => $restante,
+                        'IdBanco' => $request->idBanco,
+                        'numTarjeta' => $request->numTarjeta
+                    ]);
+    
+                    PreventaTmp::where('IdTienda', $idTienda)
+                        ->delete(); 
+    
+                    TemporalPos::where('TemporalPos', 1)
+                        ->update([
+                            'NumNomina' => null,
+                            'IdEncabezado' => null,
+                            'MonederoDescuento' => null
+                    ]);
                     
-            $subTotalVenta = number_format($subTotal, 2);
-
-            $iva = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('IvaArticulo');
-            $ivaVenta = number_format($iva, 2);
-
-            $totalVenta = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('ImporteArticulo') - $temporalPos->MonederoDescuento;
-
-            $idTicket = DatEncabezado::where('IdTienda', $idTienda)
-                    ->whereDate('FechaVenta', date('d-m-Y'))
-                    ->max('IdTicket')+1;
-
-            $caja = DB::table('DatCajas as a')
-                    ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                    ->where('IdTienda', $idTienda)
-                    ->where('a.Activa', 0)
-                    ->where('a.Status', 0)
-                    ->first();
-
-            if(empty($caja)){
-                return redirect('Pos')->with('Pos', 'La Tienda No Tiene Caja Activa, Comuniquese con Sistemas!');
+                    //Descontar Inventario
+                    $datDetalle = DatDetalle::where('IdEncabezado', $idEncabezado)
+                        ->get();
+    
+                    foreach ($datDetalle as $key => $detalle) {
+                        $articulo = Articulo::where('IdArticulo', $detalle->IdArticulo)
+                            ->first();
+    
+                        $stockArticulo = InventarioTienda::where('IdTienda', $idTienda)
+                            ->where('CodArticulo', $articulo->CodArticulo)
+                            ->sum('StockArticulo');
+    
+                        InventarioTienda::where('IdTienda', $idTienda)
+                            ->where('CodArticulo', $articulo->CodArticulo)
+                            ->update([
+                                'StockArticulo' => $stockArticulo - $detalle->CantArticulo
+                        ]);
+                    }
+    
+                    //Descontar Monedero Si Uso Para Pagar
+                    if(!empty($numNomina) && !empty($temporalPos->MonederoDescuento)){
+                        $pagoMonedero = $temporalPos->MonederoDescuento;
+                        $pagoRestante = $pagoMonedero;
+                        
+                        $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+                            ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
+                            ->where('MonederoPorGastar', '<>', 0)
+                            ->orderBy('FechaExpiracion')
+                            ->get();
+    
+                        foreach ($monederoEmpleado as $key => $mEmpleado) {
+                            $pagoMonedero = $pagoRestante;
+                            $pagoRestante = $mEmpleado->MonederoPorGastar - abs($pagoMonedero);
+    
+                            $gastoMonedero = $pagoRestante <= 0 ? $mEmpleado->MonederoPorGastar : abs($pagoMonedero); 
+                            $monederoxGastar = $mEmpleado->MonederoPorGastar - $gastoMonedero;
+    
+                            DatMonederoAcumulado::where('IdEncabezado', $mEmpleado->IdEncabezado)
+                                ->update([
+                                    'MonederoGastado' => $gastoMonedero == $mEmpleado->MonederoPorGastar ? -$mEmpleado->MonederoGenerado : -$gastoMonedero,
+                                    'MonederoPorGastar' => $monederoxGastar
+                                ]);
+    
+                            MovimientoMonederoElectronico::insert([
+                                'NumNomina' => $numNomina,
+                                'IdEncabezado' => $idEncabezado,
+                                'FechaMovimiento' => date('d-m-Y H:i:s'),
+                                'Monedero' => -$gastoMonedero
+                            ]);
+    
+                            if($pagoRestante >= 0){
+                                break;
+                            }
+                        }
+                    }
+    
+                    //Consultar Catalogo de Monedero
+                    $monederoE = MonederoElectronico::where('Status', 0)
+                            ->first();
+    
+                    $importeProcesado = DB::table('DatDetalle as a')
+                        ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
+                        ->where('a.IdEncabezado', $idEncabezado)
+                        ->where('b.IdGrupo', $monederoE->IdGrupo)
+                        ->sum('a.ImporteArticulo');
+    
+                    //Si el empleado Generó Monedero, guardarlo
+                    if(!empty($numNomina) && $importeProcesado >= $monederoE->MonederoMultiplo){
+                        $puntosGenerados = $importeProcesado / $monederoE->MonederoMultiplo;
+                        $puntosTotales = intval($puntosGenerados);
+    
+                        $monederoGenerado = $puntosTotales * $monederoE->PesosPorMultiplo;
+    
+                        $fecha = strtotime(date('Y-m-d')."+ ".$monederoE->VigenciaMonedero." days");
+                        $fechaExpiracion = date('d-m-Y', $fecha);
+    
+                        $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+                            ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
+                            ->sum('MonederoPorGastar');
+    
+                        MovimientoMonederoElectronico::insert([
+                            'NumNomina' => $numNomina,
+                            'IdEncabezado' => $idEncabezado,
+                            'FechaMovimiento' => date('d-m-Y H:i:s'),
+                            'Monedero' => $monederoGenerado
+                        ]);
+    
+                        $faltanteMaximo = $monederoE->MaximoAcumulado - $monederoEmpleado;
+                        $monederoGenerado + $monederoEmpleado > $monederoE->MaximoAcumulado ? $monederoGenerado = $faltanteMaximo : $monederoGenerado = $monederoGenerado;
+    
+                        DatMonederoAcumulado::insert([
+                            'IdEncabezado' => $idEncabezado,
+                            'NumNomina' => $numNomina,
+                            'FechaExpiracion' => $fechaExpiracion,
+                            'FechaGenerado' => date('d-m-Y H:i:s'),
+                            'MonederoGenerado' => $monederoGenerado,
+                            'MonederoGastado' => 0,
+                            'MonederoPorGastar' => $monederoGenerado
+                        ]);
+    
+                    }
+    
+                    DB::select("exec SP_GENERAR_TICKET_CORTE ".$idEncabezado.", ".$idTienda.", '".date('d-m-Y H:i:s')."'");
+                    DB::commit();
+                
+                    return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
+                }
+                else{
+                    $restanteSinFormat = $pago - $importeVenta;
+                    $restante = number_format($restanteSinFormat, 2);
+    
+                    if($idTipoPago == 2){
+                        $cliente = Empleado::with('LimiteCredito')
+                                ->where('NumNomina', $numNomina)
+                                ->first();
+    
+                        $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
+                                ->where('StatusCredito', 0)
+                                ->where('StatusVenta', 0)
+                                ->sum('ImporteArticulo');
+        
+                        $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
+    
+                        $date1 = new DateTime($cliente->Fecha_Ingreso);
+                        $date2 = new DateTime(date('Y-m-d'));
+                        $diff = $date1->diff($date2);
+            
+                        $diasTrabajados = $diff->days;
+    
+                        if($diasTrabajados <= 30){
+                            return redirect()->route('Pos')->with('Pos', 'El Empleado no puede llevar a Crédito, al no tener más de 30 dias trabajados. Dias Trabajados: '. $diasTrabajados);
+                        }
+    
+                        if($pago > $creditoDisponible){
+                            return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
+                        }
+                    }
+    
+                    DatTipoPago::insert([
+                        'IdEncabezado' => $idEncabezado,
+                        'IdTipoPago' => $idTipoPago,
+                        'Pago' => $pago,
+                        'Restante' => $restante,
+                        'IdBanco' => $request->idBanco,
+                        'numTarjeta' => $request->numTarjeta
+                    ]);
+    
+                    PreventaTmp::where('IdTienda', $idTienda)
+                                ->update([
+                                    'MulTiPago' => 1
+                                ]);
+    
+                    TemporalPos::where('TemporalPos', 1)
+                        ->update([
+                            'IdEncabezado' => $idEncabezado
+                    ]);
+                    DB::commit();
+    
+                    return redirect()->route('Pos'); 
+                }
             }
-
-            if($idTipoPago == 2){
-                $cliente = Empleado::with('LimiteCredito')
-                        ->where('NumNomina', $numNomina)
+            else{
+                $caja = DB::table('DatCajas as a')
+                        ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
+                        ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->where('a.Activa', 0)
+                        ->where('a.Status', 0)
                         ->first();
+    
+                if(empty($caja)){
+                    return redirect('Pos')->with('Pos', 'La Tienda No Tiene Caja Activa, Comuniquese con Sistemas!');
+                }
+    
+                $idDatEncabezado = DatEncabezado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                                ->max('IdDatEncabezado');
+    
+                $idEncabezado = Auth::user()->usuarioTienda->IdTienda . $caja->NumCaja . $idDatEncabezado;
+    
+                $datTipoPago = DatTipoPago::where('IdEncabezado', $idEncabezado)
+                            ->orderBy('IdDatTipoPago', 'desc')
+                            ->first();
+    
+                $restante = $datTipoPago->Restante;
+                
+                $pago = $request->txtPago;
+    
+                $idTipoPago = $request->tipoPago;
+    
+                empty($request->idBanco) ? $idBanco = 0 : $idBanco = $request->idBanco;
+    
+                empty($request->numTarjeta) ? $numTarjeta = 0 : $numTarjeta = $request->numTarjeta;
+                
+                return redirect()->route('CalculoMultiPago', compact('idEncabezado', 'restante', 'pago', 'idTipoPago', 'idBanco', 'numTarjeta'));
+            }
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return redirect('Pos')->with('Pos', 'Error: ' . $th->getMessage());
+        }
+    }
 
-                $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
+    public function CalculoMultiPago(Request $request, $idEncabezado, $restante, $pago, $idTipoPago, $idBanco, $numTarjeta){
+
+        try {
+            DB::beginTransaction();
+            if($idTipoPago != 1){
+                if($pago > abs($restante)){
+                    return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Restante! (2)');
+                }
+            }
+    
+            $restanteSinFormato = $pago - abs($restante);
+            $restante = number_format($restanteSinFormato, 2);
+    
+            $idBanco == 0 ? $idBanco = null : $idBanco = $idBanco;
+            $numTarjeta == 0 ? $numTarjeta = null :  $numTarjeta = $numTarjeta;
+            
+            $temporalPos = TemporalPos::where('TemporalPos', 1)
+                ->first(); 
+    
+            if($idTipoPago == 2){
+    
+                $cliente = Empleado::with('LimiteCredito')
+                        ->where('NumNomina', $temporalPos->NumNomina)
+                        ->first();
+    
+                $gastoEmpleado = CorteTienda::where('NumNomina', $temporalPos->NumNomina)
                         ->where('StatusCredito', 0)
                         ->where('StatusVenta', 0)
                         ->sum('ImporteArticulo');
-
+    
                 $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
-
+    
                 $date1 = new DateTime($cliente->Fecha_Ingreso);
                 $date2 = new DateTime(date('Y-m-d'));
                 $diff = $date1->diff($date2);
-        
+            
                 $diasTrabajados = $diff->days;
-
+    
                 if($diasTrabajados <= 30){
                     return redirect()->route('Pos')->with('Pos', 'El Empleado no puede llevar a Crédito, al no tener más de 30 dias trabajados. Dias Trabajados: '. $diasTrabajados);
                 }
-
+    
                 if($pago > $creditoDisponible){
                     return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                 }
             }
-
-            if($idTipoPago == 7){
-                $temporalPos = TemporalPos::first();
-                $numNomina = $temporalPos->NumNomina;
-                $descuentoMonedero = $temporalPos->MonederoDescuento;
-
-                $monederoE = MonederoElectronico::where('Status', 0)
-                    ->first();
-
-                $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
-                    ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-                    ->sum('MonederoPorGastar') - $descuentoMonedero;
-
-                $importeProcesado = DB::table('DatVentaTmp as a')
-                    ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
-                    ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('b.IdGrupo', $monederoE->IdGrupo)
-                    ->sum('a.ImporteArticulo');
-
-                $pagoMonedero = $pago;
-
-                //Validaciones de Monedero Electrónico
-                if($pagoMonedero > $monederoEmpleado){
-                    return redirect()->route('Pos')->with('Pos', 'Saldo en Monedero Insuficiente, Saldo Actual: $' . number_format($monederoEmpleado, 2));
-                }
-
-                if($importeProcesado == 0){
-                    return redirect()->route('Pos')->with('Pos', 'No Puede Pagar Con Monedero Electrónico Porque No Lleva Producto Procesado!');
-                }
-
-                if($pagoMonedero > $importeProcesado){
-                    return redirect()->route('Pos')->with('Pos', 'Solo Puede Pagar $' . number_format($importeProcesado, 2) . ' En Monedero Electrónico!');
-                }
-
-                TemporalPos::where('TemporalPos', 1)
-                    ->update([
-                        'MonederoDescuento' => $pagoMonedero
-                    ]);
-            }   
-            
-            if($idTipoPago != 1 && $pago > $totalVenta){
-                return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
-            }
-
-            DB::table('DatEncabezado')
-                ->insert([
-                    'IdEncabezado' => 0, 
-                    'IdTienda' => $idTienda,
-                    'IdDatCaja' => $caja->IdDatCajas,
-                    'IdTicket' => $idTicket,
-                    'FechaVenta' => date('d-m-Y H:i:s'),
-                    'IdUsuario' => $idUsuario,
-                    'SubTotal' => $subTotalVenta,
-                    'Iva' => $ivaVenta,
-                    'Promocion' => null,
-                    'ImporteVenta' => $totalVenta,
-                    'StatusVenta' => 0,
-                    'MotivoCancel' => null,
-                    'FechaCancelacion' => null,
-                    'FechaCreacion' => null,
-                    'SolicitudFE' => null,
-                    'IdMetodoPago' => null,
-                    'IdUsoCFDI' => null,
-                    'IdFormaPago' => null,
-                    'FolioCupon' => null,
-                    'NumNomina' => $numNomina
-                ]);
-
-            $idDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
-                            ->max('IdDatEncabezado');
-
-            $idEncabezado = $idTienda . $caja->NumCaja . $idDatEncabezado;
-
-            DatEncabezado::where('IdTienda', $idTienda)
-                            ->where('IdDatEncabezado', $idDatEncabezado)
-                            ->update([
-                                'IdEncabezado' => $idEncabezado
+    
+            DatTipoPago::insert([
+                'IdEncabezado' => $idEncabezado,
+                'IdTipoPago' => $idTipoPago,
+                'Pago' => $pago,
+                'Restante' => $restante,
+                'IdBanco' => $idBanco,
+                'NumTarjeta' => $numTarjeta
             ]);
-
-            $preventa = PreventaTmp::where('IdTienda', $idTienda)
-                    ->get();
-        
-            foreach ($preventa as $index => $detalle) {
-                DatDetalle::insert([
-                    'IdEncabezado' => $idEncabezado,
-                    'IdArticulo' => $detalle->IdArticulo,
-                    'CantArticulo' => $detalle->CantArticulo,
-                    'PrecioArticulo' => $detalle->PrecioVenta,
-                    'IdListaPrecio' => $detalle->IdListaPrecio,
-                    'PrecioRecorte' => null,
-                    'CapturaManual' => null,
-                    'ImporteArticulo' => $detalle->ImporteArticulo,
-                    'IvaArticulo' => $detalle->IvaArticulo,
-                    'SubTotalArticulo' => $detalle->SubTotalArticulo,
-                    'IdPaquete' => $detalle->IdPaquete,
-                    'IdPedido' => $detalle->IdPedido,
-                    'IdDatPrecios' => $detalle->IdDatPrecios,
-                    'Linea' => $index+1
-                ]);
-            }
-
-            $importeVenta = PreventaTmp::where('IdTienda', $idTienda)
-                        ->select('ImporteArticulo')
-                        ->sum('ImporteArticulo');
-
-            //Si hay IdPedido en el detalle para marcarlo como vendido
-            if($idPedidoDist != null){
-                DatEncPedido::where('IdTienda', $idTienda)
-                        ->where('IdPedido', $idPedidoDist)
-                        ->update([
-                            'Status' => 2
-                        ]);
-            }   
-
-            if($pago > $importeVenta || $pago == $importeVenta){
-
-                $restanteSinFormat = $pago - $importeVenta;
-                $restante = number_format($restanteSinFormat, 2);
-            
-                DatTipoPago::insert([
-                    'IdEncabezado' => $idEncabezado,
-                    'IdTipoPago' => $idTipoPago,
-                    'Pago' => $pago,
-                    'Restante' => $restante,
-                    'IdBanco' => $request->idBanco,
-                    'numTarjeta' => $request->numTarjeta
-                ]);
-
+    
+            if($restante >= 0){
+                $idTienda = Auth::user()->usuarioTienda->IdTienda; 
+    
                 PreventaTmp::where('IdTienda', $idTienda)
-                    ->delete(); 
-
+                            ->delete();
+    
                 TemporalPos::where('TemporalPos', 1)
                     ->update([
                         'NumNomina' => null,
@@ -985,376 +1256,121 @@ class PoswebController extends Controller
                 //Descontar Inventario
                 $datDetalle = DatDetalle::where('IdEncabezado', $idEncabezado)
                     ->get();
-
+    
                 foreach ($datDetalle as $key => $detalle) {
                     $articulo = Articulo::where('IdArticulo', $detalle->IdArticulo)
                         ->first();
-
+    
                     $stockArticulo = InventarioTienda::where('IdTienda', $idTienda)
                         ->where('CodArticulo', $articulo->CodArticulo)
                         ->sum('StockArticulo');
-
+    
                     InventarioTienda::where('IdTienda', $idTienda)
                         ->where('CodArticulo', $articulo->CodArticulo)
                         ->update([
                             'StockArticulo' => $stockArticulo - $detalle->CantArticulo
                     ]);
                 }
-
+    
                 //Descontar Monedero Si Uso Para Pagar
-                if(!empty($numNomina) && !empty($temporalPos->MonederoDescuento)){
+                if(!empty($temporalPos->NumNomina) && !empty($temporalPos->MonederoDescuento)){
                     $pagoMonedero = $temporalPos->MonederoDescuento;
                     $pagoRestante = $pagoMonedero;
                     
-                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
                         ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
                         ->where('MonederoPorGastar', '<>', 0)
                         ->orderBy('FechaExpiracion')
                         ->get();
-
+    
                     foreach ($monederoEmpleado as $key => $mEmpleado) {
                         $pagoMonedero = $pagoRestante;
                         $pagoRestante = $mEmpleado->MonederoPorGastar - abs($pagoMonedero);
-
+    
                         $gastoMonedero = $pagoRestante <= 0 ? $mEmpleado->MonederoPorGastar : abs($pagoMonedero); 
                         $monederoxGastar = $mEmpleado->MonederoPorGastar - $gastoMonedero;
-
+    
                         DatMonederoAcumulado::where('IdEncabezado', $mEmpleado->IdEncabezado)
                             ->update([
                                 'MonederoGastado' => $gastoMonedero == $mEmpleado->MonederoPorGastar ? -$mEmpleado->MonederoGenerado : -$gastoMonedero,
                                 'MonederoPorGastar' => $monederoxGastar
                             ]);
-
+    
                         MovimientoMonederoElectronico::insert([
-                            'NumNomina' => $numNomina,
+                            'NumNomina' => $temporalPos->NumNomina,
                             'IdEncabezado' => $idEncabezado,
                             'FechaMovimiento' => date('d-m-Y H:i:s'),
                             'Monedero' => -$gastoMonedero
                         ]);
-
+    
                         if($pagoRestante >= 0){
                             break;
                         }
                     }
                 }
-
+    
                 //Consultar Catalogo de Monedero
                 $monederoE = MonederoElectronico::where('Status', 0)
-                        ->first();
-
+                            ->first();
+    
                 $importeProcesado = DB::table('DatDetalle as a')
                     ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
                     ->where('a.IdEncabezado', $idEncabezado)
                     ->where('b.IdGrupo', $monederoE->IdGrupo)
                     ->sum('a.ImporteArticulo');
-
-                //Si el empleado Generó Monedero, guardarlo
-                if(!empty($numNomina) && $importeProcesado >= $monederoE->MonederoMultiplo){
+    
+                if(!empty($temporalPos->NumNomina) && $importeProcesado >= $monederoE->MonederoMultiplo){
                     $puntosGenerados = $importeProcesado / $monederoE->MonederoMultiplo;
                     $puntosTotales = intval($puntosGenerados);
-
+    
                     $monederoGenerado = $puntosTotales * $monederoE->PesosPorMultiplo;
-
+    
                     $fecha = strtotime(date('Y-m-d')."+ ".$monederoE->VigenciaMonedero." days");
                     $fechaExpiracion = date('d-m-Y', $fecha);
-
-                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+    
+                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
                         ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
                         ->sum('MonederoPorGastar');
-
+    
                     MovimientoMonederoElectronico::insert([
-                        'NumNomina' => $numNomina,
+                        'NumNomina' => $temporalPos->NumNomina,
                         'IdEncabezado' => $idEncabezado,
                         'FechaMovimiento' => date('d-m-Y H:i:s'),
                         'Monedero' => $monederoGenerado
                     ]);
-
+    
                     $faltanteMaximo = $monederoE->MaximoAcumulado - $monederoEmpleado;
                     $monederoGenerado + $monederoEmpleado > $monederoE->MaximoAcumulado ? $monederoGenerado = $faltanteMaximo : $monederoGenerado = $monederoGenerado;
-
+    
                     DatMonederoAcumulado::insert([
                         'IdEncabezado' => $idEncabezado,
-                        'NumNomina' => $numNomina,
+                        'NumNomina' => $temporalPos->NumNomina,
                         'FechaExpiracion' => $fechaExpiracion,
                         'FechaGenerado' => date('d-m-Y H:i:s'),
                         'MonederoGenerado' => $monederoGenerado,
                         'MonederoGastado' => 0,
                         'MonederoPorGastar' => $monederoGenerado
                     ]);
-
+    
                 }
-
+    
                 DB::select("exec SP_GENERAR_TICKET_CORTE ".$idEncabezado.", ".$idTienda.", '".date('d-m-Y H:i:s')."'");
-            
+                DB::commit();
+    
                 return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
             }
             else{
-                $restanteSinFormat = $pago - $importeVenta;
-                $restante = number_format($restanteSinFormat, 2);
-
-                if($idTipoPago == 2){
-                    $cliente = Empleado::with('LimiteCredito')
-                            ->where('NumNomina', $numNomina)
-                            ->first();
-
-                    $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
-                            ->where('StatusCredito', 0)
-                            ->where('StatusVenta', 0)
-                            ->sum('ImporteArticulo');
-    
-                    $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
-
-                    $date1 = new DateTime($cliente->Fecha_Ingreso);
-                    $date2 = new DateTime(date('Y-m-d'));
-                    $diff = $date1->diff($date2);
-        
-                    $diasTrabajados = $diff->days;
-
-                    if($diasTrabajados <= 30){
-                        return redirect()->route('Pos')->with('Pos', 'El Empleado no puede llevar a Crédito, al no tener más de 30 dias trabajados. Dias Trabajados: '. $diasTrabajados);
-                    }
-
-                    if($pago > $creditoDisponible){
-                        return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
-                    }
-                }
-
-                DatTipoPago::insert([
-                    'IdEncabezado' => $idEncabezado,
-                    'IdTipoPago' => $idTipoPago,
-                    'Pago' => $pago,
-                    'Restante' => $restante,
-                    'IdBanco' => $request->idBanco,
-                    'numTarjeta' => $request->numTarjeta
-                ]);
-
-                PreventaTmp::where('IdTienda', $idTienda)
-                            ->update([
-                                'MulTiPago' => 1
-                            ]);
-
                 TemporalPos::where('TemporalPos', 1)
-                    ->update([
-                        'IdEncabezado' => $idEncabezado
-                ]);
-
-                return redirect()->route('Pos'); 
-            }
-        }
-        else{
-            $caja = DB::table('DatCajas as a')
-                    ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('a.Activa', 0)
-                    ->where('a.Status', 0)
-                    ->first();
-
-            if(empty($caja)){
-                return redirect('Pos')->with('Pos', 'La Tienda No Tiene Caja Activa, Comuniquese con Sistemas!');
-            }
-
-            $idDatEncabezado = DatEncabezado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                            ->max('IdDatEncabezado');
-
-            $idEncabezado = Auth::user()->usuarioTienda->IdTienda . $caja->NumCaja . $idDatEncabezado;
-
-            $datTipoPago = DatTipoPago::where('IdEncabezado', $idEncabezado)
-                        ->orderBy('IdDatTipoPago', 'desc')
-                        ->first();
-
-            $restante = $datTipoPago->Restante;
-            
-            $pago = $request->txtPago;
-
-            $idTipoPago = $request->tipoPago;
-
-            empty($request->idBanco) ? $idBanco = 0 : $idBanco = $request->idBanco;
-
-            empty($request->numTarjeta) ? $numTarjeta = 0 : $numTarjeta = $request->numTarjeta;
-            
-            return redirect()->route('CalculoMultiPago', compact('idEncabezado', 'restante', 'pago', 'idTipoPago', 'idBanco', 'numTarjeta'));
-        }
-    }
-
-    public function CalculoMultiPago(Request $request, $idEncabezado, $restante, $pago, $idTipoPago, $idBanco, $numTarjeta){
-
-        if($idTipoPago != 1){
-            if($pago > abs($restante)){
-                return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Restante! (2)');
-            }
-        }
-
-        $restanteSinFormato = $pago - abs($restante);
-        $restante = number_format($restanteSinFormato, 2);
-
-        $idBanco == 0 ? $idBanco = null : $idBanco = $idBanco;
-        $numTarjeta == 0 ? $numTarjeta = null :  $numTarjeta = $numTarjeta;
-        
-        $temporalPos = TemporalPos::where('TemporalPos', 1)
-            ->first(); 
-
-        if($idTipoPago == 2){
-
-            $cliente = Empleado::with('LimiteCredito')
-                    ->where('NumNomina', $temporalPos->NumNomina)
-                    ->first();
-
-            $gastoEmpleado = CorteTienda::where('NumNomina', $temporalPos->NumNomina)
-                    ->where('StatusCredito', 0)
-                    ->where('StatusVenta', 0)
-                    ->sum('ImporteArticulo');
-
-            $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
-
-            $date1 = new DateTime($cliente->Fecha_Ingreso);
-            $date2 = new DateTime(date('Y-m-d'));
-            $diff = $date1->diff($date2);
-        
-            $diasTrabajados = $diff->days;
-
-            if($diasTrabajados <= 30){
-                return redirect()->route('Pos')->with('Pos', 'El Empleado no puede llevar a Crédito, al no tener más de 30 dias trabajados. Dias Trabajados: '. $diasTrabajados);
-            }
-
-            if($pago > $creditoDisponible){
-                return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
-            }
-        }
-
-        DatTipoPago::insert([
-            'IdEncabezado' => $idEncabezado,
-            'IdTipoPago' => $idTipoPago,
-            'Pago' => $pago,
-            'Restante' => $restante,
-            'IdBanco' => $idBanco,
-            'NumTarjeta' => $numTarjeta
-        ]);
-
-        if($restante >= 0){
-            $idTienda = Auth::user()->usuarioTienda->IdTienda; 
-
-            PreventaTmp::where('IdTienda', $idTienda)
-                        ->delete();
-
-            TemporalPos::where('TemporalPos', 1)
-                ->update([
-                    'NumNomina' => null,
-                    'IdEncabezado' => null,
-                    'MonederoDescuento' => null
-            ]);
-            
-            //Descontar Inventario
-            $datDetalle = DatDetalle::where('IdEncabezado', $idEncabezado)
-            ->get();
-
-            foreach ($datDetalle as $key => $detalle) {
-                $articulo = Articulo::where('IdArticulo', $detalle->IdArticulo)
-                    ->first();
-
-                $stockArticulo = InventarioTienda::where('IdTienda', $idTienda)
-                    ->where('CodArticulo', $articulo->CodArticulo)
-                    ->sum('StockArticulo');
-
-                InventarioTienda::where('IdTienda', $idTienda)
-                    ->where('CodArticulo', $articulo->CodArticulo)
-                    ->update([
-                        'StockArticulo' => $stockArticulo - $detalle->CantArticulo
-                ]);
-            }
-
-            //Descontar Monedero Si Uso Para Pagar
-            if(!empty($temporalPos->NumNomina) && !empty($temporalPos->MonederoDescuento)){
-                $pagoMonedero = $temporalPos->MonederoDescuento;
-                $pagoRestante = $pagoMonedero;
-                
-                $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
-                    ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-                    ->where('MonederoPorGastar', '<>', 0)
-                    ->orderBy('FechaExpiracion')
-                    ->get();
-
-                foreach ($monederoEmpleado as $key => $mEmpleado) {
-                    $pagoMonedero = $pagoRestante;
-                    $pagoRestante = $mEmpleado->MonederoPorGastar - abs($pagoMonedero);
-
-                    $gastoMonedero = $pagoRestante <= 0 ? $mEmpleado->MonederoPorGastar : abs($pagoMonedero); 
-                    $monederoxGastar = $mEmpleado->MonederoPorGastar - $gastoMonedero;
-
-                    DatMonederoAcumulado::where('IdEncabezado', $mEmpleado->IdEncabezado)
                         ->update([
-                            'MonederoGastado' => $gastoMonedero == $mEmpleado->MonederoPorGastar ? -$mEmpleado->MonederoGenerado : -$gastoMonedero,
-                            'MonederoPorGastar' => $monederoxGastar
-                        ]);
-
-                    MovimientoMonederoElectronico::insert([
-                        'NumNomina' => $temporalPos->NumNomina,
-                        'IdEncabezado' => $idEncabezado,
-                        'FechaMovimiento' => date('d-m-Y H:i:s'),
-                        'Monedero' => -$gastoMonedero
+                            'IdEncabezado' => $idEncabezado
                     ]);
-
-                    if($pagoRestante >= 0){
-                        break;
-                    }
-                }
+                DB::commit();
+    
+                return redirect()->route('Pos');
             }
-
-            //Consultar Catalogo de Monedero
-            $monederoE = MonederoElectronico::where('Status', 0)
-                        ->first();
-
-            $importeProcesado = DB::table('DatDetalle as a')
-                ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
-                ->where('a.IdEncabezado', $idEncabezado)
-                ->where('b.IdGrupo', $monederoE->IdGrupo)
-                ->sum('a.ImporteArticulo');
-
-            if(!empty($temporalPos->NumNomina) && $importeProcesado >= $monederoE->MonederoMultiplo){
-                $puntosGenerados = $importeProcesado / $monederoE->MonederoMultiplo;
-                $puntosTotales = intval($puntosGenerados);
-
-                $monederoGenerado = $puntosTotales * $monederoE->PesosPorMultiplo;
-
-                $fecha = strtotime(date('Y-m-d')."+ ".$monederoE->VigenciaMonedero." days");
-                $fechaExpiracion = date('d-m-Y', $fecha);
-
-                $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
-                    ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-                    ->sum('MonederoPorGastar');
-
-                MovimientoMonederoElectronico::insert([
-                    'NumNomina' => $temporalPos->NumNomina,
-                    'IdEncabezado' => $idEncabezado,
-                    'FechaMovimiento' => date('d-m-Y H:i:s'),
-                    'Monedero' => $monederoGenerado
-                ]);
-
-                $faltanteMaximo = $monederoE->MaximoAcumulado - $monederoEmpleado;
-                $monederoGenerado + $monederoEmpleado > $monederoE->MaximoAcumulado ? $monederoGenerado = $faltanteMaximo : $monederoGenerado = $monederoGenerado;
-
-                DatMonederoAcumulado::insert([
-                    'IdEncabezado' => $idEncabezado,
-                    'NumNomina' => $temporalPos->NumNomina,
-                    'FechaExpiracion' => $fechaExpiracion,
-                    'FechaGenerado' => date('d-m-Y H:i:s'),
-                    'MonederoGenerado' => $monederoGenerado,
-                    'MonederoGastado' => 0,
-                    'MonederoPorGastar' => $monederoGenerado
-                ]);
-
-            }
-
-            DB::select("exec SP_GENERAR_TICKET_CORTE ".$idEncabezado.", ".$idTienda.", '".date('d-m-Y H:i:s')."'");
-
-            return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
-        }
-        else{
-            TemporalPos::where('TemporalPos', 1)
-                    ->update([
-                        'IdEncabezado' => $idEncabezado
-                ]);
-
-            return redirect()->route('Pos');
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return redirect()->route('Pos', 'Error: ' . $th->getMessage());
         }
     }
 
