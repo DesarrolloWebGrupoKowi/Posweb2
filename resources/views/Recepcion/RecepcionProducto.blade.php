@@ -13,7 +13,7 @@
         <table class="table table-sm table-responsive table-striped shadow">
             <thead class="table-dark">
                 <tr>
-                    <th>Recepción</th>
+                    <th>Origen</th>
                     <th>Llegada</th>
                     <th>Status</th>
                     <th>Acciones</th>

@@ -6,6 +6,9 @@
             <h2 class="card shadow p-1">Transacción de Producto</h2>
         </div>
     </div>
+    <div class="container mb-3">
+        @include('Alertas.Alertas')
+    </div>
     <div class="container">
         <div class="row d-flex justify-content-center">
             <div class="col-auto">
@@ -133,18 +136,16 @@
 
                 var cArticulo = document.getElementById('contenedorTransaccion').appendChild(document
                     .createElement('input'));
-                cArticulo.name = 'CodArticulo[]';
+                cArticulo.name = 'CodArticulo['+ $td.eq(0).text() +']';
                 cArticulo.setAttribute("hidden", "true");
-                cArticulo.value = $td.eq(0).text();
+                cArticulo.value = $td.eq(2).find('input[type="number"]').val();
 
-                var nArticulo = document.getElementById('contenedorTransaccion').appendChild(document
+                /*var nArticulo = document.getElementById('contenedorTransaccion').appendChild(document
                     .createElement('input'));
                 nArticulo.name = 'CantArticulo[]';
                 nArticulo.setAttribute("hidden", "true");
                 nArticulo.value = $td.eq(2).find('input[type="number"]').val();
-
-
-
+                */
                 $('#tblTransaccion tr:has(td)').map(function(i, v) {
                     var $fila = $('td', this);
                     $cantidad = $fila.eq(2).find('input[type="number"]').val();

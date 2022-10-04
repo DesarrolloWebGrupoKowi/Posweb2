@@ -55,32 +55,30 @@ class TransaccionProductoController extends Controller
     public function GuardarTransaccion(Request $request){
         $idTiendaDestino = $request->idTiendaDestino;
         $codsArticulo = $request->CodArticulo;
-        $cantsArticulo = $request->CantArticulo;
         
         try {
             DB::beginTransaction();
 
-            $almacen = Tienda::where('IdTienda', $idTiendaDestino)
-                ->value('Almacen');
+            $tienda = Tienda::where('IdTienda', $idTiendaDestino)
+                ->select('NomTienda', 'Almacen')
+                ->first();
 
             $capRecepcion = new CapRecepcion();
             $capRecepcion->FechaLlegada = date('d-m-y H:i:s');
-            $capRecepcion->PackingList = 'TRANSFERENCIA';
-            $capRecepcion->Almacen = $almacen;
+            $capRecepcion->PackingList = $tienda->NomTienda;
+            $capRecepcion->Almacen = $tienda->Almacen;
             $capRecepcion->IdStatusRecepcion = 1;
             $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
             $capRecepcion->save();
             
 
-            foreach ($codsArticulo as $keyCodArticulo => $codArticulo) {
-                foreach ($cantsArticulo as $keyCantArticulo => $cantArticulo) {
-                    DatRecepcion::insert([
-                        'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
-                        'CodArticulo' => $codArticulo,
-                        'CantEnviada' => $cantArticulo,
-                        'IdStatusRecepcion' => 1
-                    ]);
-                }
+            foreach ($codsArticulo as $keyCodArticulo => $cantArticulo) {
+                DatRecepcion::insert([
+                    'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
+                    'CodArticulo' => $keyCodArticulo,
+                    'CantEnviada' => $cantArticulo,
+                    'IdStatusRecepcion' => 1
+                ]);
             }
 
             DB::commit();
