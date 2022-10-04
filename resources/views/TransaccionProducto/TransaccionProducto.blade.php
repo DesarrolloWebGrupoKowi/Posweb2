@@ -69,6 +69,7 @@
                 <tbody></tbody>
             </table>
         </div>
+        <input type="hidden" id="tiendaSeleccionada" name="tiendaSeleccionada">
         <div class="container">
             <div class="d-flex justify-content-center">
                 <div class="col-auto">
@@ -90,7 +91,10 @@
                     if (respuesta == ' - ') {
                         document.querySelector('#nomArticulo').innerHTML = '<i class="fa fa-clock-o"></i>';
                         document.getElementById('btnAgregar').hidden = true;
-                    } else {
+                    }if(respuesta == 1){
+                        document.querySelector('#nomArticulo').innerHTML = 'Articulo Sin Inventario!';
+                        document.getElementById('btnAgregar').hidden = true;
+                    } if(respuesta != 1 && respuesta != ' - ') {
                         document.querySelector('#nomArticulo').innerHTML = respuesta;
                         document.getElementById('btnAgregar').hidden = false;
                     }
@@ -157,5 +161,14 @@
             aux == 0 ? $('#ModalConfirmarTransaccion').modal('show') : $('#ModalSinCantidadArticulos').modal(
                 'show');
         })
+
+        document.getElementById('tiendaSeleccionada').value = document.getElementById('idTiendaDestino').options[document.getElementById('idTiendaDestino').selectedIndex].text;
+        document.getElementById('destino').textContent = document.getElementById('tiendaSeleccionada').value;
+        document.getElementById('idTiendaDestino').addEventListener('change', (e) => {
+            document.getElementById('tiendaSeleccionada').value = document.getElementById('idTiendaDestino').options[document.getElementById('idTiendaDestino').selectedIndex].text;
+            document.getElementById('destino').textContent = document.getElementById('tiendaSeleccionada').value;
+        })
+
+        
     </script>
 @endsection

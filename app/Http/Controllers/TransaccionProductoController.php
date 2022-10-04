@@ -51,6 +51,13 @@ class TransaccionProductoController extends Controller
             ->where('a.Status', 0)
             ->value('b.StockArticulo');
 
+        if(empty($nomArticulo)){
+            return ' - ';
+        }
+        if($stockArticulo <= 0){
+            return 1;
+        }
+
         return $nomArticulo . ' - ' . $stockArticulo;
     }
 
@@ -58,17 +65,19 @@ class TransaccionProductoController extends Controller
         $idTiendaDestino = $request->idTiendaDestino;
         $codsArticulo = $request->CodArticulo;
         
-        $tienda = Tienda::where('IdTienda', $idTiendaDestino)
-        ->select('NomTienda', 'Almacen')
-        ->first();
+        $almacen = Tienda::where('IdTienda', $idTiendaDestino)
+            ->value('Almacen');
+
+        $nomOrigenTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            ->value('NomTienda');
         
         try {
             DB::beginTransaction();
 
             $capRecepcion = new CapRecepcion();
             $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
-            $capRecepcion->PackingList = $tienda->NomTienda;
-            $capRecepcion->Almacen = $tienda->Almacen;
+            $capRecepcion->PackingList = $nomOrigenTienda;
+            $capRecepcion->Almacen = $almacen;
             $capRecepcion->IdStatusRecepcion = 1;
             $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
             $capRecepcion->save();
@@ -86,7 +95,7 @@ class TransaccionProductoController extends Controller
                     'CodArticulo' => $keyCodArticulo,
                     'CantArticulo' => -$cantArticulo,
                     'FechaMovimiento' => date('d-m-Y H:i:s'),
-                    'Referencia' => $tienda->NomTienda,
+                    'Referencia' => $nomOrigenTienda,
                     'IdMovimiento' => 2,
                     'IdUsuario' => Auth::user()->IdUsuario
                 ]);
