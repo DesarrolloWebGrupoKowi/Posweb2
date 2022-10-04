@@ -125,12 +125,16 @@ class TransaccionProductoController extends Controller
                     ]);
             }
 
-            //Envio de Correo de Trasnferencia de Producto
-            $asunto = 'Se Ha Realizado Una Nueva Transferencia de Producto';
-            $mensaje = 'Envia: ' . $nomOrigenTienda . '. Recibe: ' . $nomDestinoTienda . '. Id de Recepción: ' . $capRecepcion->IdCapRecepcion;
+            try {
+                //Envio de Correo de Transferencia de Producto
+                $asunto = 'Se Ha Realizado Una Nueva Transferencia de Producto';
+                $mensaje = 'Envia: ' . $nomOrigenTienda . '. Recibe: ' . $nomDestinoTienda . '. Id de Recepción: ' . $capRecepcion->IdCapRecepcion;
 
-            $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; ". $correoDestinoTienda ."', '".$asunto."', '".$mensaje."'";
-            DB::statement($enviarCorreo);
+                $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; ". $correoDestinoTienda ."', '".$asunto."', '".$mensaje."'";
+                DB::statement($enviarCorreo);
+            } catch (\Throwable $th) {
+                
+            }
                 
             DB::commit();
             DB::connection('server')->commit();
