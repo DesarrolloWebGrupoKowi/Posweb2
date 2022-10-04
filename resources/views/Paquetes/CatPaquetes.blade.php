@@ -197,6 +197,7 @@
                         document.getElementById('formPaquete').submit();
                     }
                 });
+                
             } else {
                 document.getElementById('nomPaquete').focus();
             }
