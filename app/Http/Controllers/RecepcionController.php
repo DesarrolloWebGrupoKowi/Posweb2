@@ -27,14 +27,15 @@ class RecepcionController extends Controller
         $idRecepcion = $request->idRecepcion;
         empty($idRecepcion) ? $idRecepcion = 0 : $idRecepcion = $idRecepcion;
 
-        $detalleRecepcion = DB::connection('server')->select("select c.PackingList, c.Almacen, a.*, b.NomArticulo".
+        $detalleRecepcion = DB::connection('server')->select("select c.PackingList, d.NomTienda as TiendaOrigen, c.Almacen, a.*, b.NomArticulo".
                                         " from DatRecepcion as a".
                                         " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
                                         " left join CapRecepcion as c on c.IdCapRecepcion=a.IdCapRecepcion".
+                                        ' left join CatTiendas as d on d.IdTienda = c.IdTiendaOrigen'.
                                         " where a.IdCapRecepcion = ".$idRecepcion."".
                                         " and a.IdStatusRecepcion = 1".
                                         " union all".
-                                        " select Referencia, '".$tienda->Almacen."', 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, b.NomArticulo".
+                                        " select Referencia, '', '".$tienda->Almacen."', 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, b.NomArticulo".
                                         " from CapRecepcionManualTmp as a".
                                         " left join CatArticulos as b on b.CodArticulo=a.CodArticulo");
 

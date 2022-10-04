@@ -14,6 +14,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>Origen</th>
+                    <th>Tienda</th>
                     <th>Llegada</th>
                     <th>Status</th>
                     <th>Acciones</th>
@@ -22,12 +23,13 @@
             <tbody>
                 @if ($recepcion->count() == 0)
                     <tr>
-                        <td colspan="4">No Hay Recepciones Pendientes!</td>
+                        <td colspan="5">No Hay Recepciones Pendientes!</td>
                     </tr>
                 @else
                     @foreach ($recepcion as $rTienda)
                         <tr>
                             <td>{{ $rTienda->PackingList }}</td>
+                            <td>{{ $rTienda->IdTiendaOrigen }}</td>
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($rTienda->FechaLlegada)) }}</td>
                             <td>{{ $rTienda->StatusRecepcion->NomStatusRecepcion }}</td>
                             <td>

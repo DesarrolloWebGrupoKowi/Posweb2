@@ -37,6 +37,11 @@ class PruebasController extends Controller
 {
     public function pruebas(Request $request){
 
+
+        $referencia = 'KOWI EXPRESS SAN JOSE DEL CABO';
+
+        return $referencia == 'MANUAL' ? 3 : 1;
+
         $datTipoPago = DatTipoPago::where('IdEncabezado', 9110602)
                     ->get();
 

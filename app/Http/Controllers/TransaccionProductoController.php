@@ -65,18 +65,20 @@ class TransaccionProductoController extends Controller
         $idTiendaDestino = $request->idTiendaDestino;
         $codsArticulo = $request->CodArticulo;
         
-        $almacen = Tienda::where('IdTienda', $idTiendaDestino)
-            ->value('Almacen');
-
-        $nomOrigenTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-            ->value('NomTienda');
-        
         try {
+            $almacen = Tienda::where('IdTienda', $idTiendaDestino)
+                ->value('Almacen');
+
+            $nomOrigenTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->value('NomTienda');
+        
             DB::beginTransaction();
+            DB::connection('server')->beginTransaction();
 
             $capRecepcion = new CapRecepcion();
             $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
-            $capRecepcion->PackingList = $nomOrigenTienda;
+            $capRecepcion->PackingList = 'TRANSFERENCIA';
+            $capRecepcion->IdTiendaOrigen = Auth::user()->usuarioTienda->IdTienda;
             $capRecepcion->Almacen = $almacen;
             $capRecepcion->IdStatusRecepcion = 1;
             $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
@@ -104,6 +106,12 @@ class TransaccionProductoController extends Controller
                     ->where('CodArticulo', ''.$keyCodArticulo.'')
                     ->value('StockArticulo');
 
+                if($stockArticulo < $cantArticulo){
+                    DB::rollback();
+                    DB::connection('server')->rollback();
+                    return back()->with('msjdelete', 'No Puede Enviar Más Cantidad del Stock Disponible!');
+                }
+
                 InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('CodArticulo', ''.$keyCodArticulo.'')
                     ->update([
@@ -113,11 +121,12 @@ class TransaccionProductoController extends Controller
                 }
                 
                 DB::commit();
+                DB::connection('server')->commit();
                 return back()->with('msjAdd', 'Transferencia Exitosa!');
         } catch (\Throwable $th) {
             DB::rollback();
+            DB::connection('server')->rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
-
     }
 }
