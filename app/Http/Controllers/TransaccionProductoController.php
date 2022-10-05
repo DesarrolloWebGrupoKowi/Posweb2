@@ -17,18 +17,27 @@ use App\Models\HistorialMovimientoProducto;
 class TransaccionProductoController extends Controller
 {
     public function TransaccionProducto(Request $request){
-        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        try {
+            DB::beginTransaction();
 
-        $nomTienda = Tienda::where('IdTienda', $idTienda)
-            ->value('NomTienda');
+            $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
-        $destinosTienda = TransaccionTienda::where('IdTienda', $idTienda)
-            ->pluck('IdTiendaDestino');
+            $nomTienda = Tienda::where('IdTienda', $idTienda)
+                ->value('NomTienda');
 
-        $tiendas = Tienda::where('Status', 0)
-            ->whereIn('IdTienda', $destinosTienda)
-            ->get();
+            $destinosTienda = TransaccionTienda::where('IdTienda', $idTienda)
+                ->pluck('IdTiendaDestino');
 
+            $tiendas = Tienda::where('Status', 0)
+                ->whereIn('IdTienda', $destinosTienda)
+                ->get();
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return 'Error Controlado: ' . $th->getMessage();
+        }
+
+        DB::commit();
         return view('TransaccionProducto.TransaccionProducto', compact('nomTienda', 'tiendas'));
     }
 

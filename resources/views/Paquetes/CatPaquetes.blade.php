@@ -72,13 +72,16 @@
     <div class="container">
         <div class="d-flex justify-content-center">
             <div class="col-auto">
-                <button id="btnGenerarObject" class="btn btn-warning">
+                <button hidden id="btnGenerarObject" class="btn btn-warning">
                     <i class="fa fa-save"></i> Generar Paquete
                 </button>
             </div>
         </div>
     </div>
     @include('Paquetes.ModalArticuloRepetido')
+    @include('Paquetes.ModalConfirmarCreacionPaquete')
+    @include('Paquetes.ModalPaqueteSinNombre')
+    @include('Paquetes.ModalCantidadPrecioCero')
 
     <script>
         document.getElementById('codArticulo').addEventListener('input', function(e) {
@@ -116,22 +119,23 @@
                         contCodigosRepetidos + 1 : '';
                 });
 
-                if(contCodigosRepetidos > 0){
+                if (contCodigosRepetidos > 0) {
                     $('#ModalArticuloRpetido').modal('show');
-                }else{
+                } else {
                     if (codArticulo.value != '' && nomArticulo.textContent != '' && nomArticuloValid.textContent !=
-                    '') {
-                    document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
-                        '<td>' + codArticulo.value + '</td>' +
-                        '<td>' + nomArticulo.textContent + '</td>' +
-                        '<td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>' +
-                        '<td><input class="form-control form-control-sm" type="number" name="precioArticulo[]" id="precioArticulo" placeholder="Precio" required></td>' +
-                        '<td></td>' +
-                        '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
-                        '</tr>';
-                    codArticulo.value = '';
-                    nomArticulo.textContent = '';
-                }
+                        '') {
+                        document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
+                            '<td>' + codArticulo.value + '</td>' +
+                            '<td>' + nomArticulo.textContent + '</td>' +
+                            '<td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>' +
+                            '<td><input class="form-control form-control-sm" type="number" name="precioArticulo[]" id="precioArticulo" placeholder="Precio" required></td>' +
+                            '<td></td>' +
+                            '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
+                            '</tr>';
+                        codArticulo.value = '';
+                        nomArticulo.textContent = '';
+                        document.getElementById('btnGenerarObject').hidden = false;
+                    }
                 }
             }
         })
@@ -141,6 +145,7 @@
 
             if (document.getElementById('tblArticulos').rows.length == 2) {
                 document.querySelector('.totalPaquete').textContent = '';
+                document.getElementById('btnGenerarObject').hidden = true;
             }
             $importe = 0;
             $('#tblArticulos tr:has(td)').map(function(i, v) {
@@ -160,46 +165,53 @@
 
         $(document).on('click', '#btnGenerarObject', function() {
             if (document.getElementById('nomPaquete').value != '') {
-
-                var hijos = $(document.getElementById('contenedorPaquete')).find('input').length;
-                if (hijos > 0) {
-                    $(document.getElementById('contenedorPaquete')).find('input').remove();
-                }
-
-                var tbl = $('#tblArticulos tr:has(td)').map(function(i, v) {
-                    var $td = $('td', this);
-
-                    var cArticulo = document.getElementById('contenedorPaquete').appendChild(document
-                        .createElement('input'));
-                    cArticulo.name = 'CodArticulo[]';
-                    cArticulo.setAttribute("hidden", "true");
-                    cArticulo.value = $td.eq(0).text();
-
-                    var nArticulo = document.getElementById('contenedorPaquete').appendChild(document
-                        .createElement('input'));
-                    nArticulo.name = 'CantArticulo[]';
-                    nArticulo.setAttribute("hidden", "true");
-                    nArticulo.value = $td.eq(2).find('input[type="number"]').val();
-
-                    var pArticulo = document.getElementById('contenedorPaquete').appendChild(document
-                        .createElement('input'));
-                    pArticulo.name = 'PrecioArticulo[]';
-                    pArticulo.setAttribute("hidden", "true");
-                    pArticulo.value = $td.eq(3).find('input[type="number"]').val();
-                });
-
-                $('#tblArticulos tr:has(td)').map(function(i, v) {
-                    var $fila = $('td', this);
-                    $cantidad = $fila.eq(2).find('input[type="number"]').val();
-                    $precio = $fila.eq(3).find('input[type="number"]').val();
-
-                    if ($cantidad != '' && $precio != '') {
-                        document.getElementById('formPaquete').submit();
+                $('#ModalConfirmarCreacionPaquete').modal('show');
+                document.getElementById('btnCrearPaquete').addEventListener('click', (e) => {
+                    var hijos = $(document.getElementById('contenedorPaquete')).find('input').length;
+                    if (hijos > 0) {
+                        $(document.getElementById('contenedorPaquete')).find('input').remove();
                     }
-                });
-                
+
+                    var tbl = $('#tblArticulos tr:has(td)').map(function(i, v) {
+                        var $td = $('td', this);
+
+                        var cArticulo = document.getElementById('contenedorPaquete').appendChild(
+                            document
+                            .createElement('input'));
+                        cArticulo.name = 'CodArticulo[]';
+                        cArticulo.setAttribute("hidden", "true");
+                        cArticulo.value = $td.eq(0).text();
+
+                        var nArticulo = document.getElementById('contenedorPaquete').appendChild(
+                            document
+                            .createElement('input'));
+                        nArticulo.name = 'CantArticulo[]';
+                        nArticulo.setAttribute("hidden", "true");
+                        nArticulo.value = $td.eq(2).find('input[type="number"]').val();
+
+                        var pArticulo = document.getElementById('contenedorPaquete').appendChild(
+                            document
+                            .createElement('input'));
+                        pArticulo.name = 'PrecioArticulo[]';
+                        pArticulo.setAttribute("hidden", "true");
+                        pArticulo.value = $td.eq(3).find('input[type="number"]').val();
+                    });
+
+                    $('#tblArticulos tr:has(td)').map(function(i, v) {
+                        var $fila = $('td', this);
+                        $cantidad = $fila.eq(2).find('input[type="number"]').val();
+                        $precio = $fila.eq(3).find('input[type="number"]').val();
+
+                        if ($cantidad != '' && $precio != '') {
+                            document.getElementById('formPaquete').submit();
+                        }
+                        else{
+                            $('#ModalCantidadPrecioCero').modal('show');
+                        }
+                    });
+                })
             } else {
-                document.getElementById('nomPaquete').focus();
+                $('#ModalPaqueteSinNombre').modal('show');
             }
         })
 
