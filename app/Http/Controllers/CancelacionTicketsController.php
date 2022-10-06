@@ -10,6 +10,7 @@ use App\Models\DatEncabezado;
 use App\Models\DatDetalle;
 use App\Models\CorteTienda;
 use App\Models\CreditoEmpleado;
+use App\Models\CorreoTienda;
 
 class CancelacionTicketsController extends Controller
 {
@@ -81,12 +82,17 @@ class CancelacionTicketsController extends Controller
             $correoTienda = Tienda::where('IdTienda', $idTienda)
                 ->value('Correo');
 
+            $correosTienda = CorreoTienda::where('IdTienda', $idTienda)
+                ->first();
+
             //Enviar Correo de Cancelacion de Ticket
             $asunto = ':: POSWEB2 PRUEBA :: NUEVA CANCELACIÓN DE TICKET EN ' . $nomTienda;
             $mensaje = 'Ticket #' . $numTicket . ' del dia: ' . strftime('%d %B %Y', strtotime($fechaVenta)) . '. Motivo: ' . $motivoCancelacion . '. Cancelado Por: ' . strtoupper(Auth::user()->NomUsuario);
             //Falta el correo del Gerente
 
-            $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; cponce@kowi.com.mx; ". $correoTienda .';' . Auth::user()->Correo ."', '".$asunto."', '".$mensaje."'";
+            $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; cponce@kowi.com.mx; ". $correoTienda .'; ' . $correosTienda->EncargadoCorreo . '; ' . 
+            $correosTienda->GerenteCorreo . '; ' . $correosTienda->SupervisorCorreo . '; ' . $correosTienda->AdministrativaCorreo . '; ' . $correosTienda->FacturistaCorreo
+            . '; ' . Auth::user()->Correo .";', '".$asunto."', '".$mensaje."'";
             DB::statement($enviarCorreo);
 
         } catch (\Throwable $th) {

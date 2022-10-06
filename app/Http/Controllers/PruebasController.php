@@ -32,10 +32,25 @@ use App\Models\MonederoElectronico;
 use App\Models\DatMonederoAcumulado;
 use App\Models\DatTipoPago;
 use App\Models\DatEncabezado;
+use App\Models\CorreoTienda;
 
 class PruebasController extends Controller
 {
     public function pruebas(Request $request){
+
+        $correosTienda = DB::table('DatCorreosTienda')
+                ->where('IdTienda', 6)
+                ->first();
+                //->pluck('EncargadoCorreo', 'SupervisorCorreo', 'GerenteCorreo');
+
+                $asunto = 'asunto';
+                $mensaje = 'mensaje';
+
+                $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; cponce@kowi.com.mx; kwi@jd-.com;" . $correosTienda->EncargadoCorreo . 
+                $correosTienda->GerenteCorreo . $correosTienda->SupervisorCorreo . $correosTienda->AdministrativaCorreo . $correosTienda->FacturistaCorreo
+                . Auth::user()->Correo ."', '".$asunto."', '".$mensaje."'";
+            
+        return $enviarCorreo;
         
         return strftime('%d %B %Y', strtotime('2022-10-04'));
 

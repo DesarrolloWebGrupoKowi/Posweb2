@@ -65,7 +65,7 @@
                                 <i class="fa fa-ban"></i> Cancelar ticket
                             </button>
                         @else
-                            <strong style="color: red">Ticket Cancelado</strong>
+                            <h5 style="color: red"><i class="fa fa-exclamation-circle"></i> Ticket Cancelado <i class="fa fa-exclamation-circle"></i></h5>
                         @endif
                         @include('CancelacionTickets.ModalConfirmarCancelacion')
                         @include('CancelacionTickets.ModalConfirmarCancelacionSolicitudFE')
