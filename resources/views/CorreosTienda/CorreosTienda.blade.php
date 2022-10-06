@@ -24,7 +24,13 @@
             </div>
         </form>
     </div>
+    @if (!empty($idTienda))
     <div class="container">
+        <div class="d-flex justify-content-center">
+            <div class="col-auto card-tittle">
+                <h3>Correos de la Tienda</h3>
+            </div>
+        </div>
         @if ($correos->count() == 0)
             <form class="card shadow p-3 rounded-3" action="/GuardarCorreosTienda/{{ $idTienda }}" method="POST">
                 @csrf
@@ -72,17 +78,54 @@
             </form>
         @else
             @foreach ($correos as $correo)
-                <tr>
-                    <td>
-                        <input type="text" class="form-control" name="gerenteCorreo" id="gerenteCorreo"
-                            value="{{ $correo->GerenteCorreo }}" required>
-                    </td>
-                    <td>{{ $correo->EncargadoCorreo }}</td>
-                    <td>{{ $correo->FacturistaCorreo }}</td>
-                </tr>
+                <form class="card shadow p-3 rounded-3" action="/EditarCorreosTienda/{{ $idTienda }}" method="POST">
+                    @csrf
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <input type="text" class="form-control" name="gerenteCorreo" id="gerenteCorreo"
+                                placeholder="Correo del Gerente" value="{{ $correo->GerenteCorreo }}">
+                        </div>
+                        <div class="col-6">
+                            <input type="text" class="form-control" name="encargadoCorreo" id="encargadoCorreo"
+                                placeholder="Correo del Encargado" value="{{ $correo->EncargadoCorreo }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <input type="text" class="form-control" name="supervisorCorreo" id="supervisorCorreo"
+                                placeholder="Correo del Supervisor" value="{{ $correo->SupervisorCorreo }}">
+                        </div>
+                        <div class="col-6">
+                            <input type="text" class="form-control" name="administrativaCorreo" id="administrativaCorreo"
+                                placeholder="Correo Administrativa" value="{{ $correo->AdministrativaCorreo }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <input type="text" class="form-control" name="almacenistaCorreo" id="almacenistaCorreo"
+                                placeholder="Correo del Almacenista" value="{{ $correo->AlmacenistaCorreo }}">
+                        </div>
+                        <div class="col-4">
+                            <input type="text" class="form-control" name="facturistaCorreo" id="facturistaCorreo"
+                                placeholder="Correo de Facturista" value="{{ $correo->FacturistaCorreo }}">
+                        </div>
+                        <div class="col-4">
+                            <input type="text" class="form-control" name="recepcionCorreo" id="recepcionCorreo"
+                                placeholder="Correo Recepcion" value="{{ $correo->RecepcionCorreo }}">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <div class="col-auto">
+                            <button class="btn btn-warning">
+                                <i class="fa fa-edit"></i> Editar Correos
+                            </button>
+                        </div>
+                    </div>
+                </form>
             @endforeach
         @endif
     </div>
+    @endif
 
     <script>
         document.getElementById('idTienda').addEventListener('change', (e) => {

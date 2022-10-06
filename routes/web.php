@@ -579,6 +579,9 @@ Route::get('/CorreosTienda', 'App\Http\Controllers\CorreosTiendaController@Corre
 //GuardarCorreosTienda
 Route::post('/GuardarCorreosTienda/{idTienda}', 'App\Http\Controllers\CorreosTiendaController@GuardarCorreosTienda');
 
+//EditarCorreosTienda
+Route::post('/EditarCorreosTienda/{idTienda}', 'App\Http\Controllers\CorreosTiendaController@EditarCorreosTienda');
+
 //+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
