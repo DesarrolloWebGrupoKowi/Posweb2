@@ -48,6 +48,7 @@ class StockTiendaController extends Controller
 
             DB::commit();
         } catch (\Throwable $th) {
+            return $th;
             DB::rollback();
             return view('Stock.ReporteStock', compact('tienda', 'stocks', 'codArticulo', 'totalStock'));
         }

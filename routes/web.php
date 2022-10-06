@@ -573,6 +573,13 @@ Route::get('/CancelacionTickets', 'App\Http\Controllers\CancelacionTicketsContro
 Route::post('/CancelarTicket/{idTienda}/{fechaVenta}/{numTicket}', 'App\Http\Controllers\CancelacionTicketsController@CancelarTicket');
 
 //+============================================================================================================================================+//
+//CorreosTienda
+Route::get('/CorreosTienda', 'App\Http\Controllers\CorreosTiendaController@CorreosTienda');
+
+//GuardarCorreosTienda
+Route::post('/GuardarCorreosTienda/{idTienda}', 'App\Http\Controllers\CorreosTiendaController@GuardarCorreosTienda');
+
+//+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
 

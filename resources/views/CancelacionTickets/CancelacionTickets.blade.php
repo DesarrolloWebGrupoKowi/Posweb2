@@ -28,7 +28,7 @@
                         value="{{ empty($fechaVenta) ? date('Y-m-d') : $fechaVenta }}" required>
                 </div>
                 <div class="col-auto">
-                    <input class="form-control" type="number" name="numTicket" id="numTicket" placeholder="# Ticket"
+                    <input class="form-control shadow" type="number" name="numTicket" id="numTicket" placeholder="# Ticket"
                         value="{{ $numTicket }}" required>
                 </div>
                 <div class="col-auto">
@@ -41,56 +41,53 @@
     </div>
     @if ($tickets->count() > 0)
         <div class="container">
-            <table class="table table-responsive table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Tienda</th>
-                        <th>Fecha Venta</th>
-                        <th>Ticket</th>
-                        <th>Detalle</th>
-                        <th>Importe</th>
-                        <th>Cancelar Ticket</th>
-                    </tr>
-                </thead>
-                <tbody style="vertical-align: middle; font-size:16px">
-                    @foreach ($tickets as $ticket)
-                        <tr>
-                            <td>{{ $ticket->Tienda->NomTienda }}</td>
-                            <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}</td>
-                            </td>
-                            <td>{{ $ticket->IdTicket }}</td>
-                            <td>
-                                <button class="btn" data-bs-toggle="modal"
-                                    data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}">
-                                    <span class="material-icons">list</span>
-                                </button>
-                                @include('CancelacionTickets.ModalDetalleTicket')
-                            </td>
-                            <td>${{ number_format($ticket->ImporteVenta, 2) }}</td>
-                            <td>
-                                @if ($ticket->StatusVenta == 0)
-                                    <button class="btn btn-danger" data-bs-toggle="modal"
-                                        data-bs-target="{{ $ticket->StatusVenta == 0 ? '#ModalConfirmarCancelacion' . $ticket->IdTicket : '' }}">
-                                        <i class="fa fa-ban"></i> Cancelar
-                                    </button>
-                                @else
-                                    <strong style="color: red">Ticket Cancelado</strong>
-                                @endif
-                                @if ($ticket->StatusVenta == 0)
-                                    @include('CancelacionTickets.ModalConfirmarCancelacion')
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="card text-center shadow-lg">
+                @foreach ($tickets as $ticket)
+                    <div class="card-header">
+                        <h5 class="card-tittle">{{ $ticket->Tienda->NomTienda }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Ticket #{{ $ticket->IdTicket }}
+                        </h5>
+                        <button class="btn" data-bs-toggle="modal"
+                            data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}">
+                            <span style="font-size:30px" class="material-icons">list</span>
+                        </button>
+                        @include('CancelacionTickets.ModalDetalleTicket')
+                        <h5 class="card-title"></h5>
+                        <h5 class="card-tittle">${{ number_format($ticket->ImporteVenta, 2) }}</h5>
+                        @if ($ticket->StatusVenta == 0)
+                            <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                data-bs-target="{!! $ticket->SolicitudFE == '0'
+                                    ? '#ModalConfirmarCancelacionSolicitudFE' . $ticket->IdTicket
+                                    : '#ModalConfirmarCancelacion' . $ticket->IdTicket !!}">
+                                <i class="fa fa-ban"></i> Cancelar ticket
+                            </button>
+                        @else
+                            <strong style="color: red">Ticket Cancelado</strong>
+                        @endif
+                        @include('CancelacionTickets.ModalConfirmarCancelacion')
+                        @include('CancelacionTickets.ModalConfirmarCancelacionSolicitudFE')
+                    </div>
+                    <div class="card-footer">
+                        {{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}
+                    </div>
+                @endforeach
+            </div>
         </div>
     @elseif($tickets->count() == 0 && !empty($numTicket))
         <div class="container">
-            <div class="row d-flex justify-content-center">
-                <div class="col-auto">
-                    <h4 class="bg-danger text-white p-1 rounded-3"><i class="fa fa-exclamation-circle"></i> No se encontro
-                        el ticket <i class="fa fa-exclamation-circle"></i></h4>
+            <div class="card text-center">
+                <div class="card-header">
+
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-exclamation-circle"></i> No se encontró el ticket <i
+                            class="fa fa-exclamation-circle"></i></h5>
+                </div>
+                <div class="card-footer text-muted">
+
                 </div>
             </div>
         </div>

@@ -21,7 +21,7 @@
                     </button>
                     @csrf
                     <button type="submit" class="btn btn-sm btn-danger">
-                        <i class="fa fa-trash-o"></i> Eliminar
+                        <i class="fa fa-ban"></i> Cancelar Ticket
                     </button>
                 </div>
             </form>
