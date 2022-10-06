@@ -16,7 +16,8 @@ class CreditoEmpleado extends Model
                             'FechaVenta',
                             'NumNomina',
                             'ImporteCredito',
-                            'StatusCredito'
+                            'StatusCredito',
+                            'StatusVenta'
                         ];
     public $timestamps = false;
     protected $primaryKey = 'IdDatCreditos';

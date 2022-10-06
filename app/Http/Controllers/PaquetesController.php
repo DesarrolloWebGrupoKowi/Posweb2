@@ -178,10 +178,6 @@ class PaquetesController extends Controller
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' .$th->getMessage());
         }
-
-        
-
-
     }
 
     public function EliminarPaquete($idPaquete){

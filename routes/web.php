@@ -566,6 +566,13 @@ Route::post('/AgregarTransaccionTienda/{idTienda}', 'App\Http\Controllers\Transa
 Route::post('/EliminarTransaccionTienda/{idTienda}', 'App\Http\Controllers\TransaccionesTiendaController@EliminarTransaccionTienda');
 
 //+============================================================================================================================================+//
+//CancelacionTickets
+Route::get('/CancelacionTickets', 'App\Http\Controllers\CancelacionTicketsController@CancelacionTickets');
+
+//CancelarTicket
+Route::post('/CancelarTicket/{idTienda}/{fechaVenta}/{numTicket}', 'App\Http\Controllers\CancelacionTicketsController@CancelarTicket');
+
+//+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
 

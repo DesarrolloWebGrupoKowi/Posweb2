@@ -8,6 +8,7 @@ use App\Models\DatDetalle;
 use App\Models\Articulo;
 use App\Models\DatTipoPago;
 use App\Models\SolicitudFactura;
+use App\Models\Tienda;
 
 class DatEncabezado extends Model
 {
@@ -56,5 +57,9 @@ class DatEncabezado extends Model
 
     public function SolicitudFactura(){
         return $this->hasMany(SolicitudFactura::class, 'IdEncabezado', 'IdEncabezado');
+    }
+
+    public function Tienda(){
+        return $this->hasOne(Tienda::class, 'IdTienda', 'IdTienda');
     }
 }

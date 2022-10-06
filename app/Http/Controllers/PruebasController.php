@@ -36,6 +36,8 @@ use App\Models\DatEncabezado;
 class PruebasController extends Controller
 {
     public function pruebas(Request $request){
+        
+        return strftime('%d %B %Y', strtotime('2022-10-04'));
 
         $nomOrigenTienda = 'KOWI EXPRESS SAN JOSE DEL CABO';
         $nomDestinoTienda = 'KOWI EXPRESS TALAMANTE';

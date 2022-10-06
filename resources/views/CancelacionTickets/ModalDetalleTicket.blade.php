@@ -17,7 +17,7 @@
                                 <th>Iva</th>
                                 <th>Importe</th>
                                 <th>Paquete</th>
-                                <th>Cliente Pedido</th>
+                                <th>Pedido</th>
                             </tr>
                         </thead>
                         <tbody>
