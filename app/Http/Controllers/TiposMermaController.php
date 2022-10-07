@@ -92,6 +92,7 @@ class TiposMermaController extends Controller
             $idTipoMerma = $request->idTipoMerma;
 
             $articulos = Articulo::where('Status', 0)
+                ->orderBy('CodArticulo')
                 ->get();
 
             $tiposMermaArticulo = DB::table('DatArticulosTipoMerma as a')

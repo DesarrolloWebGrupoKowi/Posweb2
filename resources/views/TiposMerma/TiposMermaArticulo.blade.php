@@ -16,7 +16,7 @@
     </div>
     <div class="container mb-3">
         <form id="formTipoMermaArticulo" action="/TiposMermaArticulo" method="GET">
-            <div class="row">
+            <div class="row d-flex justify-content-center">
                 <div class="col-auto">
                     <select class="form-select shadow" name="idTipoMerma" id="idTipoMerma">
                         <option value="">Seleccione Tipo de Merma</option>
@@ -33,10 +33,10 @@
         <div class="container mb-3">
             <form action="/AgregarArticuloMerma/{{ $idTipoMerma }}" method="POST">
                 @csrf
-                <div class="row d-flex justify-content-end">
+                <div class="row">
                     <div class="col-auto">
                         <input class="form-control" list="articulos" name="codArticulo" id="codArticulo"
-                            placeholder="Código ó Articulo" required>
+                            placeholder="Código ó Articulo" autocomplete="off" required>
                         <datalist id="articulos">
                             @foreach ($articulos as $articulo)
                                 <option value="{{ $articulo->CodArticulo }}">{{ $articulo->NomArticulo }}</option>
@@ -47,6 +47,9 @@
                         <button class="btn card shadow">
                             <span class="material-icons">add_circle</span>
                         </button>
+                    </div>
+                    <div class="col d-flex justify-content-end me-4">
+                        <h4>Articulos disponibles: ({{ $tiposMermaArticulo->count() }})</h4>
                     </div>
                 </div>
             </form>
