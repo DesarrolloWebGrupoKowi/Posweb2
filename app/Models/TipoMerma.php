@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class TipoMerma extends Model
 {
     use HasFactory;
-    protected $connection = 'server';
     protected $table = 'CatTiposMerma';
     protected $fillable = ['NomTipoMerma', 'Status'];
     public $timestamps = false;

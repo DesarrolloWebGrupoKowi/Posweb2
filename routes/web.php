@@ -601,6 +601,12 @@ Route::get('/TiposMermaArticulo', 'App\Http\Controllers\TiposMermaController@Tip
 //AgregarArticuloMerma
 Route::post('/AgregarArticuloMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@AgregarArticuloMerma')->name('AgregarArticuloMerma');
 
+//EliminarArticuloTipoMerma
+Route::post('/EliminarArticuloTipoMerma/{idTipoMerma}/{codArticulo}', 'App\Http\Controllers\TiposMermaController@EliminarArticuloTipoMerma')->name('EliminarArticuloTipoMerma');
+
+//EliminarTipoMerma
+Route::post('/EliminarTipoMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@EliminarTipoMerma')->name('EliminarTipoMerma');
+
 //+============================================================================================================================================+//
   });//->Termina Middleware Auth
 

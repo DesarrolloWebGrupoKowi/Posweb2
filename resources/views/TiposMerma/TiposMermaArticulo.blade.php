@@ -1,7 +1,7 @@
 @extends('plantillaBase.masterblade')
 @section('title', 'Articulos Por Tipo de Merma')
 <style>
-    i{
+    i {
         cursor: pointer;
     }
 </style>
@@ -30,56 +30,59 @@
         </form>
     </div>
     @if (!empty($idTipoMerma))
-    <div class="container mb-3">
-        <form action="/AgregarArticuloMerma/{{ $idTipoMerma }}" method="POST">
-            @csrf
-            <div class="row d-flex justify-content-end">
-                <div class="col-auto">
-                    <input class="form-control" list="articulos" name="codArticulo" id="codArticulo" placeholder="Articulo">
-                    <datalist id="articulos">
-                        @foreach ($articulos as $articulo)
-                            <option value="{{ $articulo->CodArticulo }}">{{ $articulo->NomArticulo }}</option>
-                        @endforeach
-                    </datalist>
+        <div class="container mb-3">
+            <form action="/AgregarArticuloMerma/{{ $idTipoMerma }}" method="POST">
+                @csrf
+                <div class="row d-flex justify-content-end">
+                    <div class="col-auto">
+                        <input class="form-control" list="articulos" name="codArticulo" id="codArticulo"
+                            placeholder="Código ó Articulo" required>
+                        <datalist id="articulos">
+                            @foreach ($articulos as $articulo)
+                                <option value="{{ $articulo->CodArticulo }}">{{ $articulo->NomArticulo }}</option>
+                            @endforeach
+                        </datalist>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn card shadow">
+                            <span class="material-icons">add_circle</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="col-auto">
-                    <button class="btn card shadow">
-                        <span class="material-icons">add_circle</span>
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div style="height: 70vh;" class="container table-responsive">
-        <table class="table table-striped table-responsive shadow">
-            <thead class="table-dark">
-                <tr>
-                    <th>Tipo Merma</th>
-                    <th>Código</th>
-                    <th>Articulo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody style="vertical-align: middle">
-                @if ($tiposMermaArticulo->count() == 0)
+            </form>
+        </div>
+        <div style="height: 70vh;" class="container table-responsive">
+            <table class="table table-striped table-responsive shadow">
+                <thead class="table-dark">
                     <tr>
-                        <td colspan="4">No hay articulos para este tipo de merma!</td>
+                        <th>Tipo Merma</th>
+                        <th>Código</th>
+                        <th>Articulo</th>
+                        <th>Acciones</th>
                     </tr>
-                @else
-                    @foreach ($tiposMermaArticulo as $tipoMermaArticulo)
+                </thead>
+                <tbody style="vertical-align: middle">
+                    @if ($tiposMermaArticulo->count() == 0)
                         <tr>
-                            <td>{{ $tipoMermaArticulo->NomTipoMerma }}</td>
-                            <td>{{ $tipoMermaArticulo->CodArticulo }}</td>
-                            <td>{{ $tipoMermaArticulo->NomArticulo }}</td>
-                            <td>
-                                <i style="color: red; font-size: 22px" class="fa fa-trash-o"></i>
-                            </td>
+                            <td colspan="4">No hay articulos para este tipo de merma!</td>
                         </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
-    </div>
+                    @else
+                        @foreach ($tiposMermaArticulo as $tipoMermaArticulo)
+                            <tr>
+                                <td>{{ $tipoMermaArticulo->NomTipoMerma }}</td>
+                                <td>{{ $tipoMermaArticulo->CodArticulo }}</td>
+                                <td>{{ $tipoMermaArticulo->NomArticulo }}</td>
+                                <td>
+                                    <i style="color: red; font-size: 22px" class="fa fa-trash-o" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEliminarArticuloTipoMerma{{ $tipoMermaArticulo->CodArticulo }}"></i>
+                                </td>
+                                @include('TiposMerma.ModalEliminarArticuloTipoMerma')
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
     @endif
 
     <script>

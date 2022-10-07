@@ -36,10 +36,11 @@
                             <td>{{ $tipoMerma->IdTipoMerma }}</td>
                             <td>{{ $tipoMerma->NomTipoMerma }}</td>
                             <td>
-                                <button class="btn">
+                                <button class="btn" data-bs-toggle="modal" data-bs-target="#ModalEliminarArticuloTipoMerma{{ $tipoMerma->IdTipoMerma }}">
                                     <span style="color: red" class="material-icons">delete_forever</span>
                                 </button>
                             </td>
+                            @include('TiposMerma.ModalEliminarTipoMerma')
                         </tr>
                     @endforeach
                 @endif
