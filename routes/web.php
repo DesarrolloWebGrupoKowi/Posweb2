@@ -583,6 +583,25 @@ Route::post('/GuardarCorreosTienda/{idTienda}', 'App\Http\Controllers\CorreosTie
 Route::post('/EditarCorreosTienda/{idTienda}', 'App\Http\Controllers\CorreosTiendaController@EditarCorreosTienda');
 
 //+============================================================================================================================================+//
+//TiposMerma
+Route::get('/TiposMerma', 'App\Http\Controllers\TiposMermaController@TiposMerma')->name('TiposMerma');
+
+//CrearTipoMerma
+Route::post('/CrearTipoMerma', 'App\Http\Controllers\TiposMermaController@CrearTipoMerma')->name('CrearTipoMerma');
+
+//SubTiposMerma
+Route::get('/SubTiposMerma', 'App\Http\Controllers\TiposMermaController@SubTiposMerma')->name('SubTiposMerma');
+
+//CrearSubTipoMerma
+Route::post('/CrearSubTipoMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@CrearSubTipoMerma')->name('CrearSubTipoMerma');
+
+//TiposMermaArticulo
+Route::get('/TiposMermaArticulo', 'App\Http\Controllers\TiposMermaController@TiposMermaArticulo')->name('TiposMermaArticulo');
+
+//AgregarArticuloMerma
+Route::post('/AgregarArticuloMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@AgregarArticuloMerma')->name('AgregarArticuloMerma');
+
+//+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
 
