@@ -65,6 +65,7 @@
     <input type="hidden" name="banIdFamilia" id="banIdFamilia">
     <input type="hidden" name="banIdGrupo" id="banIdGrupo">
     <input type="hidden" name="banIva" id="banIva">
+    <input type="hidden" name="banIdTipoArticulo" id="banIdTipoArticulo">
 
     </form>
     </div>
@@ -83,6 +84,7 @@
             var txtIdFamilia = frame.contentWindow.document.getElementById('txtIdFamilia').value;
             var txtIdGrupo = frame.contentWindow.document.getElementById('txtIdGrupo').value;
             var txtIva = frame.contentWindow.document.getElementById('txtIva').value;
+            var idTipoArticulo = frame.contentWindow.document.getElementById('idTipoArticulo').value;
             
             var banNomArticulo = document.getElementById('banNomArticulo').value = txtNomArticulo;
             var banCodArticulo = document.getElementById('banCodArticulo').value = txtCodArticulo;
@@ -95,6 +97,7 @@
             var banIdFamilia = document.getElementById('banIdFamilia').value = txtIdFamilia;
             var banIdGrupo = document.getElementById('banIdGrupo').value = txtIdGrupo;
             var banIva = document.getElementById('banIva').value = txtIva;
+            var banIdTipoArticulo = document.getElementById('banIdTipoArticulo').value = idTipoArticulo;
 
             //alert(banCodAmece);
             document.getElementById('form').action = "/LigarArticulo";

@@ -18,7 +18,6 @@
                 <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">
                     <i class="fa fa-close"></i> Cerrar
                 </button>
-                @csrf
                 <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#ModalConfirmarCancelacion{{ $ticket->IdTicket }}">
                     <i class="fa fa-ban"></i> Cancelar Ticket
                 </button>

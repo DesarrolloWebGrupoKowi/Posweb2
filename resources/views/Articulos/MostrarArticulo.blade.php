@@ -46,10 +46,11 @@
                     <input type="text" id="txtPeso" name="txtPeso" class="form-control" placeholder="Peso" required>
                 </div>
                 <div class="col-4 mb-3">
-                    <label for="txtTercero">Tercero</label>
-                    <select name="txtTercero" id="txtTercero" class="form-select">
-                        <option value="0">Si</option>
-                        <option selected value="1">No</option>
+                    <label for="idTipoArticulo">Tipo Articulo</label>
+                    <select class="form-select" name="idTipoArticulo" id="idTipoArticulo">
+                        @foreach ($tiposArticulo as $tipoArticulo)
+                            <option value="{{ $tipoArticulo->IdTipoArticulo }}">{{ $tipoArticulo->NomTipoArticulo }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -72,6 +73,13 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-4 mb-3">
+                    <label for="txtTercero">Tercero</label>
+                    <select name="txtTercero" id="txtTercero" class="form-select">
+                        <option value="0">Si</option>
+                        <option selected value="1">No</option>
+                    </select>
+                </div>
                 <div class="col-4 mb-3">
                     <label for="txtIdGrupo">Grupo</label>
                     <select name="txtIdGrupo" id="txtIdGrupo" class="form-select">

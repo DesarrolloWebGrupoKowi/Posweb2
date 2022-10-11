@@ -12,4 +12,8 @@ class TipoMerma extends Model
     protected $fillable = ['NomTipoMerma', 'Status'];
     public $timestamps = false;
     protected $primaryKey = 'IdTipoMerma';
+
+    public function Mermas(){
+        return $this->hasMany(CapMerma::class, 'IdTipoMerma', 'IdTipoMerma');
+    }
 }

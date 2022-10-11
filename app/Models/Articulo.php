@@ -27,6 +27,7 @@ class Articulo extends Model
             'PrecioRecorte',
             'Factor',
             'Inventory_Item_Id',
+            'IdTipoArticulo',
             'IdFamilia',
             'IdGrupo',
             'Iva',

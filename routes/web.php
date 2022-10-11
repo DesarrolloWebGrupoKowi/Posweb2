@@ -608,6 +608,36 @@ Route::post('/EliminarArticuloTipoMerma/{idTipoMerma}/{codArticulo}', 'App\Http\
 Route::post('/EliminarTipoMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@EliminarTipoMerma')->name('EliminarTipoMerma');
 
 //+============================================================================================================================================+//
+//TipoArticulos
+Route::get('/TipoArticulos', 'App\Http\Controllers\TipoArticulosController@TipoArticulos')->name('TipoArticulos');
+
+//AgregarTipoArticulo
+Route::post('/AgregarTipoArticulo', 'App\Http\Controllers\TipoArticulosController@AgregarTipoArticulo')->name('AgregarTipoArticulo');
+
+//+============================================================================================================================================+//
+//CuentasMerma
+Route::get('/CuentasMerma', 'App\Http\Controllers\CuentasMermaController@CuentasMerma')->name('CuentasMerma');
+
+//AgregarCuentaMerma
+Route::post('/AgregarCuentaMerma/{idTipoMerma}', 'App\Http\Controllers\CuentasMermaController@AgregarCuentaMerma')->name('AgregarCuentaMerma');
+
+//+============================================================================================================================================+//
+//CapMermas
+Route::get('/CapMermas', 'App\Http\Controllers\CapMermasController@CapMermas')->name('CapMermas');
+
+//TmpMermas
+Route::post('/TmpMermas/{idTipoMerma}', 'App\Http\Controllers\CapMermasController@TmpMermas')->name('TmpMermas');
+
+//GuardarMermas
+Route::post('/GuardarMermas', 'App\Http\Controllers\CapMermasController@GuardarMermas')->name('GuardarMermas');
+
+//EliminarMermaTmp
+Route::post('/EliminarMermaTmp/{idMermaTmp}', 'App\Http\Controllers\CapMermasController@EliminarMermaTmp')->name('EliminarMermaTmp');
+
+//ReporteMermas
+Route::get('/ReporteMermas', 'App\Http\Controllers\CapMermasController@ReporteMermas')->name('ReporteMermas');
+
+//+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
 

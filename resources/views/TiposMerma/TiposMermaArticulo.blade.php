@@ -8,7 +8,7 @@
 @section('contenido')
     <div class="d-flex justify-content-center mb-3">
         <div class="col-auto">
-            <h2 class="card shadow p-1">Tipos de Merma por Articulo</h2>
+            <h2 class="card shadow p-1">Articulos por Tipo de Merma</h2>
         </div>
     </div>
     <div class="container mb-3">
