@@ -9,6 +9,9 @@
         </div>
     </div>
     <div class="container mb-3">
+        @include('Alertas.Alertas')
+    </div>
+    <div class="container mb-3">
         <div class="d-flex justify-content-end">
             <div class="col-auto">
                 <div class="input-group">
@@ -21,9 +24,6 @@
         </div>
     </div>
     <div class="container card shadow-lg p-3 rounded-3">
-        <div class="container mb-3">
-            @include('Alertas.Alertas')
-        </div>
         <div class="container mb-3">
             <form class="mb-3" id="formMerma" action="/CapMermas">
                 <div class="row d-flex justify-content-center">
@@ -88,10 +88,11 @@
             </form>
         </div>
         @if (!empty($idTipoMerma) && $tmpMermas->count() > 0)
+        <hr>
             <div class="container mb-3">
                 <div class="d-flex justify-content-center">
                     <div class="col-auto">
-                        <h4 class="card shadow-lg p-1 border-1 border-warning rounded-3">Articulos a Mermar</h4>
+                        <h4 class="">Articulos a Mermar</h4>
                     </div>
                 </div>
                 <table class="table table-responsive table-striped shadow">
