@@ -25,7 +25,7 @@
     </div>
     <div class="container mb-3">
         <form class="mb-3" id="formMerma" action="/CapMermas">
-            <div class="row">
+            <div class="row d-flex justify-content-center">
                 <div class="col-auto">
                     <select class="form-select shadow" name="idTipoMerma" id="idTipoMerma" required>
                         <option value="">Seleccione Tipo de Merma</option>
@@ -38,7 +38,7 @@
             </div>
         </form>
         <form action="/TmpMermas/{{ $idTipoMerma }}" method="POST">
-            <div class="row">
+            <div class="row d-flex justify-content-center">
                 @csrf
                 @if ($subTiposMerma->count() > 0)
                     <div class="col-auto">
@@ -52,7 +52,7 @@
                 @endif
                 @if (!empty($idTipoMerma))
                     <div class="col-auto">
-                        <input class="form-control" list="articulos" name="codArticulo" id="codArticulo"
+                        <input class="form-control shadow" list="articulos" name="codArticulo" id="codArticulo"
                             placeholder="Código ó Articulo" autocomplete="off" required>
                         <datalist id="articulos">
                             @foreach ($articulosTipoMerma as $articuloTipoMerma)
