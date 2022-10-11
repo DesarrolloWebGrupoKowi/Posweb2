@@ -9,6 +9,7 @@ use App\Models\TipoMerma;
 use App\Models\SubTipoMerma;
 use App\Models\MermaTmp;
 use App\Models\CapMerma;
+use App\Models\HistorialMovimientoProducto;
 
 class CapMermasController extends Controller
 {
@@ -67,6 +68,7 @@ class CapMermasController extends Controller
     public function GuardarMermas(){
         try {
             DB::beginTransaction();
+            DB::connection('server')->beginTransaction();
 
             $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
@@ -84,19 +86,32 @@ class CapMermasController extends Controller
                     'Comentario' => $merma->Comentario,
                     'IdUsuarioCaptura' => Auth::user()->IdUsuario
                 ]);
+
+                //GUARDAR MOVIMIENTOS EN HISTORIAL MOVIMIENTOS
+                HistorialMovimientoProducto::insert([
+                    'IdTienda' => $idTienda,
+                    'CodArticulo' => $merma->CodArticulo,
+                    'CantArticulo' => $merma->CantArticulo,
+                    'FechaMovimiento' => date('d-m-Y H:i:s'),
+                    'Referencia' => 'CAPTURA DE MERMAS',
+                    'IdMovimiento' => 8,
+                    'IdUsuario' => Auth::user()->IdUsuario
+                ]);
             }
 
             MermaTmp::where('IdTienda', $idTienda)
                 ->delete();
 
-            //DESCONTAR INVENTARIO DEL PRODUCTO CADUCADO
+            //DESCONTAR PRODUCTO CADUCADO DEL INVENTARIO
 
         } catch (\Throwable $th) {
             DB::rollback();
+            DB::connection('server')->rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         DB::commit();
+        DB::connection('server')->commit();
         return redirect('CapMermas')->with('msjAdd', 'Se Mermó el Producto Correctamente!');
     }
 

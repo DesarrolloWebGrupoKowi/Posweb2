@@ -25,7 +25,7 @@
     </div>
     <div class="container mb-3">
         <form class="mb-3" id="formMerma" action="/CapMermas">
-            <div class="row d-flex justify-content-center">
+            <div class="row">
                 <div class="col-auto">
                     <select class="form-select shadow" name="idTipoMerma" id="idTipoMerma" required>
                         <option value="">Seleccione Tipo de Merma</option>
@@ -38,7 +38,7 @@
             </div>
         </form>
         <form action="/TmpMermas/{{ $idTipoMerma }}" method="POST">
-            <div class="row d-flex justify-content-center">
+            <div class="row">
                 @csrf
                 @if ($subTiposMerma->count() > 0)
                     <div class="col-auto">

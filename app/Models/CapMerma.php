@@ -10,6 +10,7 @@ use App\Models\TipoMerma;
 class CapMerma extends Model
 {
     use HasFactory;
+    protected $connection = 'server';
     protected $table = 'CapMermas';
     protected $fillable = [
         'IdTienda', 'FechaCaptura', 'CodArticulo', 
