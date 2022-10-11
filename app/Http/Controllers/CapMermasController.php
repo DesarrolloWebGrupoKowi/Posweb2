@@ -97,12 +97,14 @@ class CapMermasController extends Controller
                     'IdMovimiento' => 8,
                     'IdUsuario' => Auth::user()->IdUsuario
                 ]);
+
+                //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO
             }
 
             MermaTmp::where('IdTienda', $idTienda)
                 ->delete();
 
-            //DESCONTAR PRODUCTO CADUCADO DEL INVENTARIO
+            //ENVIAR CORREO DE MERMA REALIZADA
 
         } catch (\Throwable $th) {
             DB::rollback();
@@ -129,7 +131,7 @@ class CapMermasController extends Controller
         }
 
         DB::commit();
-        return back()->with('msjAdd', 'Se eliminó la merma correctamente!');
+        return back()->with('msjdelete', 'Se eliminó la merma correctamente!');
     }
 
     public function ReporteMermas(Request $request){

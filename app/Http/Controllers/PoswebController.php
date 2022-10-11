@@ -398,66 +398,76 @@ class PoswebController extends Controller
     }
 
     public function QuitarEmpleado(){
-        $preventa = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+        
+        try {
+            DB::beginTransaction();
+
+            $preventa = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
             ->get();
 
-        TemporalPos::where('TemporalPos', 1)
-            ->update([
-                'NumNomina' => null,
-                'MonederoDescuento' => null
-        ]);
+            TemporalPos::where('TemporalPos', 1)
+                ->update([
+                    'NumNomina' => null,
+                    'MonederoDescuento' => null
+            ]);
 
-        foreach ($preventa as $key => $pArticulo) {
-            $buscarArticulo = Articulo::where('IdArticulo', $pArticulo->IdArticulo)
-                ->first();
-
-            if(empty($pArticulo->IdPaquete)){
-                $articulo = DB::table('CatArticulos as a')
-                    ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
-                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
-                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select('a.IdArticulo', 
-                    'a.CodArticulo', 
-                    'a.NomArticulo', 
-                    'a.Peso', 
-                    'a.Iva', 
-                    'a.Status', 
-                    'b.PrecioArticulo', 
-                    'c.IdListaPrecio', 
-                    'c.NomListaPrecio', 
-                    'c.PorcentajeIva')
-                    ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
-                    ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('c.IdListaPrecio', '<>', 4)
-                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
+            foreach ($preventa as $key => $pArticulo) {
+                $buscarArticulo = Articulo::where('IdArticulo', $pArticulo->IdArticulo)
                     ->first();
 
-                //return $articulo;
+                if(empty($pArticulo->IdPaquete)){
+                    $articulo = DB::table('CatArticulos as a')
+                        ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                        ->select('a.IdArticulo', 
+                        'a.CodArticulo', 
+                        'a.NomArticulo', 
+                        'a.Peso', 
+                        'a.Iva', 
+                        'a.Status', 
+                        'b.PrecioArticulo', 
+                        'c.IdListaPrecio', 
+                        'c.NomListaPrecio', 
+                        'c.PorcentajeIva')
+                        ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
+                        ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->where('c.IdListaPrecio', '<>', 4)
+                        ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
+                        ->first();
 
-                $subTotal = $articulo->PrecioArticulo * $pArticulo->CantArticulo;
-                if($articulo->Iva == 0){
-                    $iva = $subTotal * $articulo->PorcentajeIva;
+                    //return $articulo;
+
+                    $subTotal = $articulo->PrecioArticulo * $pArticulo->CantArticulo;
+                    if($articulo->Iva == 0){
+                        $iva = $subTotal * $articulo->PorcentajeIva;
+                    }
+                    else{
+                        $iva = 0;
+                    }
+
+                    $total = $subTotal + $iva;
+
+                    PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->where('IdArticulo', $pArticulo->IdArticulo)
+                        ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
+                        ->update([
+                            'PrecioLista' => $articulo->PrecioArticulo,
+                            'PrecioVenta' => $articulo->PrecioArticulo,
+                            'IdListaPrecio' => $articulo->IdListaPrecio,
+                            'SubTotalArticulo' => $subTotal,
+                            'IvaArticulo' => $iva,
+                            'ImporteArticulo' => $total
+                    ]);
                 }
-                else{
-                    $iva = 0;
-                }
-
-                $total = $subTotal + $iva;
-
-                PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('IdArticulo', $pArticulo->IdArticulo)
-                    ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
-                    ->update([
-                        'PrecioLista' => $articulo->PrecioArticulo,
-                        'PrecioVenta' => $articulo->PrecioArticulo,
-                        'IdListaPrecio' => $articulo->IdListaPrecio,
-                        'SubTotalArticulo' => $subTotal,
-                        'IvaArticulo' => $iva,
-                        'ImporteArticulo' => $total
-                ]);
             }
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
+        DB::commit();
         return redirect('Pos');
     }
 

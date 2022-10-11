@@ -33,10 +33,22 @@ use App\Models\DatMonederoAcumulado;
 use App\Models\DatTipoPago;
 use App\Models\DatEncabezado;
 use App\Models\CorreoTienda;
+use Mail;
 
 class PruebasController extends Controller
 {
     public function pruebas(Request $request){
+
+        $subject = "menito";
+        $for = "sistemas@kowi.com.mx";
+        
+        Mail::send('Pruebas.Correo', $request->all(), function($msj) use($subject, $for){
+            $msj->from("sistemas@kowi.com.mx", "Meny");
+            $msj->subject($subject);
+            $msj->to($for);
+        });
+
+        return 1;
 
         $correosTienda = DB::table('DatCorreosTienda')
                 ->where('IdTienda', 6)
