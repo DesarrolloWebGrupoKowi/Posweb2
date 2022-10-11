@@ -58,52 +58,61 @@ class PreciosController extends Controller
         $radioActualizar = $request->radioActualizar;
         $fechaPara = $request->FechaPara;
 
-        $preciosTmp = PrecioTmp::all();
-        $array = json_decode($preciosTmp);
-        //print_r($array);
+        try {
+            DB::beginTransaction();
 
-        if($radioActualizar == 'Ahora'){
-            PrecioTmp::truncate();
+            $preciosTmp = PrecioTmp::all();
+            $array = json_decode($preciosTmp);
+            //print_r($array);
 
-            foreach($array as $obj){ 
-                $idListaPrecio = $obj->IdListaPrecio;
-                $codArticulo = $obj->CodArticulo; 
-                $precioArticulo = $obj->PrecioArticulo;
+            if($radioActualizar == 'Ahora'){
+                PrecioTmp::truncate();
 
-                for ($i=0; $i < count($codigos) ; $i++) {
-                    ($codigos[$i] == $codArticulo && $idListaPrecioHidden == $idListaPrecio) ?  $precioArticulo = $precios[$i] : $precioArticulo;
+                foreach($array as $obj){ 
+                    $idListaPrecio = $obj->IdListaPrecio;
+                    $codArticulo = $obj->CodArticulo; 
+                    $precioArticulo = $obj->PrecioArticulo;
+
+                    for ($i=0; $i < count($codigos) ; $i++) {
+                        ($codigos[$i] == $codArticulo && $idListaPrecioHidden == $idListaPrecio) ?  $precioArticulo = $precios[$i] : $precioArticulo;
+                    }
+                
+                    DB::statement("Execute SP_INSERTAR_PRECIOS_TEMPORAL ".$idListaPrecio.", '".$codArticulo."', ".$precioArticulo.", '".date('Y-m-d')."'");
                 }
-            
-                DB::statement("Execute SP_INSERTAR_PRECIOS_TEMPORAL ".$idListaPrecio.", '".$codArticulo."', ".$precioArticulo.", '".date('Y-m-d')."'");
-            }
 
-            $fechaActual = date('Y-m-d');
-            if(HistorialPrecio::all()->isNotEmpty()){
-                DB::table('HistorialPrecios')
-                    ->update([
-                        'VigenciaHasta' => $fechaActual,
-                        'Status' => 1
-                    ]);
-            }
-        }
-        if($radioActualizar == 'FechaPara'){
-            PrecioTmp::truncate();
-
-            foreach($array as $obj){ 
-                $idListaPrecio = $obj->IdListaPrecio;
-                $codArticulo = $obj->CodArticulo; 
-                $precioArticulo = $obj->PrecioArticulo;
-
-                for ($i=0; $i < count($codigos) ; $i++) {
-                    ($codigos[$i] == $codArticulo && $idListaPrecioHidden == $idListaPrecio) ?  $precioArticulo = $precios[$i] : $precioArticulo;
+                $fechaActual = date('Y-m-d');
+                if(HistorialPrecio::all()->isNotEmpty()){
+                    DB::table('HistorialPrecios')
+                        ->update([
+                            'VigenciaHasta' => $fechaActual,
+                            'Status' => 1
+                        ]);
                 }
-            
-                DB::statement("Execute SP_INSERTAR_PRECIOS_TEMPORAL ".$idListaPrecio.", '".$codArticulo."', ".$precioArticulo.", '".$fechaPara."'");
             }
+            if($radioActualizar == 'FechaPara'){
+                PrecioTmp::truncate();
+
+                foreach($array as $obj){ 
+                    $idListaPrecio = $obj->IdListaPrecio;
+                    $codArticulo = $obj->CodArticulo; 
+                    $precioArticulo = $obj->PrecioArticulo;
+
+                    for ($i=0; $i < count($codigos) ; $i++) {
+                        ($codigos[$i] == $codArticulo && $idListaPrecioHidden == $idListaPrecio) ?  $precioArticulo = $precios[$i] : $precioArticulo;
+                    }
+                
+                    DB::statement("Execute SP_INSERTAR_PRECIOS_TEMPORAL ".$idListaPrecio.", '".$codArticulo."', ".$precioArticulo.", '".$fechaPara."'");
+                }
+            }
+
+            DB::statement("Execute SP_ACTUALIZAR_PRECIOS '".Auth::user()->IdUsuario."'");
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
-        DB::statement("Execute SP_ACTUALIZAR_PRECIOS '".Auth::user()->IdUsuario."'");
-
+        DB::commit();
         return back()->with('msjAdd', 'Precios Actualizados!');
     }
 }
