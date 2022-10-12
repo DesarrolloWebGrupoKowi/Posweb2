@@ -32,8 +32,22 @@
                         <button class="btn"><span class="material-icons">search</span></button>
                     </div>
                     <div class="col-auto">
-                        <a href="/Precios" class="btn"><span class="material-icons">visibility</span></a>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text shadow">
+                                <input checked class="form-check-input mt-0" type="radio" name="radioFiltro" id="codigo">
+                            </span>
+                            <span class="input-group-text card shadow">Código</span>
+                            <span class="input-group-text shadow">
+                                <input class="form-check-input mt-0" type="radio" name="radioFiltro" id="nombre">
+                            </span>
+                            <span class="input-group-text card shadow">Nombre</span>
+                            <input type="text" class="form-control shadow" name="filtro" id="filtro"
+                            placeholder="Buscar articulo...">
+                        </div>
                     </div>
+                    <!--<div class="col-auto">
+                        <a href="/Precios" class="btn"><span class="material-icons">visibility</span></a>
+                    </div>-->
                 </div>
             </form>
         </div>
@@ -77,11 +91,13 @@
                                         <td>{{ $precio->NomArticulo }}</td>
                                         <td><span id="pArticulo">{{ $precio->PrecioArticulo }}</span></td>
                                         <td>
-                                            <input class="modifcarPrecios" type="text" id="precios" name="precios[{{ $precio->CodArticulo }}]"
+                                            <input class="modifcarPrecios" type="text" id="precios"
+                                                name="precios[{{ $precio->CodArticulo }}]"
                                                 value="{{ $precio->PrecioArticulo }}">
                                         </td>
                                         <td>
-                                            <input class="form-check-input" type="checkbox" id="codigosCheck" value="{{ $precio->CodArticulo }}">
+                                            <input class="form-check-input" type="checkbox" id="codigosCheck"
+                                                value="{{ $precio->CodArticulo }}">
                                         </td>
                                     </tr>
                                 @endforeach
@@ -109,8 +125,8 @@
                     <div class="row p-3">
                         <div class="col-6">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="radio" id="porcentaje" value="porcentaje"
-                                    onclick="enable()">
+                                <input class="form-check-input" type="radio" name="radio" id="porcentaje"
+                                    value="porcentaje" onclick="enable()">
                                 <input disabled class="form-range" type="range" name="rangePorcentaje"
                                     id="rangePorcentaje" min="1" max="100" step="1" value="1">
                                 <!--<p id="porciento" style="text-align: center;"></p>-->
@@ -121,12 +137,12 @@
                         </div>
                         <div class="col-4">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="radio" id="pesos" value="pesos"
-                                    onclick="enable()">
+                                <input class="form-check-input" type="radio" name="radio" id="pesos"
+                                    value="pesos" onclick="enable()">
                                 <button type="button" disabled class="btn btn-warning btn-sm" onclick="cantidad(3,0)"
                                     id="menos">-</button>
-                                <input disabled style="text-align: center;" class="txtContador" id="3" name="txtPeso"
-                                    type="text" value="1" size="1">
+                                <input disabled style="text-align: center;" class="txtContador" id="3"
+                                    name="txtPeso" type="text" value="1" size="1">
                                 <button type="button" disabled class="btn btn-primary btn-sm" onclick="cantidad(3,1)"
                                     id="mas">+</button>
                             </div>
@@ -155,12 +171,35 @@
                     <span class="input-group-text">Actualizar Precios Ahora</span>
                 </div>
                 <div>
-                    <button disabled id="btnActualizar" type="submit" class="btn btn-warning"><i class="fa fa-refresh"></i>
+                    <button disabled id="btnActualizar" type="submit" class="btn btn-warning"><i
+                            class="fa fa-refresh"></i>
                         Actualizar</button>
                 </div>
             </div>
         </form>
     </div>
     <script src="{{ asset('js/scriptPrecios.js') }}"></script>
-@endsection
+    <script>
+        document.getElementById('filtro').addEventListener('keyup', (e) => {
+            const radioCodigo = document.getElementById('codigo').checked;
 
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("filtro");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("tblPrecios");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = radioCodigo == true ? tr[i].getElementsByTagName("td")[0] : tr[i].getElementsByTagName("td")[1];
+                //td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        });
+    </script>
+@endsection
