@@ -77,12 +77,11 @@
                                         <td>{{ $precio->NomArticulo }}</td>
                                         <td><span id="pArticulo">{{ $precio->PrecioArticulo }}</span></td>
                                         <td>
-                                            <input class="modifcarPrecios" type="text" id="precios" name="precios[]"
+                                            <input class="modifcarPrecios" type="text" id="precios" name="precios[{{ $precio->CodArticulo }}]"
                                                 value="{{ $precio->PrecioArticulo }}">
                                         </td>
                                         <td>
-                                            <input class="form-check-input" type="checkbox" id="codigosCheck"
-                                                name="codigosSeleccionados[]" value="{{ $precio->CodArticulo }}">
+                                            <input class="form-check-input" type="checkbox" id="codigosCheck" value="{{ $precio->CodArticulo }}">
                                         </td>
                                     </tr>
                                 @endforeach
@@ -149,8 +148,6 @@
                     <span class="input-group-text">Actualizar Para</span>
                     <input disabled type="date" class="form-control" name="FechaPara" id="Fecha"
                         min="{{ $tomorrow }}" required>
-                    {{-- <span class="input-group-text">A</span>
-                    <input disabled type="date" class="form-control" name="VigenciaHasta" id="VigenciaHasta"> --}}
                 </div>
                 <div class="input-group mb-3">
                     <span class="input-group-text"><input class="form-check-input" type="radio" name="radioActualizar"

@@ -50,8 +50,7 @@ class PreciosController extends Controller
         return view('Precios.Precios', compact('listaPrecios', 'idListaPrecio', 'precios', 'grupos', 'idGrupo', 'tomorrow'));
     }
 
-    public function ActualizarPrecios(Request $request)
-    {
+    public function ActualizarPrecios(Request $request){
         $codigos = $request->codigos;
         $precios = $request->precios;
         $idListaPrecioHidden = $request->idListaPrecioHidden;
@@ -61,28 +60,21 @@ class PreciosController extends Controller
         try {
             DB::beginTransaction();
 
-            $preciosTmp = PrecioTmp::all();
-            $array = json_decode($preciosTmp);
-            //print_r($array);
-
             if($radioActualizar == 'Ahora'){
-                PrecioTmp::truncate();
-
-                foreach($array as $obj){ 
-                    $idListaPrecio = $obj->IdListaPrecio;
-                    $codArticulo = $obj->CodArticulo; 
-                    $precioArticulo = $obj->PrecioArticulo;
-
-                    for ($i=0; $i < count($codigos) ; $i++) {
-                        ($codigos[$i] == $codArticulo && $idListaPrecioHidden == $idListaPrecio) ?  $precioArticulo = $precios[$i] : $precioArticulo;
-                    }
-                
-                    DB::statement("Execute SP_INSERTAR_PRECIOS_TEMPORAL ".$idListaPrecio.", '".$codArticulo."', ".$precioArticulo.", '".date('Y-m-d')."'");
+                foreach ($precios as $codArticulo => $precioArticulo) {
+                    PrecioTmp::where('IdListaPrecio', $idListaPrecioHidden)
+                        ->where('CodArticulo', ''. $codArticulo .'')
+                        ->update([
+                            'PrecioArticulo' => $precioArticulo,
+                            'FechaPara' => date('d-m-Y')
+                        ]);
                 }
 
                 $fechaActual = date('Y-m-d');
+
                 if(HistorialPrecio::all()->isNotEmpty()){
                     DB::table('HistorialPrecios')
+                        ->where('Status', 0)
                         ->update([
                             'VigenciaHasta' => $fechaActual,
                             'Status' => 1
@@ -90,22 +82,17 @@ class PreciosController extends Controller
                 }
             }
             if($radioActualizar == 'FechaPara'){
-                PrecioTmp::truncate();
-
-                foreach($array as $obj){ 
-                    $idListaPrecio = $obj->IdListaPrecio;
-                    $codArticulo = $obj->CodArticulo; 
-                    $precioArticulo = $obj->PrecioArticulo;
-
-                    for ($i=0; $i < count($codigos) ; $i++) {
-                        ($codigos[$i] == $codArticulo && $idListaPrecioHidden == $idListaPrecio) ?  $precioArticulo = $precios[$i] : $precioArticulo;
-                    }
-                
-                    DB::statement("Execute SP_INSERTAR_PRECIOS_TEMPORAL ".$idListaPrecio.", '".$codArticulo."', ".$precioArticulo.", '".$fechaPara."'");
+                foreach ($precios as $codArticulo => $precioArticulo) {
+                    PrecioTmp::where('IdListaPrecio', $idListaPrecioHidden)
+                        ->where('CodArticulo', ''. $codArticulo .'')
+                        ->update([
+                           'PrecioArticulo' => $precioArticulo,
+                            'FechaPara' => $fechaPara
+                        ]);
                 }
             }
 
-            DB::statement("Execute SP_ACTUALIZAR_PRECIOS '".Auth::user()->IdUsuario."'");
+            DB::statement("Execute SP_ACTUALIZAR_PRECIOS '". Auth::user()->IdUsuario."'");
 
         } catch (\Throwable $th) {
             DB::rollback();
