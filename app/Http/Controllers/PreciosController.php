@@ -80,6 +80,18 @@ class PreciosController extends Controller
                             'Status' => 1
                         ]);
                 }
+
+                //ENVIAR CORREO DE ACTUALIZACION DE PRECIOS A LAS TIENDAS
+                try {
+                    //Envio de Correo de Transferencia de Producto
+                    $asunto = 'SE HA REALIZADO UNA NUEVA MODIFICACIÓN DE PRECIOS, ACTUALIZAR BASCULAS!';
+                    $mensaje = 'FAVOR DE ACTUALIZAR BASCULAS. ACTUALIZACIÓN REALIZADA POR: '. strtoupper(Auth::user()->NomUsuario);
+    
+                    $enviarCorreo = "Execute SP_ENVIAR_MAIL 'soporte@kowi.com.mx;', '".$asunto."', '".$mensaje."'";
+                    DB::statement($enviarCorreo);
+                } catch (\Throwable $th) {
+                    
+                }
             }
             if($radioActualizar == 'FechaPara'){
                 foreach ($precios as $codArticulo => $precioArticulo) {
