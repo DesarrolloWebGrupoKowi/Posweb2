@@ -83,6 +83,24 @@ class TiposMermaController extends Controller
         return back()->with('msjAdd', 'Se Agrego Sub Tipo de Merma: ' . strtoupper($nomSubTipoMerma));
     }
 
+    public function EliminarSubTipoMerma($idSubTipooMerma){
+        try {
+            DB::beginTransaction();
+
+            SubTipoMerma::where('IdSubTipoMerma', $idSubTipooMerma)
+                ->update([
+                    'Status' => 1
+                ]);
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+
+        DB::commit();
+        return back()->with('msjAdd', 'Se eliminó el sub tipo de merma correctamente!');
+    }
+
     public function TiposMermaArticulo(Request $request){
         try {
             DB::beginTransaction();

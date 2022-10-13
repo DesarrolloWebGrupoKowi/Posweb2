@@ -37,7 +37,7 @@
                         <th>UOM</th>
                         <th>UOM2</th>
                         <th>Peso</th>
-                        <th>Código Etiqueta</th>
+                        <th>Plu</th>
                         <th>Precio Recorte</th>
                         <th>Factor</th>
                         <th>Tipo</th>
@@ -50,7 +50,7 @@
                 <tbody>
                     @if (count($articulos) == 0)
                         <tr>
-                            <td colspan="13">No Hay Articulos</td>
+                            <td colspan="14">No Hay Articulos</td>
                         </tr>
                     @else
                         @foreach ($articulos as $articulo)

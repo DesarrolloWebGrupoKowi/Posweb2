@@ -65,13 +65,24 @@
                                 <i class="fa fa-ban"></i> Cancelar ticket
                             </button>
                         @else
-                            <h5 style="color: red"><i class="fa fa-exclamation-circle"></i> Ticket Cancelado <i class="fa fa-exclamation-circle"></i></h5>
+                            <div class="row d-flex justify-content-center">
+                                <div class="col-auto card shadow-lg p-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $ticket->MotivoCancel }}">
+                                    <h5>Ticket Cancelado</h5>
+                                    <h6>Cancelación: {{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaCancelacion)) }}
+                                    </h6>
+                                    <h6>
+                                        Cancelado Por: @if (!empty($ticket->UsuarioCancelacion))
+                                            {{ Str::upper($ticket->UsuarioCancelacion->NomUsuario) }}
+                                        @endif
+                                    </h6>
+                                </div>
+                            </div>
                         @endif
                         @include('CancelacionTickets.ModalConfirmarCancelacion')
                         @include('CancelacionTickets.ModalConfirmarCancelacionSolicitudFE')
                     </div>
                     <div class="card-footer">
-                        {{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}
+                        Venta: {{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}
                     </div>
                 @endforeach
             </div>

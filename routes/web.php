@@ -595,6 +595,9 @@ Route::get('/SubTiposMerma', 'App\Http\Controllers\TiposMermaController@SubTipos
 //CrearSubTipoMerma
 Route::post('/CrearSubTipoMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@CrearSubTipoMerma')->name('CrearSubTipoMerma');
 
+//EliminarSubTipoMerma
+Route::post('/EliminarSubTipoMerma/{idSubTipoMerma}', 'App\Http\Controllers\TiposMermaController@EliminarSubTipoMerma')->name('EliminarSubTipoMerma');
+
 //TiposMermaArticulo
 Route::get('/TiposMermaArticulo', 'App\Http\Controllers\TiposMermaController@TiposMermaArticulo')->name('TiposMermaArticulo');
 
@@ -613,6 +616,9 @@ Route::get('/TipoArticulos', 'App\Http\Controllers\TipoArticulosController@TipoA
 
 //AgregarTipoArticulo
 Route::post('/AgregarTipoArticulo', 'App\Http\Controllers\TipoArticulosController@AgregarTipoArticulo')->name('AgregarTipoArticulo');
+
+//EliminarTipoArticulo
+Route::post('/EliminarTipoArticulo/{idCatTipoArticulo}', 'App\Http\Controllers\TipoArticulosController@EliminarTipoArticulo')->name('EliminarTipoArticulo');
 
 //+============================================================================================================================================+//
 //CuentasMerma

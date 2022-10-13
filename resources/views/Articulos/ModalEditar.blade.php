@@ -1,7 +1,7 @@
 <!-- Modal Editar Articulo-->
-<div class="modal fade" id="ModalEditar-{{$articulo->CodArticulo}}" tabindex="-1"
+<div class="modal fade" data-bs-backdrop="static" id="ModalEditar-{{$articulo->CodArticulo}}" tabindex="-1"
     aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Editar Articulo</h5>
@@ -59,6 +59,15 @@
                             <label for="txtFactor">Factor</label>
                             <input type="number" id="txtFactor" name="txtFactor" class="form-control"
                                 placeholder="Factor" value="{{$articulo->Factor}}">
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label for="txtFactor">Tipo</label>
+                            <select class="form-select" name="idTipoArticulo" id="idTipoArticulo">
+                                <option {!! empty($articulo->IdTipoArticulo) ? 'selected' : '' !!} value="">SIN TIPO</option>
+                                @foreach ($tiposArticulo as $tipoArticulo)
+                                    <option {!! $articulo->IdTipoArticulo == $tipoArticulo->IdTipoArticulo ? 'selected' : '' !!} value="{{ $tipoArticulo->IdTipoArticulo }}">{{ $tipoArticulo->NomTipoArticulo }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="row">

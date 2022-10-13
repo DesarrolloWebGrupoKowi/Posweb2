@@ -89,6 +89,7 @@ class PreciosController extends Controller
     
                     $enviarCorreo = "Execute SP_ENVIAR_MAIL 'soporte@kowi.com.mx;', '".$asunto."', '".$mensaje."'";
                     DB::statement($enviarCorreo);
+
                 } catch (\Throwable $th) {
                     
                 }
@@ -99,9 +100,25 @@ class PreciosController extends Controller
                         ->where('CodArticulo', ''. $codArticulo .'')
                         ->update([
                            'PrecioArticulo' => $precioArticulo,
-                            'FechaPara' => $fechaPara
                         ]);
                 }
+
+                DB::statement("update DatPreciosTmp set FechaPara = '". $fechaPara ."'");
+
+                //ENVIAR CORREO DE ACTUALIZACION DE PRECIOS A LAS TIENDAS
+                try {
+                    //Envio de Correo de Transferencia de Producto
+                    
+                    $asunto = 'SE HA REALIZADO UNA NUEVA MODIFICACIÓN DE PRECIOS PROGRAMADA PARA EL DIA: '. strftime('%d de %B del %Y', strtotime($fechaPara));
+                    $mensaje = 'MODIFICACIÓN DE PRECIOS REALIZADA POR: '. strtoupper(Auth::user()->NomUsuario);
+    
+                    $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx;', '".$asunto."', '".$mensaje."'";
+                    DB::statement($enviarCorreo);
+
+                } catch (\Throwable $th) {
+                    
+                }
+
             }
 
             DB::statement("Execute SP_ACTUALIZAR_PRECIOS '". Auth::user()->IdUsuario."'");

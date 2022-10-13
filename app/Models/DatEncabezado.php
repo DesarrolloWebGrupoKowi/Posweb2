@@ -9,6 +9,8 @@ use App\Models\Articulo;
 use App\Models\DatTipoPago;
 use App\Models\SolicitudFactura;
 use App\Models\Tienda;
+use App\Models\HistorialMovimientoProducto;
+use App\Models\Usuario;
 
 class DatEncabezado extends Model
 {
@@ -29,6 +31,7 @@ class DatEncabezado extends Model
         'ImporteVenta', 
         'MonederoGenerado', 
         'StatusVenta', 
+        'IdUsuarioCancelacion',
         'MotivoCancel', 
         'FechaCancelacion', 
         'StatusRed', 
@@ -61,5 +64,9 @@ class DatEncabezado extends Model
 
     public function Tienda(){
         return $this->hasOne(Tienda::class, 'IdTienda', 'IdTienda');
+    }
+
+    public function UsuarioCancelacion(){
+        return $this->hasOne(Usuario::class, 'IdUsuario', 'IdUsuarioCancelacion');
     }
 }

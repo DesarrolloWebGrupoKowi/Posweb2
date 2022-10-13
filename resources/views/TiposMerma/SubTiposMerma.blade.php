@@ -38,7 +38,7 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody style="vertical-align: middle">
                     @if ($subTiposMerma->count() == 0)
                         <tr>
                             <td colspan="3">No hay sub tipos de merma para este tipo de merma!</td>
@@ -48,7 +48,12 @@
                             <tr>
                                 <td>{{ $subTipoMerma->NomTipoMerma }}</td>
                                 <td>{{ $subTipoMerma->NomSubTipoMerma }}</td>
-                                <td></td>
+                                <td>
+                                    <button class="btn" data-bs-toggle="modal" data-bs-target="#ModalEliminarSubTipoMerma{{ $subTipoMerma->IdSubTipoMerma }}">
+                                        <span style="color: red" class="material-icons">delete_forever</span>
+                                    </button>
+                                </td>
+                                @include('TiposMerma.ModalEliminarSubTipoMerma')
                             </tr>
                         @endforeach
                     @endif

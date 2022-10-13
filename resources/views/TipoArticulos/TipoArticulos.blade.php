@@ -38,10 +38,11 @@
                         <td>{{ $tipoArticulo->IdTipoArticulo }}</td>
                         <td>{{ $tipoArticulo->NomTipoArticulo }}</td>
                         <td>
-                            <button class="btn" data-bs-toggle="modal" data-bs-target="#ModalEliminarTipoArticulo">
+                            <button class="btn" data-bs-toggle="modal" data-bs-target="#ModalEliminarTipoArticulo{{ $tipoArticulo->IdCatTipoArticulo }}">
                                 <span style="color: red" class="material-icons">delete_forever</span>
                             </button>
                         </td>
+                        @include('TipoArticulos.ModalEliminarTipoArticulo')
                     </tr>
                 @endforeach
             @endif

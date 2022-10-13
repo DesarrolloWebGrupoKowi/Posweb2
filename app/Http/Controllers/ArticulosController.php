@@ -28,30 +28,42 @@ class ArticulosController extends Controller
 
         $familias = Familia::all();
         $grupos = Grupo::all();
+        $tiposArticulo = TipoArticulo::where('Status', 0)
+            ->get();
 
-        return view('Articulos.CatArticulos', compact('articulos', 'filtroArticulo', 'familias', 'grupos'));
+        return view('Articulos.CatArticulos', compact('articulos', 'filtroArticulo', 'familias', 'grupos', 'tiposArticulo'));
     }
 
     public function EditarArticulo(Request $request, $id){
 
-        Articulo::where('CodArticulo', $id)
-                ->update([
-                    'Amece' => $request->txtCodAmece,
-                    'UOM' => $request->txtUOM,
-                    'UOM2' => $request->txtUOM,
-                    'Peso' => $request->txtPeso,
-                    'Tercero' => $request->txtTercero,
-                    'PrecioRecorte' => $request->txtPrecioRecorte,
-                    'Factor' => $request->txtFactor,
-                    'IdFamilia' => $request->txtIdFamilia,
-                    'IdGrupo' => $request->txtIdGrupo,
-                    'Iva' => $request->txtIva
-                ]);
+        try {
+            DB::beginTransaction();
 
-                $articulo = Articulo::where('CodArticulo', $id)
+            Articulo::where('CodArticulo', $id)
+            ->update([
+                'Amece' => $request->txtCodAmece,
+                'UOM' => $request->txtUOM,
+                'UOM2' => $request->txtUOM,
+                'Peso' => $request->txtPeso,
+                'Tercero' => $request->txtTercero,
+                'PrecioRecorte' => $request->txtPrecioRecorte,
+                'Factor' => $request->txtFactor,
+                'IdTipoArticulo' => $request->idTipoArticulo,
+                'IdFamilia' => $request->txtIdFamilia,
+                'IdGrupo' => $request->txtIdGrupo,
+                'Iva' => $request->txtIva
+            ]);
+
+            $articulo = Articulo::where('CodArticulo', $id)
                                     ->first();
-                
-                return back()->with('msjupdate', 'Articulo ' . $articulo->NomArticulo . ' Editado!');
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+
+        DB::commit();
+        return back()->with('msjupdate', 'Se ha editado el articulo: ' . $articulo->NomArticulo);
     }
 
     public function EnviarArticulo(Request $request){
@@ -61,9 +73,9 @@ class ArticulosController extends Controller
         if($radioBuscar == 'radioCodigo'){
 
             $arrayArticulo = Articulo::where('CodArticulo', $filtroArticulo)
-    ->select('CodArticulo')
-    ->get()
-    ->toArray();
+                ->select('CodArticulo')
+                ->get()
+                ->toArray();
             //return $arrayArticulo;
 
             $xxkw_items = DB::connection('Cloud_Tables')->table('XXKW_ITEMS')

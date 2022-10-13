@@ -31,10 +31,20 @@
                     <div class="col-auto">
                         <button class="btn"><span class="material-icons">search</span></button>
                     </div>
-                    <div class="col-auto">
-                        <div class="input-group input-group-sm">
+                    <!--<div class="col-auto">
+                                    <a href="/Precios" class="btn"><span class="material-icons">visibility</span></a>
+                                </div>-->
+                </div>
+            </form>
+        </div>
+        <div>
+            <div class="row mb-1 ms-4">
+                @if (!empty($idListaPrecio))
+                    <div class="col-auto d-flex justify-content-end">
+                        <div class="input-group input-group-sm shadow">
                             <span class="input-group-text shadow">
-                                <input checked class="form-check-input mt-0" type="radio" name="radioFiltro" id="codigo">
+                                <input checked class="form-check-input mt-0" type="radio" name="radioFiltro"
+                                    id="codigo">
                             </span>
                             <span class="input-group-text card shadow">Código</span>
                             <span class="input-group-text shadow">
@@ -42,19 +52,16 @@
                             </span>
                             <span class="input-group-text card shadow">Nombre</span>
                             <input type="text" class="form-control shadow" name="filtro" id="filtro"
-                            placeholder="Buscar articulo...">
+                                placeholder="Buscar articulo...">
                         </div>
                     </div>
-                    <!--<div class="col-auto">
-                        <a href="/Precios" class="btn"><span class="material-icons">visibility</span></a>
-                    </div>-->
-                </div>
-            </form>
+                @endif
+            </div>
         </div>
         <form action="/ActualizarPrecios" method="POST">
             <input type="hidden" name="idListaPrecioHidden" value="{{ $idListaPrecio }}">
             @csrf
-            <div class="col-6 card mb-3" style="float: left; height: 70%;">
+            <div class="col-6 card shadow mb-3" style="float: left; height: 70%;">
                 <div class="table-responsive">
                     <table id="tblPrecios" class="table table-responsive table-sm table-striped">
                         <thead class="table-dark">
@@ -189,7 +196,8 @@
             table = document.getElementById("tblPrecios");
             tr = table.getElementsByTagName("tr");
             for (i = 0; i < tr.length; i++) {
-                td = radioCodigo == true ? tr[i].getElementsByTagName("td")[0] : tr[i].getElementsByTagName("td")[1];
+                td = radioCodigo == true ? tr[i].getElementsByTagName("td")[0] : tr[i].getElementsByTagName("td")[
+                    1];
                 //td = tr[i].getElementsByTagName("td")[0];
                 if (td) {
                     txtValue = td.textContent || td.innerText;

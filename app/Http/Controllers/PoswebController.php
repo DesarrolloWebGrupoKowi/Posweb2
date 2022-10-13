@@ -1942,6 +1942,7 @@ class PoswebController extends Controller
         }, 'TipoPago', 'SolicitudFactura'])
                     ->where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha)
+                    ->orderBy('IdTicket')
                     ->get();
 
         $total = DatEncabezado::where('IdTienda', $idTienda)

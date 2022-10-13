@@ -11,6 +11,9 @@ use App\Models\DatDetalle;
 use App\Models\CorteTienda;
 use App\Models\CreditoEmpleado;
 use App\Models\CorreoTienda;
+use App\Models\InventarioTienda;
+use App\Models\Articulo;
+use App\Models\HistorialMovimientoProducto;
 
 class CancelacionTicketsController extends Controller
 {
@@ -29,10 +32,10 @@ class CancelacionTicketsController extends Controller
                 $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
                     ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
                     ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
-            }, 'Tienda'])
-                ->where('IdTienda', $idTienda)
-                ->whereDate('FechaVenta', $fechaVenta)
-                ->where('IdTicket', $numTicket)
+            }, 'Tienda', 'UsuarioCancelacion'])
+                ->where('DatEncabezado.IdTienda', $idTienda)
+                ->whereDate('DatEncabezado.FechaVenta', $fechaVenta)
+                ->where('DatEncabezado.IdTicket', $numTicket)
                 ->get();
 
             //return $tickets;
@@ -60,6 +63,7 @@ class CancelacionTicketsController extends Controller
             DatEncabezado::where('IdEncabezado', $idEncabezado)
                 ->update([
                     'StatusVenta' => 1,
+                    'IdUsuarioCancelacion' => Auth::user()->IdUsuario,
                     'MotivoCancel' => $motivoCancelacion,
                     'FechaCancelacion' => date('d-m-Y H:i:s')
                 ]);
@@ -75,6 +79,35 @@ class CancelacionTicketsController extends Controller
                         'StatusVenta' => 1
                     ]);
             }
+
+            //DEVOLVER INVENTARIO DEL TICKET CANCELADO
+            $detalleVenta = DatDetalle::where('IdEncabezado', $idEncabezado)
+                ->get();
+
+            foreach ($detalleVenta as $key => $detalle) {
+                $codArticulo = Articulo::where('IdArticulo', $detalle->IdArticulo)
+                    ->value('CodArticulo');
+
+                $stock = InventarioTienda::where('IdTienda', $idTienda)
+                    ->where('CodArticulo', $codArticulo)
+                    ->value('StockArticulo');
+
+                InventarioTienda::where('IdTienda', $idTienda)
+                    ->where('CodArticulo', $codArticulo)
+                    ->update([
+                        'StockArticulo' => $stock + $detalle->CantArticulo
+                    ]);
+
+            }
+
+            //INSERTAR EN HISTORIAL MOVIMIENTOS PRODUCTO
+            HistorialMovimientoProducto::insert([
+                'IdTienda' => $idTienda,
+                'FechaMovimiento' => date('d-m-Y H:i:s'),
+                'Referencia' => $idEncabezado,
+                'IdMovimiento' => 12,
+                'IdUsuario' => Auth::user()->IdUsuario
+            ]);
 
             $nomTienda = Tienda::where('IdTienda', $idTienda)
                 ->value('NomTienda');
