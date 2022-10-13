@@ -123,7 +123,7 @@ class RecepcionController extends Controller
             }
         }
 
-        $articulosManual = DB::table('CapRecepcionManualTmp as a')
+        $articulosManual = DB::connection('server')->table('CapRecepcionManualTmp as a')
             ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
             ->get();
 
