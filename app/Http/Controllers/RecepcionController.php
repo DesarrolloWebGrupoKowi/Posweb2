@@ -38,7 +38,8 @@ class RecepcionController extends Controller
                                         " union all".
                                         " select Referencia, '', '".$tienda->Almacen."', 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, b.NomArticulo".
                                         " from CapRecepcionManualTmp as a".
-                                        " left join CatArticulos as b on b.CodArticulo=a.CodArticulo");
+                                        " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
+                                        " where a.IdTienda = '".$tienda->IdTienda."' ");
 
         $totalRecepcion = DatRecepcion::where('IdCapRecepcion', $idRecepcion)
             ->where('IdStatusRecepcion', 1)
@@ -125,6 +126,7 @@ class RecepcionController extends Controller
 
         $articulosManual = DB::connection('server')->table('CapRecepcionManualTmp as a')
             ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+            ->where('a.IdTienda', $idTienda)
             ->get();
 
         return view('Recepcion.CapturaManualTmp', compact('articulosManual'));
@@ -192,7 +194,7 @@ class RecepcionController extends Controller
             }
     
             CapturaManualTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                ->truncate();
+                ->delete();
     
             $faltantesPorRecepcionar = DatRecepcion::where('IdCapRecepcion', $idRecepcion)
                 ->where('IdStatusRecepcion', 1)
