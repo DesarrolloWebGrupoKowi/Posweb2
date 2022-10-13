@@ -303,6 +303,7 @@ class PedidosController extends Controller
 
         DatDetPedidoTmp::where('IdTienda', $usuarioIdTienda)
                         ->delete();
+                        
         return back()->with('PedidoGuardado', 'Pedido Guardado con Exito!');
     }
 

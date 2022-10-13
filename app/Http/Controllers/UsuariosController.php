@@ -47,30 +47,36 @@ class UsuariosController extends Controller
     }
 
     public function CrearUsuario(Request $request){
-        
-        $NomUsuario = $request->get('NomUsuario');
-        $NumNomina = $request->get('NumNomina');
-        $Password = $request->get('Password');
-        $Correo = $request->get('Correo');
-        $IdTipoUsuario = $request->get('IdTipoUsuario');
-        $Status = "0";
+        try {
+            DB::beginTransaction();
 
-        $usuario = new Usuario();
-        $usuario->NomUsuario = $NomUsuario;
-        $usuario->NumNomina = $NumNomina;
-        $usuario->Password = bcrypt($Password);
-        $usuario->Correo = $Correo;
-        $usuario->IdTipoUsuario = $IdTipoUsuario;
-        $usuario->Status = $Status;
-        $usuario->save();
+            $NomUsuario = $request->get('NomUsuario');
+            $NumNomina = $request->get('NumNomina');
+            $Password = $request->get('Password');
+            $Correo = $request->get('Correo');
+            $IdTipoUsuario = $request->get('IdTipoUsuario');
+            $Status = "0";
 
+            if(!Usuario::where('NomUsuario', $NomUsuario)->exists()){
+                $usuario = new Usuario();
+                $usuario->NomUsuario = $NomUsuario;
+                $usuario->NumNomina = $NumNomina;
+                $usuario->Password = bcrypt($Password);
+                $usuario->Correo = $Correo;
+                $usuario->IdTipoUsuario = $IdTipoUsuario;
+                $usuario->Status = $Status;
+                $usuario->save();
 
-        /*
-        $encriptar = "ENCRYPTBYPASSPHRASE('password', '".$Password."')";
-        $sqlInsert = "insert into CatUsuarios(NomUsuario,NumNomina,Password,Correo,IdTipoUsuario,Status)".
-                    " values('".$NomUsuario."','".$NumNomina."',".$encriptar.",'".$Correo."',".$IdTipoUsuario.",".$Status.")";
-        DB::statement($sqlInsert);
-        */
+            }else{
+                return back()->with('El nombre de usuario ya existe:' . $NomUsuario);
+            }
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+
+        DB::commit();
         return redirect("CatUsuarios")->with('msjAdd', 'Usuario: '.$NomUsuario.' Agregado con Exito!');
     }
 
