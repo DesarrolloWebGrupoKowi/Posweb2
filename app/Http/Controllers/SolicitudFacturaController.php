@@ -273,6 +273,10 @@ class SolicitudFacturaController extends Controller
                 //return $constanciaEncoded;
             }
 
+            foreach ($auxTiposPago as $key => $auxTipoPago) {
+                $tipoPago = $auxTipoPago->IdTipoPago;
+            }
+
             try {
                 DB::table('SolicitudFactura')
                 ->insert([
@@ -280,7 +284,7 @@ class SolicitudFacturaController extends Controller
                     'FechaSolicitud' => date('d-m-Y H:i:s'),
                     'IdEncabezado' => $ticket->IdEncabezado,
                     'IdTienda' => $idTienda,
-                    'IdTipoPago' => $tiposPagoFactura[0],
+                    'IdTipoPago' => $tipoPago,
                     'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
                     'TipoPersona' =>$tipoPersona,
                     'RFC' => strtoupper($request->rfcCliente),
@@ -437,7 +441,7 @@ class SolicitudFacturaController extends Controller
     }
 
     public function GuardarSolicitudFacturaClienteNuevo(Request $request){
-        return $request->all();
+        //return $request->all();
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
         
         $numTicket = $request->numTicket;
@@ -492,12 +496,16 @@ class SolicitudFacturaController extends Controller
                 }
             }
 
+            foreach ($auxTiposPago as $key => $auxTipoPago) {
+                $tipoPago = $auxTipoPago->IdTipoPago;
+            }
+
             SolicitudFactura::insert([
                 'IdSolicitudFactura' => $idSolicitudFactura,
                 'FechaSolicitud' => date('d-m-Y H:i:s'),
                 'IdEncabezado' => $idEncabezado,
                 'IdTienda' => $idTienda,
-                'IdTipoPago' => $tiposPagoFactura[0],
+                'IdTipoPago' => $tipoPago,
                 'IdClienteCloud' => null,
                 'TipoPersona' => $request->tipoPersona,
                 'RFC' => strtoupper($request->rfcCliente),
