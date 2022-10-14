@@ -215,130 +215,9 @@ class SolicitudFacturaController extends Controller
         
         //SOLICITUDES CON UN SOLO METODO DE PAGO EN CLIENTE EXISTENTE
         if($auxTiposPago->count() == 1){
-            $editarInfo = $request->chkEdit;
-
-        if(!empty($editarInfo)){
-            NotificacionClienteCloud::insert([
-                'IdTienda' => $idTienda,
-                'IdClienteCloud' => $cliente->IdClienteCloud,
-                'NomCliente' => $cliente->NomCliente,
-                'RFC' => $cliente->RFC,
-                'IdMovimiento' => 1,
-                'Status'=> 0
-            ]);
-
-            $idNotificacion = NotificacionClienteCloud::where('IdTienda', $idTienda)
-                        ->max('IdDatNotificacionesClienteCloud');
-
-            foreach ($editarInfo as $key => $campo) {
-                NotificacionClienteCloud::where('IdDatNotificacionesClienteCloud', $idNotificacion)
-                                    ->update([
-                                        $campo => $campo == 'email' ? strtolower($request->$campo) : strtoupper($request->$campo)
-                                    ]);
-            }
-        }
-        
-            $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
-                        ->max('Id')+1;
-
-            $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
-
-            $pdf = $request->file('cSituacionFiscal');
-            if(!empty($pdf)){
-                $nomArchivo = $pdf->getClientOriginalName();
-
-                $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
-
-                $pdfPos = strlen($constanciaEncoded)/10;
-
-                $pos = ceil($pdfPos);
-
-                $constancia = str_split($constanciaEncoded, $pos);
-
-                //return $constancia;
-
-                ConstanciaSituacionFiscal::insert([
-                    'IdSolicitudFactura' => $idSolicitudFactura,
-                    'NomConstancia' => $nomArchivo
-                ]);
-
-                for ($i=0; $i < count($constancia) ; $i++) { 
-                    $campoConstancia = 'Constancia' . ($i + 1);
-                    ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
-                                        ->update([
-                                            $campoConstancia => $constancia[$i]
-                                        ]);
-                }
-
-                //return $constanciaEncoded;
-            }
-
-            foreach ($auxTiposPago as $key => $auxTipoPago) {
-                $tipoPago = $auxTipoPago->IdTipoPago;
-            }
-
             try {
-                DB::table('SolicitudFactura')
-                ->insert([
-                    'IdSolicitudFactura' => $idSolicitudFactura,
-                    'FechaSolicitud' => date('d-m-Y H:i:s'),
-                    'IdEncabezado' => $ticket->IdEncabezado,
-                    'IdTienda' => $idTienda,
-                    'IdTipoPago' => $tipoPago,
-                    'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
-                    'TipoPersona' =>$tipoPersona,
-                    'RFC' => strtoupper($request->rfcCliente),
-                    'NomCliente' => $cliente->NomCliente,
-                    'Calle' => strtoupper($request->calle),
-                    'NumExt' => strtoupper($request->numExt),
-                    'NumInt' => strtoupper($request->numInt),
-                    'Colonia' => strtoupper($request->colonia),
-                    'Ciudad' => strtoupper($request->ciudad),
-                    'Municipio' => strtoupper($request->municipio),
-                    'Estado' => strtoupper($request->estado),
-                    'Pais' => 'MEXICO',
-                    'CodigoPostal' => $request->codigoPostal,
-                    'Email' => strtolower($request->email),
-                    'Telefono' => $request->telefono,
-                    'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
-                    'IdUsuarioCliente' => null,
-                    'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
-                    'UsoCFDI' => strtoupper($request->cfdi)
-                ]);
-            } catch (\Throwable $th) {
-                throw $th;
-            }
-
-            $pagosFactura = CorteTienda::where('IdEncabezado', $ticket->IdEncabezado)
-                            ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                            ->get();
-
-            foreach ($pagosFactura as $j => $pagoFactura) {
-                CorteTienda::where('IdCortesTienda', $pagoFactura->IdCortesTienda)
-                        ->update([
-                            'IdSolicitudFactura' => $idSolicitudFactura
-                        ]);
-            }
-
-            DatEncabezado::where('IdEncabezado', $ticket->IdEncabezado)
-                            ->update([
-                                'SolicitudFE' => 0
-                            ]);
-
-            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: '.$numTicket);
-        }
-        //SOLICITUDES CON MAS DE 1 METODO DE PAGO EN CLIENTE EXISTENTE
-        else{   
-            if(empty($tiposPagoFactura)){
-                return back()->with('msjdelete', 'Debe Seleccionar Un Metodo de Pago a Facturar!');
-            }
-
-            $pagosParaFacturar = TipoPago::with(['CortePago' => function($query) use ($idEncabezado){
-                $query->where('DatCortesTienda.IdEncabezado', $idEncabezado);
-            }])
-                ->whereIn('IdTipoPago', $tiposPagoFactura)
-                ->get();
-
+                DB::beginTransaction();
+    
                 $editarInfo = $request->chkEdit;
 
                 if(!empty($editarInfo)){
@@ -350,18 +229,23 @@ class SolicitudFacturaController extends Controller
                         'IdMovimiento' => 1,
                         'Status'=> 0
                     ]);
-        
+
                     $idNotificacion = NotificacionClienteCloud::where('IdTienda', $idTienda)
-                                ->max('IdDatNotificacionesClienteCloud');
-        
+                        ->max('IdDatNotificacionesClienteCloud');
+
                     foreach ($editarInfo as $key => $campo) {
                         NotificacionClienteCloud::where('IdDatNotificacionesClienteCloud', $idNotificacion)
-                                            ->update([
-                                                $campo => $campo == 'email' ? strtolower($request->$campo) : strtoupper($request->$campo)
-                                            ]);
+                                        ->update([
+                                            $campo => $campo == 'email' ? strtolower($request->$campo) : strtoupper($request->$campo)
+                                        ]);
                     }
                 }
-                
+            
+                $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
+                            ->max('Id')+1;
+
+                $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+
                 $pdf = $request->file('cSituacionFiscal');
                 if(!empty($pdf)){
                     $nomArchivo = $pdf->getClientOriginalName();
@@ -373,69 +257,199 @@ class SolicitudFacturaController extends Controller
                     $pos = ceil($pdfPos);
 
                     $constancia = str_split($constanciaEncoded, $pos);
-                }
 
-            foreach ($pagosParaFacturar as $key => $pagoParaFactura) {
-                $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
-                        ->max('Id')+1;
+                    //return $constancia;
 
-                $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
-
-                if(!empty($pdf)){
                     ConstanciaSituacionFiscal::insert([
                         'IdSolicitudFactura' => $idSolicitudFactura,
                         'NomConstancia' => $nomArchivo
                     ]);
-        
+
                     for ($i=0; $i < count($constancia) ; $i++) { 
                         $campoConstancia = 'Constancia' . ($i + 1);
                         ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
-                                                ->update([
-                                                    $campoConstancia => $constancia[$i]
-                                                ]);
+                                            ->update([
+                                                $campoConstancia => $constancia[$i]
+                                            ]);
                     }
+
+                    //return $constanciaEncoded;
                 }
 
-                SolicitudFactura::insert([
-                    'IdSolicitudFactura' => $idSolicitudFactura,
-                    'FechaSolicitud' => date('d-m-Y H:i:s'),
-                    'IdEncabezado' =>$ticket->IdEncabezado,
-                    'IdTienda' => $idTienda,
-                    'IdTipoPago' => $tiposPagoFactura[$key],
-                    'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
-                    'TipoPersona' =>$tipoPersona,
-                    'RFC' => strtoupper($request->rfcCliente),
-                    'NomCliente' => $cliente->NomCliente,
-                    'Calle' => strtoupper($request->calle),
-                    'NumExt' => strtoupper($request->numExt),
-                    'NumInt' => strtoupper($request->numInt),
-                    'Colonia' => strtoupper($request->colonia),
-                    'Ciudad' => strtoupper($request->ciudad),
-                    'Municipio' => strtoupper($request->municipio),
-                    'Estado' => strtoupper($request->estado),
-                    'Pais' => 'MEXICO',
-                    'CodigoPostal' => $request->codigoPostal,
-                    'Email' => strtolower($request->email),
-                    'Telefono' => $request->telefono,
-                    'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
-                    'IdUsuarioCliente' => null,
-                    'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
-                    'UsoCFDI' => strtoupper($request->cfdi)
+                foreach ($auxTiposPago as $key => $auxTipoPago) {
+                    $tipoPago = $auxTipoPago->IdTipoPago;
+                }
+
+                DB::table('SolicitudFactura')
+                    ->insert([
+                        'IdSolicitudFactura' => $idSolicitudFactura,
+                        'FechaSolicitud' => date('d-m-Y H:i:s'),
+                        'IdEncabezado' => $ticket->IdEncabezado,
+                        'IdTienda' => $idTienda,
+                        'IdTipoPago' => $tipoPago,
+                        'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
+                        'TipoPersona' =>$tipoPersona,
+                        'RFC' => strtoupper($request->rfcCliente),
+                        'NomCliente' => $cliente->NomCliente,
+                        'Calle' => strtoupper($request->calle),
+                        'NumExt' => strtoupper($request->numExt),
+                        'NumInt' => strtoupper($request->numInt),
+                        'Colonia' => strtoupper($request->colonia),
+                        'Ciudad' => strtoupper($request->ciudad),
+                        'Municipio' => strtoupper($request->municipio),
+                        'Estado' => strtoupper($request->estado),
+                        'Pais' => 'MEXICO',
+                        'CodigoPostal' => $request->codigoPostal,
+                        'Email' => strtolower($request->email),
+                        'Telefono' => $request->telefono,
+                        'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                        'IdUsuarioCliente' => null,
+                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                        'UsoCFDI' => strtoupper($request->cfdi)
                 ]);
 
-                foreach ($pagoParaFactura->CortePago as $key => $pagoIdCorte) {
-                    CorteTienda::where('IdCortesTienda', $pagoIdCorte->IdCortesTienda)
+                $pagosFactura = CorteTienda::where('IdEncabezado', $ticket->IdEncabezado)
+                                ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                                ->get();
+
+                foreach ($pagosFactura as $j => $pagoFactura) {
+                    CorteTienda::where('IdCortesTienda', $pagoFactura->IdCortesTienda)
                             ->update([
                                 'IdSolicitudFactura' => $idSolicitudFactura
                             ]);
                 }
+
+                DatEncabezado::where('IdEncabezado', $ticket->IdEncabezado)
+                                ->update([
+                                    'SolicitudFE' => 0
+                                ]);
+    
+            } catch (\Throwable $th) {
+                DB::rollback();
+                return back()->with('msjdelete', 'Error: ' . $th->getMessage());
             }
-
-            DatEncabezado::where('IdEncabezado', $ticket->IdEncabezado)
-                        ->update([
-                            'SolicitudFE' => 0
+    
+            DB::commit();
+            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: '.$numTicket);
+        }
+        //SOLICITUDES CON MAS DE 1 METODO DE PAGO EN CLIENTE EXISTENTE
+        else{   
+            try {
+                DB::beginTransaction();
+    
+                if(empty($tiposPagoFactura)){
+                    return back()->with('msjdelete', 'Debe Seleccionar Un Metodo de Pago a Facturar!');
+                }
+    
+                $pagosParaFacturar = TipoPago::with(['CortePago' => function($query) use ($idEncabezado){
+                    $query->where('DatCortesTienda.IdEncabezado', $idEncabezado);
+                }])
+                    ->whereIn('IdTipoPago', $tiposPagoFactura)
+                    ->get();
+    
+                    $editarInfo = $request->chkEdit;
+    
+                    if(!empty($editarInfo)){
+                        NotificacionClienteCloud::insert([
+                            'IdTienda' => $idTienda,
+                            'IdClienteCloud' => $cliente->IdClienteCloud,
+                            'NomCliente' => $cliente->NomCliente,
+                            'RFC' => $cliente->RFC,
+                            'IdMovimiento' => 1,
+                            'Status'=> 0
                         ]);
-
+            
+                        $idNotificacion = NotificacionClienteCloud::where('IdTienda', $idTienda)
+                                    ->max('IdDatNotificacionesClienteCloud');
+            
+                        foreach ($editarInfo as $key => $campo) {
+                            NotificacionClienteCloud::where('IdDatNotificacionesClienteCloud', $idNotificacion)
+                                                ->update([
+                                                    $campo => $campo == 'email' ? strtolower($request->$campo) : strtoupper($request->$campo)
+                                                ]);
+                        }
+                    }
+                    
+                    $pdf = $request->file('cSituacionFiscal');
+                    if(!empty($pdf)){
+                        $nomArchivo = $pdf->getClientOriginalName();
+    
+                        $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
+    
+                        $pdfPos = strlen($constanciaEncoded)/10;
+    
+                        $pos = ceil($pdfPos);
+    
+                        $constancia = str_split($constanciaEncoded, $pos);
+                    }
+    
+                foreach ($pagosParaFacturar as $key => $pagoParaFactura) {
+                    $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
+                            ->max('Id')+1;
+    
+                    $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+    
+                    if(!empty($pdf)){
+                        ConstanciaSituacionFiscal::insert([
+                            'IdSolicitudFactura' => $idSolicitudFactura,
+                            'NomConstancia' => $nomArchivo
+                        ]);
+            
+                        for ($i=0; $i < count($constancia) ; $i++) { 
+                            $campoConstancia = 'Constancia' . ($i + 1);
+                            ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
+                                                    ->update([
+                                                        $campoConstancia => $constancia[$i]
+                                                    ]);
+                        }
+                    }
+    
+                    SolicitudFactura::insert([
+                        'IdSolicitudFactura' => $idSolicitudFactura,
+                        'FechaSolicitud' => date('d-m-Y H:i:s'),
+                        'IdEncabezado' =>$ticket->IdEncabezado,
+                        'IdTienda' => $idTienda,
+                        'IdTipoPago' => $tiposPagoFactura[$key],
+                        'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
+                        'TipoPersona' =>$tipoPersona,
+                        'RFC' => strtoupper($request->rfcCliente),
+                        'NomCliente' => $cliente->NomCliente,
+                        'Calle' => strtoupper($request->calle),
+                        'NumExt' => strtoupper($request->numExt),
+                        'NumInt' => strtoupper($request->numInt),
+                        'Colonia' => strtoupper($request->colonia),
+                        'Ciudad' => strtoupper($request->ciudad),
+                        'Municipio' => strtoupper($request->municipio),
+                        'Estado' => strtoupper($request->estado),
+                        'Pais' => 'MEXICO',
+                        'CodigoPostal' => $request->codigoPostal,
+                        'Email' => strtolower($request->email),
+                        'Telefono' => $request->telefono,
+                        'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                        'IdUsuarioCliente' => null,
+                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                        'UsoCFDI' => strtoupper($request->cfdi)
+                    ]);
+    
+                    foreach ($pagoParaFactura->CortePago as $key => $pagoIdCorte) {
+                        CorteTienda::where('IdCortesTienda', $pagoIdCorte->IdCortesTienda)
+                                ->update([
+                                    'IdSolicitudFactura' => $idSolicitudFactura
+                                ]);
+                    }
+                }
+    
+                DatEncabezado::where('IdEncabezado', $ticket->IdEncabezado)
+                            ->update([
+                                'SolicitudFE' => 0
+                            ]);
+    
+            } catch (\Throwable $th) {
+                DB::rollback();
+                return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            }
+    
+            DB::commit();
             return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: '.$numTicket);
         }
     }
@@ -462,133 +476,45 @@ class SolicitudFacturaController extends Controller
 
         //SOLICITUDES CON UN SOLO METODO DE PAGO EN CLIENTE NUEVO
         if($auxTiposPago->count() == 1){
-            $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
-                        ->max('Id')+1;
-
-            $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
-
-            $pdf = $request->file('cSituacionFiscal');
-
-            if(!empty($pdf)){
-                $nomArchivo = $pdf->getClientOriginalName();
-
-                $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
-
-                $pdfPos = strlen($constanciaEncoded)/10;
-
-                $pos = ceil($pdfPos);
-
-                $constancia = str_split($constanciaEncoded, $pos);
-
-                //return $constancia;
-
-                ConstanciaSituacionFiscal::insert([
-                    'IdSolicitudFactura' => $idSolicitudFactura,
-                    'NomConstancia' => $nomArchivo
-                ]);
-
-                for ($i=0; $i < count($constancia) ; $i++) { 
-                    $campoConstancia = 'Constancia' . ($i + 1);
-                    ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
-                                        ->update([
-                                            $campoConstancia => $constancia[$i]
-                                        ]);
-                }
-            }
-
-            foreach ($auxTiposPago as $key => $auxTipoPago) {
-                $tipoPago = $auxTipoPago->IdTipoPago;
-            }
-
-            SolicitudFactura::insert([
-                'IdSolicitudFactura' => $idSolicitudFactura,
-                'FechaSolicitud' => date('d-m-Y H:i:s'),
-                'IdEncabezado' => $idEncabezado,
-                'IdTienda' => $idTienda,
-                'IdTipoPago' => $tipoPago,
-                'IdClienteCloud' => null,
-                'TipoPersona' => $request->tipoPersona,
-                'RFC' => strtoupper($request->rfcCliente),
-                'NomCliente' => strtoupper($request->nomCliente),
-                'Calle' => strtoupper($request->calle),
-                'NumExt' => strtoupper($request->numExt),
-                'NumInt' => strtoupper($request->numInt),
-                'Colonia' => strtoupper($request->colonia),
-                'Ciudad' => strtoupper($request->ciudad),
-                'Municipio' => strtoupper($request->municipio),
-                'Estado' => strtoupper($request->estado),
-                'Pais' => 'MEXICO',
-                'CodigoPostal' => $request->codigoPostal,
-                'Email' => strtolower($request->correo),
-                'Telefono' => $request->telefono,
-                'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
-                'IdUsuarioCliente' => null,
-                'Bill_To' => null,
-                'UsoCFDI' => strtoupper($request->cfdi)
-            ]);
-
-            $pagosFactura = CorteTienda::where('IdEncabezado', $ticket->IdEncabezado)
-                            ->where('IdTienda', $idTienda)
-                            ->get();
-
-            foreach ($pagosFactura as $j => $pagoFactura) {
-                CorteTienda::where('IdCortesTienda', $pagoFactura->IdCortesTienda)
-                        ->update([
-                            'IdSolicitudFactura' => $idSolicitudFactura
-                        ]);
-            }
-
-            DatEncabezado::where('IdEncabezado', $idEncabezado)
-                            ->update([
-                                'SolicitudFE' => 0
-                            ]);
-
-            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: '.$numTicket);
-        }
-        //SOLICITUDES CON MAS DE 1 METODO DE PAGO EN CLIENTE NUEVO
-        else{   
-            if(empty($tiposPagoFactura)){
-                return back()->with('msjdelete', 'Debe Seleccionar Un Metodo de Pago a Facturar!');
-            }
-
-            $pagosParaFacturar = TipoPago::with(['CortePago' => function($query) use ($idEncabezado){
-                $query->where('DatCortesTienda.IdEncabezado', $idEncabezado);
-            }])
-                ->whereIn('IdTipoPago', $tiposPagoFactura)
-                ->get();
-
-            $pdf = $request->file('cSituacionFiscal'); 
-            if(!empty($pdf)){
-                $nomArchivo = $pdf->getClientOriginalName();
-
-                $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
-
-                $pdfPos = strlen($constanciaEncoded)/10;
-
-                $pos = ceil($pdfPos);
-
-                $constancia = str_split($constanciaEncoded, $pos);
-            }
-
-            foreach ($pagosParaFacturar as $key => $pagoParaFactura) {
+            try {
+                DB::beginTransaction();
+    
                 $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
                         ->max('Id')+1;
 
                 $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
 
+                $pdf = $request->file('cSituacionFiscal');
+
                 if(!empty($pdf)){
+                    $nomArchivo = $pdf->getClientOriginalName();
+
+                    $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
+
+                    $pdfPos = strlen($constanciaEncoded)/10;
+
+                    $pos = ceil($pdfPos);
+
+                    $constancia = str_split($constanciaEncoded, $pos);
+
+                    //return $constancia;
+
                     ConstanciaSituacionFiscal::insert([
                         'IdSolicitudFactura' => $idSolicitudFactura,
                         'NomConstancia' => $nomArchivo
                     ]);
-        
+
                     for ($i=0; $i < count($constancia) ; $i++) { 
                         $campoConstancia = 'Constancia' . ($i + 1);
                         ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
-                                                ->update([
-                                                    $campoConstancia => $constancia[$i]
-                                                ]);
+                                            ->update([
+                                                $campoConstancia => $constancia[$i]
+                                            ]);
                     }
+                }
+
+                foreach ($auxTiposPago as $key => $auxTipoPago) {
+                    $tipoPago = $auxTipoPago->IdTipoPago;
                 }
 
                 SolicitudFactura::insert([
@@ -596,7 +522,7 @@ class SolicitudFacturaController extends Controller
                     'FechaSolicitud' => date('d-m-Y H:i:s'),
                     'IdEncabezado' => $idEncabezado,
                     'IdTienda' => $idTienda,
-                    'IdTipoPago' => $tiposPagoFactura[$key],
+                    'IdTipoPago' => $tipoPago,
                     'IdClienteCloud' => null,
                     'TipoPersona' => $request->tipoPersona,
                     'RFC' => strtoupper($request->rfcCliente),
@@ -618,19 +544,125 @@ class SolicitudFacturaController extends Controller
                     'UsoCFDI' => strtoupper($request->cfdi)
                 ]);
 
-                foreach ($pagoParaFactura->CortePago as $key => $pagoIdCorte) {
-                    CorteTienda::where('IdCortesTienda', $pagoIdCorte->IdCortesTienda)
+                $pagosFactura = CorteTienda::where('IdEncabezado', $ticket->IdEncabezado)
+                                ->where('IdTienda', $idTienda)
+                                ->get();
+
+                foreach ($pagosFactura as $j => $pagoFactura) {
+                    CorteTienda::where('IdCortesTienda', $pagoFactura->IdCortesTienda)
                             ->update([
                                 'IdSolicitudFactura' => $idSolicitudFactura
                             ]);
                 }
+
+                DatEncabezado::where('IdEncabezado', $idEncabezado)
+                                ->update([
+                                    'SolicitudFE' => 0
+                                ]);
+    
+            } catch (\Throwable $th) {
+                DB::rollback();
+                return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            }
+    
+            DB::commit();
+            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: '.$numTicket);
+        }
+        //SOLICITUDES CON MAS DE 1 METODO DE PAGO EN CLIENTE NUEVO
+        else{   
+            if(empty($tiposPagoFactura)){
+                return back()->with('msjdelete', 'Debe Seleccionar Un Metodo de Pago a Facturar!');
             }
 
-            DatEncabezado::where('IdEncabezado', $ticket->IdEncabezado)
-                        ->update([
-                            'SolicitudFE' => 0
+            try {
+                DB::beginTransaction();
+    
+                $pagosParaFacturar = TipoPago::with(['CortePago' => function($query) use ($idEncabezado){
+                    $query->where('DatCortesTienda.IdEncabezado', $idEncabezado);
+                }])
+                    ->whereIn('IdTipoPago', $tiposPagoFactura)
+                    ->get();
+    
+                $pdf = $request->file('cSituacionFiscal'); 
+                if(!empty($pdf)){
+                    $nomArchivo = $pdf->getClientOriginalName();
+    
+                    $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
+    
+                    $pdfPos = strlen($constanciaEncoded)/10;
+    
+                    $pos = ceil($pdfPos);
+    
+                    $constancia = str_split($constanciaEncoded, $pos);
+                }
+    
+                foreach ($pagosParaFacturar as $key => $pagoParaFactura) {
+                    $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
+                            ->max('Id')+1;
+    
+                    $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+    
+                    if(!empty($pdf)){
+                        ConstanciaSituacionFiscal::insert([
+                            'IdSolicitudFactura' => $idSolicitudFactura,
+                            'NomConstancia' => $nomArchivo
                         ]);
-
+            
+                        for ($i=0; $i < count($constancia) ; $i++) { 
+                            $campoConstancia = 'Constancia' . ($i + 1);
+                            ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
+                                                    ->update([
+                                                        $campoConstancia => $constancia[$i]
+                                                    ]);
+                        }
+                    }
+    
+                    SolicitudFactura::insert([
+                        'IdSolicitudFactura' => $idSolicitudFactura,
+                        'FechaSolicitud' => date('d-m-Y H:i:s'),
+                        'IdEncabezado' => $idEncabezado,
+                        'IdTienda' => $idTienda,
+                        'IdTipoPago' => $tiposPagoFactura[$key],
+                        'IdClienteCloud' => null,
+                        'TipoPersona' => $request->tipoPersona,
+                        'RFC' => strtoupper($request->rfcCliente),
+                        'NomCliente' => strtoupper($request->nomCliente),
+                        'Calle' => strtoupper($request->calle),
+                        'NumExt' => strtoupper($request->numExt),
+                        'NumInt' => strtoupper($request->numInt),
+                        'Colonia' => strtoupper($request->colonia),
+                        'Ciudad' => strtoupper($request->ciudad),
+                        'Municipio' => strtoupper($request->municipio),
+                        'Estado' => strtoupper($request->estado),
+                        'Pais' => 'MEXICO',
+                        'CodigoPostal' => $request->codigoPostal,
+                        'Email' => strtolower($request->correo),
+                        'Telefono' => $request->telefono,
+                        'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                        'IdUsuarioCliente' => null,
+                        'Bill_To' => null,
+                        'UsoCFDI' => strtoupper($request->cfdi)
+                    ]);
+    
+                    foreach ($pagoParaFactura->CortePago as $key => $pagoIdCorte) {
+                        CorteTienda::where('IdCortesTienda', $pagoIdCorte->IdCortesTienda)
+                                ->update([
+                                    'IdSolicitudFactura' => $idSolicitudFactura
+                                ]);
+                    }
+                }
+    
+                DatEncabezado::where('IdEncabezado', $ticket->IdEncabezado)
+                            ->update([
+                                'SolicitudFE' => 0
+                            ]);
+    
+            } catch (\Throwable $th) {
+                DB::rollback();
+                return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            }
+    
+            DB::commit();
             return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: '.$numTicket);
         }
     }
@@ -650,19 +682,28 @@ class SolicitudFacturaController extends Controller
 
         //return $constancia;
 
-        ConstanciaSituacionFiscal::insert([
-            'IdSolicitudFactura' => $idSolicitudFactura,
-            'NomConstancia' => $nomArchivo
-        ]);
+        try {
+            DB::beginTransaction();
 
-        for ($i=0; $i < count($constancia) ; $i++) { 
-            $campoConstancia = 'Constancia' . ($i + 1);
-            ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
-                                    ->update([
-                                        $campoConstancia => $constancia[$i]
-                                    ]);
+            ConstanciaSituacionFiscal::insert([
+                'IdSolicitudFactura' => $idSolicitudFactura,
+                'NomConstancia' => $nomArchivo
+            ]);
+    
+            for ($i=0; $i < count($constancia) ; $i++) { 
+                $campoConstancia = 'Constancia' . ($i + 1);
+                ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
+                                        ->update([
+                                            $campoConstancia => $constancia[$i]
+                                        ]);
+            }
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
+        DB::commit();
         return back();
     }
 }
