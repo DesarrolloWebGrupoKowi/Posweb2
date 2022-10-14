@@ -32,7 +32,7 @@ class LigarClientesController extends Controller
                     " a.IdTienda, a.IdClienteCloud, a.TipoPersona, a.NomCliente, a.Calle, ".
                     " a.NumExt, a.NumInt, a.Colonia, a.Ciudad, a.Municipio, a.Estado,".
                     " a.Pais, a.CodigoPostal, a.Email, a.Telefono, a.IdUsuarioSolicitud, a.IdUsuarioCliente, a.Fecha_Cliente,".
-                    " a.Bill_To, a.UsoCFDI, c.NomTipoPago, d.NumTarjeta, e.NomBanco, d.NumTarjeta, f.IdTicket, d.Pago, h.NomCFDI, g.NomTienda, j.NomConstancia, a.Subir";
+                    " a.Bill_To, a.UsoCFDI, c.NomTipoPago, d.NumTarjeta, e.NomBanco, d.NumTarjeta, f.IdTicket, d.Pago, h.NomCFDI, g.NomTienda, j.NomConstancia, a.Subir,a.IdTipoPago";
                      
         $clientesPorLigar = DB::select($sqlSelect);
 

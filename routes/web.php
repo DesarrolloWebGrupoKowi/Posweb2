@@ -644,6 +644,10 @@ Route::post('/EliminarMermaTmp/{idMermaTmp}', 'App\Http\Controllers\CapMermasCon
 Route::get('/ReporteMermas', 'App\Http\Controllers\CapMermasController@ReporteMermas')->name('ReporteMermas');
 
 //+============================================================================================================================================+//
+//InterfazMermas
+Route::get('/InterfazMermas', 'App\Http\Controllers\InterfazMermasController@InterfazMermas')->name('InterfazMermas');
+
+//+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
 
