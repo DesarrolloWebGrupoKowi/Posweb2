@@ -437,7 +437,7 @@ class SolicitudFacturaController extends Controller
     }
 
     public function GuardarSolicitudFacturaClienteNuevo(Request $request){
-        //return $request->all();
+        return $request->all();
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
         
         $numTicket = $request->numTicket;
