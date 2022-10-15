@@ -143,7 +143,7 @@ class TiposMermaController extends Controller
                 DB::rollback();
                 return back()->with('msjdelete', 'Articulo Desconocido: (' . $codArticulo .')');
             }
-            if(TipoMermaArticulo::where('CodArticulo', $codArticulo)->exists()){
+            if(TipoMermaArticulo::where('CodArticulo', $codArticulo)->where('IdTipoMerma', $idTipoMerma)->exists()){
                 DB::rollback();
                 return back()->with('msjdelete', 'El Articulo ya esta agregado para este tipo de Merma!');
             } 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Tienda;
 use App\Models\CapMerma;
 use App\Models\OnHandTiendaCloudTable;
@@ -47,6 +48,8 @@ class InterfazMermasController extends Controller
                 ->whereRaw("CAST(a.FechaCaptura as date) between '". $fecha1 ."' and '". $fecha2 ."'")
                 ->groupBy('a.CodArticulo', 'b.NomTipoMerma', 'c.Libro', 'c.Cuenta', 'c.SubCuenta', 'c.InterCosto', 'c.Futuro',
                         'd.Almacen','e.IdTipoArticulo', 'd.CentroCosto', 'e.NomArticulo')
+                ->whereNull('a.FechaInterfaz')
+                ->whereNull('a.IdUsuarioInterfaz')
                 ->get();
 
             $lotesDisponibles = null;
@@ -101,6 +104,12 @@ class InterfazMermasController extends Controller
             $organization_Name = Tienda::where('IdTienda', $idTienda)
                 ->value('Organization_Name');
 
+            $subinventory_Code = Tienda::where('IdTienda', $idTienda)
+                ->value('Subinventory_Code');
+
+            $centroCosto = Tienda::where('IdTienda', $idTienda)
+                ->value('CentroCosto');
+
             $mermas = CapMerma::with(['Lotes' => function ($lote) use ($almacen, $organization_Name){
                 $lote->leftJoin('server.CLOUD_TABLES.dbo.XXKW_ONHAND_TIENDAS', 'XXKW_ONHAND_TIENDAS.INVENTORY_ITEM_ID', 'XXKW_ITEMS.INVENTORY_ITEM_ID')
                     ->where('XXKW_ONHAND_TIENDAS.SUBINVENTORY_CODE', $almacen)
@@ -119,40 +128,64 @@ class InterfazMermasController extends Controller
                 ->whereRaw("CAST(a.FechaCaptura as date) between '". $fecha1 ."' and '". $fecha2 ."'")
                 ->groupBy('a.CodArticulo', 'b.NomTipoMerma', 'c.Libro', 'c.Cuenta', 'c.SubCuenta', 'c.InterCosto', 'c.Futuro',
                         'd.Almacen','e.IdTipoArticulo', 'd.CentroCosto', 'e.NomArticulo')
+                ->whereNull('a.FechaInterfaz')
+                ->whereNull('a.IdUsuarioInterfaz')
                 ->get();
 
             //return $mermas;
+
+            $source_Header_Id = DB::select('select next value for CLOUD_INTERFACE..SOURCE_HEADER_ID_SEQ as SOURCE_HEADER_ID_SEQ');
+            foreach ($source_Header_Id as $key => $value) {
+                $s_Header_Id = $value->SOURCE_HEADER_ID_SEQ;
+            }
+
+            $sourceLineId = 0;
+            $articulosInterfazados = [];
 
             foreach ($mermas as $keyCapMerma => $merma) {
                 if($merma->Lotes->count() > 0){
                     $totalLote = 0;
                     foreach ($merma->Lotes as $key => $mermaLote) {
                         $totalLote = $totalLote + $mermaLote->TOTAL;
-                        echo 'lotes: ' . $mermaLote->LOT_NUMBER . ' - ' . $mermaLote->TOTAL . '<br>'; 
                     }
 
-                    echo 'Total Lotes: ' . $totalLote;
-                    echo '<br><br>';
                     $RestanteMerma = $merma->CantArticulo;
 
                     foreach ($merma->Lotes as $keyLoteMerma => $loteMerma) {
                         if($totalLote >= $merma->CantArticulo){
+                            $sourceLineId = $sourceLineId + 1;
                             $auxLote = $loteMerma->TOTAL;
                             $auxCantMerma = $RestanteMerma;
-                            echo 'Articulo: ' . $merma->CodArticulo . '<br>';
-                            echo 'lote: ' . $loteMerma->LOT_NUMBER . '<br>'; 
-                            echo 'Merma: ' . $auxCantMerma . '<br>';
-                            echo 'inv lote: ' . $loteMerma->TOTAL . '<br>'; 
-
+                            
                             $RestanteMerma = $auxCantMerma - $loteMerma->TOTAL;
                             $consumo = ($auxCantMerma - $loteMerma->TOTAL) >= 0 ? $loteMerma->TOTAL : $auxCantMerma;
-                            echo 'Consumo: ' . $consumo;
-                            echo '<br>';
                             $restanteLote = $loteMerma->TOTAL - $consumo;
-                            echo 'Restante lote :' . $restanteLote;
-                            echo '<br>';
-                            echo '<br>';
+
+                            TransactionCloudInterface::insert([
+                                'ORGANIZATION_NAME' => $organization_Name,
+                                'ITEM_NUMBER' => $merma->CodArticulo,
+                                'SUBINVENTORY_CODE' => $almacen,
+                                'TRANSACTION_QUANTITY' => -$consumo,
+                                'TRANSACTION_UOM' => $loteMerma->UOM,
+                                'TRANSACTION_DATE' => date('d-m-Y H:i:s'),
+                                'TRANSACTION_TYPE_NAME' => 'Miscellaneous issue',
+                                'SOURCE_CODE' => $subinventory_Code,
+                                'SOURCE_HEADER_ID' => $s_Header_Id,
+                                'SOURCE_LINE_ID' => $sourceLineId,
+                                'DST_SEGMENT1' => $merma->Libro,
+                                'DST_SEGMENT2' => $centroCosto,
+                                'DST_SEGMENT3' => $merma->Cuenta,
+                                'DST_SEGMENT4' => $merma->SubCuenta,
+                                'DST_SEGMENT5'=> $merma->InterCosto,
+                                'DST_SEGMENT6' => empty($merma->IdTipoArticulo) ? '00' : $merma->IdTipoArticulo,
+                                'DST_SEGMENT7' => $merma->Futuro,
+                                'LOT_NUMBER' => $loteMerma->LOT_NUMBER
+                            ]);
+
+                            //ESTOS SERAN LOS ARTICULOS INTERFAZADOS
+                            array_push($articulosInterfazados, $merma->CodArticulo);
                         }
+
                         if($RestanteMerma <= 0){
                             break;
                         }
@@ -160,19 +193,29 @@ class InterfazMermasController extends Controller
                 }   
             }
 
-            return 'fin:)';
+            //CUANDO LA MERMA YA SE INTERFAZO
+            if(!empty($articulosInterfazados)){
+                CapMerma::where('IdTienda', $idTienda)
+                    ->whereRaw("CAST(FechaCaptura as date) between '". $fecha1 ."' and '". $fecha2 ."'")
+                    ->whereNull('FechaInterfaz')
+                    ->whereNull('IdUsuarioInterfaz')
+                    ->whereIn('CodArticulo', array_unique($articulosInterfazados))
+                    ->update([
+                        'IdUsuarioInterfaz' => Auth::user()->IdUsuario,
+                        'FechaInterfaz' => date('d-m-Y H:i:s')
+                    ]);
+            }   
 
         } catch (\Throwable $th) {
             DB::connection('Cloud_Interface')->rollback();
             DB::connection('server')->rollback();
             DB::rollback();
-            return $th;
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         DB::connection('Cloud_Interface')->commit();
         DB::connection('server')->commit();
         DB::commit();
-        return back()->with('msjAdd', 'Mermas Interfazadas!');
+        return back()->with('msjAdd', 'Se Interfazaron los articulos: ' . implode(',', array_unique($articulosInterfazados)) . ' Correctamente!');
     }
 }

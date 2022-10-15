@@ -42,7 +42,7 @@
                     <div class="d-flex justify-content-center">
                         <div class="col-auto">
                             <span class="bg-danger text-white rounded-2 p-1"><i class="fa fa-exclamation-circle"></i>
-                                <strong>No Cuentas Con Inventario Suficiente</strong> <i
+                                <strong>Inventario Insuficiente</strong> <i
                                     class="fa fa-exclamation-circle"></i></span>
                         </div>
                     </div>

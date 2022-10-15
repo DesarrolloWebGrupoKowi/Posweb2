@@ -566,7 +566,7 @@ class SolicitudFacturaController extends Controller
             }
     
             DB::commit();
-            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: '.$numTicket);
+            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: '. $numTicket);
         }
         //SOLICITUDES CON MAS DE 1 METODO DE PAGO EN CLIENTE NUEVO
         else{   

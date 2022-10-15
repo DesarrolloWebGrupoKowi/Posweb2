@@ -17,6 +17,9 @@
             <h2 class="card shadow p-1">Interfaz de Mermas</h2>
         </div>
     </div>
+    <div class="container mb-3">
+        @include('Alertas.Alertas')
+    </div>
     <div class="container card shadow-lg p-2 rounded-3">
         <form action="/InterfazMermas" method="GET">
             <div class="row d-flex justify-content-center mb-3">
@@ -93,6 +96,14 @@
                     <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfaz">
                         <i class="fa fa-refresh"></i> Interfazar Mermas
                     </button>
+                </div>
+            </div>
+            @elseif(empty($lotesDisponibles) && $mermas->count() > 0)
+            <div class="d-flex justify-content-center mb-1">
+                <div class="col-auto">
+                    <h5 class="bg-danger text-white p-1 shadow rounded-3">
+                        <i class="fa fa-exclamation-circle"></i> Ninguna Merma Apta para ser Interfazada <i class="fa fa-exclamation-circle"></i>
+                    </h5>
                 </div>
             </div>
             @endif
