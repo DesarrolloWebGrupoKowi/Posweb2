@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Articulo;
 use App\Models\TipoMerma;
+use App\Models\ItemCloudTable;
+use App\Models\OnHanTiendaCloudTable;
 
 class CapMerma extends Model
 {
@@ -26,5 +28,9 @@ class CapMerma extends Model
 
     public function TiposMerma(){
         return $this->hasMany(TipoMerma::class, 'IdTipoMerma', 'IdTipoMerma');
+    }
+
+    public function Lotes(){
+        return $this->hasMany(ItemCloudTable::class, 'ITEM_NUMBER', 'CodArticulo');
     }
 }

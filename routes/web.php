@@ -647,6 +647,9 @@ Route::get('/ReporteMermas', 'App\Http\Controllers\CapMermasController@ReporteMe
 //InterfazMermas
 Route::get('/InterfazMermas', 'App\Http\Controllers\InterfazMermasController@InterfazMermas')->name('InterfazMermas');
 
+//InterfazarMermas
+Route::post('/InterfazarMermas/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazMermasController@InterfazarMermas')->name('InterfazarMermas');
+
 //+============================================================================================================================================+//
   });//->Termina Middleware Auth
 

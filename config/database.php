@@ -104,6 +104,19 @@ return [
             'prefix_indexes' => true,
         ],
 
+        'Cloud_Interface' => [
+            'driver' => 'sqlsrv',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST_CLOUD_INTERFACE', 'localhost'),
+            'port' => env('DB_PORT_CLOUD_INTERFACE', '1433'),
+            'database' => env('DB_DATABASE_CLOUD_INTERFACE', 'forge'),
+            'username' => env('DB_USERNAME_CLOUD_INTERFACE', 'forge'),
+            'password' => env('DB_PASSWORD_CLOUD_INTERFACE', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+        ],
+
         'server' => [
             'driver' => 'sqlsrv',
             'url' => env('DATABASE_URL'),
