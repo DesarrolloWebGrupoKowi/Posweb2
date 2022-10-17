@@ -219,10 +219,16 @@ class SolicitudFacturaController extends Controller
                 DB::beginTransaction();
     
                 $editarInfo = $request->chkEdit;
+            
+                $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
+                            ->max('Id')+1;
+
+                $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
 
                 if(!empty($editarInfo)){
                     NotificacionClienteCloud::insert([
                         'IdTienda' => $idTienda,
+                        'IdSolicitudFactura' => $idSolicitudFactura,
                         'IdClienteCloud' => $cliente->IdClienteCloud,
                         'NomCliente' => $cliente->NomCliente,
                         'RFC' => $cliente->RFC,
@@ -240,11 +246,6 @@ class SolicitudFacturaController extends Controller
                                         ]);
                     }
                 }
-            
-                $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
-                            ->max('Id')+1;
-
-                $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
 
                 $pdf = $request->file('cSituacionFiscal');
                 if(!empty($pdf)){
@@ -349,26 +350,7 @@ class SolicitudFacturaController extends Controller
     
                     $editarInfo = $request->chkEdit;
     
-                    if(!empty($editarInfo)){
-                        NotificacionClienteCloud::insert([
-                            'IdTienda' => $idTienda,
-                            'IdClienteCloud' => $cliente->IdClienteCloud,
-                            'NomCliente' => $cliente->NomCliente,
-                            'RFC' => $cliente->RFC,
-                            'IdMovimiento' => 1,
-                            'Status'=> 0
-                        ]);
-            
-                        $idNotificacion = NotificacionClienteCloud::where('IdTienda', $idTienda)
-                                    ->max('IdDatNotificacionesClienteCloud');
-            
-                        foreach ($editarInfo as $key => $campo) {
-                            NotificacionClienteCloud::where('IdDatNotificacionesClienteCloud', $idNotificacion)
-                                                ->update([
-                                                    $campo => $campo == 'email' ? strtolower($request->$campo) : strtoupper($request->$campo)
-                                                ]);
-                        }
-                    }
+                    
                     
                     $pdf = $request->file('cSituacionFiscal');
                     if(!empty($pdf)){
@@ -388,6 +370,28 @@ class SolicitudFacturaController extends Controller
                             ->max('Id')+1;
     
                     $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+
+                    if(!empty($editarInfo)){
+                        NotificacionClienteCloud::insert([
+                            'IdTienda' => $idTienda,
+                            'IdSolicitudFactura' => $idSolicitudFactura,
+                            'IdClienteCloud' => $cliente->IdClienteCloud,
+                            'NomCliente' => $cliente->NomCliente,
+                            'RFC' => $cliente->RFC,
+                            'IdMovimiento' => 1,
+                            'Status'=> 0
+                        ]);
+            
+                        $idNotificacion = NotificacionClienteCloud::where('IdTienda', $idTienda)
+                                    ->max('IdDatNotificacionesClienteCloud');
+            
+                        foreach ($editarInfo as $key => $campo) {
+                            NotificacionClienteCloud::where('IdDatNotificacionesClienteCloud', $idNotificacion)
+                                                ->update([
+                                                    $campo => $campo == 'email' ? strtolower($request->$campo) : strtoupper($request->$campo)
+                                                ]);
+                        }
+                    }
     
                     if(!empty($pdf)){
                         ConstanciaSituacionFiscal::insert([
@@ -544,6 +548,15 @@ class SolicitudFacturaController extends Controller
                     'UsoCFDI' => strtoupper($request->cfdi)
                 ]);
 
+                NotificacionClienteCloud::insert([
+                    'IdTienda' => $idTienda,
+                    'IdSolicitudFactura' => $idSolicitudFactura,
+                    'NomCliente' => strtoupper($request->nomCliente),
+                    'RFC' => strtoupper($request->rfcCliente),
+                    'IdMovimiento' => 2,
+                    'Status'=> 0
+                ]);
+
                 $pagosFactura = CorteTienda::where('IdEncabezado', $ticket->IdEncabezado)
                                 ->where('IdTienda', $idTienda)
                                 ->get();
@@ -650,6 +663,15 @@ class SolicitudFacturaController extends Controller
                                     'IdSolicitudFactura' => $idSolicitudFactura
                                 ]);
                     }
+
+                    NotificacionClienteCloud::insert([
+                        'IdTienda' => $idTienda,
+                        'IdSolicitudFactura' => $idSolicitudFactura,
+                        'NomCliente' => strtoupper($request->nomCliente),
+                        'RFC' => strtoupper($request->rfcCliente),
+                        'IdMovimiento' => 2,
+                        'Status'=> 0
+                    ]);
                 }
     
                 DatEncabezado::where('IdEncabezado', $ticket->IdEncabezado)

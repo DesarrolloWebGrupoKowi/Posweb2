@@ -10,6 +10,7 @@ class NotificacionClienteCloud extends Model
     use HasFactory;
     protected $table = 'DatNotificacionesClienteCloud';
     protected $fillable = ['IdTienda', 
+    'IdSolicitudFactura',
     'IdClienteCloud', 
     'IdMovimiento', 
     'Calle', 
