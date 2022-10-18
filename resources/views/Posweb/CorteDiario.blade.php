@@ -15,7 +15,7 @@
 </style>
 @section('contenido')
     <div class="container">
-        <h2 class="titulo card mb-3">Corte Diario - {{ $tienda->NomTienda }}</h2>
+        <h2 class="titulo card mb-3">Corte Diario tienda - {{ $tienda->NomTienda }}</h2>
         <form id="formCorte" action="/CorteDiario">
             <div class="row mb-2">
                 <div class="col-3">
