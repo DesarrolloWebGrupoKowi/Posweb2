@@ -1,5 +1,5 @@
-$("#alerta").fadeTo(2000, 1000).slideUp(1000, function() {
-    $("alerta").slideUp(1000);
+$("#alerta").fadeTo(4000, 1000).slideUp(1000, function() {
+    $("alerta").slideUp(3000);
 });
 
 function mostrarPass1(id) {

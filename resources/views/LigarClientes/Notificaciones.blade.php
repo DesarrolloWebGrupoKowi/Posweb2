@@ -1,4 +1,4 @@
-<!-- Modal -->
+<!-- Modal Notificaciones -->
 <div class="modal fade" data-bs-backdrop="static" id="Notificaciones" tabindex="-1" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog {!! $notificaciones > 0 ? 'modal-fullscreen' : 'modal-lg' !!}">
@@ -8,13 +8,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                @foreach ($movimientos as $movimiento)
-                    <div class="row mb-3">
+                <div class="row">
+                    @foreach ($movimientos as $movimiento)
                         <div class="col-6">
                             <div class="card">
-                                <div class="card-header">
-                                    <h6>{{ $movimiento->NomMovimientoCliente }}</h6>
-                                </div>
+                                <div class="card-header d-flex justify-content-center"><h6>{{ $movimiento->NomMovimientoCliente }}</h6></div>
                                 <div class="card-body">
                                     @if ($movimiento->Notificaciones->count() == 0)
                                         <ul>
@@ -25,7 +23,7 @@
                                         @foreach ($movimiento->Notificaciones as $nMovimiento)
                                             <div class="row">
                                                 <div class="col-10">
-                                                    <h5 class="card-title">{{ $nMovimiento->PivotCliente->NomCliente }}
+                                                    <h5 class="card-title">{{ $nMovimiento->NomCliente }}
                                                     </h5>
                                                 </div>
                                                 <div class="col-2">
@@ -33,7 +31,7 @@
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox"
                                                                 name="chkIdNotificacion[]"
-                                                                value="{{ $nMovimiento->PivotCliente->IdDatNotificacionesClienteCloud }}"
+                                                                value="{{ $nMovimiento->IdDatNotificacionesClienteCloud }}"
                                                                 id="flexCheckDefault">
                                                             <label class="form-check-label" for="flexCheckDefault">
                                                                 Listo
@@ -42,53 +40,62 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-12">
+                                                @if ($movimiento->IdMovimiento == 1)
+                                                <div class="col-auto">
                                                     <ul>
                                                         <li><strong>Tienda: </strong> {{ $nMovimiento->NomTienda }}</li>
                                                         <li><strong>Id Cliente: </strong>
-                                                            {{ $nMovimiento->PivotCliente->IdClienteCloud }}</li>
-                                                        <li><strong>RFC: </strong> {{ $nMovimiento->PivotCliente->RFC }}
+                                                            {{ $nMovimiento->IdClienteCloud }}</li>
+                                                        <li><strong>RFC: </strong> {{ $nMovimiento->RFC }}
                                                         </li>
                                                         <ul>
-                                                            @if (!empty($nMovimiento->PivotCliente->Calle))
+                                                            @if (!empty($nMovimiento->Calle))
                                                                 <li><strong>Calle: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->Calle }}</li>
+                                                                    {{ $nMovimiento->Calle }}</li>
                                                             @endif
-                                                            @if (!empty($nMovimiento->PivotCliente->NumExt))
+                                                            @if (!empty($nMovimiento->NumExt))
                                                                 <li><strong>Número Exterior: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->NumExt }}</li>
+                                                                    {{ $nMovimiento->NumExt }}</li>
                                                             @endif
-                                                            @if (!empty($nMovimiento->PivotCliente->NumInt))
+                                                            @if (!empty($nMovimiento->NumInt))
                                                                 <li><strong>Número Interior: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->NumInt }}</li>
+                                                                    {{ $nMovimiento->NumInt }}</li>
                                                             @endif
-                                                            @if (!empty($nMovimiento->PivotCliente->Colonia))
+                                                            @if (!empty($nMovimiento->Colonia))
                                                                 <li><strong>Colonia: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->Colonia }}</li>
+                                                                    {{ $nMovimiento->Colonia }}</li>
                                                             @endif
-                                                            @if (!empty($nMovimiento->PivotCliente->Ciudad))
+                                                            @if (!empty($nMovimiento->Ciudad))
                                                                 <li><strong>Ciudad: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->Ciudad }}</li>
+                                                                    {{ $nMovimiento->Ciudad }}</li>
                                                             @endif
-                                                            @if (!empty($nMovimiento->PivotCliente->Municipio))
+                                                            @if (!empty($nMovimiento->Municipio))
                                                                 <li><strong>Municipio: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->Municipio }}</li>
+                                                                    {{ $nMovimiento->Municipio }}</li>
                                                             @endif
-                                                            @if (!empty($nMovimiento->PivotCliente->Estado))
+                                                            @if (!empty($nMovimiento->Estado))
                                                                 <li><strong>Estado: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->Estado }}</li>
+                                                                    {{ $nMovimiento->Estado }}</li>
                                                             @endif
-                                                            @if (!empty($nMovimiento->PivotCliente->CodigoPostal))
+                                                            @if (!empty($nMovimiento->CodigoPostal))
                                                                 <li><strong>Codigo Postal: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->CodigoPostal }}</li>
+                                                                    {{ $nMovimiento->CodigoPostal }}</li>
                                                             @endif
-                                                            @if (!empty($nMovimiento->PivotCliente->Email))
+                                                            @if (!empty($nMovimiento->Email))
                                                                 <li><strong>Email: </strong>
-                                                                    {{ $nMovimiento->PivotCliente->Email }}</li>
+                                                                    {{ $nMovimiento->Email }}</li>
                                                             @endif
                                                         </ul>
                                                     </ul>
                                                 </div>
+                                                @else
+                                                <div class="col-auto">
+                                                    <ul>
+                                                        <li><strong>Tienda: </strong> {{ $nMovimiento->NomTienda }}</li>
+                                                        <li><strong>RFC: </strong> {{ $nMovimiento->RFC }}</li>
+                                                    </ul>
+                                                </div>
+                                                @endif
                                             </div>
                                             <hr>
                                         @endforeach
@@ -96,8 +103,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
             <div class="modal-footer">
                 @if ($notificaciones > 0)

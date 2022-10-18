@@ -1400,9 +1400,10 @@ class PoswebController extends Controller
             ->whereNull('IdSolicitudFactura')
             ->pluck('Bill_To');
 
-        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query){
+        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha){
             $query->where('DatCortesTienda.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                   ->where('DatCortesTienda.StatusVenta', 0)
+                  ->whereDate('FechaVenta', $fecha)
                   ->whereNull('DatCortesTienda.IdSolicitudFactura');
         }])
             ->where('IdTienda', $idTienda)
@@ -1498,22 +1499,21 @@ class PoswebController extends Controller
         'totalTransferencia', 'totalFactura', 'totalMonederoQuincenal', 'totalMonederoSemanal'));
     }
 
-    public function GenerarCortePDF($fecha){
-        $idTienda = Auth::user()->usuarioTienda->IdTienda;
-
+    public function GenerarCortePDF($fecha, $idTienda){
         $tienda = Tienda::where('IdTienda', $idTienda)
                 ->first();
 
-            $billsTo = CorteTienda::where('IdTienda', $idTienda)
-                ->distinct('Bill_To')
-                ->whereDate('FechaVenta', $fecha)
-                ->where('StatusVenta', 0)
-                ->whereNull('IdSolicitudFactura')
-                ->pluck('Bill_To');
+        $billsTo = CorteTienda::where('IdTienda', $idTienda)
+            ->distinct('Bill_To')
+            ->whereDate('FechaVenta', $fecha)
+            ->where('StatusVenta', 0)
+            ->whereNull('IdSolicitudFactura')
+            ->pluck('Bill_To');
     
-        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query){
-            $query->where('DatCortesTienda.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda){
+            $query->where('DatCortesTienda.IdTienda', $idTienda)
                 ->where('DatCortesTienda.StatusVenta', 0)
+                ->whereDate('DatCortesTienda.FechaVenta', $fecha)
                 ->whereNull('DatCortesTienda.IdSolicitudFactura');
             }])
             ->where('IdTienda', $idTienda)
@@ -1939,11 +1939,11 @@ class PoswebController extends Controller
             $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
                 ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
                 ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
-        }, 'TipoPago', 'SolicitudFactura'])
-                    ->where('IdTienda', $idTienda)
-                    ->whereDate('FechaVenta', $fecha)
-                    ->orderBy('IdTicket')
-                    ->get();
+                }, 'TipoPago', 'SolicitudFactura'])
+            ->where('IdTienda', $idTienda)
+            ->whereDate('FechaVenta', $fecha)
+            ->orderBy('IdTicket')
+            ->get();
 
         $total = DatEncabezado::where('IdTienda', $idTienda)
                         ->whereDate('FechaVenta', $fecha)

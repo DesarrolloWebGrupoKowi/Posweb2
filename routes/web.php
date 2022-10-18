@@ -407,7 +407,7 @@ Route::get('/GuardarVenta', 'App\Http\Controllers\PoswebController@GuardarVenta'
 Route::get('/CorteDiario', 'App\Http\Controllers\PoswebController@CorteDiario');
 
 //GenerarCortePDF
-Route::get('/GenerarCortePDF/{fecha}', 'App\Http\Controllers\PoswebController@GenerarCortePDF');
+Route::get('/GenerarCortePDF/{fecha}/{idTienda}', 'App\Http\Controllers\PoswebController@GenerarCortePDF');
 
 //Calculo Pago
 Route::get('/CalculoMultiPago/{idEncabezado}/{restante}/{pago}/{idTipoPago}/{idBanco}/{numTarjeta}', 'App\Http\Controllers\PoswebController@CalculoMultiPago')->name('CalculoMultiPago');
@@ -649,6 +649,11 @@ Route::get('/InterfazMermas', 'App\Http\Controllers\InterfazMermasController@Int
 
 //InterfazarMermas
 Route::post('/InterfazarMermas/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazMermasController@InterfazarMermas')->name('InterfazarMermas');
+
+//+============================================================================================================================================+//
+//VerCortesTienda
+Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerCortesTienda')->name('VerCortesTienda');
+
 
 //+============================================================================================================================================+//
   });//->Termina Middleware Auth

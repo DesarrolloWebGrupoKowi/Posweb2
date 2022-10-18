@@ -13,12 +13,9 @@ class MovimientoClienteCloud extends Model
     protected $table = 'CatMovimientosClienteCloud';
     protected $fillable = ['NomMovimiento', 'Status'];
     public $timestamps = false;
-    protected $primaryKey = 'IdMovimiento'; 
+    protected $primaryKey = 'IdMovimientoCliente'; 
 
     public function Notificaciones(){
-        return $this->belongsToMany(Tienda::class, NotificacionClienteCloud::class, 'IdMovimiento', 'IdTienda', 'IdMovimiento')
-                    ->select('CatTiendas.NomTienda')
-                    ->withPivot('IdDatNotificacionesClienteCloud', 'IdClienteCloud', 'NomCliente', 'RFC', 'Calle', 'NumExt', 'NumInt', 'Colonia', 'Ciudad', 'Municipio', 'Estado', 'Pais', 'CodigoPostal', 'Email', 'Telefono', 'Status')
-                    ->as('PivotCliente');
+        return $this->hasMany(NotificacionClienteCloud::class, 'IdMovimiento', 'IdMovimientoCliente');
     }
 }

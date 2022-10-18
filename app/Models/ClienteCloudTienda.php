@@ -36,9 +36,7 @@ class ClienteCloudTienda extends Model
         return $this->hasMany(ClienteCloud::class, 'IdClienteCloud', 'IdClienteCloud');
     }
 
-    public function CorteTienda(){
-        $date = request('fecha') ? : date('Y-m-d');
-        
+    public function CorteTienda(){        
         return $this->belongsToMany(Articulo::class, CorteTienda::class, 'Bill_To', 'IdArticulo', 'Bill_To')
                     ->select([
                             DB::raw("CatArticulos.CodArticulo"),
@@ -51,7 +49,6 @@ class ClienteCloudTienda extends Model
                             DB::raw("sum(DatCortesTienda.IvaArticulo) as IvaArticulo"),
                             DB::raw("sum(DatCortesTienda.ImporteArticulo) as ImporteArticulo")
                             ])
-                    ->whereDate('FechaVenta', $date)
                     ->groupBy(
                             'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
                             'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',

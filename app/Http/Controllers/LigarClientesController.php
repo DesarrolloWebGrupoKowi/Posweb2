@@ -38,8 +38,9 @@ class LigarClientesController extends Controller
 
         //return $clientesPorLigar;
 
-        $movimientos = MovimientoClienteCloud::with(['Notificaciones' => function ($query){
-            $query->where('DatNotificacionesClienteCloud.Status', 0);
+        $movimientos = MovimientoClienteCloud::with(['Notificaciones' => function ($notificacion) {
+            $notificacion->where('DatNotificacionesClienteCloud.Status', 0)
+                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatNotificacionesClienteCloud.IdTienda');
         }])
                 ->where('Status', 0)
                 ->get();
