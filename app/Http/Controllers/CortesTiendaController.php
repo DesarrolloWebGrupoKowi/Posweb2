@@ -20,8 +20,22 @@ class OpcionReportes{
 class CortesTiendaController extends Controller
 {
     public function VerCortesTienda(Request $request){
-        $tiendas = Tienda::where('Status', 0)
-            ->get();
+        $usuarioTienda = Auth::user()->usuarioTienda;
+
+        if($usuarioTienda->Todas == 0){
+            $tiendas = Tienda::where('Status', 0)
+                ->get();
+        }
+        if(!empty($usuarioTienda->IdTienda)){
+            $tiendas = Tienda::where('Status', 0)
+                ->where('IdTienda', $usuarioTienda->IdTienda)
+                ->get();
+        }
+        if(!empty($usuarioTienda->IdPlaza)){
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+                ->where('Status', 0)
+                ->get();
+        }
 
         $idTienda = $request->idTienda;
         $fecha1 = $request->fecha1;
@@ -33,7 +47,7 @@ class CortesTiendaController extends Controller
             $opcionesReporte[$i]->IdReporte = $i+1;
             $i + 1 == 1 ? $opcionesReporte[$i]->NomReporte = 'Corte Diario' : '';
             $i + 1 == 2 ? $opcionesReporte[$i]->NomReporte = 'Concentrado de Ventas' : '';
-            $i + 1 == 3 ? $opcionesReporte[$i]->NomReporte = 'Venta por Ticket Diario' : '';
+            $i + 1 == 3 ? $opcionesReporte[$i]->NomReporte = 'Venta Por Ticket Diario' : '';
             $i + 1 == 4 ? $opcionesReporte[$i]->NomReporte = 'Tickets Cancelados' : '';
         }
 
