@@ -130,12 +130,7 @@
     <div class="container mb-3">
         @foreach ($facturas as $factura)
             <div class="d-flex justify-content-left">
-                @if (empty($factura->Bill_To) && empty($factura->IdClienteCloud))
-                    <h6 class="p-1 bg-danger text-white"><i class="fa fa-exclamation-triangle"></i> FALTA LIGAR CLIENTE -
-                        {{ $factura->NomCliente }} <i class="fa fa-exclamation-triangle"></i></h6>
-                @else
-                    <h6 class="p-1 bg-dark text-white">{{ $factura->NomCliente }}</h6>
-                @endif
+                <h6 class="p-1 bg-dark text-white">{{ $factura->NomCliente }}</h6>
             </div>
             <table class="table table-responsive table-striped table-sm">
                 <thead class="table-dark">
