@@ -36,7 +36,7 @@ class MonederoElectronicoController extends Controller
                 'MonederoMultiplo' => $request->multiplo,
                 'PesosPorMultiplo' => $request->pesosPorMultiplo,
                 'VigenciaMonedero' => $request->vigencia,
-                'IdGrup' => $request->idGrupo,
+                'IdGrupo' => $request->idGrupo,
                 'FechaCreacion' => date('d-m-Y H:i:s'),
                 'IdUsuario' => Auth::user()->IdUsuario,
                 'Status' => 0

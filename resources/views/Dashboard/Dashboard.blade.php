@@ -6,6 +6,9 @@
     <div class="row d-flex justify-content-center">
         <h2 class="col-auto card shadow-lg p-1">Dashboard de {{ Auth::user()->tipoUsuario->NomTipoUsuario }}</h2>
     </div>
+    <div class="container">
+        @include('Alertas.Alertas')
+    </div>
     <div class="row">
         @if ($menus->count() == 0)
         <div class="d-flex justify-content-center">

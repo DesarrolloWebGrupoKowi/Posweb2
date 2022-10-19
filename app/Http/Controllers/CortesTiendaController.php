@@ -22,7 +22,10 @@ class CortesTiendaController extends Controller
     public function VerCortesTienda(Request $request){
         $usuarioTienda = Auth::user()->usuarioTienda;
 
-        
+        if($usuarioTienda->doesntExist()){
+            return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
+        }
+
         if($usuarioTienda->Todas == 0){
             $tiendas = Tienda::where('Status', 0)
             ->get();

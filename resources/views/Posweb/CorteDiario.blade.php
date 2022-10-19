@@ -15,7 +15,7 @@
 </style>
 @section('contenido')
     <div class="container">
-        <h2 class="titulo card mb-3">Corte Diario - {{ $tienda->NomTienda }}</h2>
+        <h2 class="titulo rounded-3 card mb-3">Corte Diario - {{ $tienda->NomTienda }}</h2>
         <form id="formCorte" action="/CorteDiario">
             <div class="row mb-2">
                 <div class="col-3">
@@ -35,7 +35,7 @@
         @foreach ($cortesTienda as $corteTienda)
             @foreach ($corteTienda->Customer as $customer)
                 <div class="d-flex justify-content-left">
-                    <h6 class="p-1 bg-dark text-white">{{ $customer->NomClienteCloud }}</h6>
+                    <h6 class="p-1 bg-dark text-white rounded-3">{{ $customer->NomClienteCloud }}</h6>
                 </div>
             @endforeach
             <table class="table table-responsive table-striped table-sm">
@@ -130,7 +130,7 @@
     <div class="container mb-3">
         @foreach ($facturas as $factura)
             <div class="d-flex justify-content-left">
-                <h6 class="p-1 bg-dark text-white">{{ $factura->NomCliente }}</h6>
+                <h6 class="p-1 bg-dark text-white rounded-3">{{ $factura->NomCliente }}</h6>
             </div>
             <table class="table table-responsive table-striped table-sm">
                 <thead class="table-dark">

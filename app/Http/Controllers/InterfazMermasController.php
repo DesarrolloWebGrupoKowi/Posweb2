@@ -115,7 +115,7 @@ class InterfazMermasController extends Controller
                     ->where('XXKW_ONHAND_TIENDAS.SUBINVENTORY_CODE', $almacen)
                     ->where('XXKW_ITEMS.ORGANIZATION_NAME', $organization_Name)
                     ->whereDate('EXPIRATION', '>', date('d-m-Y'))
-                    ->orderBy('EXPIRATION');
+                    ->orderBy('EXPIRATION', 'desc');
             }])
                 ->from('CapMermas as a')
                 ->leftJoin('CatTiposMerma as b', 'b.IdTipoMerma', 'a.IdTipoMerma')

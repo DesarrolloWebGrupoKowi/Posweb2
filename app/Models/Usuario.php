@@ -25,9 +25,11 @@ class Usuario extends Authenticatable
     protected $fillable = [
         'NomUsuario',
         'NumNomina',
-        'password','Correo',
+        'password',
+        'Correo',
         'IdTipoUsuario',
-        'Status'];
+        'Status'
+    ];
 
     public $timestamps = false;
     protected $primaryKey = 'IdUsuario';
