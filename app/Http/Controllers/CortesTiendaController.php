@@ -22,19 +22,20 @@ class CortesTiendaController extends Controller
     public function VerCortesTienda(Request $request){
         $usuarioTienda = Auth::user()->usuarioTienda;
 
+        
         if($usuarioTienda->Todas == 0){
             $tiendas = Tienda::where('Status', 0)
-                ->get();
+            ->get();
         }
         if(!empty($usuarioTienda->IdTienda)){
             $tiendas = Tienda::where('Status', 0)
-                ->where('IdTienda', $usuarioTienda->IdTienda)
-                ->get();
+            ->where('IdTienda', $usuarioTienda->IdTienda)
+            ->get();
         }
         if(!empty($usuarioTienda->IdPlaza)){
             $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
-                ->where('Status', 0)
-                ->get();
+            ->where('Status', 0)
+            ->get();
         }
 
         $idTienda = $request->idTienda;
@@ -42,6 +43,9 @@ class CortesTiendaController extends Controller
         $fecha2 = $request->fecha2;
         $idReporte = $request->idReporte;
         
+        $nomTienda = Tienda::where('IdTienda', $idTienda)
+            ->value('NomTienda');
+
         for ($i=0; $i < 4 ; $i++) { 
             $opcionesReporte[] = new OpcionReportes;
             $opcionesReporte[$i]->IdReporte = $i+1;
@@ -52,8 +56,6 @@ class CortesTiendaController extends Controller
         }
 
         if($idReporte == 1){
-            $nomTienda = Tienda::where('IdTienda', $idTienda)
-                ->value('NomTienda');
 
             $billsTo = CorteTienda::where('IdTienda', $idTienda)
             ->distinct('Bill_To')
@@ -158,10 +160,10 @@ class CortesTiendaController extends Controller
 
             //return $facturas;
 
-            return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'nomTienda',
+            return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2',
             'idReporte', 'opcionesReporte', 'cortesTienda', 'facturas', 'totalMonederoQuincenal', 'totalMonederoSemanal',
             'creditoQuincenal', 'creditoSemanal', 'totalTarjetaDebito', 'totalTarjetaCredito', 'totalTransferencia', 'totalFactura',
-            'totalEfectivo'));
+            'totalEfectivo', 'nomTienda'));
         }
         if($idReporte == 2){
             $concentrado = DB::table('DatEncabezado as a')
@@ -198,7 +200,7 @@ class CortesTiendaController extends Controller
                         ->sum('b.IvaArticulo');
 
             return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte',
-            'opcionesReporte', 'concentrado', 'totalPeso', 'totalImporte', 'totalIva'));
+            'opcionesReporte', 'concentrado', 'totalPeso', 'totalImporte', 'totalIva', 'nomTienda'));
         }
         if($idReporte == 3){
             $tickets = DatEncabezado::with(['detalle' => function ($detalle){
@@ -222,7 +224,7 @@ class CortesTiendaController extends Controller
                             ->sum('Iva');
 
             return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte',
-                        'tickets', 'total', 'totalIva'));
+                        'tickets', 'total', 'totalIva', 'nomTienda'));
         }
         if($idReporte == 4){
             $ticketsCancelados = DatEncabezado::with(['detalle' => function ($detalle){
@@ -249,7 +251,7 @@ class CortesTiendaController extends Controller
             //return $ticketsCancelados;
 
             return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte',
-                        'ticketsCancelados', 'total', 'totalIva'));
+                        'ticketsCancelados', 'total', 'totalIva', 'nomTienda'));
         }
 
 

@@ -99,6 +99,7 @@ class CapMermasController extends Controller
                 ]);
 
                 //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO
+                
             }
 
             MermaTmp::where('IdTienda', $idTienda)

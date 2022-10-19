@@ -16,7 +16,7 @@
                             </h6 class="d-flex justify-content-center">
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title">
+                            <h5 class="card-title d-flex justify-content-center">
                                 {{ !empty($ticket->MotivoCancel) ? Str::upper($ticket->MotivoCancel) : '' }}</h5>
                             </h5>
                         </div>

@@ -60,6 +60,12 @@
     </div>
     @if ($idReporte == 1)
         <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-auto">
+                    <h4 class="rounded-3 p-1">CORTE DIARIO - {{ $nomTienda }}</h4>   
+                </div>
+                <hr>
+            </div>
             <div class="row d-flex justify-content-end">
                 <div class="col-auto">
                     <a href="/GenerarCortePDF/{{ $fecha1 }}/{{ $idTienda }}" target="_blank" type="button"
@@ -306,6 +312,12 @@
         </div>
     @elseif($idReporte == 2)
         <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-auto">
+                    <h4 class="rounded-3 p-1">CONCENTRADO DE VENTAS - {{ $nomTienda }}</h4>   
+                </div>
+                <hr>
+            </div>
             <table class="table table-sm table-responsive table-striped shadow">
                 <thead class="table-dark">
                     <tr>
@@ -349,6 +361,12 @@
         </div>
     @elseif($idReporte == 3)
         <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-auto">
+                    <h4 class="rounded-3 p-1">VENTA POR TICKET DIARIO - {{ $nomTienda }}</h4>   
+                </div>
+                <hr>
+            </div>
             <table class="table table-responsive table-striped table-sm shadow">
                 <thead class="table-dark">
                     <tr>
@@ -412,6 +430,12 @@
         </div>
     @elseif($idReporte == 4)
         <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-auto">
+                    <h4 class="rounded-3 p-1">TICKET'S CANCELADOS - {{ $nomTienda }}</h4>   
+                </div>
+                <hr>
+            </div>
             <table class="table table-responsive table-striped table-sm shadow">
                 <thead class="table-dark">
                     <tr>
