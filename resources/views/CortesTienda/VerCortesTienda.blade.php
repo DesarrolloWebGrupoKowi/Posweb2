@@ -80,7 +80,7 @@
             @foreach ($cortesTienda as $corteTienda)
                 @foreach ($corteTienda->Customer as $customer)
                     <div class="d-flex justify-content-left">
-                        <h6 class="p-1 bg-dark text-white">{{ $customer->NomClienteCloud }}</h6>
+                        <h6 class="p-1 bg-dark text-white rounded-3">{{ $customer->NomClienteCloud }}</h6>
                     </div>
                 @endforeach
                 <table class="table table-responsive table-striped table-sm">
@@ -176,11 +176,11 @@
             @foreach ($facturas as $factura)
                 <div class="d-flex justify-content-left">
                     @if (empty($factura->Bill_To) && empty($factura->IdClienteCloud))
-                        <h6 class="p-1 bg-danger text-white"><i class="fa fa-exclamation-triangle"></i> FALTA LIGAR CLIENTE
+                        <h6 class="p-1 bg-danger text-white rounded-3"><i class="fa fa-exclamation-triangle"></i> FALTA LIGAR CLIENTE
                             -
                             {{ $factura->NomCliente }} <i class="fa fa-exclamation-triangle"></i></h6>
                     @else
-                        <h6 class="p-1 bg-dark text-white">{{ $factura->NomCliente }}</h6>
+                        <h6 class="p-1 bg-dark text-white rounded-3">{{ $factura->NomCliente }}</h6>
                     @endif
                 </div>
                 <table class="table table-responsive table-striped table-sm">

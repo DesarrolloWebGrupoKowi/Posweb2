@@ -17,8 +17,28 @@ class InterfazMermasController extends Controller
         try {
             DB::beginTransaction();
 
-            $tiendas = Tienda::where('Status', 0)
+            $usuarioTienda = Auth::user()->usuarioTienda;
+
+            if($usuarioTienda->doesntExist()){
+                return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
+            }
+
+            if($usuarioTienda->Todas == 0){
+                $tiendas = Tienda::where('Status', 0)
                 ->get();
+            }
+
+            if(!empty($usuarioTienda->IdTienda)){
+                $tiendas = Tienda::where('Status', 0)
+                ->where('IdTienda', $usuarioTienda->IdTienda)
+                ->get();
+            }
+            
+            if(!empty($usuarioTienda->IdPlaza)){
+                $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+                ->where('Status', 0)
+                ->get();
+            }
 
             $idTienda = $request->idTienda;
             $fecha1 = $request->fecha1;
