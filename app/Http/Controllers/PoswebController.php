@@ -1677,84 +1677,88 @@ class PoswebController extends Controller
         $nombre = $n[0];
         $apellido = $a[0];
 
-        $logoKowi = EscposImage::load("img/printLogoKowi.png");
+        try {
+            $logoKowi = EscposImage::load("img/printLogoKowi.png");
 
-        $nombreImpresora = "PosWeb2";
-        $connector = new WindowsPrintConnector($nombreImpresora);
-        $impresora = new Printer($connector);
-        $impresora->setJustification(Printer::JUSTIFY_CENTER);
-        $impresora->bitImage($logoKowi);
-        $impresora->feed(1);
-        $impresora->text("ALIMENTOS KOWI SA DE CV\n");
-        $impresora->text("AKO971007558\n");
-        $impresora->text("CARRETERA FEDERAL MEXICO-NOGALES KM 1788\n");
-        $impresora->text("NAVOJOA, SONORA C.P. 85230\n");
-        $impresora->text("EXPEDIDO EN:\n");
-        $impresora->text($tienda->NomTienda."\n");
-        $impresora->text($tienda->Direccion."\n");
-        $impresora->text($tienda->NomCiudad.", ".$tienda->NomEstado."\n");
-        $impresora->text($tienda->Telefono."\n");
-        $impresora->text("==========================================\n");
-        $impresora->setJustification(Printer::JUSTIFY_LEFT);
-        $impresora->text("FECHA: ".date('d/m/Y H:i:s', strtotime($encabezado->FechaVenta))."\n");
-        $impresora->text("TICKET: ".$encabezado->IdTicket."\n");
-        $impresora->text("ARTICULOS: ".$venta->count()."\n");
-        $impresora->text("CAJA: ".$caja->NumCaja."\n");
-        $impresora->text("CAJERO: ".$nombre . " " . $apellido."\n");
-        $impresora->text("==========================================\n");
-        if(!empty($encabezado->NumNomina)){
-            $impresora->text($empleado->NumNomina . " " .$empleado->Nombre." ".$empleado->Apellidos."\n");
+            $nombreImpresora = "PosWeb2";
+            $connector = new WindowsPrintConnector($nombreImpresora);
+            $impresora = new Printer($connector);
+            $impresora->setJustification(Printer::JUSTIFY_CENTER);
+            $impresora->bitImage($logoKowi);
+            $impresora->feed(1);
+            $impresora->text("ALIMENTOS KOWI SA DE CV\n");
+            $impresora->text("AKO971007558\n");
+            $impresora->text("CARRETERA FEDERAL MEXICO-NOGALES KM 1788\n");
+            $impresora->text("NAVOJOA, SONORA C.P. 85230\n");
+            $impresora->text("EXPEDIDO EN:\n");
+            $impresora->text($tienda->NomTienda."\n");
+            $impresora->text($tienda->Direccion."\n");
+            $impresora->text($tienda->NomCiudad.", ".$tienda->NomEstado."\n");
+            $impresora->text($tienda->Telefono."\n");
             $impresora->text("==========================================\n");
-        }
-        $impresora->setJustification(Printer::JUSTIFY_LEFT);
-        $impresora->text("ARTICULO         CANT    PRECIO  IMPORTE\n");
-        $impresora->setJustification(Printer::JUSTIFY_LEFT);
-        foreach ($venta as $index => $datDetalleVenta) {
-            $impresora->text(str_pad(substr($datDetalleVenta->NomArticulo, 0, 16), 16)." ".str_pad(number_format($datDetalleVenta->CantArticulo, 3), 7)." ".str_pad(number_format($datDetalleVenta->PrecioArticulo, 2), 7)." ".number_format($datDetalleVenta->ImporteArticulo, 2)."\n");
-        }
-        $impresora->text("==========================================\n");
-        $impresora->feed(1);
-        $impresora->setJustification(Printer::JUSTIFY_RIGHT);
-        $impresora->text("SUBTOTAL : ".str_pad(number_format($encabezado->SubTotal, 2), 9, " ", STR_PAD_LEFT)."\n");
-        $impresora->text("IVA : ".str_pad(number_format($encabezado->Iva, 2), 9, " ", STR_PAD_LEFT)."\n");
-        foreach ($datTipoPago as $key => $pago) {
-            $impresora->text($pago->NomTipoPago." : ".str_pad(number_format($pago->Pago, 2), 9, " ", STR_PAD_LEFT)."\n");
-        }
-        $impresora->text("CAMBIO : ".str_pad($restante, 9, " ", STR_PAD_LEFT)."\n");
-        $impresora->text("================\n");
-        $impresora->text("TOTAL ".number_format($encabezado->ImporteVenta, 2)."\n");
-        $impresora->text("================\n");
-        $impresora->feed(2);
-        $impresora->setJustification(Printer::JUSTIFY_CENTER);
-        if(!empty($empleado)){
-            if(!empty($datMonedero) && $datMonedero->MonederoGenerado > 0){
-                $impresora->text("**GENERÓ $".number_format($datMonedero->MonederoGenerado, 2)." EN MONEDERO ELECTRÓNICO**\n");
+            $impresora->setJustification(Printer::JUSTIFY_LEFT);
+            $impresora->text("FECHA: ".date('d/m/Y H:i:s', strtotime($encabezado->FechaVenta))."\n");
+            $impresora->text("TICKET: ".$encabezado->IdTicket."\n");
+            $impresora->text("ARTICULOS: ".$venta->count()."\n");
+            $impresora->text("CAJA: ".$caja->NumCaja."\n");
+            $impresora->text("CAJERO: ".$nombre . " " . $apellido."\n");
+            $impresora->text("==========================================\n");
+            if(!empty($encabezado->NumNomina)){
+                $impresora->text($empleado->NumNomina . " " .$empleado->Nombre." ".$empleado->Apellidos."\n");
+                $impresora->text("==========================================\n");
             }
-            if($monederoAcumulado > 0){
-                $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
+            $impresora->setJustification(Printer::JUSTIFY_LEFT);
+            $impresora->text("ARTICULO         CANT    PRECIO  IMPORTE\n");
+            $impresora->setJustification(Printer::JUSTIFY_LEFT);
+            foreach ($venta as $index => $datDetalleVenta) {
+                $impresora->text(str_pad(substr($datDetalleVenta->NomArticulo, 0, 16), 16)." ".str_pad(number_format($datDetalleVenta->CantArticulo, 3), 7)." ".str_pad(number_format($datDetalleVenta->PrecioArticulo, 2), 7)." ".number_format($datDetalleVenta->ImporteArticulo, 2)."\n");
             }
-        }
-        $impresora->feed(1);
-        if($firmaEmpleado->count() > 0){
+            $impresora->text("==========================================\n");
             $impresora->feed(1);
-            $impresora->text("Firma del Empleado\n");
+            $impresora->setJustification(Printer::JUSTIFY_RIGHT);
+            $impresora->text("SUBTOTAL : ".str_pad(number_format($encabezado->SubTotal, 2), 9, " ", STR_PAD_LEFT)."\n");
+            $impresora->text("IVA : ".str_pad(number_format($encabezado->Iva, 2), 9, " ", STR_PAD_LEFT)."\n");
+            foreach ($datTipoPago as $key => $pago) {
+                $impresora->text($pago->NomTipoPago." : ".str_pad(number_format($pago->Pago, 2), 9, " ", STR_PAD_LEFT)."\n");
+            }
+            $impresora->text("CAMBIO : ".str_pad($restante, 9, " ", STR_PAD_LEFT)."\n");
+            $impresora->text("================\n");
+            $impresora->text("TOTAL ".number_format($encabezado->ImporteVenta, 2)."\n");
+            $impresora->text("================\n");
+            $impresora->feed(2);
+            $impresora->setJustification(Printer::JUSTIFY_CENTER);
+            if(!empty($empleado)){
+                if(!empty($datMonedero) && $datMonedero->MonederoGenerado > 0){
+                    $impresora->text("**GENERÓ $".number_format($datMonedero->MonederoGenerado, 2)." EN MONEDERO ELECTRÓNICO**\n");
+                }
+                if($monederoAcumulado > 0){
+                    $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
+                }
+            }
             $impresora->feed(1);
-            $impresora->text("______________________________________\n");
-            $impresora->text("".$empleado->NumNomina."\n");
-            $impresora->text("".$empleado->Nombre." ".$empleado->Apellidos."\n");
+            if($firmaEmpleado->count() > 0){
+                $impresora->feed(1);
+                $impresora->text("Firma del Empleado\n");
+                $impresora->feed(1);
+                $impresora->text("______________________________________\n");
+                $impresora->text("".$empleado->NumNomina."\n");
+                $impresora->text("".$empleado->Nombre." ".$empleado->Apellidos."\n");
+            }
+            $impresora->feed(2);
+            $impresora->text("********************************\n");
+            $impresora->text("FOLIO CUPÓN: ".$idEncabezado."\n");
+            $impresora->text("********************************\n");
+            $impresora->feed(2);
+            $impresora->text("¡ALTA CALIDAD EN CARNE DE CERDO!\n");
+            $impresora->text("WWW.KOWI.COM.MX\n");
+            $impresora->text("¡GRACIAS POR SU COMPRA!\n");
+            //$impresora->feed(2);
+            $impresora->cut();
+            $impresora->pulse();
+            $impresora->close();
+        } catch (\Throwable $th) {
+            return redirect('Pos')->with('Cambio', $restante);
         }
-        $impresora->feed(2);
-        $impresora->text("********************************\n");
-        $impresora->text("FOLIO CUPÓN: ".$idEncabezado."\n");
-        $impresora->text("********************************\n");
-        $impresora->feed(2);
-        $impresora->text("¡ALTA CALIDAD EN CARNE DE CERDO!\n");
-        $impresora->text("WWW.KOWI.COM.MX\n");
-        $impresora->text("¡GRACIAS POR SU COMPRA!\n");
-        //$impresora->feed(2);
-        $impresora->cut();
-        $impresora->pulse();
-        $impresora->close();
 
         return redirect('Pos')->with('Cambio', $restante);
     }
