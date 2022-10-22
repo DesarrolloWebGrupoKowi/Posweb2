@@ -1843,8 +1843,8 @@ class PoswebController extends Controller
         $apellido = $a[0];
 
         $cambio = DatTipoPago::where('IdEncabezado', $encabezado->IdEncabezado)
-                                ->where('Restante', '>=', 0)
-                                ->first();
+            ->where('Restante', '>=', 0)
+            ->first();
 
                 $logoKowi = EscposImage::load("img/printLogoKowi.png");
 

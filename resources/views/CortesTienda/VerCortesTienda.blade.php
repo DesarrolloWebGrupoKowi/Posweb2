@@ -34,6 +34,14 @@
                     </select>
                 </div>
                 <div class="col-auto">
+                    <select class="form-select shadow" name="idCaja" id="idCaja" required>
+                        <option value="">Seleccione Caja</option>
+                        @foreach ($cajasTienda as $caja)
+                            <option {!! $idCaja == $caja->IdDatCajas ? 'selected' : '' !!} value="{{ $caja->IdDatCajas }}">Caja {{ $caja->IdCaja }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
                     <select class="form-select shadow" name="idReporte" id="idReporte" required>
                         <option value="">Seleccione Reporte</option>
                         @foreach ($opcionesReporte as $opcionReporte)
@@ -62,7 +70,7 @@
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">CORTE DIARIO - {{ $nomTienda }}</h4>   
+                    <h4 class="rounded-3 p-1">CORTE DIARIO - {{ $nomTienda }}</h4>
                 </div>
                 <hr>
             </div>
@@ -176,7 +184,8 @@
             @foreach ($facturas as $factura)
                 <div class="d-flex justify-content-left">
                     @if (empty($factura->Bill_To) && empty($factura->IdClienteCloud))
-                        <h6 class="p-1 bg-danger text-white rounded-3"><i class="fa fa-exclamation-triangle"></i> FALTA LIGAR CLIENTE
+                        <h6 class="p-1 bg-danger text-white rounded-3"><i class="fa fa-exclamation-triangle"></i> FALTA
+                            LIGAR CLIENTE
                             -
                             {{ $factura->NomCliente }} <i class="fa fa-exclamation-triangle"></i></h6>
                     @else
@@ -314,7 +323,7 @@
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">CONCENTRADO DE VENTAS - {{ $nomTienda }}</h4>   
+                    <h4 class="rounded-3 p-1">CONCENTRADO DE VENTAS - {{ $nomTienda }}</h4>
                 </div>
                 <hr>
             </div>
@@ -363,7 +372,7 @@
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">VENTA POR TICKET DIARIO - {{ $nomTienda }}</h4>   
+                    <h4 class="rounded-3 p-1">VENTA POR TICKET DIARIO - {{ $nomTienda }}</h4>
                 </div>
                 <hr>
             </div>
@@ -432,7 +441,7 @@
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">TICKET'S CANCELADOS - {{ $nomTienda }}</h4>   
+                    <h4 class="rounded-3 p-1">TICKET'S CANCELADOS - {{ $nomTienda }}</h4>
                 </div>
                 <hr>
             </div>
@@ -470,7 +479,8 @@
                                     data-bs-target="#ModalTipoPago{{ $ticket->IdEncabezado }}"></i>
                                 @include('CortesTienda.ModalTipoPago')
                                 | <i style="font-size: 20px; cursor: pointer;" class="fa fa-commenting"
-                                    data-bs-toggle="modal" data-bs-target="#ModalComentarioTicketCancelado{{ $ticket->IdEncabezado}}"></i>
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ModalComentarioTicketCancelado{{ $ticket->IdEncabezado }}"></i>
                                 @include('CortesTienda.ModalComentarioTicketCancelado')
                             </td>
                             <td>
@@ -514,6 +524,33 @@
                 fecha2.disabled = false;
                 fecha2.hidden = false;
             }
+        });
+
+        const idTienda = document.getElementById('idTienda');
+        const idCaja = document.getElementById('idCaja');
+        idTienda.addEventListener('change', (e) => {
+            var options = document.querySelectorAll('#idCaja option');
+            options.forEach(o => o.remove());
+            fetch('/BuscarCajasTienda?idTienda=' + idTienda.value)
+                .then(res => res.json())
+                .then(respuesta => {
+                    if (respuesta != '') {
+                        for (const key in respuesta) {
+                            if (Object.hasOwnProperty.call(respuesta, key)) {
+                                const caja = respuesta[key];
+                                const optionCaja = document.createElement('option');
+                                optionCaja.value = caja.IdDatCajas;
+                                optionCaja.text = 'Caja ' + caja.IdCaja;
+                                idCaja.add(optionCaja);
+                            }
+                        }
+                    } else {
+                        const SinCaja = document.createElement('option');
+                        SinCaja.value = '';
+                        SinCaja.text = 'No hay cajas para esta tienda';
+                        idCaja.add(SinCaja);
+                    }
+                });
         });
     </script>
 @endsection

@@ -654,6 +654,8 @@ Route::post('/InterfazarMermas/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controll
 //VerCortesTienda
 Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerCortesTienda')->name('VerCortesTienda');
 
+//BuscarCajasTienda
+Route::get('/BuscarCajasTienda', 'App\Http\Controllers\CortesTiendaController@BuscarCajasTienda')->name('BuscarCajasTienda');
 
 //+============================================================================================================================================+//
   });//->Termina Middleware Auth

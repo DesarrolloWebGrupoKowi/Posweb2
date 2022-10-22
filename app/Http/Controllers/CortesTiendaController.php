@@ -11,6 +11,7 @@ use App\Models\CorteTienda;
 use App\Models\ClienteCloudTienda;
 use App\Models\SolicitudFactura;
 use App\Models\DatEncabezado;
+use App\Models\DatCaja;
 
 class OpcionReportes{
     public $IdReporte;
@@ -28,16 +29,19 @@ class CortesTiendaController extends Controller
 
         if($usuarioTienda->Todas == 0){
             $tiendas = Tienda::where('Status', 0)
+            ->orderBy('IdTienda')
             ->get();
         }
         if(!empty($usuarioTienda->IdTienda)){
             $tiendas = Tienda::where('Status', 0)
             ->where('IdTienda', $usuarioTienda->IdTienda)
+            ->orderBy('IdTienda')
             ->get();
         }
         if(!empty($usuarioTienda->IdPlaza)){
             $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
             ->where('Status', 0)
+            ->orderBy('IdTienda')
             ->get();
         }
 
@@ -45,9 +49,13 @@ class CortesTiendaController extends Controller
         $fecha1 = $request->fecha1;
         $fecha2 = $request->fecha2;
         $idReporte = $request->idReporte;
+        $idCaja = $request->idCaja;
         
         $nomTienda = Tienda::where('IdTienda', $idTienda)
             ->value('NomTienda');
+
+        $cajasTienda = DatCaja::where('IdTienda', $idTienda)
+            ->get();
 
         for ($i=0; $i < 4 ; $i++) { 
             $opcionesReporte[] = new OpcionReportes;
@@ -61,11 +69,11 @@ class CortesTiendaController extends Controller
         if($idReporte == 1){
 
             $billsTo = CorteTienda::where('IdTienda', $idTienda)
-            ->distinct('Bill_To')
-            ->whereDate('FechaVenta', $fecha1)
-            ->where('StatusVenta', 0)
-            ->whereNull('IdSolicitudFactura')
-            ->pluck('Bill_To');
+                ->distinct('Bill_To')
+                ->whereDate('FechaVenta', $fecha1)
+                ->where('StatusVenta', 0)
+                ->whereNull('IdSolicitudFactura')
+                ->pluck('Bill_To');
 
             $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($idTienda, $fecha1){
                 $query->where('DatCortesTienda.IdTienda', $idTienda)
@@ -163,10 +171,10 @@ class CortesTiendaController extends Controller
 
             //return $facturas;
 
-            return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2',
+            return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'cajasTienda',
             'idReporte', 'opcionesReporte', 'cortesTienda', 'facturas', 'totalMonederoQuincenal', 'totalMonederoSemanal',
             'creditoQuincenal', 'creditoSemanal', 'totalTarjetaDebito', 'totalTarjetaCredito', 'totalTransferencia', 'totalFactura',
-            'totalEfectivo', 'nomTienda'));
+            'totalEfectivo', 'nomTienda', 'idCaja'));
         }
         if($idReporte == 2){
             $concentrado = DB::table('DatEncabezado as a')
@@ -203,7 +211,7 @@ class CortesTiendaController extends Controller
                         ->sum('b.IvaArticulo');
 
             return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte',
-            'opcionesReporte', 'concentrado', 'totalPeso', 'totalImporte', 'totalIva', 'nomTienda'));
+            'opcionesReporte', 'concentrado', 'totalPeso', 'totalImporte', 'totalIva', 'nomTienda', 'cajasTienda', 'idCaja'));
         }
         if($idReporte == 3){
             $tickets = DatEncabezado::with(['detalle' => function ($detalle){
@@ -227,7 +235,7 @@ class CortesTiendaController extends Controller
                             ->sum('Iva');
 
             return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte',
-                        'tickets', 'total', 'totalIva', 'nomTienda'));
+                        'tickets', 'total', 'totalIva', 'nomTienda', 'cajasTienda', 'idCaja'));
         }
         if($idReporte == 4){
             $ticketsCancelados = DatEncabezado::with(['detalle' => function ($detalle){
@@ -254,10 +262,17 @@ class CortesTiendaController extends Controller
             //return $ticketsCancelados;
 
             return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte',
-                        'ticketsCancelados', 'total', 'totalIva', 'nomTienda'));
+                        'ticketsCancelados', 'total', 'totalIva', 'nomTienda', 'cajasTienda', 'idCaja'));
         }
 
+        return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte', 'cajasTienda', 'idCaja'));
+    }
+    
+    public function BuscarCajasTienda(Request $request){
+        $idTienda = $request->idTienda;
 
-        return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte'));
-    }   
+        return DatCaja::where('IdTienda', $idTienda)
+            ->orderBy('IdCaja')
+            ->get();
+    }
 }
