@@ -291,6 +291,14 @@ class RecepcionController extends Controller
     }
 
     public function RecepcionLocalSinInternet(Request $request){
+        try {
+            DB::connection('server')->getPdo();
+            return redirect('RecepcionProducto');
+
+        } catch (\Exception $e) {
+            
+        }
+
         $articulos = Articulo::where('Status', 0)
             ->get();
 
