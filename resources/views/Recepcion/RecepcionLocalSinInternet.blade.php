@@ -33,7 +33,7 @@
                 </div>
                 <div class="col-auto">
                     <button class="btn card shadow">
-                        <span class="material-icons">search</span>
+                        <span class="material-icons">add_circle</span>
                     </button>
                 </div>
             </div>
