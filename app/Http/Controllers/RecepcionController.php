@@ -16,10 +16,10 @@ use App\Models\HistorialMovimientoProducto;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        if(connection_status() == 1){
+        if(connection_status() != 0){
             return 'hope';
         }
-        
+
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
             ->first();
 
