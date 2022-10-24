@@ -16,15 +16,9 @@ use App\Models\HistorialMovimientoProducto;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        $connected = @fsockopen("148.223.72.244", 880);
-        if ($connected){
-            $is_conn = true; 
-            fclose($connected);
-        }else{
-            $is_conn = false;
-        }
-
-        if(!$is_conn){
+        $response = null;
+        system("ping -c 1 148.223.72.244", $response);
+        if($response != 0){
             return view('Recepcion.RecepcionLocalSinInternet');
         }
 
