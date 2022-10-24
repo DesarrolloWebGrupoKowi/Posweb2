@@ -291,6 +291,12 @@ class RecepcionController extends Controller
     }
 
     public function RecepcionLocalSinInternet(Request $request){
+        $connected = @fsockopen("www.google.com", 80); 
+        if ($connected){
+            return redirect('RecepcionProducto');
+            fclose($connected);
+        }
+        
         $articulos = Articulo::where('Status', 0)
                 ->get();
 
