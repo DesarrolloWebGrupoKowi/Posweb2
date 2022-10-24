@@ -16,10 +16,10 @@ use App\Models\HistorialMovimientoProducto;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        $response = null;
-        system("ping -c 1 148.223.72.244", $response);
-        if($response != 0){
-            return view('Recepcion.RecepcionLocalSinInternet');
+        $ip = '148.223.72.244';
+        exec("ping -n 4 $ip 2>&1", $output, $retval);
+        if ($retval != 0) { 
+            return view('Recepcion.RecepcionLocalSinInternet'); 
         }
 
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
