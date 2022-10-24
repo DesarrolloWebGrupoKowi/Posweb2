@@ -16,7 +16,15 @@ use App\Models\HistorialMovimientoProducto;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        if(connection_status() != 0){
+        $connected = @fsockopen("www.google.com", 80);
+        if ($connected){
+            $is_conn = true; 
+            fclose($connected);
+        }else{
+            $is_conn = false;
+        }
+
+        if(!$is_conn){
             return 'hope';
         }
 
