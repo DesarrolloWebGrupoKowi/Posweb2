@@ -293,21 +293,20 @@ class RecepcionController extends Controller
     public function RecepcionLocalSinInternet(Request $request){
         try {
             DB::connection('server')->getPdo();
-            return redirect('RecepcionProducto');
 
         } catch (\Exception $e) {
-            
-        }
-
-        $articulos = Articulo::where('Status', 0)
+            $articulos = Articulo::where('Status', 0)
             ->get();
 
-        $capturasSinInternet = DB::table('CapRecepcionManualTmp as a')
-            ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
-            ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-            ->get(); 
+            $capturasSinInternet = DB::table('CapRecepcionManualTmp as a')
+                ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+                ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->get(); 
 
-        return view('Recepcion.RecepcionLocalSinInternet', compact('articulos', 'capturasSinInternet'));
+            return view('Recepcion.RecepcionLocalSinInternet', compact('articulos', 'capturasSinInternet'));
+        }
+
+        return redirect('RecepcionProducto');
     }
 
     public function AgregarProductoLocalSinInternet(Request $request){
