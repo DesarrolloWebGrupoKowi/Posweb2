@@ -17,9 +17,10 @@ use App\Models\RecepcionSinInternet;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        exec("ping -c 1 192.168.4.11", $output, $result);
-        if($result !== 0){
+        $connected = @fsockopen("www.google.com", 80); 
+        if (!$connected){
             return redirect('RecepcionLocalSinInternet');
+            fclose($connected);
         }
 
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
