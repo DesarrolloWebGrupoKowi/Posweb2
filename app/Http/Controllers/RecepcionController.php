@@ -17,7 +17,7 @@ class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
         try {
-            DB::connection()->getPdo();
+            DB::connection('server')->getPdo();
         } catch (\Exception $e) {
             return view('Recepcion.RecepcionLocalSinInternet');
         }
