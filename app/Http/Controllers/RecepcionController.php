@@ -25,7 +25,7 @@ class RecepcionController extends Controller
         }
 
         if(!$is_conn){
-            return 'hope';
+            return view('Recepcion.RecepcionLocalSinInternet');
         }
 
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
