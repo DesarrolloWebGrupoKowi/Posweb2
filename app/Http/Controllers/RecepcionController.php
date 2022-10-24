@@ -16,10 +16,8 @@ use App\Models\HistorialMovimientoProducto;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        $ip = '148.223.72.244';
-        exec("ping -n 4 $ip 2>&1", $output, $retval);
-        if ($retval != 0) { 
-            return view('Recepcion.RecepcionLocalSinInternet'); 
+        if (connection_status() === 'CONNECTION_ABORTED & CONNECTION_TIMEOUT') {
+            return view('Recepcion.RecepcionLocalSinInternet');
         }
 
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
