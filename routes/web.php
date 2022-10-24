@@ -369,6 +369,18 @@ Route::post('/EliminarProductoManual/{IdCapRecepcionManual}', 'App\Http\Controll
 //ReporteRecepciones
 Route::get('/ReporteRecepciones', 'App\Http\Controllers\RecepcionController@ReporteRecepciones');
 
+//RecepcionLocalSinInternet
+Route::get('/RecepcionLocalSinInternet', 'App\Http\Controllers\RecepcionController@RecepcionLocalSinInternet');
+
+//AgregarProductoLocalSinInternet
+Route::get('/AgregarProductoLocalSinInternet', 'App\Http\Controllers\RecepcionController@AgregarProductoLocalSinInternet')->name('AgregarProductoLocalSinInternet');
+
+//EliminarArticuloSinInternet
+Route::post('/EliminarArticuloSinInternet/{idCapRecepcionManual}', 'App\Http\Controllers\RecepcionController@EliminarArticuloSinInternet')->name('EliminarArticuloSinInternet');
+
+//RecepcionarProductoSinInternet
+Route::post('/RecepcionarProductoSinInternet', 'App\Http\Controllers\RecepcionController@RecepcionarProductoSinInternet')->name('RecepcionarProductoSinInternet');
+
 //+============================================================================================================================================+//
 //Posweb Pantalla Principal
 Route::get('/Pos', 'App\Http\Controllers\PoswebController@Pos')->name('Pos');

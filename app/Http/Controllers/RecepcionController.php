@@ -12,6 +12,7 @@ use App\Models\Articulo;
 use App\Models\CapturaManualTmp;
 use App\Models\InventarioTienda;
 use App\Models\HistorialMovimientoProducto;
+use App\Models\RecepcionSinInternet;
 
 class RecepcionController extends Controller
 {
@@ -19,7 +20,7 @@ class RecepcionController extends Controller
         try {
             DB::connection('server')->getPdo();
         } catch (\Exception $e) {
-            return view('Recepcion.RecepcionLocalSinInternet');
+            return redirect('RecepcionLocalSinInternet');
         }
 
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -287,5 +288,107 @@ class RecepcionController extends Controller
         //return $recepciones;
 
         return view('Recepcion.ReporteRecepciones', compact('recepciones', 'fecha1', 'fecha2', 'referencia', 'chkReferencia'));
+    }
+
+    public function RecepcionLocalSinInternet(Request $request){
+        $articulos = Articulo::where('Status', 0)
+            ->get();
+
+        $capturasSinInternet = DB::table('CapRecepcionManualTmp as a')
+            ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+            ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            ->get(); 
+
+        return view('Recepcion.RecepcionLocalSinInternet', compact('articulos', 'capturasSinInternet'));
+    }
+
+    public function AgregarProductoLocalSinInternet(Request $request){
+        try {
+            DB::beginTransaction();
+
+            RecepcionSinInternet::insert([
+                'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                'CodArticulo' => $request->codArticulo,
+                'CantArticulo' => $request->cantArticulo,
+                'IdMovimiento' => 1012
+            ]);
+            
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return $th;
+        }
+
+        DB::commit();
+        return back();
+    }
+
+    public function EliminarArticuloSinInternet($idCapRecepcionManual){
+        try {
+            DB::beginTransaction();
+
+            RecepcionSinInternet::where('IdCapRecepcionManual', $idCapRecepcionManual)
+                ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->delete();
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjDelete', 'Error: ' . $th->getMessage());
+        }
+
+        DB::commit();
+        return back();
+    }
+
+    public function RecepcionarProductoSinInternet(Request $request){
+        $origen = $request->origen;
+
+        try {
+            DB::beginTransaction();
+
+            $productos = RecepcionSinInternet::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->get();
+
+            foreach ($productos as $key => $producto) {
+                $stock = InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('CodArticulo', $producto->CodArticulo)
+                    ->sum('StockArticulo');
+
+                if(empty($stock)){
+
+                    InventarioTienda::insert([
+                        'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                        'CodArticulo' => $producto->CodArticulo,
+                        'StockArticulo' => $producto->CantArticulo
+                    ]);
+
+                }else{
+                    InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->where('CodArticulo', $producto->CodArticulo)
+                        ->update([
+                            'StockArticulo' => $stock + $producto->CantArticulo
+                        ]);
+                }
+
+                DB::table('DatHistorialMovimientos')->insert([
+                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                    'CodArticulo' => $producto->CodArticulo,
+                    'CantArticulo' => $producto->CantArticulo,
+                    'FechaMovimiento' => date('d-m-Y H:i:s'),
+                    'Referencia' => strtoupper($origen),
+                    'IdMovimiento' => 1012,
+                    'IdUsuario' => Auth::user()->IdUsuario
+                ]);
+            }
+
+            RecepcionSinInternet::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->delete();
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjDelete', 'Error: ' . $th->getMessage());
+        }
+
+        DB::commit();
+        return back();
     }
 }
