@@ -17,9 +17,8 @@ use App\Models\RecepcionSinInternet;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        try {
-            DB::connection('server')->getPdo();
-        } catch (\Exception $e) {
+        exec("ping -c 1 192.168.4.11", $output, $result);
+        if($result !== 0){
             return redirect('RecepcionLocalSinInternet');
         }
 
