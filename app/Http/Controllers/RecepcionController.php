@@ -310,7 +310,7 @@ class RecepcionController extends Controller
                 'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
                 'CodArticulo' => $request->codArticulo,
                 'CantArticulo' => $request->cantArticulo,
-                'IdMovimiento' => 1012
+                'IdMovimiento' => 13
             ]);
             
         } catch (\Throwable $th) {
@@ -375,7 +375,7 @@ class RecepcionController extends Controller
                     'CantArticulo' => $producto->CantArticulo,
                     'FechaMovimiento' => date('d-m-Y H:i:s'),
                     'Referencia' => strtoupper($origen),
-                    'IdMovimiento' => 1012,
+                    'IdMovimiento' => 13,
                     'IdUsuario' => Auth::user()->IdUsuario
                 ]);
             }
@@ -385,10 +385,10 @@ class RecepcionController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollback();
-            return back()->with('msjDelete', 'Error: ' . $th->getMessage());
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         DB::commit();
-        return back();
+        return back()->with('msjAdd', 'Se recepcionó el producto correctamente');
     }
 }

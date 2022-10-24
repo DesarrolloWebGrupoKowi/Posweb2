@@ -6,6 +6,13 @@
             <h2 class="card shadow p-1">Recepción Sin Internet (Local)</h2>
         </div>
     </div>
+    <div class="container mb-3">
+        <div class="d-flex justify-content-center">
+            <div class="col-auto">
+                @include('Alertas.Alertas')
+            </div>
+        </div>
+    </div>
     <div class="container mb-2">
         <form action="/AgregarProductoLocalSinInternet" method="GET">
             <div class="row ms-3">

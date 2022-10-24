@@ -103,15 +103,14 @@ class TablasUpdateController extends Controller
                     'Status' => 0
                 ]);
 
-            $insert = "insert into CatTablasUpdate select IdTienda, '".$nomTabla."', 1 from CatTiendas";
+            $insert = "insert into CatTablasUpdate select IdTienda, 1, '". $nomTabla ."', 1 from CatTiendas";
             DB::insert($insert);
 
             DB::commit();
             return back();
         } catch (\Throwable $th) {
             DB::rollback();
-            return $th;
-            return back()->with('msjdelete', 'Error: ' .$th);
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
     }
 }

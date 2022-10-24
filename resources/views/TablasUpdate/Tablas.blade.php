@@ -6,6 +6,11 @@
             <h2 class="card shadow p-1">Catálogo de Tablas</h2>
         </div>
     </div>
+    <div class="d-flex justify-content-center">
+        <div class="col-auto">
+            @include('Alertas.Alertas')
+        </div>
+    </div>
     <div class="container mb-3">
         <div class="d-flex justify-content-end">
             <div class="col-auto">
