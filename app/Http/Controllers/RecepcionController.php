@@ -19,7 +19,7 @@ class RecepcionController extends Controller
         try {
             DB::connection()->getPdo();
         } catch (\Exception $e) {
-            return 'Could not connect to the database. Please check your configuration. error:' . $e;
+            return view('Recepcion.RecepcionLocalSinInternet');
         }
 
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
