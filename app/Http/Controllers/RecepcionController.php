@@ -16,10 +16,6 @@ use App\Models\HistorialMovimientoProducto;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        if(shell_exec('ping -c 1 148.223.72.244')){
-            return view('Recepcion.RecepcionLocalSinInternet');
-        }
-
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
             ->first();
 
