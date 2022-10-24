@@ -16,7 +16,7 @@ use App\Models\HistorialMovimientoProducto;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        $connected = @fsockopen("www.google.com", 80);
+        $connected = @fsockopen("148.223.72.244", 880);
         if ($connected){
             $is_conn = true; 
             fclose($connected);
