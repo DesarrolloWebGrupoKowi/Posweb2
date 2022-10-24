@@ -16,6 +16,12 @@ use App\Models\HistorialMovimientoProducto;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
+        try {
+            DB::connection()->getPdo();
+        } catch (\Exception $e) {
+            return 'Could not connect to the database. Please check your configuration. error:' . $e;
+        }
+
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
             ->first();
 
