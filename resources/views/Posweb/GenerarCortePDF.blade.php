@@ -56,6 +56,7 @@
     <div class="container">
         <caption class="titulo">{{ $titulo }}</caption>
         <caption class="tienda">{{ $nomTienda }}</caption>
+        <caption class="titulo">CAJA: {{ $numCaja == 0 ? 'TODAS' : $numCaja }}</caption>
         <caption style="text-align: right">{{ $fecha }}</caption>
         <br>
         @foreach ($cortesTienda as $corteTienda)

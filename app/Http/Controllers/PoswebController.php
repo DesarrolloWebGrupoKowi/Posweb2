@@ -1508,6 +1508,9 @@ class PoswebController extends Controller
         $tienda = Tienda::where('IdTienda', $idTienda)
                 ->first();
 
+        $numCaja = DatCaja::where('IdDatCajas', $idDatCaja)
+            ->value('IdCaja');
+
         if($idDatCaja == 0){
             $billsTo = CorteTienda::where('IdTienda', $idTienda)
             ->distinct('Bill_To')
@@ -1607,6 +1610,7 @@ class PoswebController extends Controller
             $info = [
                 'titulo' => 'Corte Diario de Tienda',
                 'nomTienda' => $tienda->NomTienda,
+                'numCaja' => $numCaja,
                 'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
                 'cortesTienda' => $cortesTienda,
                 'facturas' => $facturas,
@@ -1731,6 +1735,7 @@ class PoswebController extends Controller
             $info = [
                 'titulo' => 'Corte Diario de Tienda',
                 'nomTienda' => $tienda->NomTienda,
+                'numCaja' => $numCaja,
                 'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
                 'cortesTienda' => $cortesTienda,
                 'facturas' => $facturas,
@@ -1750,7 +1755,7 @@ class PoswebController extends Controller
     
         view()->share('GenerarCortePDF', $info);
         $pdf = PDF::loadView('Posweb.GenerarCortePDF', $info);
-        return $pdf->stream('Corte '.$fecha.' '.$tienda->NomTienda.'.pdf');
+        return $pdf->stream('Corte '.$fecha.' '.$tienda->NomTienda. ' Caja '. $numCaja .'.pdf');
     }
 
     public function ImprimirTicketVenta($idEncabezado, $restante, $pago){
