@@ -53,7 +53,7 @@ class TablasUpdateController extends Controller
             }
         }
         
-        return back()->with('msjdelete', 'No Existe Tienda: ' .$idTienda);
+        return back()->with('msjdelete', 'No Existe Tienda: ' . $idTienda);
     }
 
     public function ActualizarTablas(Request $request, $idTienda){
@@ -106,11 +106,12 @@ class TablasUpdateController extends Controller
             $insert = "insert into CatTablasUpdate select IdTienda, 1, '". $nomTabla ."', 1 from CatTiendas";
             DB::insert($insert);
 
-            DB::commit();
-            return back();
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
+        
+        DB::commit();
+        return back()->with('msjAdd', 'Se agregó una nueva tabla de descarga' . $nomTabla);
     }
 }

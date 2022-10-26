@@ -36,8 +36,12 @@
                 <div class="col-auto">
                     <select class="form-select shadow" name="idCaja" id="idCaja" required>
                         <option value="">Seleccione Caja</option>
+                        @if ($cajasTienda->count() >= 2)
+                            <option {!! $idCaja == 0 ? 'selected' : '' !!} value="0">Todas las cajas</option>
+                        @endif
                         @foreach ($cajasTienda as $caja)
-                            <option {!! $idCaja == $caja->IdDatCajas ? 'selected' : '' !!} value="{{ $caja->IdDatCajas }}">Caja {{ $caja->IdCaja }}</option>
+                            <option {!! $idCaja == $caja->IdDatCajas ? 'selected' : '' !!} value="{{ $caja->IdDatCajas }}">Caja {{ $caja->IdCaja }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -66,17 +70,19 @@
             </div>
         </form>
     </div>
+    <!--CORTE DIARIO DE TIENDA-->
     @if ($idReporte == 1)
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">CORTE DIARIO - {{ $nomTienda }}</h4>
+                    <h4 class="rounded-3 p-1">CORTE DIARIO - {{ $nomTienda }} - CAJA:
+                        {{ $idCaja == 0 ? 'TODAS' : $numCaja }}</h4>
                 </div>
                 <hr>
             </div>
             <div class="row d-flex justify-content-end">
                 <div class="col-auto">
-                    <a href="/GenerarCortePDF/{{ $fecha1 }}/{{ $idTienda }}" target="_blank" type="button"
+                    <a href="/GenerarCortePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}" target="_blank" type="button"
                         class="btn card">
                         <span class="material-icons">print</span>
                     </a>
@@ -319,11 +325,13 @@
                 </div>
             </div>
         </div>
+        <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
     @elseif($idReporte == 2)
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">CONCENTRADO DE VENTAS - {{ $nomTienda }}</h4>
+                    <h4 class="rounded-3 p-1">CONCENTRADO DE VENTAS - {{ $nomTienda }} - CAJA:
+                        {{ $idCaja == 0 ? 'TODAS' : $numCaja }}</h4>
                 </div>
                 <hr>
             </div>
@@ -368,75 +376,86 @@
                 </tfoot>
             </table>
         </div>
+        <!--VENTA POR TICKET DIARIO-->
     @elseif($idReporte == 3)
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">VENTA POR TICKET DIARIO - {{ $nomTienda }}</h4>
+                    <h4 class="rounded-3 p-1">VENTA POR TICKET DIARIO - {{ $nomTienda }} - CAJA:
+                        {{ $idCaja == 0 ? 'TODAS' : $numCaja }}</h4>
                 </div>
                 <hr>
             </div>
-            <table class="table table-responsive table-striped table-sm shadow">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Ticket</th>
-                        <th>Fecha</th>
-                        <th>Importe</th>
-                        <th>Iva</th>
-                        <th>Detalle</th>
-                        <th>Solicitud Factura</th>
-                        <th>Status Venta</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($tickets->count() == 0)
+            @foreach ($tickets as $ticket)
+                <div class="d-flex">
+                    <div class="col-auto">
+                        <h5 class="bg-success text-white rounded-3">Tickets de la caja: {{ $ticket->Caja->IdCaja }}</h5>
+                    </div>
+                </div>
+                <table class="table table-responsive table-striped table-sm shadow">
+                    <thead class="table-dark">
                         <tr>
-                            <td colspan="7">No Hay Ventas</td>
+                            <th>Ticket</th>
+                            <th>Fecha</th>
+                            <th>Importe</th>
+                            <th>Iva</th>
+                            <th>Detalle</th>
+                            <th>Solicitud Factura</th>
+                            <th>Status Venta</th>
                         </tr>
-                    @endif
-                    @foreach ($tickets as $ticket)
-                        <tr>
-                            <td>{{ $ticket->IdTicket }}</td>
-                            <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}</td>
-                            <td>$ {{ number_format($ticket->ImporteVenta, 2) }}</td>
-                            <td>{{ number_format($ticket->Iva, 2) }}</td>
-                            <td>
-                                <i style="color: rgb(255, 145, 0); cursor: pointer; font-size: 20px"
-                                    class="fa fa-info-circle" data-bs-toggle="modal"
-                                    data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}"></i>
-                                @include('Posweb.ModalDetalleTicket')
-                                <i style="color: green; cursor: pointer; font-size: 20px" class="fa fa-usd"
-                                    data-bs-toggle="modal" data-bs-target="#ModalTipoPago{{ $ticket->IdTicket }}"></i>
-                                @include('Posweb.ModalTipoPago')
-                            </td>
-                            <td>
-                                @if ($ticket->SolicitudFE == 0 && $ticket->SolicitudFE != null)
-                                    <i style="font-size: 18px; cursor: pointer" class="fa fa-check-square"
+                    </thead>
+                    <tbody>
+                        @if ($tickets->count() == 0)
+                            <tr>
+                                <td colspan="7">No Hay Ventas</td>
+                            </tr>
+                        @endif
+                        @foreach ($tickets as $ticket)
+                            <tr>
+                                <td>{{ $ticket->IdTicket }}</td>
+                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}</td>
+                                <td>$ {{ number_format($ticket->ImporteVenta, 2) }}</td>
+                                <td>{{ number_format($ticket->Iva, 2) }}</td>
+                                <td>
+                                    <i style="color: rgb(255, 145, 0); cursor: pointer; font-size: 20px"
+                                        class="fa fa-info-circle" data-bs-toggle="modal"
+                                        data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}"></i>
+                                    @include('Posweb.ModalDetalleTicket')
+                                    <i style="color: green; cursor: pointer; font-size: 20px" class="fa fa-usd"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#ModalSolicitudFe{{ $ticket->IdTicket }}"></i>
-                                    @include('Posweb.ModalSolicitudFe')
-                                @endif
-                            </td>
-                            <td style="color: red;">
-                                @if ($ticket->StatusVenta == 1)
-                                    <i style="font-size: 20px" class="fa fa-ban"></i>
-                                @endif
-                            </td>
+                                        data-bs-target="#ModalTipoPago{{ $ticket->IdTicket }}"></i>
+                                    @include('Posweb.ModalTipoPago')
+                                </td>
+                                <td>
+                                    @if ($ticket->SolicitudFE == 0 && $ticket->SolicitudFE != null)
+                                        <i style="font-size: 18px; cursor: pointer" class="fa fa-check-square"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#ModalSolicitudFe{{ $ticket->IdTicket }}"></i>
+                                        @include('Posweb.ModalSolicitudFe')
+                                    @endif
+                                </td>
+                                <td style="color: red;">
+                                    @if ($ticket->StatusVenta == 1)
+                                        <i style="font-size: 20px" class="fa fa-ban"></i>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th style="text-align: center">Totales: </th>
+                            <th>${{ number_format($total, 2) }}</th>
+                            <th>${{ number_format($totalIva, 2) }}</th>
+                            <th></th>
+                            <th></th>
                         </tr>
-                    @endforeach
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th></th>
-                        <th style="text-align: center">Totales: </th>
-                        <th>${{ number_format($total, 2) }}</th>
-                        <th>${{ number_format($totalIva, 2) }}</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
+                    </tfoot>
+                </table>
+            @endforeach
         </div>
+        <!--TICKETS CANCELADOS-->
     @elseif($idReporte == 4)
         <div class="container">
             <div class="row d-flex justify-content-center">
@@ -535,6 +554,12 @@
                 .then(res => res.json())
                 .then(respuesta => {
                     if (respuesta != '') {
+                        if (respuesta.length >= 2) {
+                            const optionCaja = document.createElement('option');
+                            optionCaja.value = 0;
+                            optionCaja.text = 'Todas las Cajas';
+                            idCaja.add(optionCaja);
+                        }
                         for (const key in respuesta) {
                             if (Object.hasOwnProperty.call(respuesta, key)) {
                                 const caja = respuesta[key];

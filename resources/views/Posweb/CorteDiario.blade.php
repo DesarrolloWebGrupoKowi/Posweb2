@@ -22,7 +22,7 @@
                     <input class="form-control" name="fecha" id="fecha" type="date" value="{{ $fecha }}">
                 </div>
                 <div class="col-9 d-flex justify-content-end">
-                    <a href="/GenerarCortePDF/{{ $fecha }}/{{ $tienda->IdTienda }}" target="_blank" type="button" class="btn card">
+                    <a href="/GenerarCortePDF/{{ $fecha }}/{{ $tienda->IdTienda }}/{{ $idDatCaja }}" target="_blank" type="button" class="btn card">
                         <span class="material-icons">print</span>
                     </a>
                 </div>

@@ -11,6 +11,7 @@ use App\Models\SolicitudFactura;
 use App\Models\Tienda;
 use App\Models\HistorialMovimientoProducto;
 use App\Models\Usuario;
+use App\Models\DatCaja;
 
 class DatEncabezado extends Model
 {
@@ -68,5 +69,9 @@ class DatEncabezado extends Model
 
     public function UsuarioCancelacion(){
         return $this->hasOne(Usuario::class, 'IdUsuario', 'IdUsuarioCancelacion');
+    }
+
+    public function Caja(){
+        return $this->hasOne(DatCaja::class, 'IdDatCajas', 'IdDatCaja');
     }
 }

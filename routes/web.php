@@ -419,7 +419,7 @@ Route::get('/GuardarVenta', 'App\Http\Controllers\PoswebController@GuardarVenta'
 Route::get('/CorteDiario', 'App\Http\Controllers\PoswebController@CorteDiario');
 
 //GenerarCortePDF
-Route::get('/GenerarCortePDF/{fecha}/{idTienda}', 'App\Http\Controllers\PoswebController@GenerarCortePDF');
+Route::get('/GenerarCortePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\PoswebController@GenerarCortePDF');
 
 //Calculo Pago
 Route::get('/CalculoMultiPago/{idEncabezado}/{restante}/{pago}/{idTipoPago}/{idBanco}/{numTarjeta}', 'App\Http\Controllers\PoswebController@CalculoMultiPago')->name('CalculoMultiPago');
