@@ -41,7 +41,7 @@ class RecepcionController extends Controller
                                         " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
                                         " left join CapRecepcion as c on c.IdRecepcion=a.IdRecepcion".
                                         ' left join CatTiendas as d on d.IdTienda = c.IdTiendaOrigen'.
-                                        " where a.IRecepcion = ".$idRecepcion."".
+                                        " where a.IdRecepcion = ".$idRecepcion."".
                                         " and a.IdStatusRecepcion = 1".
                                         " union all".
                                         " select Referencia, '', '".$tienda->Almacen."', 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, b.NomArticulo".
