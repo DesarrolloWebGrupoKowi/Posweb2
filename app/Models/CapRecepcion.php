@@ -23,10 +23,10 @@ class CapRecepcion extends Model
         'IdStatusRecepcion'
     ];
     public $timestamps = false;
-    protected $primaryKey = 'IdCapRecepcion';
+    protected $primaryKey = 'IdRecepcion';
 
     public function DetalleRecepcion(){
-        return $this->hasMany(DatRecepcion::class, 'IdCapRecepcion', 'IdCapRecepcion');
+        return $this->hasMany(DatRecepcion::class, 'IdRecepcion', 'IdRecepcion');
     }
 
     public function StatusRecepcion(){
