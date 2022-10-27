@@ -13,6 +13,7 @@ use App\Models\CapturaManualTmp;
 use App\Models\InventarioTienda;
 use App\Models\HistorialMovimientoProducto;
 use App\Models\RecepcionSinInternet;
+use App\Models\DatCaja;
 
 class RecepcionController extends Controller
 {
