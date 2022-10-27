@@ -17,29 +17,9 @@ use App\Models\RecepcionSinInternet;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        switch (connection_status())
-        {
-        case CONNECTION_NORMAL:
-        $txt = 'Connection is in a normal state';
-        break;
-        case CONNECTION_ABORTED:
-        $txt = 'Connection aborted';
-        break;
-        case CONNECTION_TIMEOUT:
-        $txt = 'Connection timed out';
-        break;
-        case (CONNECTION_ABORTED & CONNECTION_TIMEOUT):
-        $txt = 'Connection aborted and timed out';
-        break;
-        default:
-        $txt = 'Unknown';
-        break;
-        }
+        exec("ping -n 1 google.com", $salida, $codigo);
 
-        return $txt;
-        exec('ping 192.168.4.3 -n 1', $salida, $codigo);
-
-        if($salida[2] == 'Error general.'){
+        if($codigo === 1){
             return redirect('RecepcionLocalSinInternet');
         }
 
@@ -326,9 +306,9 @@ class RecepcionController extends Controller
     }
 
     public function RecepcionLocalSinInternet(Request $request){
-        exec('ping 192.168.4.3 -n 1', $salida, $codigo);
+        exec("ping -n 1 google.com", $salida, $codigo);
 
-        if($salida[2] != 'Error general.'){
+        if($codigo === 0){
             return redirect('RecepcionProducto');
         }
 
