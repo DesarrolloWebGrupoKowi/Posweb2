@@ -12,7 +12,16 @@ class CapRecepcion extends Model
     use HasFactory;
     protected $connection = 'server';
     protected $table = 'CapRecepcion';
-    protected $fillable = ['FechaRecepcion', 'PackingList', 'IdTiendaOrigen', 'Almacen', 'Organization_Id', 'MotivoCancelacion', 'FechaCancelacion', 'IdStatusRecepcion'];
+    protected $fillable = [
+        'FechaRecepcion', 
+        'PackingList', 
+        'IdTiendaOrigen', 
+        'Almacen', 
+        'Organization_Id', 
+        'MotivoCancelacion', 
+        'FechaCancelacion', 
+        'IdStatusRecepcion'
+    ];
     public $timestamps = false;
     protected $primaryKey = 'IdCapRecepcion';
 

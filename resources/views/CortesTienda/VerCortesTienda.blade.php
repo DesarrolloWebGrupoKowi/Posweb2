@@ -16,6 +16,7 @@
     </style>
 @endif
 @section('contenido')
+    <!--CONTAINER FILTROS-->
     <div class="container card rounded-3 shadow p-1 mb-3">
         <div class="d-flex justify-content-center">
             <div class="col-auto">
@@ -82,8 +83,8 @@
             </div>
             <div class="row d-flex justify-content-end">
                 <div class="col-auto">
-                    <a href="/GenerarCortePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}" target="_blank" type="button"
-                        class="btn card">
+                    <a href="/GenerarCortePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
+                        target="_blank" type="button" class="btn card">
                         <span class="material-icons">print</span>
                     </a>
                 </div>
@@ -386,12 +387,94 @@
                 </div>
                 <hr>
             </div>
-            @foreach ($tickets as $ticket)
-                <div class="d-flex">
-                    <div class="col-auto">
-                        <h5 class="bg-success text-white rounded-3">Tickets de la caja: {{ $ticket->Caja->IdCaja }}</h5>
-                    </div>
+            <!--VER TODAS LAS CAJAS-->
+            @if ($idCaja == 0)
+                <div class="row">
+                    @foreach ($tickets as $key => $ticket)
+                        <div class="col-6">
+                            <div class="d-flex justify-content-start">
+                                <div class="col-auto">
+                                    <h5> Caja: {{ $key + 1 }}</h5>
+                                </div>
+                            </div>
+                            <table class="table table-responsive table-striped table-sm shadow">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Caja</th>
+                                        <th>Ticket</th>
+                                        <th>Fecha</th>
+                                        <th>Importe</th>
+                                        <th>Iva</th>
+                                        <th>Detalle</th>
+                                        <th>Factura</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $totalImporte = 0;
+                                        $totalIva = 0;
+                                    @endphp
+                                    @if ($ticket->count() == 0)
+                                        <tr>
+                                            <td colspan="8">No hay ventas en esta caja</td>
+                                        </tr>
+                                    @else
+                                        @foreach ($ticket as $tVenta)
+                                            <tr>
+                                                <th>{{ $tVenta->Caja->IdCaja }}</th>
+                                                <td>{{ $tVenta->IdTicket }}</td>
+                                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($tVenta->FechaVenta)) }}</td>
+                                                <td>$ {{ number_format($tVenta->ImporteVenta, 2) }}</td>
+                                                <td>{{ number_format($tVenta->Iva, 2) }}</td>
+                                                <td>
+                                                    <i style="color: rgb(255, 145, 0); cursor: pointer; font-size: 20px"
+                                                        class="fa fa-info-circle" data-bs-toggle="modal"
+                                                        data-bs-target="#ModalDetalleTicket{{ $tVenta->IdDatEncabezado }}"></i>
+                                                    @include('CortesTienda.ModalDetalleTicket')
+                                                    <i style="color: green; cursor: pointer; font-size: 20px"
+                                                        class="fa fa-usd" data-bs-toggle="modal"
+                                                        data-bs-target="#ModalTicketTipoPago{{ $tVenta->IdDatEncabezado }}"></i>
+                                                    @include('CortesTienda.ModalTicketTipoPago')
+                                                </td>
+                                                <td>
+                                                    @if ($tVenta->SolicitudFE == 0 && $tVenta->SolicitudFE != null)
+                                                        <i style="font-size: 18px; cursor: pointer"
+                                                            class="fa fa-check-square" data-bs-toggle="modal"
+                                                            data-bs-target="#ModalSolicitudFe{{ $tVenta->IdDatEncabezado }}"></i>
+                                                        @include('CortesTienda.ModalSolicitudFe')
+                                                    @endif
+                                                </td>
+                                                <td style="color: red;">
+                                                    @if ($tVenta->StatusVenta == 1)
+                                                        <i style="font-size: 20px" class="fa fa-ban"></i>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @php
+                                                $totalImporte = $totalImporte + $tVenta->ImporteVenta;
+                                                $totalIva = $totalIva + $tVenta->Iva;
+                                            @endphp
+                                        @endforeach
+                                    @endif
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th style="text-align: center">Totales: </th>
+                                        <th>${{ number_format($totalImporte, 2) }}</th>
+                                        <th>${{ number_format($totalIva, 2) }}</th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    @endforeach
                 </div>
+            @else
                 <table class="table table-responsive table-striped table-sm shadow">
                     <thead class="table-dark">
                         <tr>
@@ -453,7 +536,7 @@
                         </tr>
                     </tfoot>
                 </table>
-            @endforeach
+            @endif
         </div>
         <!--TICKETS CANCELADOS-->
     @elseif($idReporte == 4)

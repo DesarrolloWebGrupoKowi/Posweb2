@@ -27,7 +27,7 @@
                 <div class="row">
                     <div class="col-11">
                         <!--<button class="btn btn-sm btn-outline-danger alinearDerecha" onclick="remove()">Remover Menú</button>-->
-                        <buton class="btn btn-sm btnRemove alinearDerecha" onclick="remove()"><i class="fa fa-close"></i> Remover</buton>
+                        <button class="btn btn-sm btnRemove alinearDerecha" onclick="remove()"><i class="fa fa-close"></i> Remover</button>
                     </div>
                 </div>
                 <div class="container cuchi">

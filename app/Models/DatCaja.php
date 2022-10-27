@@ -17,4 +17,12 @@ class DatCaja extends Model
     public function Caja(){
         return $this->hasMany(Caja::class, 'IdCaja', 'IdCaja');
     }
+
+    public function Encabezado(){
+        return $this->hasMany(DatEncabezado::class, 'IdDatCaja', 'IdDatCajas');
+    }
+
+    public function TipoPago(){
+        return $this->hasMany(Tienda::class, 'IdTienda', 'IdTienda');
+    }
 }

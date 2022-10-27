@@ -383,7 +383,7 @@ class CortesTiendaController extends Controller
                     ->get();
 
                 foreach ($cajas as $key => $caja) {
-                    $tickets = DatEncabezado::with(['detalle' => function ($detalle){
+                    $tickets[$key] = DatEncabezado::with(['detalle' => function ($detalle){
                         $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
                             ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
                             ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
@@ -393,19 +393,22 @@ class CortesTiendaController extends Controller
                         ->whereDate('FechaVenta', $fecha1)
                         ->orderBy('IdTicket')
                         ->get();
-            
-                    $total = DatEncabezado::where('IdTienda', $idTienda)
+                
+                    $total[$key] = DatEncabezado::where('IdTienda', $idTienda)
                         ->whereDate('FechaVenta', $fecha1)
                         ->where('StatusVenta', 0)
                         ->where('IdDatCaja', $caja->IdDatCajas)
                         ->sum('ImporteVenta');
-            
-                    $totalIva = DatEncabezado::where('IdTienda', $idTienda)
+                
+                    $totalIva[$key] = DatEncabezado::where('IdTienda', $idTienda)
                         ->whereDate('FechaVenta', $fecha1)
                         ->where('StatusVenta', 0)
                         ->where('IdDatCaja', $caja->IdDatCajas)
                         ->sum('Iva');
                 }
+
+                //return $tickets;
+                
             }else{
                 $tickets = DatEncabezado::with(['detalle' => function ($detalle){
                     $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')

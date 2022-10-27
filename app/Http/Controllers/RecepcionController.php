@@ -156,6 +156,7 @@ class RecepcionController extends Controller
         try {
             DB::connection('server')->beginTransaction();
             DB::beginTransaction();
+
             foreach ($chkArticulo as $key => $referencia) {
                 foreach ($cantRecepcionada as $codArticulo => $cRecepcionada) {
                     if($key == $codArticulo){
@@ -211,9 +212,11 @@ class RecepcionController extends Controller
                     ->update([
                         'IdStatusRecepcion' => 2,
                         'FechaRecepcion' => date('d-m-Y H:i:s'),
-                        'IdUsuario' => Auth::user()->IdUsuario
+                        'IdUsuario' => Auth::user()->IdUsuario,
+                        'IdTienda' => Auth::user()->usuarioTienda->IdTienda
                     ]);
             }
+            
             DB::connection('server')->commit();
             DB::commit();
     
@@ -352,6 +355,20 @@ class RecepcionController extends Controller
             $productos = RecepcionSinInternet::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->get();
 
+            DB::table('CapRecepcion')->insert([
+                'FechaRecepcion' => date('d-m-Y H:i:s'),
+                'FechaLlegada' => date('d-m-Y H:i:s'),
+                'PackingList' => 'RECEPCION SIN INTERNET MANUAL',
+                'IdTiendaOrigen' => null,
+                'Almacen' => null,
+                'IdStatusRecepcion' => 2,
+                'IdUsuario' => Auth::user()->IdUsuario,
+                'IdTienda' => Auth::user()->usuarioTienda->IdTienda
+            ]);
+
+            $idCapRecepcion = DB::table('CapRecepcion')
+                ->max('IdCapRecepcion');
+
             foreach ($productos as $key => $producto) {
                 $stock = InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('CodArticulo', $producto->CodArticulo)
@@ -372,6 +389,14 @@ class RecepcionController extends Controller
                             'StockArticulo' => $stock + $producto->CantArticulo
                         ]);
                 }
+
+                DB::table('DatRecepcion')->insert([
+                    'IdCapRecepcion' => $idCapRecepcion,
+                    'CodArticulo' => $producto->CodArticulo,
+                    'CantEnviada' => $producto->CantArticulo,
+                    'CantRecepcionada' => $producto->CantArticulo,
+                    'IdStatusRecepcion' => 2
+                ]);
 
                 DB::table('DatHistorialMovimientos')->insert([
                     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
