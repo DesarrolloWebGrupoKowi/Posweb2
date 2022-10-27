@@ -29,20 +29,20 @@
                 @else
                     @foreach ($recepcion as $rTienda)
                         <tr>
-                            <td>{{ $rTienda->IdCapRecepcion }}</td>
+                            <td>{{ $rTienda->IdRecepcion }}</td>
                             <td>{{ $rTienda->PackingList }}</td>
                             <td>{{ $rTienda->NomTienda }}</td>
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($rTienda->FechaLlegada)) }}</td>
                             <td>{{ $rTienda->StatusRecepcion->NomStatusRecepcion }}</td>
                             <td>
                                 <form class="d-inline" action="/RecepcionProducto">
-                                    <input type="hidden" name="idRecepcion" value="{{ $rTienda->IdCapRecepcion }}">
+                                    <input type="hidden" name="idRecepcion" value="{{ $rTienda->IdRecepcion }}">
                                     <button class="btn btn-sm" data-bs-toggle="mensaje" title="Recepcionar">
                                         <span class="material-icons">receipt_long</span>
                                     </button>
                                 </form>
                                 <button type="button" class="btn btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#ModalCancelarRecepcion{{ $rTienda->IdCapRecepcion }}">
+                                    data-bs-target="#ModalCancelarRecepcion{{ $rTienda->IdRecepcion }}">
                                     <span style="color: red;" class="material-icons">cancel</span>
                                 </button>
                             </td>
