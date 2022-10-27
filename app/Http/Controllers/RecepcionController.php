@@ -18,7 +18,8 @@ class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
         exec('ping 192.168.4.3 -n 1', $salida, $codigo);
-        if($codigo == 1){
+
+        if($$salida[2] == 'Error general.'){
             return redirect('RecepcionLocalSinInternet');
         }
 
