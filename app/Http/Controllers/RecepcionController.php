@@ -178,13 +178,25 @@ class RecepcionController extends Controller
                                 'CodArticulo' => $key,
                                 'StockArticulo' => $cRecepcionada
                             ]);
+
+                            DB::connection('server')->table('DatInventario')->insert([
+                                'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                                'CodArticulo' => $key,
+                                'StockArticulo' => $cRecepcionada
+                            ]);
                         }
                         else{
                             InventarioTienda::where('CodArticulo', ''.$key.'')
                                 ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                                 ->update([
                                     'StockArticulo' => $inventario->StockArticulo + $cRecepcionada
-                            ]);
+                                ]);
+
+                            DB::connection('server')->table('DatInventario')->where('CodArticulo', ''.$key.'')
+                                ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                                ->update([
+                                    'StockArticulo' => $inventario->StockArticulo + $cRecepcionada
+                                ]);
                         }
 
                         HistorialMovimientoProducto::insert([
