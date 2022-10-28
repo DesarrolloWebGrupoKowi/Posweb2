@@ -390,6 +390,7 @@ class RecepcionController extends Controller
                 'IdStatusRecepcion' => 2,
                 'IdUsuario' => Auth::user()->IdUsuario,
                 'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                'IdCaja' => $numCaja,
                 'StatusInventario' => 0
             ]);
 

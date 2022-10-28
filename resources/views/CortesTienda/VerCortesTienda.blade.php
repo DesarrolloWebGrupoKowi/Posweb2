@@ -543,7 +543,7 @@
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">TICKET'S CANCELADOS - {{ $nomTienda }} - {{ $nomTienda }} - CAJA:
+                    <h4 class="rounded-3 p-1">TICKET'S CANCELADOS - {{ $nomTienda }} - CAJA:
                         {{ $idCaja == 0 ? 'TODAS' : $numCaja }}</h4>
                 </div>
                 <hr>
