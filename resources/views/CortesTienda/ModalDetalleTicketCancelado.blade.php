@@ -1,4 +1,4 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalDetalleTicket{{ $ticket->IdEncabezado}}" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+<div class="modal fade" data-bs-backdrop="static" id="ModalDetalleTicket{{ $ticket->IdDatEncabezado}}" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">

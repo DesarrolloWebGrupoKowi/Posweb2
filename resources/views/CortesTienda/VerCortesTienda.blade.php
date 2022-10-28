@@ -543,13 +543,15 @@
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-auto">
-                    <h4 class="rounded-3 p-1">TICKET'S CANCELADOS - {{ $nomTienda }}</h4>
+                    <h4 class="rounded-3 p-1">TICKET'S CANCELADOS - {{ $nomTienda }} - {{ $nomTienda }} - CAJA:
+                        {{ $idCaja == 0 ? 'TODAS' : $numCaja }}</h4>
                 </div>
                 <hr>
             </div>
             <table class="table table-responsive table-striped table-sm shadow">
                 <thead class="table-dark">
                     <tr>
+                        <th>Caja</th>
                         <th>Ticket</th>
                         <th>Fecha</th>
                         <th>Importe</th>
@@ -562,11 +564,12 @@
                 <tbody>
                     @if ($ticketsCancelados->count() == 0)
                         <tr>
-                            <td colspan="7">No Hay Ventas</td>
+                            <th style="text-align: center; font-size:18px" colspan="8">No hay ventas canceladas en este rango de fechas</th>
                         </tr>
                     @endif
                     @foreach ($ticketsCancelados as $ticket)
                         <tr>
+                            <th>{{ $ticket->Caja->IdCaja }}</th>
                             <td>{{ $ticket->IdTicket }}</td>
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}</td>
                             <td>$ {{ number_format($ticket->ImporteVenta, 2) }}</td>
@@ -574,15 +577,15 @@
                             <td>
                                 <i style="color: rgb(255, 145, 0); cursor: pointer; font-size: 20px"
                                     class="fa fa-info-circle" data-bs-toggle="modal"
-                                    data-bs-target="#ModalDetalleTicket{{ $ticket->IdEncabezado }}"></i>
+                                    data-bs-target="#ModalDetalleTicket{{ $ticket->IdDatEncabezado }}"></i>
                                 @include('CortesTienda.ModalDetalleTicketCancelado')
                                 | <i style="color: green; cursor: pointer; font-size: 20px" class="fa fa-usd"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#ModalTipoPago{{ $ticket->IdEncabezado }}"></i>
+                                    data-bs-target="#ModalTipoPago{{ $ticket->IdDatEncabezado }}"></i>
                                 @include('CortesTienda.ModalTipoPago')
                                 | <i style="font-size: 20px; cursor: pointer;" class="fa fa-commenting"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#ModalComentarioTicketCancelado{{ $ticket->IdEncabezado }}"></i>
+                                    data-bs-target="#ModalComentarioTicketCancelado{{ $ticket->IdDatEncabezado }}"></i>
                                 @include('CortesTienda.ModalComentarioTicketCancelado')
                             </td>
                             <td>
@@ -603,6 +606,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
+                        <th></th>
                         <th></th>
                         <th style="text-align: center">Totales: </th>
                         <th>${{ number_format($total, 2) }}</th>

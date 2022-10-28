@@ -444,34 +444,61 @@ class CortesTiendaController extends Controller
         }
         //Tickets cancelados por rango de fechas
         if($idReporte == 4){
-            $ticketsCancelados = DatEncabezado::with(['detalle' => function ($detalle){
-                $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
-                    ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
-                    ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
-                    }, 'TipoPago', 'SolicitudFactura', 'UsuarioCancelacion'])
-                ->where('IdTienda', $idTienda)
-                ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
-                ->where('StatusVenta', 1)
-                ->where('IdDatCaja', $idCaja)
-                ->orderBy('FechaVenta')
-                ->get();
+            if($idCaja == 0){
+                $ticketsCancelados = DatEncabezado::with(['detalle' => function ($detalle){
+                    $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
+                        ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
+                        ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
+                        }, 'Caja', 'TipoPago', 'SolicitudFactura', 'UsuarioCancelacion'])
+                    ->where('IdTienda', $idTienda)
+                    ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
+                    ->where('StatusVenta', 1)
+                    ->orderBy('FechaVenta')
+                    ->get();
+        
+                $total = DatEncabezado::where('IdTienda', $idTienda)
+                    ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
+                    ->where('StatusVenta', 1)
+                    ->sum('ImporteVenta');
+        
+                $totalIva = DatEncabezado::where('IdTienda', $idTienda)
+                    ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
+                    ->where('StatusVenta', 1)
+                    ->sum('Iva');
     
-            $total = DatEncabezado::where('IdTienda', $idTienda)
-                ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
-                ->where('StatusVenta', 1)
-                ->where('IdDatCaja', $idCaja)
-                ->sum('ImporteVenta');
+            }else{
+                $ticketsCancelados = DatEncabezado::with(['detalle' => function ($detalle){
+                    $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
+                        ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
+                        ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
+                        }, 'Caja', 'TipoPago', 'SolicitudFactura', 'UsuarioCancelacion'])
+                    ->where('IdTienda', $idTienda)
+                    ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
+                    ->where('StatusVenta', 1)
+                    ->where('IdDatCaja', $idCaja)
+                    ->orderBy('FechaVenta')
+                    ->get();
+        
+                $total = DatEncabezado::where('IdTienda', $idTienda)
+                    ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
+                    ->where('StatusVenta', 1)
+                    ->where('IdDatCaja', $idCaja)
+                    ->sum('ImporteVenta');
+        
+                $totalIva = DatEncabezado::where('IdTienda', $idTienda)
+                    ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
+                    ->where('StatusVenta', 1)
+                    ->where('IdDatCaja', $idCaja)
+                    ->sum('Iva');
     
-            $totalIva = DatEncabezado::where('IdTienda', $idTienda)
-                ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
-                ->where('StatusVenta', 1)
-                ->where('IdDatCaja', $idCaja)
-                ->sum('Iva');
-
+            }
             //return $ticketsCancelados;
 
+            $numCaja = DatCaja::where('IdDatCajas', $idCaja)
+                ->value('IdCaja');
+
             return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte',
-                        'ticketsCancelados', 'total', 'totalIva', 'nomTienda', 'cajasTienda', 'idCaja'));
+                        'ticketsCancelados', 'total', 'totalIva', 'nomTienda', 'cajasTienda', 'idCaja', 'numCaja'));
         }
 
         return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte', 'cajasTienda', 'idCaja'));

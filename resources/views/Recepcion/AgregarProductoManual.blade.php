@@ -46,7 +46,7 @@
                                     <td>{{ $articulo->CodArticulo }}</td>
                                     <td>{{ $articulo->NomArticulo }}</td>
                                     <td>
-                                        <input type="number" step="any" class="form-control form-control-sm"
+                                        <input type="number" min="0.1" step="any" class="form-control form-control-sm"
                                             name="cantArticulo" id="cantArticulo" required>
                                     </td>
                                     <td>
