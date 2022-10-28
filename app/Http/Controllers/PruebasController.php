@@ -39,16 +39,23 @@ class PruebasController extends Controller
 {
     public function pruebas(Request $request){
 
-        $subject = "menito";
-        $for = "sistemas@kowi.com.mx";
-        
-        Mail::send('Pruebas.Correo', $request->all(), function($msj) use($subject, $for){
-            $msj->from("sistemas@kowi.com.mx", "Meny");
-            $msj->subject($subject);
-            $msj->to($for);
-        });
+        //ENVIAR CORREO DE MERMA REALIZADA
+        try {
+            $nomTienda = Tienda::where('IdTienda', 9)
+                ->value('NomTienda');
 
-        return 1;
+            $correoTienda = CorreoTienda::where('IdTienda', 9)
+                ->first();
+
+            $asunto = "NUEVA MERMA EN ". $nomTienda .". FECHA CAPTURA: ". date('d-m-y H:i:s') ." ";
+            $mensaje = 'LA TIENDA HA CAPTURADO NUEVA(S) MERMA(S). Usuario: ' . Auth::user()->NomUsuario;
+
+            $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; cponce@kowi.com.mx; ". $correoTienda->EncargadoCorreo ."; ". $correoTienda->GerenteCorreo ."; ', '".$asunto."', '".$mensaje."'";
+            return $enviarCorreo;
+            DB::connection('server')->statement($enviarCorreo);
+        } catch (\Throwable $th) {
+            
+        }
 
         $correosTienda = DB::table('DatCorreosTienda')
                 ->where('IdTienda', 6)

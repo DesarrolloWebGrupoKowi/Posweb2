@@ -98,14 +98,46 @@ class CapMermasController extends Controller
                     'IdUsuario' => Auth::user()->IdUsuario
                 ]);
 
-                //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO
-                
+                //STOCK DEL ARTICULO
+                $stock = InventarioTienda::where('IdTienda', $idTienda)
+                    ->where('CodArticulo', $merma->CodArticulo)
+                    ->sum('StockArticulo');
+
+                //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO WEB
+                DB::connection('server')->table('DatInventario')
+                    ->where('IdTienda', $idTienda)
+                    ->where('CodArticulo', $merma->CodArticulo)
+                    ->update([
+                        'StockArticulo' => $stock - $merma->CantArticulo
+                    ]);
+
+                //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO LOCAL
+                InventarioTienda::where('IdTienda', $idTienda)
+                    ->where('CodArticulo', $merma->CodArticulo)
+                    ->update([
+                        'StockArticulo' => $stock - $merma->CantArticulo
+                    ]);
             }
 
             MermaTmp::where('IdTienda', $idTienda)
                 ->delete();
 
             //ENVIAR CORREO DE MERMA REALIZADA
+            try {
+                $nomTienda = Tienda::where('IdTienda', $idTienda)
+                    ->value('NomTienda');
+
+                $correoTienda = CorreoTienda::where('IdTienda', $idTienda)
+                    ->first();
+
+                $asunto = "NUEVA MERMA EN ". $nomTienda ."";
+                $mensaje = 'LA TIENDA HA CAPTURADO NUEVA(S) MERMA(S). Usuario: ' . Auth::user()->NomUsuario;
+
+                $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; cponce@kowi.com.mx; ". $correoTienda->EncargadoCorreo ."; ". $correoTienda->GerenteCorreo ."; ', '".$asunto."', '".$mensaje."'";
+                DB::connection('server')->statement($enviarCorreo);
+            } catch (\Throwable $th) {
+                
+            }
 
         } catch (\Throwable $th) {
             DB::rollback();
