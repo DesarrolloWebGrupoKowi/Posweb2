@@ -38,6 +38,13 @@ use Mail;
 class PruebasController extends Controller
 {
     public function pruebas(Request $request){
+        $identityEncabezado = DB::select("select IDENT_CURRENT('DatEncabezado') as identityMax");
+
+        foreach ($identityEncabezado as $key => $identity) {
+            $identityMax = $identity->identityMax;
+        }
+
+        return $identityMax+1;
 
         //ENVIAR CORREO DE MERMA REALIZADA
         try {
