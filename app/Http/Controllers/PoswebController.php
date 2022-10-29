@@ -924,13 +924,8 @@ class PoswebController extends Controller
                         'NumNomina' => $numNomina
                     ]);
     
-                $identityEncabezado = DB::select("select IDENT_CURRENT('DatEncabezado') as identityMax");
-
-                foreach ($identityEncabezado as $key => $identity) {
-                    $identityMax = $identity->identityMax;
-                }
-
-                $idDatEncabezado = $identityMax+1;
+                $idDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
+                                ->max('IdDatEncabezado');
     
                 $idEncabezado = $idTienda . $caja->NumCaja . $idDatEncabezado;
     
