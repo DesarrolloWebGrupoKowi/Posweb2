@@ -36,13 +36,13 @@
                             <td>{{ $rTienda->StatusRecepcion->NomStatusRecepcion }}</td>
                             <td>
                                 <form class="d-inline" action="/RecepcionProducto">
-                                    <input type="hidden" name="idRecepcion" value="{{ $rTienda->IdRecepcion }}">
+                                    <input type="hidden" name="idRecepcion" value="{{ $rTienda->IdCapRecepcion }}">
                                     <button class="btn btn-sm" data-bs-toggle="mensaje" title="Recepcionar">
                                         <span class="material-icons">receipt_long</span>
                                     </button>
                                 </form>
                                 <button type="button" class="btn btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#ModalCancelarRecepcion{{ $rTienda->IdRecepcion }}">
+                                    data-bs-target="#ModalCancelarRecepcion{{ $rTienda->IdCapRecepcion }}">
                                     <span style="color: red;" class="material-icons">cancel</span>
                                 </button>
                             </td>
