@@ -1,5 +1,5 @@
 <!-- Modal Cancelar Recepción-->
-<div class="modal fade" id="ModalCancelarRecepcion{{ $rTienda->IdCapRecepcion }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="ModalCancelarRecepcion{{ $rTienda->IdRecepcion }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
