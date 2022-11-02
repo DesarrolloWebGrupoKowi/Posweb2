@@ -52,7 +52,7 @@ class CancelacionTicketsController extends Controller
     public function CancelarTicket(Request $request, $idTienda, $fechaVenta, $numTicket){
         try {
             DB::beginTransaction();
-            DB::connection('server')->beginTransacction();
+            DB::connection('server')->beginTransaction();
 
             $motivoCancelacion = $request->motivoCancelacion;
 
@@ -136,7 +136,7 @@ class CancelacionTicketsController extends Controller
         } catch (\Throwable $th) {
             DB::rollback();
             DB::connection('server')->rollback();
-            return back()->with('msjdelete', 'Error: ' . $th);
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         DB::commit();
