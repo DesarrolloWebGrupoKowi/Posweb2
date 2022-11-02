@@ -39,9 +39,9 @@ class RecepcionController extends Controller
         $detalleRecepcion = DB::connection('server')->select("select c.PackingList, d.NomTienda as TiendaOrigen, c.Almacen, a.*, b.NomArticulo".
                                         " from DatRecepcion as a".
                                         " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
-                                        " left join CapRecepcion as c on c.IdRecepcion=a.IdRecepcion".
+                                        " left join CapRecepcion as c on c.IdCapRecepcion=a.IdCapRecepcion".
                                         ' left join CatTiendas as d on d.IdTienda = c.IdTiendaOrigen'.
-                                        " where a.IdRecepcion = ".$idRecepcion."".
+                                        " where a.IdCapRecepcion = ".$idRecepcion."".
                                         " and a.IdStatusRecepcion = 1".
                                         " union all".
                                         " select Referencia, '', '".$tienda->Almacen."', 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, b.NomArticulo".
@@ -49,7 +49,7 @@ class RecepcionController extends Controller
                                         " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
                                         " where a.IdTienda = '".$tienda->IdTienda."' ");
 
-        $totalRecepcion = DatRecepcion::where('IdRecepcion', $idRecepcion)
+        $totalRecepcion = DatRecepcion::where('IdCapRecepcion', $idRecepcion)
             ->where('IdStatusRecepcion', 1)
             ->sum('CantEnviada');
 
@@ -73,7 +73,7 @@ class RecepcionController extends Controller
         
         if($radioBuscar == 'codigo'){
             $dRecepcion = DB::connection('server')->table('CapRecepcion as a')
-                ->leftJoin('DatRecepcion as b', 'b.IdRecepcion', 'a.IdRecepcion')
+                ->leftJoin('DatRecepcion as b', 'b.IdCapRecepcion', 'a.IdCapRecepcion')
                 ->where('a.Almacen', $tienda->Almacen)
                 ->whereNull('a.FechaRecepcion')
                 ->where('a.IdStatusRecepcion', 1)
@@ -93,7 +93,7 @@ class RecepcionController extends Controller
                 ->whereRaw("CodArticulo not in". 
                         " (select c.CodArticulo". 
                         " from CapRecepcion as a". 
-                        " left join DatRecepcion as b on b.IdRecepcion=a.IdRecepcion ".
+                        " left join DatRecepcion as b on b.IdCapRecepcion=a.IdCapRecepcion ".
                         " left join CatArticulos as c on c.CodArticulo=b.CodArticulo". 
                         " where a.Almacen = 'ALP-114'". 
                         " and a.IdStatusRecepcion = 1". 
@@ -162,7 +162,7 @@ class RecepcionController extends Controller
             foreach ($chkArticulo as $key => $referencia) {
                 foreach ($cantRecepcionada as $codArticulo => $cRecepcionada) {
                     if($key == $codArticulo){
-                        DatRecepcion::where('IdRecepcion', $idRecepcion)
+                        DatRecepcion::where('IdCapRecepcion', $idRecepcion)
                             ->where('CodArticulo', ''.$key.'')
                             ->update([
                                 'CantRecepcionada' => $cRecepcionada,
@@ -217,12 +217,12 @@ class RecepcionController extends Controller
             CapturaManualTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->delete();
     
-            $faltantesPorRecepcionar = DatRecepcion::where('IdRecepcion', $idRecepcion)
+            $faltantesPorRecepcionar = DatRecepcion::where('IdCapRecepcion', $idRecepcion)
                 ->where('IdStatusRecepcion', 1)
                 ->count();
     
             if($faltantesPorRecepcionar == 0){
-                CapRecepcion::where('IdRecepcion', $idRecepcion)
+                CapRecepcion::where('IdCapRecepcion', $idRecepcion)
                     ->update([
                         'IdStatusRecepcion' => 2,
                         'FechaRecepcion' => date('d-m-Y H:i:s'),
@@ -249,7 +249,7 @@ class RecepcionController extends Controller
         try {
             DB::connection('server')->beginTransaction();
             
-            CapRecepcion::where('IdRecepcion', $idRecepcion)
+            CapRecepcion::where('IdCapRecepcion', $idRecepcion)
                 ->update([
                     'IdStatusRecepcion' => 3,
                     'FechaCancelacion' => date('d-m-Y H:i:s'),
@@ -257,7 +257,7 @@ class RecepcionController extends Controller
                     'IdUsuario' => Auth::user()->IdUsuario
                 ]);
 
-            DatRecepcion::where('IdRecepcion', $idRecepcion)
+            DatRecepcion::where('IdCapRecepcion', $idRecepcion)
                 ->update([
                     'IdStatusRecepcion' => 3
                 ]);
@@ -381,7 +381,7 @@ class RecepcionController extends Controller
             $idRecepcion = Auth::user()->usuarioTienda->IdTienda . $numCaja . $idCapRecepcion;
 
             DB::table('CapRecepcion')->insert([
-                'IdRecepcion' => $idRecepcion,
+                'IdCapRecepcion' => $idRecepcion,
                 'FechaRecepcion' => date('d-m-Y H:i:s'),
                 'FechaLlegada' => date('d-m-Y H:i:s'),
                 'PackingList' => 'RECEPCION SIN INTERNET MANUAL',
@@ -416,7 +416,7 @@ class RecepcionController extends Controller
                 }
 
                 DB::table('DatRecepcion')->insert([
-                    'IdRecepcion' => $idRecepcion,
+                    'IdCapRecepcion' => $idRecepcion,
                     'CodArticulo' => $producto->CodArticulo,
                     'CantEnviada' => $producto->CantArticulo,
                     'CantRecepcionada' => $producto->CantArticulo,
