@@ -2236,6 +2236,7 @@ class PoswebController extends Controller
                      " where CAST(a.FechaVenta as date) between '".$fecha1."' and '".$fecha2."'".
                      " and a.IdTienda = ".$idTienda." ".
                      " and b.IdListaPrecio = ".$idListaPrecio."".
+                     " and a.StatusVenta = 0".
                      " group by d.CodArticulo, d.NomArticulo, b.PrecioArticulo";
 
             $ventas = DB::select($query);
