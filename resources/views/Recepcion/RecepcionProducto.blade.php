@@ -29,7 +29,7 @@
                 @else
                     @foreach ($recepcion as $rTienda)
                         <tr>
-                            <td>{{ $rTienda->IdRecepcion }}</td>
+                            <td>{{ $rTienda->IdCapRecepcion }}</td>
                             <td>{{ $rTienda->PackingList }}</td>
                             <td>{{ $rTienda->NomTienda }}</td>
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($rTienda->FechaLlegada)) }}</td>
