@@ -24,6 +24,14 @@
                     </select>
                 </div>
                 <div class="col-auto">
+                    <select class="form-select" name="idCaja" id="idCaja" required>
+                        <option value="">Seleccione Caja</option>
+                        @foreach ($cajasTienda as $caja)
+                            <option {!! $idCaja == $caja->IdDatCajas ? 'selected' : '' !!} value="{{ $caja->IdDatCajas }}">Caja {{ $caja->IdCaja }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
                     <input class="form-control shadow" type="date" name="fechaVenta" id="fechaVenta"
                         value="{{ empty($fechaVenta) ? date('Y-m-d') : $fechaVenta }}" required>
                 </div>
@@ -66,9 +74,11 @@
                             </button>
                         @else
                             <div class="row d-flex justify-content-center">
-                                <div class="col-auto card shadow-lg p-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $ticket->MotivoCancel }}">
+                                <div class="col-auto card shadow-lg p-1" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ $ticket->MotivoCancel }}">
                                     <h5>Ticket Cancelado</h5>
-                                    <h6>Cancelación: {{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaCancelacion)) }}
+                                    <h6>Cancelación:
+                                        {{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaCancelacion)) }}
                                     </h6>
                                     <h6>
                                         Cancelado Por: @if (!empty($ticket->UsuarioCancelacion))
@@ -103,5 +113,40 @@
             </div>
         </div>
     @endif
+
+    <script>
+        const idTienda = document.getElementById('idTienda');
+        const idCaja = document.getElementById('idCaja');
+        idTienda.addEventListener('change', (e) => {
+            var options = document.querySelectorAll('#idCaja option');
+            options.forEach(o => o.remove());
+            fetch('/BuscarCajasTienda?idTienda=' + idTienda.value)
+                .then(res => res.json())
+                .then(respuesta => {
+                    if (respuesta != '') {
+                        /*if (respuesta.length >= 2) {
+                            const optionCaja = document.createElement('option');
+                            optionCaja.value = 0;
+                            optionCaja.text = 'Todas las Cajas';
+                            idCaja.add(optionCaja);
+                        }*/
+                        for (const key in respuesta) {
+                            if (Object.hasOwnProperty.call(respuesta, key)) {
+                                const caja = respuesta[key];
+                                const optionCaja = document.createElement('option');
+                                optionCaja.value = caja.IdDatCajas;
+                                optionCaja.text = 'Caja ' + caja.IdCaja;
+                                idCaja.add(optionCaja);
+                            }
+                        }
+                    } else {
+                        const SinCaja = document.createElement('option');
+                        SinCaja.value = '';
+                        SinCaja.text = 'No hay cajas para esta tienda';
+                        idCaja.add(SinCaja);
+                    }
+                });
+        });
+    </script>
 
 @endsection

@@ -6,7 +6,7 @@
                 <h5 class="modal-title">¿Desea Cancelar El Ticket #{{ $ticket->IdTicket }}?</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="/CancelarTicket/{{ $idTienda }}/{{ $fechaVenta }}/{{ $numTicket }}" method="POST">
+            <form action="/CancelarTicket/{{ $idTienda }}/{{ $idCaja }}/{{ $fechaVenta }}/{{ $numTicket }}" method="POST">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-auto">

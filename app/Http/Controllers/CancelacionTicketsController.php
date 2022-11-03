@@ -14,6 +14,7 @@ use App\Models\CorreoTienda;
 use App\Models\InventarioTienda;
 use App\Models\Articulo;
 use App\Models\HistorialMovimientoProducto;
+use App\Models\DatCaja;
 
 class CancelacionTicketsController extends Controller
 {
@@ -21,6 +22,7 @@ class CancelacionTicketsController extends Controller
         $idTienda = $request->idTienda;
         $fechaVenta = $request->fechaVenta;
         $numTicket = $request->numTicket;
+        $idCaja = $request->idCaja;
 
         try {
             DB::beginTransaction();
@@ -34,11 +36,14 @@ class CancelacionTicketsController extends Controller
                     ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
             }, 'Tienda', 'UsuarioCancelacion'])
                 ->where('DatEncabezado.IdTienda', $idTienda)
+                ->where('DatEncabezado.IdDatCaja', $idCaja)
                 ->whereDate('DatEncabezado.FechaVenta', $fechaVenta)
                 ->where('DatEncabezado.IdTicket', $numTicket)
                 ->get();
 
-            //return $tickets;
+            $cajasTienda = DatCaja::where('IdTienda', $idTienda)
+                ->orderBy('IdCaja')
+                ->get();
 
         } catch (\Throwable $th) {
             DB::rollback();
@@ -46,10 +51,10 @@ class CancelacionTicketsController extends Controller
         }
 
         DB::commit();
-        return view('CancelacionTickets.CancelacionTickets', compact('idTienda', 'fechaVenta', 'numTicket', 'tiendas', 'tickets'));
+        return view('CancelacionTickets.CancelacionTickets', compact('idTienda', 'fechaVenta', 'numTicket', 'tiendas', 'tickets', 'cajasTienda', 'idCaja'));
     }
 
-    public function CancelarTicket(Request $request, $idTienda, $fechaVenta, $numTicket){
+    public function CancelarTicket(Request $request, $idTienda, $idCaja, $fechaVenta, $numTicket){
         try {
             DB::beginTransaction();
             DB::connection('server')->beginTransaction();
@@ -59,6 +64,7 @@ class CancelacionTicketsController extends Controller
             $idEncabezado = DatEncabezado::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fechaVenta)
                 ->where('IdTicket', $numTicket)
+                ->where('IdDatCaja', $idCaja)
                 ->value('IdEncabezado');
 
             DatEncabezado::where('IdEncabezado', $idEncabezado)
@@ -142,6 +148,6 @@ class CancelacionTicketsController extends Controller
         DB::commit();
         DB::connection('server')->commit();
         
-        return back()->with('msjAdd', 'Se Elimino Correctamente el Ticket!');
+        return back()->with('msjAdd', 'Se Canceló Correctamente el Ticket!');
     }
 }
