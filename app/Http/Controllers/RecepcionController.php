@@ -381,7 +381,7 @@ class RecepcionController extends Controller
             $idRecepcion = Auth::user()->usuarioTienda->IdTienda . $numCaja . $idCapRecepcion;
 
             DB::table('CapRecepcion')->insert([
-                'IdCapRecepcion' => $idRecepcion,
+                'IdRecepcionLocal' => $idRecepcion,
                 'FechaRecepcion' => date('d-m-Y H:i:s'),
                 'FechaLlegada' => date('d-m-Y H:i:s'),
                 'PackingList' => 'RECEPCION SIN INTERNET MANUAL',
@@ -393,6 +393,9 @@ class RecepcionController extends Controller
                 'IdCaja' => $numCaja,
                 'StatusInventario' => 0
             ]);
+
+            $idCapRecepcion = DB::table('CapRecepcion')->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->max('IdCapRecepcion');
 
             foreach ($productos as $key => $producto) {
                 $stock = InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -416,7 +419,7 @@ class RecepcionController extends Controller
                 }
 
                 DB::table('DatRecepcion')->insert([
-                    'IdCapRecepcion' => $idRecepcion,
+                    'IdCapRecepcion' => $idCapRecepcion,
                     'CodArticulo' => $producto->CodArticulo,
                     'CantEnviada' => $producto->CantArticulo,
                     'CantRecepcionada' => $producto->CantArticulo,
