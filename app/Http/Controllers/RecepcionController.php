@@ -422,6 +422,7 @@ class RecepcionController extends Controller
 
                 DB::table('DatRecepcion')->insert([
                     'IdCapRecepcion' => $idCapRecepcion,
+                    'IdRecepcionLocal' => $idRecepcion,
                     'CodArticulo' => $producto->CodArticulo,
                     'CantEnviada' => $producto->CantArticulo,
                     'CantRecepcionada' => $producto->CantArticulo,
