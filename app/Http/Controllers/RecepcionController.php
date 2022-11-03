@@ -394,9 +394,11 @@ class RecepcionController extends Controller
                 'StatusInventario' => 0
             ]);
 
+            //Sacar el IdCapRecepcion que acabo insertar
             $idCapRecepcion = DB::table('CapRecepcion')->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->max('IdCapRecepcion');
 
+            //Insertar inventario y detalle de la recepcion
             foreach ($productos as $key => $producto) {
                 $stock = InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('CodArticulo', $producto->CodArticulo)
@@ -423,6 +425,7 @@ class RecepcionController extends Controller
                     'CodArticulo' => $producto->CodArticulo,
                     'CantEnviada' => $producto->CantArticulo,
                     'CantRecepcionada' => $producto->CantArticulo,
+                    'Linea' => $key +1,
                     'IdStatusRecepcion' => 2
                 ]);
 
