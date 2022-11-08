@@ -1646,7 +1646,7 @@ class PoswebController extends Controller
                 ->whereIn('Bill_To', $billsTo)
                 ->get();
 
-            $facturas = SolicitudFactura::with(['Factura' => function ($query){
+            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja){
                 $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
                         ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
             }])
