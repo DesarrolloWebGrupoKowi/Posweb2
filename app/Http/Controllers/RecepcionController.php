@@ -53,7 +53,8 @@ class RecepcionController extends Controller
             ->where('IdStatusRecepcion', 1)
             ->sum('CantEnviada');
 
-        $totalManual = CapturaManualTmp::sum('CantArticulo');
+        $totalManual = CapturaManualTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            ->sum('CantArticulo');
         $totalCantidad = $totalRecepcion + $totalManual;
 
         return view('Recepcion.RecepcionProducto', compact('tienda', 'recepcion', 'detalleRecepcion', 'totalCantidad', 'idRecepcion'));
