@@ -7,10 +7,8 @@ use Illuminate\support\Facades\Auth;
 use Illuminate\support\Facades\DB;
 use App\Http\Controllers\Controller;
 
-
 class LoginController extends Controller
 {
-
     public function username(){
         return 'NomUsuario';
     }
@@ -43,7 +41,7 @@ class LoginController extends Controller
                 return redirect('/Dashboard');
             }
             else{
-                session()->flash('msjdelete','Las Credenciales No Coinciden!');
+                session()->flash('msjdelete','Las Credenciales No Coinciden');
                 
                 return redirect('Login')->withInput($request->all());
             }
@@ -57,6 +55,5 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
         Auth::logout();
         return redirect('/');
-
     }
 }
