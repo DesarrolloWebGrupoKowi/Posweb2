@@ -392,11 +392,6 @@
                 <div class="row">
                     @foreach ($tickets as $key => $ticket)
                         <div class="col-6">
-                            <div class="d-flex justify-content-start">
-                                <div class="col-auto">
-                                    <h5> Caja: {{ $key + 1 }}</h5>
-                                </div>
-                            </div>
                             <table class="table table-responsive table-striped table-sm shadow">
                                 <thead class="table-dark">
                                     <tr>
