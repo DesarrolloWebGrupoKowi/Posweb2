@@ -38,9 +38,7 @@ class LoginController extends Controller
         //return dd($credenciales);
 
         try {
-            DB::beginTransaction();
             if(Auth::attempt($credenciales)){
-                DB::commit();
                 $request->session()->regenerate();            
                 return redirect('/Dashboard');
             }
@@ -50,7 +48,6 @@ class LoginController extends Controller
                 return redirect('Login')->withInput($request->all());
             }
         } catch (\Throwable $th) {
-            DB::rollback();
             return redirect('Login')->with('msjdelete', 'Error: '.$th->getMessage());
         }
     }
