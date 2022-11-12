@@ -26,8 +26,10 @@ class ArticulosController extends Controller
 
         //return $articulos;
 
-        $familias = Familia::all();
-        $grupos = Grupo::all();
+        $familias = Familia::where('Status', 0)
+            ->get();
+        $grupos = Grupo::where('Status', 0)
+            ->get();
         $tiposArticulo = TipoArticulo::where('Status', 0)
             ->get();
 
