@@ -1,8 +1,13 @@
 const codEtiqueta = document.getElementById('txtCodEtiqueta');
 const formDatPedidos = document.getElementById('formDatPedidos');
+const cantArticulo = document.getElementById('cantArticulo');
 
-formDatPedidos.addEventListener('submit', function() {
-    setTimeout(function() {
-        codEtiqueta.value = '';
-    }, 100);
+codEtiqueta.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        formDatPedidos.submit();
+        setTimeout(function() {
+            codEtiqueta.value = '';
+            cantArticulo.value = '';
+        }, 100);
+    }
 });

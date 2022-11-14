@@ -67,6 +67,8 @@ class PedidosController extends Controller
 
         $codBarras = $request->txtCodEtiqueta;
 
+        $cantArticulo = $request->cantArticulo;
+
         //200 0002 10010 2 -> Desglozar Codigo de Barras 
         $inicio = substr($codBarras, 0, 3);
         $plu = substr($codBarras, 3, 4);
@@ -74,29 +76,30 @@ class PedidosController extends Controller
         $peso = ($primerPeso/1000);
         //Termina desgloce de codigo de barras
 
+        $peso = empty($cantArticulo) ? $peso : $cantArticulo;
+
         //Sacar maximo IdDetPedidoTmp consecutivo
         $idDetPedidoTmp = DatDetPedidoTmp::where('IdTienda', $usuarioIdTienda)
                                         ->max('IdDetPedidoTmp')+1;
 
         if($inicio != '200'){
             $articulo = Articulo::where('Amece', $codBarras)
-                                ->first();
+                ->first();
                                 
             if(empty($articulo)){
-                //return 'Etiqueta mal escrita!';
                 return redirect('MostrarPedidos')->with('AlertPedido', 'Etiqueta mal escrita!');
             }
 
             if($articulo->Peso != 0){
-            $articuloPrecio = DB::table('DatPrecios as a')
-                                ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
-                                ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'a.IdListaPrecio')
-                                ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'a.IdListaPrecio')
-                                ->select('a.PrecioArticulo', 'b.IdArticulo', 'c.IdListaPrecio', 'b.CodArticulo', 'b.NomArticulo', 'c.PorcentajeIva')
-                                ->where('Amece', $codBarras)
-                                ->where('d.IdTienda', $usuarioIdTienda)
-                                ->where('c.IdListaPrecio', '<>', 4)
-                                ->first();
+                $articuloPrecio = DB::table('DatPrecios as a')
+                    ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'a.IdListaPrecio')
+                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'a.IdListaPrecio')
+                    ->select('a.PrecioArticulo', 'b.IdArticulo', 'c.IdListaPrecio', 'b.CodArticulo', 'b.NomArticulo', 'c.PorcentajeIva')
+                    ->where('Amece', $codBarras)
+                    ->where('d.IdTienda', $usuarioIdTienda)
+                    ->where('c.IdListaPrecio', '<>', 4)
+                    ->first();
 
                 if($articuloPrecio->PrecioArticulo == 0){
                     return redirect('MostrarPedidos')->with('AlertPedido', 'El Articulo ' .$articulo->NomArticulo. ' No Tiene Precio Asignado, Comuniquese Con El Gerente!');
@@ -104,13 +107,14 @@ class PedidosController extends Controller
                     //return redirect('MostrarPedidos')->with('divAlerta', 'El Articulo ' .$articulo->NomArticulo. ' No Tiene Precio Asignado, Comuniquese Con El Gerente!');
                 }
 
-                $articulo->Iva == 0 ? $iva = $articuloPrecio->PorcentajeIva * ($articulo->Peso * $articuloPrecio->PrecioArticulo) : $iva = 0;
+                $peso = empty($cantArticulo) ? $articulo->Peso : $cantArticulo;
+
+                $articulo->Iva == 0 ? $iva = $articuloPrecio->PorcentajeIva * ($peso * $articuloPrecio->PrecioArticulo) : $iva = 0;
                 $iva = number_format($iva, 2);
-                $subTotal = number_format($articuloPrecio->PrecioArticulo * $articulo->Peso, 2);
-                $importeArticulo = number_format($articulo->Peso * $articuloPrecio->PrecioArticulo + $iva, 2) ;
+                $subTotal = number_format($articuloPrecio->PrecioArticulo * $peso, 2);
+                $importeArticulo = number_format($peso * $articuloPrecio->PrecioArticulo + $iva, 2) ;
 
                 $nomArticulo = $articuloPrecio->NomArticulo;
-                $peso = $articulo->Peso;
                 $precioArticulo = $articuloPrecio->PrecioArticulo;
 
                 //Insertar en la Temporal para hacer calculos
@@ -145,15 +149,15 @@ class PedidosController extends Controller
             if($peso == 0){
                 if($articulo->Peso != 0){
                     $articuloPrecio = DB::table('DatPrecios as a')
-                                    ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
-                                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'a.IdListaPrecio')
-                                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'a.IdListaPrecio')
-                                    ->select('a.PrecioArticulo', 'b.IdArticulo', 'c.IdListaPrecio', 'b.CodArticulo', 'b.NomArticulo', 'c.PorcentajeIva')
-                                    ->where('b.CodEtiqueta', $plu)
-                                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $articulo->Peso)
-                                    ->where('d.IdTienda', $usuarioIdTienda)
-                                    ->where('c.IdListaPrecio', '<>', 4)
-                                    ->first();
+                        ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'a.IdListaPrecio')
+                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'a.IdListaPrecio')
+                        ->select('a.PrecioArticulo', 'b.IdArticulo', 'c.IdListaPrecio', 'b.CodArticulo', 'b.NomArticulo', 'c.PorcentajeIva')
+                        ->where('b.CodEtiqueta', $plu)
+                        ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $articulo->Peso)
+                        ->where('d.IdTienda', $usuarioIdTienda)
+                        ->where('c.IdListaPrecio', '<>', 4)
+                        ->first();
 
                     if($articuloPrecio->PrecioArticulo == 0){
                         return redirect('MostrarPedidos')->with('AlertPedido', 'El Articulo ' .$articulo->NomArticulo. ' No Tiene Precio Asignado, Comuniquese Con El Gerente!');
@@ -190,49 +194,49 @@ class PedidosController extends Controller
             }
             else{
                 $articuloPrecio = DB::table('DatPrecios as a')
-                                ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
-                                ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'a.IdListaPrecio')
-                                ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'a.IdListaPrecio')
-                                ->select('a.PrecioArticulo', 'b.IdArticulo', 'c.IdListaPrecio', 'b.CodArticulo', 'b.NomArticulo', 'c.PorcentajeIva')
-                                ->where('b.CodEtiqueta', $plu)
-                                ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', [$peso])
-                                ->where('d.IdTienda', $usuarioIdTienda)
-                                ->where('c.IdListaPrecio', '<>', 4)
-                                ->first();
+                    ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'a.IdListaPrecio')
+                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'a.IdListaPrecio')
+                    ->select('a.PrecioArticulo', 'b.IdArticulo', 'c.IdListaPrecio', 'b.CodArticulo', 'b.NomArticulo', 'c.PorcentajeIva')
+                    ->where('b.CodEtiqueta', $plu)
+                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', [$peso])
+                    ->where('d.IdTienda', $usuarioIdTienda)
+                    ->where('c.IdListaPrecio', '<>', 4)
+                    ->first();
 
-                                if(empty($articuloPrecio)){
-                                    return redirect('MostrarPedidos')->with('AlertPedido', 'Etiqueta Mal Escrita!');
-                                    //return 'no se encontro nada';
-                                }
-                                else{
-                                    if($articuloPrecio->PrecioArticulo == 0){
-                                        return redirect('MostrarPedidos')->with('AlertPedido', 'El Articulo ' .$articulo->NomArticulo. ' No Tiene Precio Asignado, Comuniquese Con El Gerente!');
-                                    }
+                    if(empty($articuloPrecio)){
+                        return redirect('MostrarPedidos')->with('AlertPedido', 'Etiqueta Mal Escrita!');
+                        //return 'no se encontro nada';
+                    }else{
+                        if($articuloPrecio->PrecioArticulo == 0){
+                            return redirect('MostrarPedidos')->with('AlertPedido', 'El Articulo ' .$articulo->NomArticulo. ' No Tiene Precio Asignado, Comuniquese Con El Gerente!');
+                        }
 
-                                    $articulo->Iva == 0 ? $iva = $articuloPrecio->PorcentajeIva * ($peso * $articuloPrecio->PrecioArticulo) : $iva = 0;
-                                    $iva = number_format($iva, 2);
-                                    $subTotal = number_format($peso * $articuloPrecio->PrecioArticulo, 2);
-                                    $importeArticulo = number_format($peso * $articuloPrecio->PrecioArticulo + $iva, 2);
+                        $articulo->Iva == 0 ? $iva = $articuloPrecio->PorcentajeIva * ($peso * $articuloPrecio->PrecioArticulo) : $iva = 0;
+                        $iva = number_format($iva, 2);
+                        $subTotal = number_format($peso * $articuloPrecio->PrecioArticulo, 2);
+                        $importeArticulo = number_format($peso * $articuloPrecio->PrecioArticulo + $iva, 2);
 
-                                    $nomArticulo = $articuloPrecio->NomArticulo;
-                                    $precioArticulo = $articuloPrecio->PrecioArticulo;
+                        $nomArticulo = $articuloPrecio->NomArticulo;
+                        $precioArticulo = $articuloPrecio->PrecioArticulo;
                                     
-                                    //Insertar en la Temporal para hacer calculos
-                                    $datPedido = new DatDetPedidoTmp();
-                                    $datPedido -> IdDetPedidoTmp = $idDetPedidoTmp;
-                                    $datPedido -> IdTienda = $usuarioIdTienda;
-                                    $datPedido -> IdArticulo = $articuloPrecio->IdArticulo;
-                                    $datPedido -> IdListaPrecio = $articuloPrecio->IdListaPrecio;
-                                    $datPedido -> CantArticulo = $peso;
-                                    $datPedido -> SubTotalArticulo = $subTotal;
-                                    $datPedido -> PrecioArticulo = $precioArticulo;
-                                    $datPedido -> IvaArticulo = $iva;
-                                    $datPedido -> ImporteArticulo = $importeArticulo;
-                                    $datPedido -> Status = 0;
-                                    $datPedido -> save();
-                                }
+                        //Insertar en la Temporal para hacer calculos
+                        $datPedido = new DatDetPedidoTmp();
+                        $datPedido -> IdDetPedidoTmp = $idDetPedidoTmp;
+                        $datPedido -> IdTienda = $usuarioIdTienda;
+                        $datPedido -> IdArticulo = $articuloPrecio->IdArticulo;
+                        $datPedido -> IdListaPrecio = $articuloPrecio->IdListaPrecio;
+                        $datPedido -> CantArticulo = $peso;
+                        $datPedido -> SubTotalArticulo = $subTotal;
+                        $datPedido -> PrecioArticulo = $precioArticulo;
+                        $datPedido -> IvaArticulo = $iva;
+                        $datPedido -> ImporteArticulo = $importeArticulo;
+                        $datPedido -> Status = 0;
+                        $datPedido -> save();
+                    }
             }
         }
+
         return redirect('MostrarPedidos');
     }
 

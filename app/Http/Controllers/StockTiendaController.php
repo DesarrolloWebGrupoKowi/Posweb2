@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BajoStockMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tienda;
 use App\Models\InventarioTienda;
 use App\Models\Articulo;
+use App\Models\CorreoTienda;
 
 class StockTiendaController extends Controller
 {
@@ -32,26 +35,42 @@ class StockTiendaController extends Controller
 
         $articulosBajoInventario = DB::table('DatInventario as a')
             ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+            ->select('b.CodArticulo', 'b.NomArticulo', 'a.StockArticulo')
             ->where('IdTienda', $idTienda)
             ->where('a.StockArticulo', '<=', 5)
-            ->pluck('a.StockArticulo', 'b.NomArticulo');
+            ->get();
 
-        //return $articulosBajoInventario;
+        //Enviar Correo alerta bajo stock
+        if($articulosBajoInventario->count() > 0){
+            try {
+                $correoTienda = CorreoTienda::where('IdTienda', $idTienda)
+                    ->where('Status', 0)
+                    ->first();
 
-        $asunto = '**TEST POSWEB2** BAJO INVENTARIO EN TIENDA: '. $tienda->NomTienda;
-        $mensaje = 'Los Articulos '. $articulosBajoInventario.' Tienen Bajo Inventario ';
-    
-        try {
-            DB::beginTransaction();
+                $correos = [
+                    'ebosse@kowi.com.mx',
+                    'soporte@kowi.com.mx'
+                ];
 
-            DB::statement("Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx', '".$asunto."', '".$mensaje."'");
+                array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
 
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollback();
-            return view('Stock.ReporteStock', compact('tienda', 'stocks', 'codArticulo', 'totalStock'));
-        }
+                $correos = array_filter($correos);
 
+                $nomTienda = Tienda::where('IdTienda', $idTienda)
+                    ->value('NomTienda');
+
+                $subject = 'ALERTA BAJO INVENTARIO EN : ' . $nomTienda;
+
+                //return new BajoStockMail($subject, $articulosBajoInventario);
+
+                Mail::to($correos)
+                    ->send(new BajoStockMail($subject, $articulosBajoInventario));
+                    
+                } catch (\Throwable $th) {
+                    return $th;
+                }
+            }
+            
         //return $articulosBajoInventario;
 
         return view('Stock.ReporteStock', compact('tienda', 'stocks', 'codArticulo', 'totalStock'));
