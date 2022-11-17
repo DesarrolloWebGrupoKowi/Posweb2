@@ -15,7 +15,7 @@
             border: 1px solid black;
         }
 
-        td{
+        td {
             border: 1px solid black;
         }
 
