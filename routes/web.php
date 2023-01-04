@@ -209,6 +209,12 @@ Route::post('/CrearListaPrecio', 'App\Http\Controllers\ListasPrecioController@Cr
 Route::post('/EditarListaPrecio/{id}', 'App\Http\Controllers\ListasPrecioController@EditarListaPrecio');
 
 //+============================================================================================================================================+//
+//InterfazCreditos
+Route::get('/InterfazCreditos', 'App\Http\Controllers\InterfazCreditosController@InterfazCreditos');
+//InterfazarCreditos
+Route::post('/InterfazarCreditos/{fecha1}/{fecha2}/{idTipoNomina}/{numNomina}', 'App\Http\Controllers\InterfazCreditosController@InterfazarCreditos');
+
+//+============================================================================================================================================+//
 //Mostrar Lista Precio Tienda
 Route::get('/CatListaPrecioTienda', 'App\Http\Controllers\ListasPrecioTiendaController@CatListaPrecioTienda');
 
