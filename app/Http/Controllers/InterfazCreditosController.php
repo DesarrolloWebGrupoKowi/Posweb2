@@ -169,13 +169,13 @@ class InterfazCreditosController extends Controller
                     ]);
 
                 CorteTienda::whereRaw("CAST(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
-                    ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'DatCortesTienda.NuNomina')
+                    ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'DatCortesTienda.NumNomina')
                     ->where('StatusCredito', 0)
                     ->where('StatusVenta', 0)
                     ->where('CatEmpleados.TipoNomina', $idTipoNomina)
                     ->whereNull('Interfazado')
                     ->update([
-                        'DatCreditos.StatusCredito' => 1,
+                        'DatCortesTienda.StatusCredito' => 1,
                         'Interfazado' => $idHistorialCredito
                     ]);
             }
