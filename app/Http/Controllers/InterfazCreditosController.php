@@ -14,8 +14,6 @@ use App\Models\CorteTienda;
 class InterfazCreditosController extends Controller
 {
     public function InterfazCreditos(Request $request){
-        $tiposNomina = LimiteCredito::all();
-
         $chkNomina = $request->chkNomina;
         $numNomina = $request->numNomina;
         $fecha1 = $request->fecha1;
@@ -75,6 +73,8 @@ class InterfazCreditosController extends Controller
 
         $empleado = Empleado::where('NumNomina', $numNomina)
             ->first();
+
+        $tiposNomina = LimiteCredito::all();
 
         //return $creditos;
 

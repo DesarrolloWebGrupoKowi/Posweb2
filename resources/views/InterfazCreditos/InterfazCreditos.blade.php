@@ -8,7 +8,7 @@
             </div>
         </div>
         <form action="/InterfazCreditos" method="GET">
-            <div class="row d-flex justify-content-center">
+            <div class="row d-flex justify-content-center mb-1">
                 <div class="col-auto">
                     <input type="date" class="form-control" name="fecha1" id="fecha1"
                         value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
@@ -49,7 +49,7 @@
         </div>
     </div>
     @if (!empty($fecha1) && !empty($fecha2))
-        <div class="container card shadow p-1">
+        <div class="container card shadow">
             <div class="d-flex justify-content-center">
                 <h4>Créditos Empleado -
                     {{ empty($chkNomina) ? $nomTipoNomina : $empleado->Nombre . ' ' . $empleado->Apellidos }}</h4>
