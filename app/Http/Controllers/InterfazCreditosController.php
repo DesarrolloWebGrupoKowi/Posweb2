@@ -30,7 +30,12 @@ class InterfazCreditosController extends Controller
                 ->where('a.NumNomina', $numNomina)
                 ->whereNull('a.Interfazado')
                 ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
-                ->select('a.*', 'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 'd.NomCiudad')
+                ->select('a.IdTienda', 'a.IdEncabezado', 'a.FechaVenta', 'a.NumNomina',
+                    DB::raw("SUM(a.ImporteCredito) as ImporteCredito"), 'a.StatusCredito', 'a.StatusVenta', 
+                    'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 'd.NomCiudad')
+                ->groupBy('a.NumNomina', 'a.IdTienda', 'a.IdEncabezado', 'a.FechaVenta', 'a.StatusCredito',
+                    'a.StatusVenta', 'a.Interfazado', 'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 
+                    'd.NomCiudad')
                 ->get();
 
             $totalAdeudo = DB::table('DatCreditos as a')
@@ -53,7 +58,12 @@ class InterfazCreditosController extends Controller
                 ->where('c.TipoNomina', $idTipoNomina)
                 ->whereNull('a.Interfazado')
                 ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
-                ->select('a.*', 'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 'd.NomCiudad')
+                ->select('a.IdTienda', 'a.IdEncabezado', 'a.FechaVenta', 'a.NumNomina',
+                    DB::raw("SUM(a.ImporteCredito) as ImporteCredito"), 'a.StatusCredito', 'a.StatusVenta', 
+                    'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 'd.NomCiudad')
+                ->groupBy('a.NumNomina', 'a.IdTienda', 'a.IdEncabezado', 'a.FechaVenta', 'a.StatusCredito',
+                    'a.StatusVenta', 'a.Interfazado', 'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 
+                    'd.NomCiudad')
                 ->get();
 
             $totalAdeudo = DB::table('DatCreditos as a')
@@ -74,9 +84,11 @@ class InterfazCreditosController extends Controller
         $empleado = Empleado::where('NumNomina', $numNomina)
             ->first();
 
+        empty($empleado) ? $empleado = 'No se encontró el empleado' : $empleado = $empleado->Nombre . ' ' . $empleado->Apellidos;
+
         $tiposNomina = LimiteCredito::all();
 
-        //return $creditos;
+        //return $empleado;
 
         return view('InterfazCreditos.InterfazCreditos', compact('tiposNomina', 'chkNomina', 'numNomina', 'fecha1', 
             'fecha2', 'idTipoNomina', 'creditos', 'nomTipoNomina', 'empleado', 'totalAdeudo'));
@@ -101,20 +113,19 @@ class InterfazCreditosController extends Controller
 
                 DB::statement("SET XACT_ABORT ON;
                     insert into SPARH_TEST..D2000.KW_INTERFASE_VENTAS
-                    select a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda,
-                    d.NomCiudad, e.ImporteArticulo, f.IdTicket, ". $idHistorialCredito ."
-                    from DatCreditos as a
-                    left join CatTiendas as b on b.IdTienda=a.IdTienda
-                    left join CatEmpleados as c on c.NumNomina=a.NumNomina
-                    left join CatCiudades as d on d.IdCiudad=b.IdCiudad
-                    left join DatCortesTienda as e on e.IdEncabezado=a.IdEncabezado
-                    left join DatEncabezado as f on f.IdEncabezado=a.IdEncabezado
-                    where a.StatusCredito = 0
-                    and a.StatusVenta = 0
+                    select a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, 
+                    SUM(a.ImporteCredito), f.IdTicket, ". $idHistorialCredito ." 
+                    from DatCreditos as a 
+                    left join CatTiendas as b on b.IdTienda=a.IdTienda 
+                    left join CatEmpleados as c on c.NumNomina=a.NumNomina 
+                    left join CatCiudades as d on d.IdCiudad=b.IdCiudad 
+                    left join DatEncabezado as f on f.IdEncabezado=a.IdEncabezado 
+                    where a.StatusCredito = 0 
+                    and a.StatusVenta = 0 
                     and a.NumNomina = ". $numNomina ."
-                    and e.StatusCredito = 0
-                    and a.Interfazado is null
+                    and a.Interfazado is null 
                     and CAST(a.FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'
+                    group by a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, f.IdTicket
                     SET XACT_ABORT OFF;");
 
                 CreditoEmpleado::whereRaw("CAST(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
@@ -138,23 +149,22 @@ class InterfazCreditosController extends Controller
                     ]);
 
             }if(!empty($idTipoNomina) && $numNomina == 0){
-                
+
                 DB::statement("SET XACT_ABORT ON;
                     insert into SPARH_TEST..D2000.KW_INTERFASE_VENTAS
-                    select a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda,
-                    d.NomCiudad, e.ImporteArticulo, f.IdTicket, ". $idHistorialCredito ."
-                    from DatCreditos as a
-                    left join CatTiendas as b on b.IdTienda=a.IdTienda
-                    left join CatEmpleados as c on c.NumNomina=a.NumNomina
-                    left join CatCiudades as d on d.IdCiudad=b.IdCiudad
-                    left join DatCortesTienda as e on e.IdEncabezado=a.IdEncabezado
-                    left join DatEncabezado as f on f.IdEncabezado=a.IdEncabezado
-                    where a.StatusCredito = 0
-                    and a.StatusVenta = 0
-                    and e.StatusCredito = 0
+                    select a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, 
+                    SUM(a.ImporteCredito), f.IdTicket, ". $idHistorialCredito ." 
+                    from DatCreditos as a 
+                    left join CatTiendas as b on b.IdTienda=a.IdTienda 
+                    left join CatEmpleados as c on c.NumNomina=a.NumNomina 
+                    left join CatCiudades as d on d.IdCiudad=b.IdCiudad 
+                    left join DatEncabezado as f on f.IdEncabezado=a.IdEncabezado 
+                    where a.StatusCredito = 0 
+                    and a.StatusVenta = 0 
                     and c.TipoNomina = ". $idTipoNomina ."
-                    and a.Interfazado is null
+                    and a.Interfazado is null 
                     and CAST(a.FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'
+                    group by a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, f.IdTicket
                     SET XACT_ABORT OFF;");
 
                 CreditoEmpleado::whereRaw("CAST(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
@@ -186,6 +196,6 @@ class InterfazCreditosController extends Controller
         }
 
         DB::commit();
-        return back()->with('msjAdd', 'Se interfazaron los créditos exitosamente!');
+        return back()->with('IdentificadorSparh', 'Identificador SPARH: ' . $idHistorialCredito);
     }
 }

@@ -1,6 +1,16 @@
 @extends('plantillaBase.masterblade')
 @section('title', 'Interfaz de Creditos')
 @section('contenido')
+    <style>
+        .IdentificadorSparh {
+            position:fixed;
+            margin-top: 25vh;
+            z-index: 1;
+            border-radius: 15px;
+            background-color: white;
+            box-shadow: 0 .5rem 1rem rgb(0, 0, 0);
+        }
+    </style>
     <div class="container card p-2 shadow mb-3">
         <div class="d-flex justify-content-center mb-3">
             <div class="col-auto">
@@ -52,7 +62,7 @@
         <div class="container card shadow">
             <div class="d-flex justify-content-center">
                 <h4>Créditos Empleado -
-                    {{ empty($chkNomina) ? $nomTipoNomina : $empleado->Nombre . ' ' . $empleado->Apellidos }}</h4>
+                    {{ empty($chkNomina) ? $nomTipoNomina : $empleado }}</h4>
             </div>
             <div style="height: 65vh" class="table-responsive">
                 <table class="table table-sm table-striped table-responsive">

@@ -51,6 +51,17 @@
     </div>
 @endif
 
+@if (Session::has('IdentificadorSparh'))
+    <div class="alert IdentificadorSparh">
+        <div style="text-align: right">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div class="dinCambio">
+            <h2> {{ Session::get('IdentificadorSparh') }}</h2>
+        </div>
+    </div>
+@endif
+
 @if (Session::has('Cambio'))
     <div class="alert cambio">
         <div style="text-align: right">
