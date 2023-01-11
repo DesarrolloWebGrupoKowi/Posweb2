@@ -57,7 +57,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <div class="dinCambio">
-            <h2> {{ Session::get('IdentificadorSparh') }}</h2>
+            <h4> {{ Session::get('IdentificadorSparh') }}</h4>
         </div>
     </div>
 @endif
