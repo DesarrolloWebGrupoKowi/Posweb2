@@ -10,6 +10,7 @@ use App\Models\SubTipoMerma;
 use App\Models\MermaTmp;
 use App\Models\CapMerma;
 use App\Models\HistorialMovimientoProducto;
+use App\Models\InventarioTienda;
 
 class CapMermasController extends Controller
 {
