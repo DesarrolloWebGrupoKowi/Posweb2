@@ -36,7 +36,7 @@
                 <button id="loginBtn" class="btn login">
                     <i class="fa fa-sign-in"></i> Iniciar Sesión
                 </button>
-                <button id="iniciandoSesionBtn" class="btn login" hidden>
+                <button type="button" id="iniciandoSesionBtn" class="btn login" hidden>
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     Iniciando Sesión
                 </button>

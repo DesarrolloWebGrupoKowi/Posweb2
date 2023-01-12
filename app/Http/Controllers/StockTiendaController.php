@@ -66,10 +66,10 @@ class StockTiendaController extends Controller
                 Mail::to($correos)
                     ->send(new BajoStockMail($subject, $articulosBajoInventario));
                     
-                } catch (\Throwable $th) {
-                    return $th;
-                }
+            } catch (\Throwable $th) {
+                return $th;
             }
+        }
             
         //return $articulosBajoInventario;
 
