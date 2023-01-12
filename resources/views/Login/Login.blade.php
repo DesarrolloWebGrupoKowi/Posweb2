@@ -33,11 +33,22 @@
                 </div>
             </div>
             <div class="mb-3 btnLogin" style="text-align: center;">
-                <button class="btn login">
+                <button id="loginBtn" class="btn login">
                     <i class="fa fa-sign-in"></i> Iniciar Sesión
+                </button>
+                <button id="iniciandoSesionBtn" class="btn login" hidden>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Iniciando Sesión
                 </button>
             </div>
         </form>
         <br>
     </div>
+
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            document.getElementById('loginBtn').hidden = true;
+            document.getElementById('iniciandoSesionBtn').hidden = false;
+        });
+    </script>
 @endsection
