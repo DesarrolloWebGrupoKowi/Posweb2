@@ -31,8 +31,9 @@ class LoginController extends Controller
         $credenciales = [
             'NomUsuario' => $request->get('NomUsuario'),
             'password' => $request->get('Password'),
-            'Status' => 0,
+            'Status' => 0
         ];
+
         //return dd($credenciales);
 
         try {

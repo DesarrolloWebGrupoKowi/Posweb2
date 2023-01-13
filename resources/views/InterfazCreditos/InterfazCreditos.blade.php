@@ -122,12 +122,12 @@
         const chkNomina = document.getElementById('chkNomina');
         const numNomina = document.getElementById('numNomina');
         const tipoNomina = document.getElementById('tipoNomina');
+
         chkNomina.addEventListener('click', function() {
             if (numNomina.disabled == true) {
                 numNomina.disabled = false;
                 tipoNomina.disabled = true;
             } else {
-                //numNomina.value = '';
                 numNomina.disabled = true;
                 tipoNomina.disabled = false;
             }
