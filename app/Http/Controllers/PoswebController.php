@@ -61,7 +61,11 @@ class PoswebController extends Controller
                         ->where('StatusVenta', 0)
                         ->sum('ImporteArticulo');
 
-            $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
+            $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
+                ->where('IdTipoPago', 2)
+                ->value('Pago');
+
+            $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
         }
         else{
             $creditoDisponible = 0;
