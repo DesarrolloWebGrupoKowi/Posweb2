@@ -843,21 +843,16 @@ class PoswebController extends Controller
     
                 if($idTipoPago == 2){
                     $cliente = Empleado::with('LimiteCredito')
-                            ->where('NumNomina', $numNomina)
-                            ->first();
+                        ->where('NumNomina', $numNomina)
+                        ->first();
 
                     // compras del empleado a credito que no han sido pagadas
                     $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
                             ->where('StatusCredito', 0)
                             ->where('StatusVenta', 0)
                             ->sum('ImporteArticulo');
-
-                    // pago parcial del empleado -> credito
-                    $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
-                        ->where('IdTipoPago', 2)
-                        ->sum('Pago');
     
-                    $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
+                    $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
     
                     $date1 = new DateTime($cliente->Fecha_Ingreso);
                     $date2 = new DateTime(date('Y-m-d'));
@@ -1125,6 +1120,7 @@ class PoswebController extends Controller
                 
                     return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
                 }
+                // si se realiza un pago parcial (multipago) -> pago menos del total de la venta //
                 else{
                     $restanteSinFormat = $pago - $importeVenta;
                     $restante = number_format($restanteSinFormat, 2);
@@ -1133,6 +1129,7 @@ class PoswebController extends Controller
                         $cliente = Empleado::with('LimiteCredito')
                                 ->where('NumNomina', $numNomina)
                                 ->first();
+
                         // compras del empleado a credito que no han sido pagadas
                         $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
                                 ->where('StatusCredito', 0)
