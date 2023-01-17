@@ -927,7 +927,8 @@ class PoswebController extends Controller
                         'IdUsoCFDI' => null,
                         'IdFormaPago' => null,
                         'FolioCupon' => null,
-                        'NumNomina' => $numNomina
+                        'NumNomina' => $numNomina,
+                        'Subir' => 1
                     ]);
     
                 $idDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
