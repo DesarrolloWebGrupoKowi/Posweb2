@@ -52,22 +52,23 @@ class PoswebController extends Controller
         $monederoDescuento = $temporalPos->MonederoDescuento;
 
         $cliente = Empleado::with('LimiteCredito')
-                    ->where('NumNomina', $numNomina)
-                    ->first();
+            ->where('NumNomina', $numNomina)
+            ->first();
 
         if(!empty($cliente)){
+
             $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
-                        ->where('StatusCredito', 0)
-                        ->where('StatusVenta', 0)
-                        ->sum('ImporteArticulo');
+                ->where('StatusCredito', 0)
+                ->where('StatusVenta', 0)
+                ->sum('ImporteArticulo');
 
             $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
                 ->where('IdTipoPago', 2)
                 ->sum('Pago');
 
             $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
-        }
-        else{
+
+        }else{
             $creditoDisponible = 0;
         }
 
@@ -840,13 +841,19 @@ class PoswebController extends Controller
                     $cliente = Empleado::with('LimiteCredito')
                             ->where('NumNomina', $numNomina)
                             ->first();
-    
+
+                    // compras del empleado a credito que no han sido pagadas
                     $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
                             ->where('StatusCredito', 0)
                             ->where('StatusVenta', 0)
                             ->sum('ImporteArticulo');
+
+                    // pago parcial del empleado -> credito
+                    $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
+                        ->where('IdTipoPago', 2)
+                        ->sum('Pago');
     
-                    $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
+                    $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
     
                     $date1 = new DateTime($cliente->Fecha_Ingreso);
                     $date2 = new DateTime(date('Y-m-d'));
@@ -1236,8 +1243,13 @@ class PoswebController extends Controller
                         ->where('StatusCredito', 0)
                         ->where('StatusVenta', 0)
                         ->sum('ImporteArticulo');
+
+                // pago parcial del empleado -> credito
+                $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
+                    ->where('IdTipoPago', 2)
+                    ->sum('Pago');
     
-                $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
+                $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
     
                 $date1 = new DateTime($cliente->Fecha_Ingreso);
                 $date2 = new DateTime(date('Y-m-d'));
