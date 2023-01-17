@@ -1102,6 +1102,12 @@ class PoswebController extends Controller
                         ]);
     
                     }
+
+                    //subir venta
+                    DatEncabezado::where('IdEncabezado', $idEncabezado)
+                        ->update([
+                            'Subir' => 0
+                        ]);
     
                     DB::select("exec SP_GENERAR_TICKET_CORTE ".$idEncabezado.", ".$idTienda.", '".date('d-m-Y H:i:s')."'");
                     DB::commit();
@@ -1370,6 +1376,12 @@ class PoswebController extends Controller
                     ]);
     
                 }
+
+                //subir venta
+                DatEncabezado::where('IdEncabezado', $idEncabezado)
+                    ->update([
+                        'Subir' => 0
+                    ]);
     
                 DB::select("exec SP_GENERAR_TICKET_CORTE ".$idEncabezado.", ".$idTienda.", '".date('d-m-Y H:i:s')."'");
                 DB::commit();
