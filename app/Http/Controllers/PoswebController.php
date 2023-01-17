@@ -45,7 +45,7 @@ class PoswebController extends Controller
 {
     public function Pos(Request $request){
 
-        $temporalPos = TemporalPos::first();
+        $temporalPos = TemporalPos::first(); // variables temporales usadas para la venta
 
         $numNomina = $temporalPos->NumNomina;
         $idEncabezado = $temporalPos->IdEncabezado;
@@ -57,11 +57,13 @@ class PoswebController extends Controller
 
         if(!empty($cliente)){
 
+            // compras a credito del empleado que no han sido pagadas
             $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
                 ->where('StatusCredito', 0)
                 ->where('StatusVenta', 0)
                 ->sum('ImporteArticulo');
 
+            // pagos parciales del empleado -> credito
             $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
                 ->where('IdTipoPago', 2)
                 ->sum('Pago');
@@ -130,16 +132,18 @@ class PoswebController extends Controller
             ->where('IdTienda', $idTienda)
             ->get();
 
-        $bancos = Banco::all();
+        $bancos = Banco::where('Status', 0)
+            ->get();
 
         $banArticuloSinPrecio = PreventaTmp::where('PrecioVenta', 0)
             ->get();
 
         $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
             ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-            ->sum('MonederoPorGastar')-$monederoDescuento;
+            ->sum('MonederoPorGastar') - $monederoDescuento;
 
         $paquetes = CatPaquete::where('Status', 0)
+            ->whereNull('FechaEliminacion')
             ->get();
 
         $pedidosPendientes = DatEncPedido::where('IdTienda', $idTienda)
@@ -205,11 +209,11 @@ class PoswebController extends Controller
                 }
             }
 
-            DB::commit();
+            DB::commit(); // todo salio correctamente
             
             return redirect()->route('Pos');
         } catch (\Throwable $th) {
-            DB::rollback();
+            DB::rollback(); // hubo algun error
             return redirect()->route('Pos')->with('msjdelete', 'Error'. $th->getMessage());
         }
     }
@@ -848,10 +852,12 @@ class PoswebController extends Controller
                             ->where('StatusVenta', 0)
                             ->sum('ImporteArticulo');
 
-                    // pago parcial del empleado -> credito
-                    $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
-                        ->where('IdTipoPago', 2)
-                        ->sum('Pago');
+                    if(!empty($idEncabezado)){
+                        // pago parcial del empleado -> credito
+                        $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
+                            ->where('IdTipoPago', 2)
+                            ->sum('Pago');
+                    }
     
                     $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
     
