@@ -859,7 +859,7 @@ class PoswebController extends Controller
                             ->sum('Pago');
                     }
     
-                    $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
+                    $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - empty($pagoParcial) ? 0 : $pagoParcial;
     
                     $date1 = new DateTime($cliente->Fecha_Ingreso);
                     $date2 = new DateTime(date('Y-m-d'));
