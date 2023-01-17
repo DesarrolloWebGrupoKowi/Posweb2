@@ -852,14 +852,12 @@ class PoswebController extends Controller
                             ->where('StatusVenta', 0)
                             ->sum('ImporteArticulo');
 
-                    if(!empty($idEncabezado)){
-                        // pago parcial del empleado -> credito
-                        $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
-                            ->where('IdTipoPago', 2)
-                            ->sum('Pago');
-                    }
+                    // pago parcial del empleado -> credito
+                    $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
+                        ->where('IdTipoPago', 2)
+                        ->sum('Pago');
     
-                    $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - empty($pagoParcial) ? 0 : $pagoParcial;
+                    $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
     
                     $date1 = new DateTime($cliente->Fecha_Ingreso);
                     $date2 = new DateTime(date('Y-m-d'));
