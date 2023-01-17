@@ -63,7 +63,7 @@ class PoswebController extends Controller
 
             $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
                 ->where('IdTipoPago', 2)
-                ->value('Pago');
+                ->sum('Pago');
 
             $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
         }
@@ -154,7 +154,8 @@ class PoswebController extends Controller
 
     public function EliminarPago($idDatTipoPago){
         try {
-            DB::beginTransaction();
+            DB::beginTransaction(); // inicio de transaccion
+
             $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
             $idEncabezado = TemporalPos::where('TemporalPos', 1)

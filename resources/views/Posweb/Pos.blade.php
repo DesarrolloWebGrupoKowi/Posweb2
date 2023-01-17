@@ -178,13 +178,13 @@
                                         {{ number_format($pagoRestante->Restante, 2) }}
                                     </td>
                                     <td>
-                                        <form id="eliminarPago" action="EliminarPago/{{ $pagoRestante->IdDatTipoPago }}"
+                                        <form id="eliminarPago{{ $pagoRestante->IdDatTipoPago }}" action="EliminarPago/{{ $pagoRestante->IdDatTipoPago }}"
                                             method="POST">
                                             @csrf
                                             <i style="color: red" class="fa fa-trash" data-bs-toggle="mensaje"
                                                 title="Eliminar Pago"
                                                 onclick="event.preventDefault();
-                                                document.getElementById('eliminarPago').submit();"></i>
+                                                document.getElementById('eliminarPago<?php echo $pagoRestante->IdDatTipoPago; ?>').submit();"></i>
                                         </form>
                                     </td>
                                 </tr>
