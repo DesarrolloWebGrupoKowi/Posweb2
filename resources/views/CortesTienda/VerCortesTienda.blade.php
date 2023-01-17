@@ -446,10 +446,12 @@
                                                     @endif
                                                 </td>
                                             </tr>
-                                            @php
-                                                $totalImporte = $totalImporte + $tVenta->ImporteVenta;
-                                                $totalIva = $totalIva + $tVenta->Iva;
-                                            @endphp
+                                            @if ($tVenta->StatusVenta == 0)
+                                                @php
+                                                    $totalImporte = $totalImporte + $tVenta->ImporteVenta;
+                                                    $totalIva = $totalIva + $tVenta->Iva;
+                                                @endphp
+                                            @endif
                                         @endforeach
                                     @endif
                                 </tbody>
@@ -559,7 +561,8 @@
                 <tbody>
                     @if ($ticketsCancelados->count() == 0)
                         <tr>
-                            <th style="text-align: center; font-size:18px" colspan="8">No hay ventas canceladas en este rango de fechas</th>
+                            <th style="text-align: center; font-size:18px" colspan="8">No hay ventas canceladas en este
+                                rango de fechas</th>
                         </tr>
                     @endif
                     @foreach ($ticketsCancelados as $ticket)
