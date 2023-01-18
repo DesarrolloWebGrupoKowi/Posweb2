@@ -8,6 +8,11 @@
             </div>
         </div>
     </div>
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            @include('Alertas.Alertas')
+        </div>
+    </div>
     <div class="container mb-3">
         <form action="/LigarSocioFrecuente" method="GET">
             <div class="row d-flex justify-content-center">

@@ -51,7 +51,7 @@ class SocioFrecuenteController extends Controller
                 'Telefono' => $request->telefono,
                 'Correo' => $request->correo,
                 'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
-                'Ciudad' => $request->ciudad,
+                'Ciudad' => mb_strtoupper($request->ciudad, 'UTF-8'),
                 'IdUsuario' => Auth::user()->IdUsuario,
                 'Status' => 0
             ]);
@@ -69,7 +69,7 @@ class SocioFrecuenteController extends Controller
                 'Telefono' => $request->telefono,
                 'Correo' => $request->correo,
                 'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
-                'Ciudad' => $request->ciudad,
+                'Ciudad' => mb_strtoupper($request->ciudad, 'UTF-8'),
                 'IdUsuario' => Auth::user()->IdUsuario,
                 'Status' => 0
             ]);
