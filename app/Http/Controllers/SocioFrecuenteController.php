@@ -57,23 +57,27 @@ class SocioFrecuenteController extends Controller
                 'Status' => 0
             ]);
 
-            DB::table('CatFrecuentesSocios')->insert([
-                'IdFrecuenteSocio' => $idFrecuenteSocio,
-                'IdTipoCliente' => $request->tipoCliente,
-                'FolioViejo' => $folioViejo,
-                'FechaAlta' => date('d-m-Y H:i:s'),
-                'Nombre' => mb_strtoupper($request->nombre, 'UTF-8'),
-                'Sexo' => $request->sexo,
-                'FechaNacimiento' => $request->fechaNacimiento,
-                'Direccion' => mb_strtoupper($request->direccion, 'UTF-8'),
-                'Colonia' => mb_strtoupper($request->colonia, 'UTF-8'),
-                'Telefono' => $request->telefono,
-                'Correo' => $request->correo,
-                'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
-                'Ciudad' => mb_strtoupper($request->ciudad, 'UTF-8'),
-                'IdUsuario' => Auth::user()->IdUsuario,
-                'Status' => 0
-            ]);
+            // limpiar la tabla para insertar de nuevo
+            DB::table('CatFrecuentesSocios')->truncate();
+
+            // insert into select de la tabla web a la local
+            DB::table('CatFrecuentesSocios')->insertUsing([
+                'IdFrecuenteSocio',
+                'IdTipoCliente',
+                'FolioViejo',
+                'FechaAlta',
+                'Nombre',
+                'Sexo',
+                'FechaNacimiento',
+                'Direccion',
+                'Colonia',
+                'Telefono',
+                'Correo',
+                'IdTienda',
+                'Ciudad',
+                'IdUsuario',
+                'Status'
+            ], FrecuenteSocio::all());
             
 
         } catch (\Throwable $th) {
