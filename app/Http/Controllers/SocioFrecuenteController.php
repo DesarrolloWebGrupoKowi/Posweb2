@@ -32,7 +32,6 @@ class SocioFrecuenteController extends Controller
     }
 
     public function GuardarSocioFrecuente(Request $request, $folioViejo){
-        return $request->all();
         try {
             
             DB::beginTransaction();
@@ -44,11 +43,11 @@ class SocioFrecuenteController extends Controller
                 'IdTipoCliente' => $request->tipoCliente,
                 'FolioViejo' => $folioViejo,
                 'FechaAlta' => date('d-m-Y H:i:s'),
-                'Nombre' => $request->nombre,
+                'Nombre' => mb_strtoupper($request->nombre, 'UTF-8'),
                 'Sexo' => $request->sexo,
                 'FechaNacimiento' => $request->fechaNacimiento,
-                'Direccion' => $request->direccion,
-                'Colonia' => $request->colonia,
+                'Direccion' => mb_strtoupper($request->direccion, 'UTF-8'),
+                'Colonia' => mb_strtoupper($request->colonia, 'UTF-8'),
                 'Telefono' => $request->telefono,
                 'Correo' => $request->correo,
                 'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
@@ -62,11 +61,11 @@ class SocioFrecuenteController extends Controller
                 'IdTipoCliente' => $request->tipoCliente,
                 'FolioViejo' => $folioViejo,
                 'FechaAlta' => date('d-m-Y H:i:s'),
-                'Nombre' => $request->nombre,
+                'Nombre' => mb_strtoupper($request->nombre, 'UTF-8'),
                 'Sexo' => $request->sexo,
                 'FechaNacimiento' => $request->fechaNacimiento,
-                'Direccion' => $request->direccion,
-                'Colonia' => $request->colonia,
+                'Direccion' => mb_strtoupper($request->direccion, 'UTF-8'),
+                'Colonia' => mb_strtoupper($request->colonia, 'UTF-8'),
                 'Telefono' => $request->telefono,
                 'Correo' => $request->correo,
                 'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
