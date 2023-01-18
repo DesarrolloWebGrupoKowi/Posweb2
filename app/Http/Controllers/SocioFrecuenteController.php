@@ -77,7 +77,23 @@ class SocioFrecuenteController extends Controller
                 'Ciudad',
                 'IdUsuario',
                 'Status'
-            ], FrecuenteSocio::all());
+            ], FrecuenteSocio::select(
+                'IdFrecuenteSocio',
+                'IdTipoCliente',
+                'FolioViejo',
+                'FechaAlta',
+                'Nombre',
+                'Sexo',
+                'FechaNacimiento',
+                'Direccion',
+                'Colonia',
+                'Telefono',
+                'Correo',
+                'IdTienda',
+                'Ciudad',
+                'IdUsuario',
+                'Status'
+            ));
             
 
         } catch (\Throwable $th) {
