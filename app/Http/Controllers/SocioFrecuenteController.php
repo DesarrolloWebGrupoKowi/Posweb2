@@ -69,7 +69,7 @@ class SocioFrecuenteController extends Controller
                     'IdFrecuenteSocio' => $frecuenteSocio->IdFrecuenteSocio,
                     'IdTipoCliente' => $frecuenteSocio->IdTipoCliente,
                     'FolioViejo' => $frecuenteSocio->FolioViejo,
-                    'FechaAlta' => $frecuenteSocio->FechaAlta,
+                    'FechaAlta' => strftime('%d %B %Y', strtotime($frecuenteSocio->FechaAlta)),
                     'Nombre' => $frecuenteSocio->Nombre,
                     'Sexo' => $frecuenteSocio->Sexo,
                     'FechaNacimiento' => $frecuenteSocio->FechaNacimiento,
