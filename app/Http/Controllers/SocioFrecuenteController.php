@@ -39,7 +39,7 @@ class SocioFrecuenteController extends Controller
 
             $idFrecuenteSocio = FrecuenteSocio::max('IdFrecuenteSocio')+1;
 
-            FrecuenteSocio::insert([
+            DB::connection('server4.3')::table('CatFrecuentesSocios')->insert([
                 'IdFrecuenteSocio' => $idFrecuenteSocio,
                 'IdTipoCliente' => $request->tipoCliente,
                 'FolioViejo' => $folioViejo,
@@ -77,7 +77,7 @@ class SocioFrecuenteController extends Controller
                 'Ciudad',
                 'IdUsuario',
                 'Status'
-            ], [FrecuenteSocio::all()]);
+            ], FrecuenteSocio::all());
             
 
         } catch (\Throwable $th) {
