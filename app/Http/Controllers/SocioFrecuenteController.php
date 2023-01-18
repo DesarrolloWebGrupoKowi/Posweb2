@@ -93,7 +93,7 @@ class SocioFrecuenteController extends Controller
                 'Ciudad',
                 'IdUsuario',
                 'Status'
-            ));
+            )->get());
             
 
         } catch (\Throwable $th) {
