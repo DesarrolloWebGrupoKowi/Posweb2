@@ -77,7 +77,7 @@ class SocioFrecuenteController extends Controller
                 'Ciudad',
                 'IdUsuario',
                 'Status'
-            ], FrecuenteSocio::all());
+            ], [FrecuenteSocio::all()]);
             
 
         } catch (\Throwable $th) {
