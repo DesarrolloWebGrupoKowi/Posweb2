@@ -13,6 +13,7 @@ use App\Models\FrecuenteSocio;
 class SocioFrecuenteController extends Controller
 {
     public function LigarSocioFrecuente(Request $request){
+
         $numNomina = $request->numNomina;
 
         $socioFrecuente = Empleado43::where('Num_Nomina', $numNomina)
@@ -61,9 +62,27 @@ class SocioFrecuenteController extends Controller
             DB::table('CatFrecuentesSocios')->truncate();
 
             // insert into select de la tabla web a la local
-            DB::table('CatFrecuentesSocios')->insert([
-                FrecuenteSocio::all()
-            ]);
+            $frecuentesSocios = FrecuenteSocio::all();
+
+            foreach ($frecuentesSocios as $key => $frecuenteSocio) {
+                DB::table('CatFrecuentesSocios')->insert([
+                    'IdFrecuenteSocio' => $frecuenteSocio->IdFrecuenteSocio,
+                    'IdTipoCliente' => $frecuenteSocio->IdTipoCliente,
+                    'FolioViejo' => $frecuenteSocio->FolioViejo,
+                    'FechaAlta' => $frecuenteSocio->FechaAlta,
+                    'Nombre' => $frecuenteSocio->Nombre,
+                    'Sexo' => $frecuenteSocio->Sexo,
+                    'FechaNacimiento' => $frecuenteSocio->FechaNacimiento,
+                    'Direccion' => $frecuenteSocio->Direccion,
+                    'Colonia' => $frecuenteSocio->Colonia,
+                    'Telefono' => $frecuenteSocio->Telefono,
+                    'Correo' => $frecuenteSocio->Correo,
+                    'IdTienda' => $frecuenteSocio->IdTienda,
+                    'Ciudad' => $frecuenteSocio->Ciudad,
+                    'IdUsuario' => $frecuenteSocio->IdUsuario,
+                    'Status' => 0
+                ]);
+            }
             
 
         } catch (\Throwable $th) {
