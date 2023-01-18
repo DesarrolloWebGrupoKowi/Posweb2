@@ -35,11 +35,11 @@ class SocioFrecuenteController extends Controller
         try {
             
             DB::beginTransaction();
-            DB::connection('server4.3')->beginTransaction();
+            DB::connection('server')->beginTransaction();
 
             $idFrecuenteSocio = FrecuenteSocio::max('IdFrecuenteSocio')+1;
 
-            DB::connection('server4.3')->table('CatFrecuentesSocios')->insert([
+            FrecuenteSocio::insert([
                 'IdFrecuenteSocio' => $idFrecuenteSocio,
                 'IdTipoCliente' => $request->tipoCliente,
                 'FolioViejo' => $folioViejo,
@@ -82,12 +82,12 @@ class SocioFrecuenteController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollback();
-            DB::connection('server4.3')->rollback();
+            DB::connection('server')->rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         DB::commit();
-        DB::connection('server4.3')->commit();
+        DB::connection('server')->commit();
         return redirect('LigarSocioFrecuente')->with('msjAdd', 'Se ligo correctamente el cliente!');
     }
 }
