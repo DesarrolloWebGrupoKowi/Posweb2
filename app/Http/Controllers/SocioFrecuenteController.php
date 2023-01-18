@@ -61,39 +61,9 @@ class SocioFrecuenteController extends Controller
             DB::table('CatFrecuentesSocios')->truncate();
 
             // insert into select de la tabla web a la local
-            DB::table('CatFrecuentesSocios')->insertUsing([
-                'IdFrecuenteSocio',
-                'IdTipoCliente',
-                'FolioViejo',
-                'FechaAlta',
-                'Nombre',
-                'Sexo',
-                'FechaNacimiento',
-                'Direccion',
-                'Colonia',
-                'Telefono',
-                'Correo',
-                'IdTienda',
-                'Ciudad',
-                'IdUsuario',
-                'Status'
-            ], FrecuenteSocio::select(
-                'IdFrecuenteSocio',
-                'IdTipoCliente',
-                'FolioViejo',
-                'FechaAlta',
-                'Nombre',
-                'Sexo',
-                'FechaNacimiento',
-                'Direccion',
-                'Colonia',
-                'Telefono',
-                'Correo',
-                'IdTienda',
-                'Ciudad',
-                'IdUsuario',
-                'Status'
-            )->get());
+            DB::table('CatFrecuentesSocios')->insert([
+                FrecuenteSocio::all()
+            ]);
             
 
         } catch (\Throwable $th) {
