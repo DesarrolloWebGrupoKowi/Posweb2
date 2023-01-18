@@ -81,6 +81,6 @@ class SocioFrecuenteController extends Controller
         }
 
         DB::commit();
-        return bacK()->with('msjAdd', 'Se ligo correctamente el cliente!');
+        return redirect('LigarSocioFrecuente')->with('msjAdd', 'Se ligo correctamente el cliente!');
     }
 }
