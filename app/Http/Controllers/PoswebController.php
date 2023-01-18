@@ -40,6 +40,7 @@ use App\Models\DatMonederoAcumulado;
 use App\Models\MovimientoMonederoElectronico;
 use App\Models\CatPaquete;
 use App\Models\DatPaquete;
+use App\Models\Empleado43;
 
 class PoswebController extends Controller
 {

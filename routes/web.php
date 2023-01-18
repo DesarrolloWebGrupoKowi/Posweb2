@@ -458,6 +458,12 @@ Route::get('/CancelarDescuento', 'App\Http\Controllers\PoswebController@Cancelar
 Route::get('/ReporteVentasListaPrecio', 'App\Http\Controllers\PoswebController@ReporteVentasListaPrecio')->name('ReporteVentasListasPrecio');
 
 //+============================================================================================================================================+//
+//LigarSocioFrecuente
+Route::get('/LigarSocioFrecuente', 'App\Http\Controllers\SocioFrecuenteController@LigarSocioFrecuente')->name('LigarSocioFrecuente');
+//GuardarSocioFrecuente
+Route::post('/GuardarSocioFrecuente/{folioViejo}', 'App\Http\Controllers\SocioFrecuenteController@GuardarSocioFrecuente')->name('GuardarSocioFrecuente');
+
+//+============================================================================================================================================+//
 //Reporte de Stock
 Route::get('/ReporteStock', 'App\Http\Controllers\StockTiendaController@ReporteStock');
 
