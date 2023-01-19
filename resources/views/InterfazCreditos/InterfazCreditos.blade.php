@@ -3,7 +3,7 @@
 @section('contenido')
     <style>
         .IdentificadorSparh {
-            position:fixed;
+            position: fixed;
             margin-top: 25vh;
             z-index: 1;
             border-radius: 15px;
@@ -46,8 +46,12 @@
                     </div>
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-warning">
+                    <button id="btnBuscar" class="btn btn-warning">
                         <i class="fa fa-search"></i> Buscar
+                    </button>
+                    <button id="btnBuscandoCreditos" hidden class="btn btn-warning" type="button">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Buscando...
                     </button>
                 </div>
             </div>
@@ -73,12 +77,13 @@
                             <th>Nómina</th>
                             <th>Empleado</th>
                             <th>Importe</th>
+                            <th>Sistema</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if ($creditos->count() == 0)
+                        @if (empty($creditos))
                             <tr>
-                                <th colspan="5">No hay créditos pendientes por exportar!</th>
+                                <th colspan="6">No hay créditos pendientes por exportar!</th>
                             </tr>
                         @else
                             @foreach ($creditos as $credito)
@@ -88,6 +93,13 @@
                                     <td>{{ $credito->NumNomina }}</td>
                                     <td>{{ $credito->Nombre }} {{ $credito->Apellidos }}</td>
                                     <th>$ {{ number_format($credito->ImporteCredito, 2) }}</th>
+                                    <th>
+                                        @if ($credito->isSistemaNuevo == 1)
+                                            <i style="color: green" class="fa fa-chrome"></i> Sistema nuevo
+                                        @else
+                                            <i style="color: red" class="fa fa-internet-explorer"></i> Sistema viejo
+                                        @endif
+                                    </th>
                                 </tr>
                             @endforeach
                         @endif
@@ -97,15 +109,16 @@
                             <td></td>
                             <th></th>
                             <th></th>
-                            <th style="text-align: center">Total: </th>
-                            <th>$ {{ number_format($totalAdeudo, 2) }}</th>
+                            <th style="text-align: right; font-size: 23px">Total: </th>
+                            <th style="font-size: 23px">$ {{ number_format($totalAdeudo, 2) }}</th>
+                            <th></th>
                         </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
     @endif
-    @if ($creditos->count() > 0)
+    @if (!empty($creditos))
         <div class="container mt-2 mb-1">
             <div class="d-flex justify-content-center">
                 <div class="col-auto">
@@ -136,6 +149,11 @@
         document.getElementById('btnExportar').addEventListener('click', function() {
             document.getElementById('btnExportar').hidden = true;
             document.getElementById('btnCargandoDatos').hidden = false;
+        });
+
+        document.getElementById('btnBuscar').addEventListener('click', function() {
+            document.getElementById('btnBuscar').hidden = true;
+            document.getElementById('btnBuscandoCreditos').hidden = false;
         });
     </script>
 @endsection

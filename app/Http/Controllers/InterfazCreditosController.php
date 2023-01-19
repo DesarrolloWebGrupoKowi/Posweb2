@@ -21,7 +21,7 @@ class InterfazCreditosController extends Controller
         $idTipoNomina = $request->tipoNomina;
 
         if($chkNomina == 'on'){
-            $creditos = DB::table('DatCreditos as a')
+            $creditosVentaWeb_New = DB::table('DatCreditos as a')
                 ->leftJoin('CatTiendas as b', 'b.IdTienda', 'a.IdTienda')
                 ->leftJoin('CatEmpleados as c', 'c.NumNomina', 'a.NumNomina')
                 ->leftJoin('CatCiudades as d', 'd.IdCiudad', 'b.IdCiudad')
@@ -33,12 +33,48 @@ class InterfazCreditosController extends Controller
                 ->select('a.IdTienda', 'a.IdEncabezado', 'a.FechaVenta', 'a.NumNomina',
                     DB::raw("SUM(a.ImporteCredito) as ImporteCredito"), 'a.StatusCredito', 'a.StatusVenta', 
                     'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 'd.NomCiudad')
+                ->selectSub(function ($query) {
+                        $query->selectRaw('1');
+                }, 'isSistemaNuevo')                
                 ->groupBy('a.NumNomina', 'a.IdTienda', 'a.IdEncabezado', 'a.FechaVenta', 'a.StatusCredito',
                     'a.StatusVenta', 'a.Interfazado', 'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 
                     'd.NomCiudad')
-                ->get();
+                    ->get()
+                    ->toArray();
 
-            $totalAdeudo = DB::table('DatCreditos as a')
+            $creditosVentaWeb = DB::connection('server4.3')->table("datencabezado as a")
+                ->leftJoin("cattiendas as b", function($join){
+                    $join->on("a.idtienda", "=", "b.id");
+                })
+                ->leftJoin("catempleados as c", function($join){
+                    $join->on("a.empleado", "=", "c.num_nomina");
+                })
+                ->leftJoin("capcteacum as d", function($join){
+                    $join->on("a.ID", "=", "d.idvta")
+                    ->where('d.PUNTOS', '<', 0);
+                })
+                ->select("a.ID as IdEncabezado", "a.empleado as NumNomina", "c.nombre as Nombre", 
+                    "c.apellidos as Apellidos", "a.importe as ImporteCredito", 
+                    "a.fecha as FechaVenta", "a.idtienda as IdTienda", "b.nombre as NomTienda", 
+                    "b.ciudad as NomCiudad", "a.edoventa as StatusVenta")
+                ->selectSub(function ($query) {
+                    $query->selectRaw('0');
+                }, 'isSistemaNuevo')
+                ->where('a.IdTIenda', '<>', 30)
+                ->where("edoventa", "=", 0)
+                ->whereRaw("cast(a.Fecha as date) between '". $fecha1 ."' and '". $fecha2 ."'")
+                ->where("exportado", "=", 0)
+                ->where("empleado", "=", $numNomina)
+                ->where("exportado", "<>", -1)
+                ->where("a.tipopago", "=", 28)
+                ->where("c.status", "=", 1)
+                ->get()
+                ->toArray();
+
+            // union a las dos consultas
+            $creditos = array_merge($creditosVentaWeb, $creditosVentaWeb_New);
+
+            $totalAdeudoVentaWeb_New = DB::table('DatCreditos as a')
                 ->leftJoin('CatTiendas as b', 'b.IdTienda', 'a.IdTienda')
                 ->leftJoin('CatEmpleados as c', 'c.NumNomina', 'a.NumNomina')
                 ->leftJoin('CatCiudades as d', 'd.IdCiudad', 'b.IdCiudad')
@@ -48,8 +84,31 @@ class InterfazCreditosController extends Controller
                 ->whereNull('a.Interfazado')
                 ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
                 ->sum('ImporteCredito');
+
+            $totalAdeudoVentaWeb = DB::connection('server4.3')->select("SELECT SUM(A.IMPORTE) as ImporteCredito 
+                FROM DATENCABEZADO AS A
+                LEFT JOIN CATTIENDAS AS B ON A.IDTIENDA=B.ID 
+                LEFT JOIN CATEMPLEADOS AS C ON CAST(A.EMPLEADO AS INT)=C.NUM_NOMINA
+                LEFT JOIN CAPCTEACUM AS D ON A.ID = D.IDVTA
+                AND D.PUNTOS<0
+                WHERE A.IDTIENDA<>30
+                AND EMPLEADO = '". $numNomina ."'
+                AND EDOVENTA=0 
+                AND CAST(A.FECHA AS DATE) BETWEEN '". $fecha1 ."' AND '". $fecha2 ."'
+                AND EXPORTADO=0
+                AND EXPORTADO <> '-1' 
+                AND A.TIPOPAGO=28
+                and c.STATUS = 1");
+
+            foreach ($totalAdeudoVentaWeb as $key => $importeCreditoVentaWeb) {
+                $importeCredito = $importeCreditoVentaWeb->ImporteCredito;
+            }
+
+            // union all a las tablas nuevas y viejas
+            $totalAdeudo = $totalAdeudoVentaWeb_New + $importeCredito;
+
         }else{
-            $creditos = DB::table('DatCreditos as a')
+            $creditosVentaWeb_New = DB::table('DatCreditos as a')
                 ->leftJoin('CatTiendas as b', 'b.IdTienda', 'a.IdTienda')
                 ->leftJoin('CatEmpleados as c', 'c.NumNomina', 'a.NumNomina')
                 ->leftJoin('CatCiudades as d', 'd.IdCiudad', 'b.IdCiudad')
@@ -61,12 +120,48 @@ class InterfazCreditosController extends Controller
                 ->select('a.IdTienda', 'a.IdEncabezado', 'a.FechaVenta', 'a.NumNomina',
                     DB::raw("SUM(a.ImporteCredito) as ImporteCredito"), 'a.StatusCredito', 'a.StatusVenta', 
                     'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 'd.NomCiudad')
+                ->selectSub(function ($query) {
+                    $query->selectRaw('1');
+                }, 'isSistemaNuevo')
                 ->groupBy('a.NumNomina', 'a.IdTienda', 'a.IdEncabezado', 'a.FechaVenta', 'a.StatusCredito',
                     'a.StatusVenta', 'a.Interfazado', 'b.NomTienda', 'c.TipoNomina', 'c.Nombre', 'c.Apellidos', 
                     'd.NomCiudad')
-                ->get();
+                ->get()
+                ->toArray();
 
-            $totalAdeudo = DB::table('DatCreditos as a')
+            $creditosVentaWeb = DB::connection('server4.3')->table("datencabezado as a")
+                ->leftJoin("cattiendas as b", function($join){
+                    $join->on("a.idtienda", "=", "b.id");
+                })
+                ->leftJoin("catempleados as c", function($join){
+                    $join->on("a.empleado", "=", "c.num_nomina");
+                })
+                ->leftJoin("capcteacum as d", function($join){
+                    $join->on("a.ID", "=", "d.idvta")
+                    ->where('d.PUNTOS', '<', 0);
+                })
+                ->select("a.ID as IdEncabezado", "a.empleado as NumNomina", "c.nombre as Nombre", 
+                "c.apellidos as Apellidos", "a.importe as ImporteCredito", 
+                "a.fecha as FechaVenta", "a.idtienda as IdTienda", "b.nombre as NomTienda", 
+                "b.ciudad as NomCiudad", "a.edoventa as StatusVenta")
+                ->selectSub(function ($query) {
+                    $query->selectRaw('0');
+                }, 'isSistemaNuevo')
+                ->where('a.IdTIenda', '<>', 30)
+                ->where("edoventa", "=", 0)
+                ->whereRaw("cast(a.Fecha as date) between '". $fecha1 ."' and '". $fecha2 ."'")
+                ->where("exportado", "=", 0)
+                ->where('a.TipoNomina', $idTipoNomina)
+                ->where("exportado", "<>", -1)
+                ->where("a.tipopago", "=", 28)
+                ->where("c.status", "=", 1)
+                ->get()
+                ->toArray();
+
+            // union a las dos consultas
+            $creditos = array_merge($creditosVentaWeb, $creditosVentaWeb_New);
+
+            $totalAdeudoVentaWeb_New = DB::table('DatCreditos as a')
                 ->leftJoin('CatTiendas as b', 'b.IdTienda', 'a.IdTienda')
                 ->leftJoin('CatEmpleados as c', 'c.NumNomina', 'a.NumNomina')
                 ->leftJoin('CatCiudades as d', 'd.IdCiudad', 'b.IdCiudad')
@@ -76,6 +171,28 @@ class InterfazCreditosController extends Controller
                 ->whereNull('a.Interfazado')
                 ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
                 ->sum('ImporteCredito');
+
+            $totalAdeudoVentaWeb = DB::connection('server4.3')->select("SELECT SUM(A.IMPORTE) as ImporteCredito 
+                FROM DATENCABEZADO AS A
+                LEFT JOIN CATTIENDAS AS B ON A.IDTIENDA=B.ID 
+                LEFT JOIN CATEMPLEADOS AS C ON CAST(A.EMPLEADO AS INT)=C.NUM_NOMINA
+                LEFT JOIN CAPCTEACUM AS D ON A.ID = D.IDVTA
+                AND D.PUNTOS<0
+                WHERE A.IDTIENDA<>30
+                AND A.TIPONOMINA= ". $idTipoNomina ."
+                AND EDOVENTA=0 
+                AND CAST(A.FECHA AS DATE) BETWEEN '". $fecha1 ."' AND '". $fecha2 ."'
+                AND EXPORTADO=0
+                AND EXPORTADO <> '-1' 
+                AND A.TIPOPAGO=28
+                and c.STATUS = 1");
+
+            foreach ($totalAdeudoVentaWeb as $key => $importeCreditoVentaWeb) {
+                $importeCredito = $importeCreditoVentaWeb->ImporteCredito;
+            }
+
+            // union all a las tablas nuevas y viejas
+            $totalAdeudo = $totalAdeudoVentaWeb_New + $importeCredito;
         }
 
         $nomTipoNomina = LimiteCredito::where('TipoNomina', $idTipoNomina)
@@ -87,8 +204,6 @@ class InterfazCreditosController extends Controller
         empty($empleado) ? $empleado = 'No se encontró el empleado' : $empleado = $empleado->Nombre . ' ' . $empleado->Apellidos;
 
         $tiposNomina = LimiteCredito::all();
-
-        //return $empleado;
 
         return view('InterfazCreditos.InterfazCreditos', compact('tiposNomina', 'chkNomina', 'numNomina', 'fecha1', 
             'fecha2', 'idTipoNomina', 'creditos', 'nomTipoNomina', 'empleado', 'totalAdeudo'));
