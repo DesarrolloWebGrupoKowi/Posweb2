@@ -66,7 +66,11 @@
         <div class="container card shadow">
             <div class="d-flex justify-content-center">
                 <h4>Créditos Empleado -
-                    {{ empty($chkNomina) ? $nomTipoNomina : $empleado }}</h4>
+                    {{ empty($chkNomina) ? $nomTipoNomina : $empleado }}
+                </h4>
+            </div>
+            <div class="d-flex justify-content-end">
+                <h6><u>Se encontraron ({{ count($creditos) }}) registros</u></h6>
             </div>
             <div style="height: 65vh" class="table-responsive">
                 <table class="table table-sm table-striped table-responsive">
@@ -110,7 +114,7 @@
                             <th></th>
                             <th></th>
                             <th style="text-align: right; font-size: 23px">Total: </th>
-                            <th style="font-size: 23px">$ {{ number_format($totalAdeudo, 2) }}</th>
+                            <th style="font-size: 23px">${{ number_format($totalAdeudo, 2) }}</th>
                             <th></th>
                         </tr>
                     </tfoot>
@@ -119,7 +123,7 @@
         </div>
     @endif
     @if (!empty($creditos))
-        <div class="container mt-2 mb-1">
+        <div class="container mt-2 mb-3">
             <div class="d-flex justify-content-center">
                 <div class="col-auto">
                     <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfazCreditos">

@@ -868,6 +868,9 @@ class PoswebController extends Controller
                     if($pago > $creditoDisponible){
                         return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                     }
+
+                    // guardar numero de ventas
+                    DB::select("exec Sp_Guardar_DatConcenVenta ". $numNomina .", ". date('d-m-Y') ."");
                 }
     
                 if($idTipoPago == 7){
