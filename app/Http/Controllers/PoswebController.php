@@ -870,7 +870,7 @@ class PoswebController extends Controller
                     }
 
                     // guardar numero de ventas
-                    DB::select("exec Sp_Guardar_DatConcenVenta ". $numNomina .", ". date('d-m-Y') ."");
+                    DB::select("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."'");
                 }
     
                 if($idTipoPago == 7){
