@@ -41,6 +41,7 @@ use App\Models\MovimientoMonederoElectronico;
 use App\Models\CatPaquete;
 use App\Models\DatPaquete;
 use App\Models\Empleado43;
+use App\Models\VentaCreditoEmpleado;
 
 class PoswebController extends Controller
 {
@@ -126,8 +127,6 @@ class PoswebController extends Controller
             ->leftJoin('CatTipoPago as b', 'b.IdTipoPago', 'a.IdTipoPago')
             ->where('a.IdEncabezado', $idEncabezado)
             ->get();
-
-        //return $datTipoPago;
 
         $tiposPago = TipoPagoTienda::with('TiposPago')
             ->where('IdTienda', $idTienda)
@@ -253,6 +252,7 @@ class PoswebController extends Controller
     public function BuscarEmpleado(Request $request){
         try {
             DB::beginTransaction();
+            
             $numNomina = $request->numNomina;
 
             $empleado = Empleado::with('LimiteCredito')
@@ -273,10 +273,10 @@ class PoswebController extends Controller
                 $saldoEmpleado = 0;
             }
 
-            $ventasDiariasEmpleado = DatEncabezado::where('NumNomina', $numNomina)
-                ->whereDate('FechaVenta', date('Y-m-d'))
-                ->count(); 
-
+            // consultar numero de ventas del dia del empleado
+            $ventasDiariasEmpleado = VentaCreditoEmpleado::whereDate('FechaVenta', date('d-m-Y'))
+                ->where('NumNomina', $numNomina)
+                ->value('TotalNumVenta');
 
             if(!empty($empleado)){
                 $limiteCredito = LimiteCredito::where('TipoNomina', $empleado->TipoNomina)
@@ -294,6 +294,7 @@ class PoswebController extends Controller
             else{
                 $banVentasDiarias = 2;
             }
+
             DB::commit();
             return view('Posweb.Ifrempleado', compact('empleado', 'saldoEmpleado', 'banVentasDiarias'));
 
@@ -789,9 +790,9 @@ class PoswebController extends Controller
         $numNomina = $temporalPos->NumNomina;
 
         $multipago = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->select('MultiPago')
-                    ->distinct()
-                    ->first();
+            ->select('MultiPago')
+            ->distinct()
+            ->first();
 
         try {
             DB::beginTransaction();
