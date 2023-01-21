@@ -323,8 +323,9 @@ class PoswebController extends Controller
         $nomArticulos = [];
         foreach ($preventa as $key => $pArticulo) {
             if(empty($pArticulo->IdPaquete)){
+
                 $buscarArticulo = Articulo::where('IdArticulo', $pArticulo->IdArticulo)
-                                ->first();
+                    ->first();
 
             if(empty($numNomina) || $pArticulo->CantArticulo > $empySoc->PesoMaximo){
                 $articulo = DB::table('CatArticulos as a')
@@ -390,7 +391,7 @@ class PoswebController extends Controller
                         ->update([
                             'PrecioLista' => $articulo->PrecioArticulo,
                             'PrecioVenta' => $articulo->PrecioArticulo,
-                            'IdListaPrecio' => $articulo->IdListaPrecio,
+                            'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
                             'SubTotalArticulo' => $subTotal,
                             'IvaArticulo' => $iva,
                             'ImporteArticulo' => $total
