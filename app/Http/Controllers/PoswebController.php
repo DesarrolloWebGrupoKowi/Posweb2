@@ -479,10 +479,7 @@ class PoswebController extends Controller
                             ->where('IdArticulo', $pArticulo->IdArticulo)
                             ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
                             ->update([
-                                'IdListaPrecio' => $articulo->IdListaPrecio,
-                                'SubTotalArticulo' => $subTotal,
-                                'IvaArticulo' => $iva,
-                                'ImporteArticulo' => $total
+                                'IdListaPrecio' => $articulo->IdListaPrecio
                         ]);
                     }
 
