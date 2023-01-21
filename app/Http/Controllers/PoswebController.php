@@ -314,18 +314,17 @@ class PoswebController extends Controller
         ]);
 
         $preventa = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->get();
+            ->get();
 
         //Lista de Precios EMPYSOC
         $empySoc = ListaPrecio::where('IdListaPrecio', 4)
-                ->first();
+            ->first();
 
         $nomArticulos = [];
         foreach ($preventa as $key => $pArticulo) {
-            if(empty($pArticulo->IdPaquete)){
 
-                $buscarArticulo = Articulo::where('IdArticulo', $pArticulo->IdArticulo)
-                    ->first();
+            $buscarArticulo = Articulo::where('IdArticulo', $pArticulo->IdArticulo)
+                ->first();
 
             if(empty($numNomina) || $pArticulo->CantArticulo > $empySoc->PesoMaximo){
                 $articulo = DB::table('CatArticulos as a')
@@ -350,10 +349,10 @@ class PoswebController extends Controller
             }
             else{
                 $articulo = DB::table('CatArticulos as a')
-                        ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
-                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
-                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                        ->select('a.IdArticulo', 
+                    ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                    ->select('a.IdArticulo', 
                         'a.CodArticulo', 
                         'a.NomArticulo', 
                         'a.Peso', 
@@ -363,11 +362,11 @@ class PoswebController extends Controller
                         'c.IdListaPrecio', 
                         'c.NomListaPrecio', 
                         'c.PorcentajeIva')
-                        ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
-                        ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                        ->where('c.IdListaPrecio', 4)
-                        ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
-                        ->first();
+                    ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
+                    ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('c.IdListaPrecio', 4)
+                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
+                    ->first();
             }
 
             $subTotal = $articulo->PrecioArticulo * $pArticulo->CantArticulo;
@@ -386,17 +385,16 @@ class PoswebController extends Controller
             $total = $subTotal + $iva;
 
             PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                        ->where('IdArticulo', $pArticulo->IdArticulo)
-                        ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
-                        ->update([
-                            'PrecioLista' => $articulo->PrecioArticulo,
-                            'PrecioVenta' => $articulo->PrecioArticulo,
-                            'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
-                            'SubTotalArticulo' => $subTotal,
-                            'IvaArticulo' => $iva,
-                            'ImporteArticulo' => $total
-                        ]);
-            }
+                ->where('IdArticulo', $pArticulo->IdArticulo)
+                ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
+                    ->update([
+                        'PrecioLista' => $articulo->PrecioArticulo,
+                        'PrecioVenta' => $articulo->PrecioArticulo,
+                        'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
+                        'SubTotalArticulo' => $subTotal,
+                        'IvaArticulo' => $iva,
+                        'ImporteArticulo' => $total
+                    ]);
         }
 
         if(count($nomArticulos) > 0){
