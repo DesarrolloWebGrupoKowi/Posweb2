@@ -384,17 +384,30 @@ class PoswebController extends Controller
 
             $total = $subTotal + $iva;
 
-            PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                ->where('IdArticulo', $pArticulo->IdArticulo)
-                ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
-                    ->update([
-                        'PrecioLista' => $articulo->PrecioArticulo,
-                        'PrecioVenta' => $articulo->PrecioArticulo,
-                        'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
-                        'SubTotalArticulo' => $subTotal,
-                        'IvaArticulo' => $iva,
-                        'ImporteArticulo' => $total
-                    ]);
+            // validar que el precio del paquete no se vea afectado, al pasar la tarjeta del empleado/socio/frecuente
+            if(empty($pArticulo->IdPaquete)){
+
+                PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('IdArticulo', $pArticulo->IdArticulo)
+                    ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
+                        ->update([
+                            'PrecioLista' => $articulo->PrecioArticulo,
+                            'PrecioVenta' => $articulo->PrecioArticulo,
+                            'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
+                            'SubTotalArticulo' => $subTotal,
+                            'IvaArticulo' => $iva,
+                            'ImporteArticulo' => $total
+                ]);
+
+            }else{
+                PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('IdArticulo', $pArticulo->IdArticulo)
+                    ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
+                        ->update([
+                            'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4
+                ]);
+            }
+            
         }
 
         if(count($nomArticulos) > 0){
