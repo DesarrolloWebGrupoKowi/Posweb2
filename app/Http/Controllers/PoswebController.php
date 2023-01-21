@@ -415,7 +415,7 @@ class PoswebController extends Controller
             DB::beginTransaction();
 
             $preventa = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-            ->get();
+                ->get();
 
             TemporalPos::where('TemporalPos', 1)
                 ->update([
@@ -459,17 +459,34 @@ class PoswebController extends Controller
 
                     $total = $subTotal + $iva;
 
-                    PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                        ->where('IdArticulo', $pArticulo->IdArticulo)
-                        ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
-                        ->update([
-                            'PrecioLista' => $articulo->PrecioArticulo,
-                            'PrecioVenta' => $articulo->PrecioArticulo,
-                            'IdListaPrecio' => $articulo->IdListaPrecio,
-                            'SubTotalArticulo' => $subTotal,
-                            'IvaArticulo' => $iva,
-                            'ImporteArticulo' => $total
-                    ]);
+                    // validar que exista un paquete para no cambiar el precio
+                    if(empty($pArticulo->IdPaquete)){
+
+                        PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                            ->where('IdArticulo', $pArticulo->IdArticulo)
+                            ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
+                            ->update([
+                                'PrecioLista' => $articulo->PrecioArticulo,
+                                'PrecioVenta' => $articulo->PrecioArticulo,
+                                'IdListaPrecio' => $articulo->IdListaPrecio,
+                                'SubTotalArticulo' => $subTotal,
+                                'IvaArticulo' => $iva,
+                                'ImporteArticulo' => $total
+                        ]);
+
+                    }else{
+                        PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                            ->where('IdArticulo', $pArticulo->IdArticulo)
+                            ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
+                            ->update([
+                                'IdListaPrecio' => $articulo->IdListaPrecio,
+                                'SubTotalArticulo' => $subTotal,
+                                'IvaArticulo' => $iva,
+                                'ImporteArticulo' => $total
+                        ]);
+                    }
+
+                    
             }
 
         } catch (\Throwable $th) {
