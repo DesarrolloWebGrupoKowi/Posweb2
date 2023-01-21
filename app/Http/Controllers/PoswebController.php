@@ -428,7 +428,6 @@ class PoswebController extends Controller
                 $buscarArticulo = Articulo::where('IdArticulo', $pArticulo->IdArticulo)
                     ->first();
 
-                if(empty($pArticulo->IdPaquete)){
                     $articulo = DB::table('CatArticulos as a')
                         ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                         ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
@@ -472,7 +471,6 @@ class PoswebController extends Controller
                             'IvaArticulo' => $iva,
                             'ImporteArticulo' => $total
                     ]);
-                }
             }
 
         } catch (\Throwable $th) {
