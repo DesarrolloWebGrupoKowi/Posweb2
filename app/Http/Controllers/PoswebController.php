@@ -2328,7 +2328,7 @@ class PoswebController extends Controller
                 $iva = 0;
                 if($articulo->Iva == 0){
                     $idsListaPrecio = ListaPrecioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->pluck('IdListaPrecio');
+                        ->pluck('IdListaPrecio');
 
                     $porcentajeIva = ListaPrecio::whereIn('IdListaPrecio', $idsListaPrecio)
                         ->where('IdListaPrecio', '<>', 4)
@@ -2341,6 +2341,10 @@ class PoswebController extends Controller
                 $idDatVentaTmp = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->max('IdDatVentaTmp')+1;
 
+                // buscar empleado, socio o frecuente para lista de precios EMPYSOC
+                $numNomina = TemporalPos::where('TemporalPos', 1)
+                    ->value('NumNomina');
+
                 PreventaTmp::insert([
                     'IdDatVentaTmp' => $idDatVentaTmp,
                     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
@@ -2348,7 +2352,7 @@ class PoswebController extends Controller
                     'CantArticulo' => $articuloPaquete->CantArticulo,
                     'PrecioLista' => $articuloPaquete->PrecioArticulo,
                     'PrecioVenta' => $articuloPaquete->PrecioArticulo,
-                    'IdListaPrecio' => $articuloPaquete->IdListaPrecio,
+                    'IdListaPrecio' => empty($numNomina) ? $articuloPaquete->IdListaPrecio : 4,
                     'IvaArticulo' => $iva,
                     'SubTotalArticulo' => $articuloPaquete->ImporteArticulo,
                     'ImporteArticulo' => $articuloPaquete->ImporteArticulo + $iva,
