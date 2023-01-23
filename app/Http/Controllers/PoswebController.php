@@ -1270,7 +1270,7 @@ class PoswebController extends Controller
                         ->first();
 
                 // compras a credito del empleado que no han sido pagadas
-                $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
+                $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $temporalPos->NumNomina)
                     ->sum('TotalCredito');
 
                 // pago parcial del empleado -> credito
