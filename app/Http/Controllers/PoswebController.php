@@ -1304,7 +1304,7 @@ class PoswebController extends Controller
                 }
 
                 // guardar numero de ventas
-                DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago ."");
+                DB::statement("exec Sp_Guardar_DatConcenVenta ". $temporalPos->NumNomina .", '". date('d-m-Y') ."', ". $pago ."");
             }
     
             DatTipoPago::insert([
