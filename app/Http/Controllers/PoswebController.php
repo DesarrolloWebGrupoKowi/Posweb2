@@ -868,11 +868,9 @@ class PoswebController extends Controller
                         ->where('NumNomina', $numNomina)
                         ->first();
 
-                    // compras del empleado a credito que no han sido pagadas
-                    $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
-                            ->where('StatusCredito', 0)
-                            ->where('StatusVenta', 0)
-                            ->sum('ImporteArticulo');
+                    // compras a credito del empleado que no han sido pagadas
+                    $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
+                        ->sum('TotalCredito');
     
                     $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
     
@@ -1155,11 +1153,9 @@ class PoswebController extends Controller
                                 ->where('NumNomina', $numNomina)
                                 ->first();
 
-                        // compras del empleado a credito que no han sido pagadas
-                        $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
-                                ->where('StatusCredito', 0)
-                                ->where('StatusVenta', 0)
-                                ->sum('ImporteArticulo');
+                        // compras a credito del empleado que no han sido pagadas
+                        $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
+                            ->sum('TotalCredito');
 
                         // pago parcial del empleado -> credito
                         $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
@@ -1273,11 +1269,9 @@ class PoswebController extends Controller
                         ->where('NumNomina', $temporalPos->NumNomina)
                         ->first();
 
-                // compras del empleado a credito que no han sido pagadas
-                $gastoEmpleado = CorteTienda::where('NumNomina', $temporalPos->NumNomina)
-                        ->where('StatusCredito', 0)
-                        ->where('StatusVenta', 0)
-                        ->sum('ImporteArticulo');
+                // compras a credito del empleado que no han sido pagadas
+                $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
+                    ->sum('TotalCredito');
 
                 // pago parcial del empleado -> credito
                 $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
