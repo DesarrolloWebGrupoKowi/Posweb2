@@ -60,10 +60,8 @@ class PoswebController extends Controller
         if(!empty($cliente)){
 
             // compras a credito del empleado que no han sido pagadas
-            $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
-                ->where('StatusCredito', 0)
-                ->where('StatusVenta', 0)
-                ->sum('ImporteArticulo');
+            $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
+                ->sum('TotalCredito');
 
             // pagos parciales del empleado -> credito
             $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
@@ -261,11 +259,9 @@ class PoswebController extends Controller
                 ->first();
 
             if(!empty($empleado)){
-                $gastoEmpleado = CorteTienda::where('NumNomina', $numNomina)
-                    ->where('StatusCredito', 0)
-                    ->where('StatusVenta', 0)
-                    ->where('IdTipoPago', 2)
-                    ->sum('ImporteArticulo');
+                // gastos del empleado
+                $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
+                    ->sum('TotalCredito');
 
                 $saldoEmpleado = $empleado->LimiteCredito->Limite - $gastoEmpleado;
             }
@@ -894,7 +890,7 @@ class PoswebController extends Controller
                         return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                     }
 
-                    // guardar numero de ventas
+                    // guardar numero de ventas e importe del credito
                     DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago ."");
                 }
     
@@ -1186,7 +1182,7 @@ class PoswebController extends Controller
                             return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                         }
 
-                        // guardar numero de ventas
+                        // guardar numero de ventas e importe del credito
                         DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago ."");
                     }
     
@@ -1276,6 +1272,7 @@ class PoswebController extends Controller
                 $cliente = Empleado::with('LimiteCredito')
                         ->where('NumNomina', $temporalPos->NumNomina)
                         ->first();
+
                 // compras del empleado a credito que no han sido pagadas
                 $gastoEmpleado = CorteTienda::where('NumNomina', $temporalPos->NumNomina)
                         ->where('StatusCredito', 0)
@@ -1303,7 +1300,7 @@ class PoswebController extends Controller
                     return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                 }
 
-                // guardar numero de ventas
+                // guardar numero de ventas e importe del credito
                 DB::statement("exec Sp_Guardar_DatConcenVenta ". $temporalPos->NumNomina .", '". date('d-m-Y') ."', ". $pago ."");
             }
     
