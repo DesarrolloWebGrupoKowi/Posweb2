@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <style>
-    .bAtras:active{
-        transform: scale(1.2);
+    .material-icons:active{
+        transform: scale(1.5);
     }
 </style>
 <head>
@@ -89,7 +89,7 @@
             @if (request()->routeIs('index') or request()->routeIs('login') or request()->routeIs('dashboard'))
             @else
                 <a class="bAtras" style="margin-left: 10px;" href="/Dashboard">
-                    <span class="material-icons my-2">keyboard_return</span>
+                    <span style="font-size: 28px;" class="material-icons my-2 card shadow">keyboard_return</span>
                 </a>
             @endif
         </div>

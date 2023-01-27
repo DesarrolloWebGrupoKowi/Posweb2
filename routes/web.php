@@ -213,6 +213,14 @@ Route::post('/EditarListaPrecio/{id}', 'App\Http\Controllers\ListasPrecioControl
 Route::get('/InterfazCreditos', 'App\Http\Controllers\InterfazCreditosController@InterfazCreditos');
 //InterfazarCreditos
 Route::post('/InterfazarCreditos/{fecha1}/{fecha2}/{idTipoNomina}/{numNomina}', 'App\Http\Controllers\InterfazCreditosController@InterfazarCreditos');
+//PrepagoCreditos
+Route::get('/PrepagoCreditos/{fecha1}/{fecha2}/{numNomina}/{idTipoNomina}', 'App\Http\Controllers\InterfazCreditosController@PrepagoCreditos');
+//CreditosPagosAbonos
+Route::get('/CreditosPagosAbonos', 'App\Http\Controllers\InterfazCreditosController@CreditosPagosAbonos');
+//AjusteDeuda
+Route::post('/AjusteDeuda/{idEncabezado}/{importeDeuda}', 'App\Http\Controllers\InterfazCreditosController@AjusteDeuda');
+//EliminarAjuste
+Route::post('/EliminarAjuste/{idEncabezado}', 'App\Http\Controllers\InterfazCreditosController@EliminarAjuste');
 
 //+============================================================================================================================================+//
 //Mostrar Lista Precio Tienda
@@ -680,6 +688,16 @@ Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerC
 
 //BuscarCajasTienda
 Route::get('/BuscarCajasTienda', 'App\Http\Controllers\CortesTiendaController@BuscarCajasTienda')->name('BuscarCajasTienda');
+
+//+============================================================================================================================================+//
+//BloqueoEmpleados
+Route::get('/BloqueoEmpleados', 'App\Http\Controllers\BloqueoEmpleadosController@BloqueoEmpleados');
+//AgregarBloqueoEmpleado
+Route::post('/AgregarBloqueoEmpleado', 'App\Http\Controllers\BloqueoEmpleadosController@AgregarBloqueoEmpleado');
+//DesbloquearEmpleado
+Route::post('/DesbloquearEmpleado/{numNomina}', 'App\Http\Controllers\BloqueoEmpleadosController@DesbloquearEmpleado');
+//BuscarEmpleadoParaBloqueo
+Route::get('/BuscarEmpleadoParaBloqueo/{numNomina}', 'App\Http\Controllers\BloqueoEmpleadosController@BuscarEmpleadoParaBloqueo');
 
 //+============================================================================================================================================+//
   });//->Termina Middleware Auth

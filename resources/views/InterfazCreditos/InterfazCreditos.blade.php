@@ -124,13 +124,21 @@
     @endif
     @if (!empty($creditos))
         <div class="container mt-2 mb-3">
-            <div class="d-flex justify-content-center">
-                <div class="col-auto">
-                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfazCreditos">
-                        <i class="fa fa-check"></i> Interfazar Créditos
-                    </button>
+            <form
+                action="/PrepagoCreditos/{{ $fecha1 }}/{{ $fecha2 }}/{{ empty($numNomina) ? 0 : $numNomina }}/{{ empty($idTipoNomina) ? 0 : $idTipoNomina }}">
+                <div class="row d-flex justify-content-center">
+                    <!--<div class="col-auto">
+                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfazCreditos">
+                                            <i class="fa fa-check"></i> Interfazar Créditos
+                                        </button>
+                                    </div>-->
+                    <div class="col-auto">
+                        <button class="btn btn-warning">
+                            <i class="fa fa-check"></i> Pre-pago Créditos
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
         @include('InterfazCreditos.ModalConfirmacion')
     @endif
