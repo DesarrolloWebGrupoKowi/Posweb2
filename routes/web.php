@@ -598,6 +598,12 @@ Route::post('/AgregarTransaccionTienda/{idTienda}', 'App\Http\Controllers\Transa
 Route::post('/EliminarTransaccionTienda/{idTienda}', 'App\Http\Controllers\TransaccionesTiendaController@EliminarTransaccionTienda');
 
 //+============================================================================================================================================+//
+//SolicitudCancelacionTicket
+Route::get('/SolicitudCancelacionTicket', 'App\Http\Controllers\CancelacionTicketsController@SolicitudCancelacionTicket');
+
+//SolicitarCancelacion
+Route::post('/SolicitarCancelacion/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@SolicitarCancelacion');
+
 //CancelacionTickets
 Route::get('/CancelacionTickets', 'App\Http\Controllers\CancelacionTicketsController@CancelacionTickets');
 

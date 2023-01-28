@@ -15,6 +15,7 @@ use App\Models\InventarioTienda;
 use App\Models\Articulo;
 use App\Models\HistorialMovimientoProducto;
 use App\Models\DatCaja;
+use App\Models\SolicitudCancelacionTicket;
 
 class CancelacionTicketsController extends Controller
 {
@@ -149,5 +150,49 @@ class CancelacionTicketsController extends Controller
         DB::connection('server')->commit();
         
         return back()->with('msjAdd', 'Se Canceló Correctamente el Ticket!');
+    }
+
+    public function SolicitudCancelacionTicket(Request $request){
+        try {
+            DB::connection('server')->getPDO();
+            echo DB::connection()->getDatabaseName();
+        } catch (\Throwable $th) {
+            return 'No hay conexion al servertest';
+        }
+
+        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idTicket = $request->idTicket;
+
+        $ticket = DatEncabezado::with(['detalle' => function ($join) {
+            $join->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
+                ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido')
+                ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete');
+        }, 'TipoPago'])
+            ->where('IdTicket', $idTicket)
+            ->where('IdTienda', $idTienda)
+            ->whereDate('FechaVenta', date('d-m-Y'))
+            ->first();
+
+        $ticketEncontrado = (empty($ticket)) ? 'no' : 'si'; 
+
+        $ticketConSolicitud = 'no';
+        if(!empty($ticket->IdEncabezado)){
+            if(SolicitudCancelacionTicket::where('IdEncabezado', $ticket->IdEncabezado)->exists()){
+                $ticketConSolicitud = 'si';
+            }
+        }
+
+        //return $ticketConSolicitud;
+
+        return view('CancelacionTickets.SolicitudCancelacionTicket', compact('idTicket', 'ticket', 'ticketEncontrado', 'ticketConSolicitud'));
+    }
+    
+    public function SolicitarCancelacion($idEncabezado, Request $request){
+        try {
+            DB::connection('server')->getPDO();
+
+        } catch (\Throwable $th) {
+            
+        }
     }
 }
