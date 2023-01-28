@@ -153,13 +153,6 @@ class CancelacionTicketsController extends Controller
     }
 
     public function SolicitudCancelacionTicket(Request $request){
-        try {
-            DB::connection('server')->getPDO();
-            echo DB::connection()->getDatabaseName();
-        } catch (\Throwable $th) {
-            return 'No hay conexion al servertest';
-        }
-
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
         $idTicket = $request->idTicket;
 
@@ -189,10 +182,56 @@ class CancelacionTicketsController extends Controller
     
     public function SolicitarCancelacion($idEncabezado, Request $request){
         try {
-            DB::connection('server')->getPDO();
+            DB::beginTransaction();
+            DB::connection('server')->beginTransaction();
+
+            SolicitudCancelacionTicket::insert([
+                'FechaSolicitud' => date('d-m-Y H:i:s'),
+                'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                'IdEncabezado' => $idEncabezado,
+                'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
+                'Status' => 0
+            ]);
+
+            DB::connection('server')->table('SolicitudCancelacionTicket')
+                ->insert([
+                    'FechaSolicitud' => date('d-m-Y H:i:s'),
+                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                    'IdEncabezado' => $idEncabezado,
+                    'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                    'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
+                    'Status' => 0
+                ]);
 
         } catch (\Throwable $th) {
-            
+            DB::rollback();
+            DB::connection('server')->rollback();
+
+            try {
+                DB::beginTransaction();
+
+                SolicitudCancelacionTicket::insert([
+                    'FechaSolicitud' => date('d-m-Y H:i:s'),
+                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                    'IdEncabezado' => $idEncabezado,
+                    'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                    'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
+                    'Status' => 0
+                ]);
+                
+            } catch (\Throwable $th) {
+                DB::rollback();
+                return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            }
+
+            DB::commit();
+            return redirect('SolicitudCancelacionTicket')->with('msjAdd', 'Insert Local');
         }
+
+        DB::commit();
+        DB::connection('server')->commit();
+
+        return back()->with('msjAdd', 'La solicitud de cancelación se realizó correctamente');
     }
 }
