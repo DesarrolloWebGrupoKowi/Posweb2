@@ -182,6 +182,8 @@ class CancelacionTicketsController extends Controller
     
     public function SolicitarCancelacion($idEncabezado, Request $request){
         try {
+            DB::connection('server')->getPDO(); // revisar conexion al server
+
             DB::beginTransaction();
             DB::connection('server')->beginTransaction();
 
@@ -219,7 +221,7 @@ class CancelacionTicketsController extends Controller
                     'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
                     'Status' => 0
                 ]);
-                
+
             } catch (\Throwable $th) {
                 DB::rollback();
                 return back()->with('msjdelete', 'Error: ' . $th->getMessage());
