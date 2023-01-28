@@ -72,7 +72,7 @@
             <div class="d-flex justify-content-end">
                 <h6><u>Se encontraron ({{ count($creditos) }}) registros</u></h6>
             </div>
-            <div style="height: 65vh" class="table-responsive">
+            <div style="height: 62vh" class="table-responsive">
                 <table class="table table-sm table-striped table-responsive">
                     <thead class="table-dark">
                         <tr>
@@ -124,21 +124,13 @@
     @endif
     @if (!empty($creditos))
         <div class="container mt-2 mb-3">
-            <form
-                action="/PrepagoCreditos/{{ $fecha1 }}/{{ $fecha2 }}/{{ empty($numNomina) ? 0 : $numNomina }}/{{ empty($idTipoNomina) ? 0 : $idTipoNomina }}">
-                <div class="row d-flex justify-content-center">
-                    <!--<div class="col-auto">
-                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfazCreditos">
-                                            <i class="fa fa-check"></i> Interfazar Créditos
-                                        </button>
-                                    </div>-->
-                    <div class="col-auto">
-                        <button class="btn btn-warning">
-                            <i class="fa fa-check"></i> Pre-pago Créditos
-                        </button>
-                    </div>
+            <div class="row d-flex justify-content-center">
+                <div class="col-auto">
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfazCreditos">
+                        <i class="fa fa-check"></i> Interfazar Créditos
+                    </button>
                 </div>
-            </form>
+            </div>
         </div>
         @include('InterfazCreditos.ModalConfirmacion')
     @endif

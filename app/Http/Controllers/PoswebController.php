@@ -61,7 +61,7 @@ class PoswebController extends Controller
 
             // compras a credito del empleado que no han sido pagadas
             $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
-                ->sum('TotalCredito');
+                ->sum('CreditoActual');
 
             // pagos parciales del empleado -> credito
             $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
@@ -261,7 +261,7 @@ class PoswebController extends Controller
             if(!empty($empleado)){
                 // gastos del empleado
                 $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
-                    ->sum('TotalCredito');
+                    ->sum('CreditoActual');
 
                 $saldoEmpleado = $empleado->LimiteCredito->Limite - $gastoEmpleado;
             }
@@ -870,7 +870,7 @@ class PoswebController extends Controller
 
                     // compras a credito del empleado que no han sido pagadas
                     $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
-                        ->sum('TotalCredito');
+                        ->sum('CreditoActual');
     
                     $creditoDisponible = $cliente->LimiteCredito->Limite - $gastoEmpleado;
     
@@ -1155,7 +1155,7 @@ class PoswebController extends Controller
 
                         // compras a credito del empleado que no han sido pagadas
                         $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
-                            ->sum('TotalCredito');
+                            ->sum('CreditoActual');
 
                         // pago parcial del empleado -> credito
                         $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
@@ -1271,7 +1271,7 @@ class PoswebController extends Controller
 
                 // compras a credito del empleado que no han sido pagadas
                 $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $temporalPos->NumNomina)
-                    ->sum('TotalCredito');
+                    ->sum('CreditoActual');
 
                 // pago parcial del empleado -> credito
                 $pagoParcial = DatTipoPago::where('IdEncabezado', $idEncabezado)
