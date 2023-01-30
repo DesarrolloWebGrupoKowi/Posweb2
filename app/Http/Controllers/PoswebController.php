@@ -1754,7 +1754,7 @@ class PoswebController extends Controller
                 ->whereIn('Bill_To', $billsTo)
                 ->get();
 
-            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja){
+            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja, $idEncabezadosSolCancelacion){
                 $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
                         ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
                         ->whereNotIn('DatCortesTienda.IdEncabezado', $idEncabezadosSolCancelacion);
@@ -1783,7 +1783,7 @@ class PoswebController extends Controller
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 1)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
+                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
 
