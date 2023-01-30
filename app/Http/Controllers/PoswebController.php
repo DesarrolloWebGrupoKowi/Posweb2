@@ -816,6 +816,7 @@ class PoswebController extends Controller
 
         try {
             DB::beginTransaction();
+            
             if($multipago->MultiPago == null){
                 $idTipoPago = $request->tipoPago;
     
@@ -848,11 +849,11 @@ class PoswebController extends Controller
                 $totalVentaSinFormat = PreventaTmp::where('IdTienda', $idTienda)
                         ->sum('ImporteArticulo') - $temporalPos->MonederoDescuento;
 
-                $totalVenta = number_format($totalVentaSinFormat, 2);
+                $totalVenta = number_format($totalVentaSinFormat, 2); // format a la venta (2)
     
                 $idTicket = DatEncabezado::where('IdTienda', $idTienda)
-                        ->whereDate('FechaVenta', date('d-m-Y'))
-                        ->max('IdTicket')+1;
+                    ->whereDate('FechaVenta', date('d-m-Y'))
+                    ->max('IdTicket')+1;
     
                 $caja = DB::table('DatCajas as a')
                         ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
@@ -889,9 +890,6 @@ class PoswebController extends Controller
                     if($pago > $creditoDisponible){
                         return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                     }
-
-                    // guardar numero de ventas e importe del credito
-                    DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago ."");
                 }
     
                 if($idTipoPago == 7){
@@ -1139,7 +1137,16 @@ class PoswebController extends Controller
                         ->update([
                             'Subir' => 0
                         ]);
+
+                    if(!empty($numNomina)){
+                        // validar el pago para saber si es credito o no
+                        $pago = $idTipoPago == 2 ? $pago : 0;
+
+                        // guardar numero de ventas e importe del credito
+                        DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago ."");
+                    }
     
+                    // imprimir ticket
                     DB::select("exec SP_GENERAR_TICKET_CORTE ".$idEncabezado.", ".$idTienda.", '".date('d-m-Y H:i:s')."'");
                     DB::commit();
                 
@@ -1179,9 +1186,6 @@ class PoswebController extends Controller
                         if($pago > $creditoDisponible){
                             return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                         }
-
-                        // guardar numero de ventas e importe del credito
-                        DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago ."");
                     }
     
                     DatTipoPago::insert([
@@ -1295,9 +1299,6 @@ class PoswebController extends Controller
                 if($pago > $creditoDisponible){
                     return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                 }
-
-                // guardar numero de ventas e importe del credito
-                DB::statement("exec Sp_Guardar_DatConcenVenta ". $temporalPos->NumNomina .", '". date('d-m-Y') ."', ". $pago ."");
             }
     
             DatTipoPago::insert([
@@ -1428,7 +1429,18 @@ class PoswebController extends Controller
                     ->update([
                         'Subir' => 0
                     ]);
+
+                if(!empty($temporalPos->NumNomina)){
+
+                    $pagoCredito = DatTipoPago::where('IdEncabezado', $idEncabezado)
+                    ->where('IdTipoPago', 2)
+                    ->sum('Pago');
+
+                    // guardar numero de ventas e importe del credito
+                    DB::statement("exec Sp_Guardar_DatConcenVenta ". $temporalPos->NumNomina .", '". date('d-m-Y') ."', ". $pagoCredito ."");
+                }
     
+                // imprimir ticket venta
                 DB::select("exec SP_GENERAR_TICKET_CORTE ".$idEncabezado.", ".$idTienda.", '".date('d-m-Y H:i:s')."'");
                 DB::commit();
     
