@@ -845,8 +845,10 @@ class PoswebController extends Controller
                         ->sum('IvaArticulo');
                 $ivaVenta = number_format($iva, 2);
     
-                $totalVenta = PreventaTmp::where('IdTienda', $idTienda)
+                $totalVentaSinFormat = PreventaTmp::where('IdTienda', $idTienda)
                         ->sum('ImporteArticulo') - $temporalPos->MonederoDescuento;
+
+                $totalVenta = number_format($totalVentaSinFormat, 2);
     
                 $idTicket = DatEncabezado::where('IdTienda', $idTienda)
                         ->whereDate('FechaVenta', date('d-m-Y'))
