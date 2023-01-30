@@ -225,7 +225,7 @@ class InterfazCreditosController extends Controller
 
         $tiposNomina = LimiteCredito::all();
 
-        //return count($creditos);
+        //return $creditos;
 
         return view('InterfazCreditos.InterfazCreditos', compact('tiposNomina', 'chkNomina', 'numNomina', 'fecha1', 
             'fecha2', 'idTipoNomina', 'creditos', 'nomTipoNomina', 'empleado', 'totalAdeudo'));
@@ -233,8 +233,8 @@ class InterfazCreditosController extends Controller
 
     public function InterfazarCreditos($fecha1, $fecha2, $idTipoNomina, $numNomina){
         try {
-            DB::beginTransaction();// inicio de transacciones
-            DB::connection('server4.3')->beginTransaction(); // inicio de transacciones server 4.3
+            //DB::beginTransaction();// inicio de transacciones
+            //DB::connection('server4.3')->beginTransaction(); // inicio de transacciones server 4.3
 
             HistorialCredito::insert([
                 'FechaDesde' => $fecha1,
@@ -287,7 +287,7 @@ class InterfazCreditosController extends Controller
                         'StatusCredito' => 1,
                         'Interfazado' => $idHistorialCredito
                     ]);
-
+                    
                 // devolver el credito cobrado al empleado VENTAWEB_NEW
                 
 
@@ -295,7 +295,8 @@ class InterfazCreditosController extends Controller
 
                 // interfazado de la DB VENTAWEB
                 DB::connection('server4.3')->statement(
-                    "insert into SPARTEST..D2000.KW_INTERFASE_VENTAS
+                    "SET XACT_ABORT ON;
+                    insert into SPARTEST..D2000.KW_INTERFASE_VENTAS
                     SELECT A.EMPLEADO,A.FECHA,A.ID,A.IDTIENDA,
                     B.NOMBRE AS NOMTIE,B.CIUDAD,A.IMPORTE,A.IDDIA, 
                     ". $idHistorialCredito ." as ID_HISTORIAL  
@@ -312,10 +313,9 @@ class InterfazCreditosController extends Controller
                     AND A.TIPOPAGO = 28 
                     AND EMPLEADO = '". $numNomina ."' 
                     and c.STATUS = 1 
-                    ORDER BY A.ID"
+                    ORDER BY A.ID
+                    SET XACT_ABORT OFF;"
                 );
-
-
 
                 // termina interfazado de la DB VENTAWEB
 
@@ -391,13 +391,13 @@ class InterfazCreditosController extends Controller
             }
 
         } catch (\Throwable $th) {
-            DB::rollback();// hubo algun error
-            DB::connection('server4.3')->rollback();
+            //DB::rollback();// hubo algun error
+            //DB::connection('server4.3')->rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
-        DB::commit(); // todo salio bien
-        DB::connection('server4.3')->commit();
+        //DB::commit(); // todo salio bien
+        //DB::connection('server4.3')->commit();
         return back()->with('IdentificadorSparh', 'Identificador SPARH: ' . $idHistorialCredito);
     }
 
