@@ -26,7 +26,7 @@
                 <div class="col-auto">
                     <div class="form-floating mb-2">
                         <input type="number" class="form-control" id="idTicket" placeholder="# Ticket" name="idTicket"
-                            value="{{ $idTicket }}" required>
+                            value="{{ $idTicket }}" autofocus required>
                         <label for="idTicket"># Ticket</label>
                     </div>
                 </div>

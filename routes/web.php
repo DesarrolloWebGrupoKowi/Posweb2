@@ -608,7 +608,7 @@ Route::post('/SolicitarCancelacion/{idEncabezado}', 'App\Http\Controllers\Cancel
 Route::get('/CancelacionTickets', 'App\Http\Controllers\CancelacionTicketsController@CancelacionTickets');
 
 //CancelarTicket
-Route::post('/CancelarTicket/{idTienda}/{idCaja}/{fechaVenta}/{numTicket}', 'App\Http\Controllers\CancelacionTicketsController@CancelarTicket');
+Route::post('/CancelarTicket/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@CancelarTicket');
 
 //+============================================================================================================================================+//
 //CorreosTienda

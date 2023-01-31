@@ -444,9 +444,12 @@
                                                     @if ($tVenta->StatusVenta == 1)
                                                         <i style="font-size: 20px" class="fa fa-ban"></i>
                                                     @endif
+                                                    @if (!empty($tVenta->SolicitudCancelacionTicket) and $tVenta->StatusVenta == 0)
+                                                        <i style="font-size: 20px" class="fa fa-hourglass-start"></i>
+                                                    @endif
                                                 </td>
                                             </tr>
-                                            @if ($tVenta->StatusVenta == 0)
+                                            @if ($tVenta->StatusVenta == 0 && empty($tVenta->SolicitudCancelacionTicket))
                                                 @php
                                                     $totalImporte = $totalImporte + $tVenta->ImporteVenta;
                                                     $totalIva = $totalIva + $tVenta->Iva;
@@ -517,6 +520,9 @@
                                 <td style="color: red;">
                                     @if ($ticket->StatusVenta == 1)
                                         <i style="font-size: 20px" class="fa fa-ban"></i>
+                                    @endif
+                                    @if (!empty($ticket->SolicitudCancelacionTicket) and $ticket->StatusVenta == 0)
+                                        <i style="font-size: 20px" class="fa fa-hourglass-start"></i>
                                     @endif
                                 </td>
                             </tr>

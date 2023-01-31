@@ -12,6 +12,7 @@ use App\Models\Tienda;
 use App\Models\HistorialMovimientoProducto;
 use App\Models\Usuario;
 use App\Models\DatCaja;
+use App\Models\SolicitudCancelacionTicket;
 
 class DatEncabezado extends Model
 {
@@ -73,5 +74,9 @@ class DatEncabezado extends Model
 
     public function Caja(){
         return $this->hasOne(DatCaja::class, 'IdDatCajas', 'IdDatCaja');
+    }
+
+    public function SolicitudCancelacionTicket(){
+        return $this->hasOne(SolicitudCancelacionTicket::class, 'IdEncabezado', 'IdEncabezado');
     }
 }
