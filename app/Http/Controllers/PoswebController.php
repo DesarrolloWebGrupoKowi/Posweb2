@@ -1144,7 +1144,7 @@ class PoswebController extends Controller
                         $pago = $idTipoPago == 2 ? $pago : 0;
 
                         // guardar numero de ventas e importe del credito
-                        DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago ."");
+                        DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago .", 1");
                     }
     
                     // imprimir ticket
@@ -1438,7 +1438,7 @@ class PoswebController extends Controller
                     ->sum('Pago');
 
                     // guardar numero de ventas e importe del credito
-                    DB::statement("exec Sp_Guardar_DatConcenVenta ". $temporalPos->NumNomina .", '". date('d-m-Y') ."', ". $pagoCredito ."");
+                    DB::statement("exec Sp_Guardar_DatConcenVenta ". $temporalPos->NumNomina .", '". date('d-m-Y') ."', ". $pagoCredito .", 1");
                 }
     
                 // imprimir ticket venta

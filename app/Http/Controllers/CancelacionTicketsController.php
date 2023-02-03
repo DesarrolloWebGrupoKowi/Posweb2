@@ -106,7 +106,7 @@ class CancelacionTicketsController extends Controller
                         'StatusVenta' => 1
                     ]);
 
-                // revisar si la venta genero monedero electronico, para cancelarlo
+                // revisar si la venta genero monedero electronico, para cancelarlo **
 
             }
 
@@ -138,9 +138,6 @@ class CancelacionTicketsController extends Controller
                 'IdMovimiento' => 12,
                 'IdUsuario' => Auth::user()->IdUsuario
             ]);
-
-
-            
 
         } catch (\Throwable $th) {
             DB::rollback();
@@ -227,12 +224,12 @@ class CancelacionTicketsController extends Controller
             }
 
             DB::commit();
-            return redirect('SolicitudCancelacionTicket')->with('msjAdd', 'Insert Local');
+            return redirect('SolicitudCancelacionTicket')->with('msjAdd', 'Solicitud de cancelación de ticket, guardada!');
         }
 
         DB::commit();
         DB::connection('server')->commit();
 
-        return back()->with('msjAdd', 'La solicitud de cancelación se realizó correctamente');
+        return back()->with('msjAdd', 'La solicitud de cancelación de tickete, se realizó correctamente');
     }
 }

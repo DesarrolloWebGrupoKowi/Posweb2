@@ -17,7 +17,7 @@
                 <h2>Interfaz de Créditos</h2>
             </div>
         </div>
-        <form action="/InterfazCreditos" method="GET">
+        <form id="formBuscarCreditos" action="/InterfazCreditos" method="GET">
             <div class="row d-flex justify-content-center mb-1">
                 <div class="col-auto">
                     <input type="date" class="form-control" name="fecha1" id="fecha1"
@@ -155,7 +155,7 @@
             document.getElementById('btnCargandoDatos').hidden = false;
         });
 
-        document.getElementById('btnBuscar').addEventListener('click', function() {
+        document.getElementById('formBuscarCreditos').addEventListener('submit', function() {
             document.getElementById('btnBuscar').hidden = true;
             document.getElementById('btnBuscandoCreditos').hidden = false;
         });
