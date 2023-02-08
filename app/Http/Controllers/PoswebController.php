@@ -1071,7 +1071,8 @@ class PoswebController extends Controller
                             DatMonederoAcumulado::where('IdEncabezado', $mEmpleado->IdEncabezado)
                                 ->update([
                                     'MonederoGastado' => $gastoMonedero == $mEmpleado->MonederoPorGastar ? -$mEmpleado->MonederoGenerado : -$gastoMonedero,
-                                    'MonederoPorGastar' => $monederoxGastar
+                                    'MonederoPorGastar' => $monederoxGastar,
+                                    'Gasto' => 0
                                 ]);
     
                             MovimientoMonederoElectronico::insert([
@@ -1364,7 +1365,8 @@ class PoswebController extends Controller
                         DatMonederoAcumulado::where('IdEncabezado', $mEmpleado->IdEncabezado)
                             ->update([
                                 'MonederoGastado' => $gastoMonedero == $mEmpleado->MonederoPorGastar ? -$mEmpleado->MonederoGenerado : -$gastoMonedero,
-                                'MonederoPorGastar' => $monederoxGastar
+                                'MonederoPorGastar' => $monederoxGastar,
+                                'Gasto' => 0
                             ]);
     
                         MovimientoMonederoElectronico::insert([
