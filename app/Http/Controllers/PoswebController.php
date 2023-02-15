@@ -1145,7 +1145,8 @@ class PoswebController extends Controller
                             'FechaGenerado' => date('d-m-Y H:i:s'),
                             'MonederoGenerado' => $monederoGenerado,
                             'MonederoGastado' => 0,
-                            'MonederoPorGastar' => $monederoGenerado
+                            'MonederoPorGastar' => $monederoGenerado,
+                            'Origen' => 1
                         ]);
     
                     }
@@ -1460,7 +1461,8 @@ class PoswebController extends Controller
                         'FechaGenerado' => date('d-m-Y H:i:s'),
                         'MonederoGenerado' => $monederoGenerado,
                         'MonederoGastado' => 0,
-                        'MonederoPorGastar' => $monederoGenerado
+                        'MonederoPorGastar' => $monederoGenerado,
+                        'Origen' => 1
                     ]);
     
                 }
