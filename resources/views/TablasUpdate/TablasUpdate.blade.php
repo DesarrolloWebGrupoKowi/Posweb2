@@ -33,55 +33,57 @@
     </div>
     @if ($idTienda != 0)
         <div class="container mb-3">
-            <table class="table table-striped table-reponsive shadow">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nombre Tabla</th>
-                        <th>Descargada</th>
-                        <th>Descargar Todas
-                            <div class="form-switch d-inline">
-                                <input {!! $checkedTodas == 0 ? 'checked' : '' !!} class="form-check-input" type="checkbox" role="switch"
-                                    name="descargarTodas" id="descargarTodas" />
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($tablasActualizables->count() == 0)
+            <div class="table-responsive" style="height: 70vh">
+                <table class="table table-striped table-reponsive shadow">
+                    <thead class="table-dark">
                         <tr>
-                            <td style="text-align: center" colspan="3">
-                                <a href="/AgregarTablasActualizablesTienda/{{ $idTienda }}"
-                                    class="btn btn-sm btn-warning">
-                                    <i class="fa fa-plus-circle"></i>
-                                    Agregar Tablas
-                                </a>
-                            </td>
+                            <th>Nombre Tabla</th>
+                            <th>Descargada</th>
+                            <th>Descargar Todas
+                                <div class="form-switch d-inline">
+                                    <input {!! $checkedTodas == 0 ? 'checked' : '' !!} class="form-check-input" type="checkbox" role="switch"
+                                        name="descargarTodas" id="descargarTodas" />
+                                </div>
+                            </th>
                         </tr>
-                    @else
-                        <form id="formActualizarTablas" action="/ActualizarTablas/{{ $idTienda }}">
-                            @foreach ($tablasActualizables as $tActualizable)
-                                <tr>
-                                    <td>{{ $tActualizable->NombreTabla }}</td>
-                                    <td>
-                                        @if ($tActualizable->Descargar == 1)
-                                            <i style="font-size: 20px;" class="fa fa-check"></i>
-                                        @else
-                                            <i style="color: red; font-size: 20px;" class="fa fa-clock-o"></i>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="form-check form-switch">
-                                            <input {!! $tActualizable->Descargar == 0 ? 'checked' : '' !!} class="form-check-input" type="checkbox"
-                                                role="switch" name="descargado[]" id="descargado"
-                                                value="{{ $tActualizable->NombreTabla }}" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </form>
-                    @endif
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @if ($tablasActualizables->count() == 0)
+                            <tr>
+                                <td style="text-align: center" colspan="3">
+                                    <a href="/AgregarTablasActualizablesTienda/{{ $idTienda }}"
+                                        class="btn btn-sm btn-warning">
+                                        <i class="fa fa-plus-circle"></i>
+                                        Agregar Tablas
+                                    </a>
+                                </td>
+                            </tr>
+                        @else
+                            <form id="formActualizarTablas" action="/ActualizarTablas/{{ $idTienda }}">
+                                @foreach ($tablasActualizables as $tActualizable)
+                                    <tr>
+                                        <td>{{ $tActualizable->NombreTabla }}</td>
+                                        <td>
+                                            @if ($tActualizable->Descargar == 1)
+                                                <i style="font-size: 20px;" class="fa fa-check"></i>
+                                            @else
+                                                <i style="color: red; font-size: 20px;" class="fa fa-clock-o"></i>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="form-check form-switch">
+                                                <input {!! $tActualizable->Descargar == 0 ? 'checked' : '' !!} class="form-check-input" type="checkbox"
+                                                    role="switch" name="descargado[]" id="descargado"
+                                                    value="{{ $tActualizable->NombreTabla }}" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </form>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
         @if ($tablasActualizables->count() > 0)
             <div class="container mb-3">
