@@ -2033,7 +2033,7 @@ class PoswebController extends Controller
             if(!empty($empleado)){
                 if($datMonedero > 0){
                     $impresora->text("**GENERÓ $".number_format($datMonedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
-                    $impresora->text("Monedero Valido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
+                    $impresora->text("Monedero Válido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
                 }
                 if($monederoAcumulado > 0){
                     $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
@@ -2207,7 +2207,7 @@ class PoswebController extends Controller
                 if(!empty($empleado)){
                     if($datMonedero > 0){
                         $impresora->text("**GENERÓ $".number_format($datMonedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
-                        $impresora->text("Monedero Valido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
+                        $impresora->text("Monedero Válido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
                     }
                     if($monederoAcumulado > 0){
                         $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
