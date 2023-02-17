@@ -186,7 +186,8 @@ class PoswebController extends Controller
 
                 TemporalPos::where('TemporalPos', 1)
                     ->update([
-                        'IdEncabezado' => null
+                        'IdEncabezado' => null,
+                        'MonederoDescuento' => null
                     ]);
             }
             else{
