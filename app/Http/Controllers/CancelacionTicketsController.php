@@ -106,6 +106,9 @@ class CancelacionTicketsController extends Controller
                         'StatusVenta' => 1
                     ]);
 
+                // cancelar el credito del empleado del concentrado
+                
+
                 // revisar si la venta genero monedero electronico, para cancelarlo **
 
             }

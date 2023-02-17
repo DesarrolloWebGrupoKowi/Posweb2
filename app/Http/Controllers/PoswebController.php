@@ -1053,7 +1053,6 @@ class PoswebController extends Controller
                     //Descontar Monedero Si Uso Para Pagar
                     if(!empty($numNomina) && !empty($temporalPos->MonederoDescuento)){
                         $pagoMonedero = $temporalPos->MonederoDescuento;
-                        $pagoRestante = $pagoMonedero;
                         
                         $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
                             ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
@@ -1073,34 +1072,21 @@ class PoswebController extends Controller
                             ->value('NumCaja');
 
                         $batchGasto = Auth::user()->usuarioTienda->IdTienda . $numCaja . $countBatch; // batchGasto
+
+                        DatMonederoAcumulado::insert([
+                            'IdEncabezado' => $idEncabezado,
+                            'NumNomina' => $numNomina,
+                            'Monedero' => -$pagoMonedero,
+                            'BatchGasto' => $batchGasto
+                        ]);
     
-                        foreach ($monederoEmpleado as $key => $mEmpleado) {
-                            $pagoMonedero = $pagoRestante;
-                            $pagoRestante = $mEmpleado->MonederoPorGastar - abs($pagoMonedero);
-    
-                            $gastoMonedero = $pagoRestante <= 0 ? $mEmpleado->MonederoPorGastar : abs($pagoMonedero); 
-                            $monederoxGastar = $mEmpleado->MonederoPorGastar - $gastoMonedero;
-    
-                            DatMonederoAcumulado::where('IdEncabezado', $mEmpleado->IdEncabezado)
-                                ->update([
-                                    'MonederoGastado' => $gastoMonedero == $mEmpleado->MonederoPorGastar ? -$mEmpleado->MonederoGenerado : -$gastoMonedero,
-                                    'MonederoPorGastar' => $monederoxGastar,
-                                    'Gasto' => 0,
-                                    'BatchGasto' => empty($batchExistente) ? $batchGasto : $batchExistente . ',' . $batchGasto
-                                ]);
-    
-                            MovimientoMonederoElectronico::insert([
-                                'NumNomina' => $numNomina,
-                                'IdEncabezado' => $idEncabezado,
-                                'FechaMovimiento' => date('d-m-Y H:i:s'),
-                                'Monedero' => -$gastoMonedero,
-                                'BatchGasto' => empty($batchExistente) ? $batchGasto : $batchExistente . ',' . $batchGasto
-                            ]);
-    
-                            if($pagoRestante >= 0){
-                                break;
-                            }
-                        }
+                        MovimientoMonederoElectronico::insert([
+                            'NumNomina' => $numNomina,
+                            'IdEncabezado' => $idEncabezado,
+                            'FechaMovimiento' => date('d-m-Y H:i:s'),
+                            'Monedero' => -$pagoMonedero,
+                            'BatchGasto' => $batchGasto
+                        ]);
                     }
     
                     //Consultar Catalogo de Monedero
@@ -1139,16 +1125,11 @@ class PoswebController extends Controller
     
                         DatMonederoAcumulado::insert([
                             'IdEncabezado' => $idEncabezado,
-                            'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
                             'NumNomina' => $numNomina,
                             'FechaExpiracion' => $fechaExpiracion,
                             'FechaGenerado' => date('d-m-Y H:i:s'),
-                            'MonederoGenerado' => $monederoGenerado,
-                            'MonederoGastado' => 0,
-                            'MonederoPorGastar' => $monederoGenerado,
-                            'Origen' => 1
+                            'MonederoGenerado' => $monederoGenerado
                         ]);
-    
                     }
 
                     //subir venta
@@ -1362,11 +1343,10 @@ class PoswebController extends Controller
                 }
     
                 //Descontar Monedero Si Uso Para Pagar
-                if(!empty($temporalPos->NumNomina) && !empty($temporalPos->MonederoDescuento)){
+                if(!empty($numNomina) && !empty($temporalPos->MonederoDescuento)){
                     $pagoMonedero = $temporalPos->MonederoDescuento;
-                    $pagoRestante = $pagoMonedero;
                     
-                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
+                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
                         ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
                         ->where('MonederoPorGastar', '<>', 0)
                         ->orderBy('FechaExpiracion')
@@ -1374,7 +1354,7 @@ class PoswebController extends Controller
 
                     // generar batchGasto
                     $countBatch = DatMonederoAcumulado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                        ->max('IdDatMonedero')+1;
+                    ->max('IdDatMonedero')+1;
 
                     $numCaja = DB::table('DatCajas as a')
                         ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
@@ -1384,38 +1364,21 @@ class PoswebController extends Controller
                         ->value('NumCaja');
 
                     $batchGasto = Auth::user()->usuarioTienda->IdTienda . $numCaja . $countBatch; // batchGasto
-    
-                    foreach ($monederoEmpleado as $key => $mEmpleado) {
-                        $pagoMonedero = $pagoRestante;
-                        $pagoRestante = $mEmpleado->MonederoPorGastar - abs($pagoMonedero);
-    
-                        $gastoMonedero = $pagoRestante <= 0 ? $mEmpleado->MonederoPorGastar : abs($pagoMonedero); 
-                        $monederoxGastar = $mEmpleado->MonederoPorGastar - $gastoMonedero;
 
-                        // validar BatchGasto existente
-                        $batchExistente = DatMonederoAcumulado::where('IdEncabezado', $mEmpleado->IdEncabezado)
-                            ->value('BatchGasto');
-    
-                        DatMonederoAcumulado::where('IdEncabezado', $mEmpleado->IdEncabezado)
-                            ->update([
-                                'MonederoGastado' => $gastoMonedero == $mEmpleado->MonederoPorGastar ? -$mEmpleado->MonederoGenerado : -$gastoMonedero,
-                                'MonederoPorGastar' => $monederoxGastar,
-                                'Gasto' => 0,
-                                'BatchGasto' => empty($batchExistente) ? $batchGasto : $batchExistente . ',' . $batchGasto
-                            ]);
-    
-                        MovimientoMonederoElectronico::insert([
-                            'NumNomina' => $temporalPos->NumNomina,
-                            'IdEncabezado' => $idEncabezado,
-                            'FechaMovimiento' => date('d-m-Y H:i:s'),
-                            'Monedero' => -$gastoMonedero,
-                            'BatchGasto' => empty($batchExistente) ? $batchGasto : $batchExistente . ',' . $batchGasto
-                        ]);
-    
-                        if($pagoRestante >= 0){
-                            break;
-                        }
-                    }
+                    DatMonederoAcumulado::insert([
+                        'IdEncabezado' => $idEncabezado,
+                        'NumNomina' => $numNomina,
+                        'Monedero' => -$pagoMonedero,
+                        'BatchGasto' => $batchGasto
+                    ]);
+
+                    MovimientoMonederoElectronico::insert([
+                        'NumNomina' => $numNomina,
+                        'IdEncabezado' => $idEncabezado,
+                        'FechaMovimiento' => date('d-m-Y H:i:s'),
+                        'Monedero' => -$pagoMonedero,
+                        'BatchGasto' => $batchGasto
+                    ]);
                 }
     
                 //Consultar Catalogo de Monedero
@@ -1455,14 +1418,10 @@ class PoswebController extends Controller
     
                     DatMonederoAcumulado::insert([
                         'IdEncabezado' => $idEncabezado,
-                        'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
                         'NumNomina' => $temporalPos->NumNomina,
                         'FechaExpiracion' => $fechaExpiracion,
                         'FechaGenerado' => date('d-m-Y H:i:s'),
-                        'MonederoGenerado' => $monederoGenerado,
-                        'MonederoGastado' => 0,
-                        'MonederoPorGastar' => $monederoGenerado,
-                        'Origen' => 1
+                        'MonederoGenerado' => $monederoGenerado
                     ]);
     
                 }
