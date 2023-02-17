@@ -137,9 +137,15 @@ class PoswebController extends Controller
         $banArticuloSinPrecio = PreventaTmp::where('PrecioVenta', 0)
             ->get();
 
-        $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+        $monederoGastado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+            ->whereRaw("cast(FechaGenerado as date) <= cast(FechaExpiracion as date)")
+            ->sum('Monedero');
+
+        $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $numNomina)
             ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
             ->sum('Monedero') - $monederoDescuento;
+
+        $monederoEmpleado = $monederoAcumulado - $monederoGastado;
 
         $paquetes = CatPaquete::where('Status', 0)
             ->whereNull('FechaEliminacion')
