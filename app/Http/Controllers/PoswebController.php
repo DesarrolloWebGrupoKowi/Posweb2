@@ -139,7 +139,7 @@ class PoswebController extends Controller
 
         $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
             ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-            ->sum('MonederoPorGastar') - $monederoDescuento;
+            ->sum('Monedero') - $monederoDescuento;
 
         $paquetes = CatPaquete::where('Status', 0)
             ->whereNull('FechaEliminacion')
@@ -903,7 +903,7 @@ class PoswebController extends Controller
     
                     $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
                         ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-                        ->sum('MonederoPorGastar') - $descuentoMonedero;
+                        ->sum('Monedero') - $descuentoMonedero;
     
                     $importeProcesado = DB::table('DatVentaTmp as a')
                         ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
@@ -1056,7 +1056,6 @@ class PoswebController extends Controller
                         
                         $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
                             ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-                            ->where('MonederoPorGastar', '<>', 0)
                             ->orderBy('FechaExpiracion')
                             ->get();
 
@@ -1111,7 +1110,7 @@ class PoswebController extends Controller
     
                         $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
                             ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-                            ->sum('MonederoPorGastar');
+                            ->sum('Monedero');
     
                         MovimientoMonederoElectronico::insert([
                             'NumNomina' => $numNomina,
@@ -1348,7 +1347,6 @@ class PoswebController extends Controller
                     
                     $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
                         ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-                        ->where('MonederoPorGastar', '<>', 0)
                         ->orderBy('FechaExpiracion')
                         ->get();
 
@@ -1404,7 +1402,7 @@ class PoswebController extends Controller
     
                     $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
                         ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
-                        ->sum('MonederoPorGastar');
+                        ->sum('Monedero');
     
                     MovimientoMonederoElectronico::insert([
                         'NumNomina' => $temporalPos->NumNomina,
@@ -1917,7 +1915,7 @@ class PoswebController extends Controller
                 ->first();
             
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
-                ->sum('MonederoPorGastar');
+                ->sum('Monedero');
         }
 
         $caja = DB::table('DatCajas as a')
@@ -2082,7 +2080,7 @@ class PoswebController extends Controller
                 ->first();
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
-                ->sum('MonederoPorGastar');
+                ->sum('Monedero');
         }
 
         $caja = DB::table('DatCajas as a')
