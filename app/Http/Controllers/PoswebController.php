@@ -1957,7 +1957,7 @@ class PoswebController extends Controller
 
         if(!empty($empleado)){
             $datMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
-                ->first();
+                ->sum('Monedero');
             
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
                 ->sum('Monedero');
@@ -2026,7 +2026,7 @@ class PoswebController extends Controller
             $impresora->feed(2);
             $impresora->setJustification(Printer::JUSTIFY_CENTER);
             if(!empty($empleado)){
-                if(!empty($datMonedero) && $datMonedero->Monedero > 0){
+                if($datMonedero > 0){
                     $impresora->text("**GENERÓ $".number_format($datMonedero->Monedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
                 }
                 if($monederoAcumulado > 0){
@@ -2122,7 +2122,7 @@ class PoswebController extends Controller
 
         if(!empty($empleado)){
             $datMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
-                ->first();
+                ->sum('Monedero');
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
                 ->sum('Monedero');
@@ -2194,7 +2194,7 @@ class PoswebController extends Controller
                 $impresora->feed(2);
                 $impresora->setJustification(Printer::JUSTIFY_CENTER);
                 if(!empty($empleado)){
-                    if(!empty($datMonedero) && $datMonedero->Monedero > 0){
+                    if($datMonedero > 0){
                         $impresora->text("**GENERÓ $".number_format($datMonedero->Monedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
                     }
                     if($monederoAcumulado > 0){
