@@ -1239,7 +1239,7 @@ class PoswebController extends Controller
                 $idTipoPago = $request->tipoPago;
 
                 if($idTipoPago == 7){
-                    $monederoExist = TemporalPos::where('IdEncabezado', $idEncabezado)
+                    $monederoExist = TemporalPos::where('TemporalPos', 1)
                         ->sum('MonederoDescuento');
 
                     TemporalPos::where('TemporalPos', 1)
@@ -1462,6 +1462,7 @@ class PoswebController extends Controller
                         ->update([
                             'IdEncabezado' => $idEncabezado
                     ]);
+
                 DB::commit();
     
                 return redirect()->route('Pos');
