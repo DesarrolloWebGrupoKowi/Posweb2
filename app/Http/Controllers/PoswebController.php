@@ -1237,16 +1237,6 @@ class PoswebController extends Controller
                 $pago = $request->txtPago;
     
                 $idTipoPago = $request->tipoPago;
-
-                if($idTipoPago == 7){
-                    $monederoExist = TemporalPos::where('TemporalPos', 1)
-                        ->sum('MonederoDescuento');
-
-                    TemporalPos::where('TemporalPos', 1)
-                        ->update([
-                            'MonederoDescuento' => $monederoExist + $pago
-                    ]);
-                }
     
                 empty($request->idBanco) ? $idBanco = 0 : $idBanco = $request->idBanco;
     
@@ -1309,6 +1299,16 @@ class PoswebController extends Controller
                 if($pago > $creditoDisponible){
                     return redirect()->route('Pos')->with('Pos', 'Crédito Insuficiente, Verifique el Crédito Disponible del Empleado!');
                 }
+            }
+
+            if($idTipoPago == 7){
+                $monederoExist = TemporalPos::where('TemporalPos', 1)
+                    ->sum('MonederoDescuento');
+
+                TemporalPos::where('TemporalPos', 1)
+                    ->update([
+                        'MonederoDescuento' => $monederoExist + $pago
+                ]);
             }
     
             DatTipoPago::insert([
