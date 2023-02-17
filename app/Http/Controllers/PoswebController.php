@@ -1078,8 +1078,7 @@ class PoswebController extends Controller
                             ->get();
 
                         // generar batchGasto
-                        $countBatch = DatMonederoAcumulado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                        ->max('IdDatMonedero')+1;
+                        $countBatch = DatMonederoAcumulado::max('IdDatMonedero')+1;
 
                         $numCaja = DB::table('DatCajas as a')
                             ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
@@ -1379,8 +1378,7 @@ class PoswebController extends Controller
                         ->get();
 
                     // generar batchGasto
-                    $countBatch = DatMonederoAcumulado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->max('IdDatMonedero')+1;
+                    $countBatch = DatMonederoAcumulado::max('IdDatMonedero')+1;
 
                     $numCaja = DB::table('DatCajas as a')
                         ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
