@@ -1127,7 +1127,7 @@ class PoswebController extends Controller
                             'NumNomina' => $numNomina,
                             'FechaExpiracion' => $fechaExpiracion,
                             'FechaGenerado' => date('d-m-Y H:i:s'),
-                            'MonederoGenerado' => $monederoGenerado
+                            'Monedero' => $monederoGenerado
                         ]);
                     }
 
@@ -1419,7 +1419,7 @@ class PoswebController extends Controller
                         'NumNomina' => $temporalPos->NumNomina,
                         'FechaExpiracion' => $fechaExpiracion,
                         'FechaGenerado' => date('d-m-Y H:i:s'),
-                        'MonederoGenerado' => $monederoGenerado
+                        'Monedero' => $monederoGenerado
                     ]);
     
                 }
@@ -1981,8 +1981,8 @@ class PoswebController extends Controller
             $impresora->feed(2);
             $impresora->setJustification(Printer::JUSTIFY_CENTER);
             if(!empty($empleado)){
-                if(!empty($datMonedero) && $datMonedero->MonederoGenerado > 0){
-                    $impresora->text("**GENERÓ $".number_format($datMonedero->MonederoGenerado, 2)." EN MONEDERO ELECTRÓNICO**\n");
+                if(!empty($datMonedero) && $datMonedero->Monedero > 0){
+                    $impresora->text("**GENERÓ $".number_format($datMonedero->Monedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
                 }
                 if($monederoAcumulado > 0){
                     $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
@@ -2149,8 +2149,8 @@ class PoswebController extends Controller
                 $impresora->feed(2);
                 $impresora->setJustification(Printer::JUSTIFY_CENTER);
                 if(!empty($empleado)){
-                    if(!empty($datMonedero) && $datMonedero->MonederoGenerado > 0){
-                        $impresora->text("**GENERÓ $".number_format($datMonedero->MonederoGenerado, 2)." EN MONEDERO ELECTRÓNICO**\n");
+                    if(!empty($datMonedero) && $datMonedero->Monedero > 0){
+                        $impresora->text("**GENERÓ $".number_format($datMonedero->Monedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
                     }
                     if($monederoAcumulado > 0){
                         $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
