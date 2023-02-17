@@ -137,15 +137,9 @@ class PoswebController extends Controller
         $banArticuloSinPrecio = PreventaTmp::where('PrecioVenta', 0)
             ->get();
 
-        $monederoGastado = DatMonederoAcumulado::where('NumNomina', $numNomina)
-            ->whereRaw("cast(FechaGenerado as date) <= cast(FechaExpiracion as date)")
-            ->sum('Monedero');
-
-        $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+        $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
             ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
             ->sum('Monedero') - $monederoDescuento;
-
-        $monederoEmpleado = $monederoAcumulado - $monederoGastado;
 
         $paquetes = CatPaquete::where('Status', 0)
             ->whereNull('FechaEliminacion')
@@ -1095,9 +1089,18 @@ class PoswebController extends Controller
 
                         $batchGasto = Auth::user()->usuarioTienda->IdTienda . $numCaja . $countBatch; // batchGasto
 
+                        //Consultar Catalogo de Monedero
+                        $monederoE = MonederoElectronico::where('Status', 0)
+                            ->first();
+
+                        $fecha = strtotime(date('Y-m-d')."+ ".$monederoE->VigenciaMonedero." days");
+                        $fechaExpiracion = date('d-m-Y', $fecha);
+
                         DatMonederoAcumulado::insert([
                             'IdEncabezado' => $idEncabezado,
                             'NumNomina' => $numNomina,
+                            'FechaExpiracion' => $fechaExpiracion,
+                            'FechaGenerado' => date('d-m-Y H:i:s'),
                             'Monedero' => -$pagoMonedero,
                             'BatchGasto' => $batchGasto
                         ]);
@@ -1395,9 +1398,18 @@ class PoswebController extends Controller
 
                     $batchGasto = Auth::user()->usuarioTienda->IdTienda . $numCaja . $countBatch; // batchGasto
 
+                    //Consultar Catalogo de Monedero
+                    $monederoE = MonederoElectronico::where('Status', 0)
+                        ->first();
+
+                    $fecha = strtotime(date('Y-m-d')."+ ".$monederoE->VigenciaMonedero." days");
+                    $fechaExpiracion = date('d-m-Y', $fecha);
+
                     DatMonederoAcumulado::insert([
                         'IdEncabezado' => $idEncabezado,
-                        'NumNomina' => $temporalPos->NumNomina,
+                        'NumNomina' => $numNomina,
+                        'FechaExpiracion' => $fechaExpiracion,
+                        'FechaGenerado' => date('d-m-Y H:i:s'),
                         'Monedero' => -$pagoMonedero,
                         'BatchGasto' => $batchGasto
                     ]);
