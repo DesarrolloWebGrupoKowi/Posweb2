@@ -178,7 +178,7 @@ class PoswebController extends Controller
 
                 TemporalPos::where('TemporalPos', 1)
                     ->update([
-                        'MonederoDescuento' => ($pagoEliminado - $pagoMonedero) == 0 ? null : $pagoEliminado - $pagoMonedero
+                        'MonederoDescuento' => ($pagoMonedero - $pagoEliminado) == 0 ? null : $pagoMonedero - $pagoEliminado
                     ]);
             }
             
