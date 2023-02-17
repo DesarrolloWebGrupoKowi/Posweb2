@@ -1407,7 +1407,7 @@ class PoswebController extends Controller
 
                     DatMonederoAcumulado::insert([
                         'IdEncabezado' => $idEncabezado,
-                        'NumNomina' => $numNomina,
+                        'NumNomina' => $temporalPos->NumNomina,
                         'FechaExpiracion' => $fechaExpiracion,
                         'FechaGenerado' => date('d-m-Y H:i:s'),
                         'Monedero' => -$pagoMonedero,
