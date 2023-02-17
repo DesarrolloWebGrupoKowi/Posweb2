@@ -1239,7 +1239,7 @@ class PoswebController extends Controller
                 $idTipoPago = $request->tipoPago;
 
                 if($idTipoPago == 7){
-                    $monederoExist = TeporalPos::where('IdEncabezado', $idEncabezado)
+                    $monederoExist = TemporalPos::where('IdEncabezado', $idEncabezado)
                         ->sum('MonederoDescuento');
 
                     TemporalPos::where('TemporalPos', 1)
