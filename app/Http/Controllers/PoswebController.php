@@ -2028,7 +2028,7 @@ class PoswebController extends Controller
             $impresora->setJustification(Printer::JUSTIFY_CENTER);
             if(!empty($empleado)){
                 if($datMonedero > 0){
-                    $impresora->text("**GENERÓ $".number_format($datMonedero->Monedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
+                    $impresora->text("**GENERÓ $".number_format($datMonedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
                 }
                 if($monederoAcumulado > 0){
                     $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
@@ -2197,7 +2197,7 @@ class PoswebController extends Controller
                 $impresora->setJustification(Printer::JUSTIFY_CENTER);
                 if(!empty($empleado)){
                     if($datMonedero > 0){
-                        $impresora->text("**GENERÓ $".number_format($datMonedero->Monedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
+                        $impresora->text("**GENERÓ $".number_format($datMonedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
                     }
                     if($monederoAcumulado > 0){
                         $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
