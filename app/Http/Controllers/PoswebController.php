@@ -169,9 +169,16 @@ class PoswebController extends Controller
                 ->value('IdTipoPago');
 
             if($idTipoPago == 7){
+
+                $pagoEliminado = DatTipoPago::where('IdDatTipoPago', $idDatTipoPago)
+                    ->sum('Pago');
+
+                $pagoMonedero = TemporalPos::where('TemporalPos', 1)
+                    ->sum('MonederoDescuento');
+
                 TemporalPos::where('TemporalPos', 1)
                     ->update([
-                        'MonederoDescuento' => null
+                        'MonederoDescuento' => ($pagoEliminado - $pagoMonedero) == 0 ? null : $pagoEliminado - $pagoMonedero
                     ]);
             }
             
