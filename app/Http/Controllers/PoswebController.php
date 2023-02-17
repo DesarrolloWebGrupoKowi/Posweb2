@@ -1957,6 +1957,7 @@ class PoswebController extends Controller
 
         if(!empty($empleado)){
             $datMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
+                ->where('Monedero', '>', 0)
                 ->sum('Monedero');
             
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
@@ -2122,6 +2123,7 @@ class PoswebController extends Controller
 
         if(!empty($empleado)){
             $datMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
+                ->where('Monedero', '>', 0)
                 ->sum('Monedero');
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
@@ -2129,11 +2131,11 @@ class PoswebController extends Controller
         }
 
         $caja = DB::table('DatCajas as a')
-                        ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                        ->where('IdTienda', $idTienda)
-                        ->where('a.Activa', 0)
-                        ->where('a.Status', 0)
-                        ->first();
+            ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
+            ->where('IdTienda', $idTienda)
+            ->where('a.Activa', 0)
+            ->where('a.Status', 0)
+            ->first();
 
         $n = explode(' ', empty(Auth::user()->Empleado->Nombre) ? 'Nomina' : Auth::user()->Empleado->Nombre);
         $a = explode(' ', empty(Auth::user()->Empleado->Apellidos) ? 'Vacio' : Auth::user()->Empleado->Apellidos);
