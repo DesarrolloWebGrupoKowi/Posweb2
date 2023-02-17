@@ -164,6 +164,16 @@ class PoswebController extends Controller
 
             $idEncabezado = TemporalPos::where('TemporalPos', 1)
                 ->value('IdEncabezado');
+
+            $idTipoPago = DatTipoPago::where('IdDatTipoPago', $idDatTipoPago)
+                ->value('IdTipoPago');
+
+            if($idTipoPago == 7){
+                TemporalPos::where('TemporalPos', 1)
+                    ->update([
+                        'MonederoDescuento' => null
+                    ]);
+            }
             
             DatTipoPago::where('IdDatTipoPago', $idDatTipoPago)
                 ->delete();
