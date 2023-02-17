@@ -1213,11 +1213,11 @@ class PoswebController extends Controller
             }
             else{
                 $caja = DB::table('DatCajas as a')
-                        ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                        ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                        ->where('a.Activa', 0)
-                        ->where('a.Status', 0)
-                        ->first();
+                    ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
+                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('a.Activa', 0)
+                    ->where('a.Status', 0)
+                    ->first();
     
                 if(empty($caja)){
                     return redirect('Pos')->with('Pos', 'La Tienda No Tiene Caja Activa, Comuniquese con Sistemas!');
@@ -1237,6 +1237,16 @@ class PoswebController extends Controller
                 $pago = $request->txtPago;
     
                 $idTipoPago = $request->tipoPago;
+
+                if($idTipoPago == 7){
+                    $monederoExist = TeporalPos::where('IdEncabezado', $idEncabezado)
+                        ->sum('MonederoDescuento');
+
+                    TemporalPos::where('TemporalPos', 1)
+                        ->update([
+                            'MonederoDescuento' => $monederoExist + $pago
+                    ]);
+                }
     
                 empty($request->idBanco) ? $idBanco = 0 : $idBanco = $request->idBanco;
     
