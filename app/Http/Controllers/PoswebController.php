@@ -1959,6 +1959,10 @@ class PoswebController extends Controller
             $datMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
                 ->where('Monedero', '>', 0)
                 ->sum('Monedero');
+
+            $vigenciaMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
+                ->where('Monedero', '>', 0)
+                ->sum('FechaVigencia');
             
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
                 ->sum('Monedero');
@@ -2029,6 +2033,7 @@ class PoswebController extends Controller
             if(!empty($empleado)){
                 if($datMonedero > 0){
                     $impresora->text("**GENERÓ $".number_format($datMonedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
+                    $impresora->text("Monedero Valido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
                 }
                 if($monederoAcumulado > 0){
                     $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
@@ -2085,18 +2090,18 @@ class PoswebController extends Controller
         $fechaVenta = $request->txtFecha;
         
         $tienda = DB::table('CatTiendas as a')
-                    ->leftJoin('CatCiudades as b', 'b.IdCiudad', 'a.IdCiudad')
-                    ->leftJoin('CatEstados as c', 'c.IdEstado', 'b.IdEstado')
-                    ->where('IdTienda', $idTienda)
-                    ->first();
+            ->leftJoin('CatCiudades as b', 'b.IdCiudad', 'a.IdCiudad')
+            ->leftJoin('CatEstados as c', 'c.IdEstado', 'b.IdEstado')
+            ->where('IdTienda', $idTienda)
+            ->first();
 
         $ticket = DB::table('DatEncabezado as a')
-                ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
-                ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
-                ->where('a.IdTienda', $idTienda)
-                ->whereDate('a.FechaVenta', $fechaVenta)
-                ->where('a.IdTicket', $idTicket)
-                ->get();
+            ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
+            ->where('a.IdTienda', $idTienda)
+            ->whereDate('a.FechaVenta', $fechaVenta)
+            ->where('a.IdTicket', $idTicket)
+            ->get();
 
         $encabezado = DatEncabezado::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fechaVenta)
@@ -2108,23 +2113,27 @@ class PoswebController extends Controller
         }
 
         $datTipoPago = DB::table('DatTipoPago as a')
-                        ->leftJoin('CatTipoPago as b', 'b.IdTipoPago', 'a.IdTipoPago')
-                        ->where('a.IdEncabezado', $encabezado->IdEncabezado)
-                        ->get();
+            ->leftJoin('CatTipoPago as b', 'b.IdTipoPago', 'a.IdTipoPago')
+            ->where('a.IdEncabezado', $encabezado->IdEncabezado)
+            ->get();
 
         $firmaEmpleado = DB::table('DatTipoPago')
-                        ->where('IdEncabezado', $encabezado->IdEncabezado)
-                        ->whereIn('IdTipoPago', [2])
-                        ->get();
+            ->where('IdEncabezado', $encabezado->IdEncabezado)
+            ->whereIn('IdTipoPago', [2])
+            ->get();
 
         $empleado = DB::table('CatEmpleados')
-                        ->where('NumNomina', $encabezado->NumNomina)
-                        ->first();
+            ->where('NumNomina', $encabezado->NumNomina)
+            ->first();
 
         if(!empty($empleado)){
             $datMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
                 ->where('Monedero', '>', 0)
                 ->sum('Monedero');
+
+            $vigenciaMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
+                ->where('Monedero', '>', 0)
+                ->sum('FechaVigencia');
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
                 ->sum('Monedero');
@@ -2198,6 +2207,7 @@ class PoswebController extends Controller
                 if(!empty($empleado)){
                     if($datMonedero > 0){
                         $impresora->text("**GENERÓ $".number_format($datMonedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
+                        $impresora->text("Monedero Valido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
                     }
                     if($monederoAcumulado > 0){
                         $impresora->text("**MONEDERO ACUMULADO: $".number_format($monederoAcumulado, 2)."**");
