@@ -1370,10 +1370,10 @@ class PoswebController extends Controller
                 }
     
                 //Descontar Monedero Si Uso Para Pagar
-                if(!empty($numNomina) && !empty($temporalPos->MonederoDescuento)){
+                if(!empty($temporalPos->NumNomina) && !empty($temporalPos->MonederoDescuento)){
                     $pagoMonedero = $temporalPos->MonederoDescuento;
                     
-                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
+                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
                         ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
                         ->orderBy('FechaExpiracion')
                         ->get();
@@ -1393,13 +1393,13 @@ class PoswebController extends Controller
 
                     DatMonederoAcumulado::insert([
                         'IdEncabezado' => $idEncabezado,
-                        'NumNomina' => $numNomina,
+                        'NumNomina' => $temporalPos->NumNomina,
                         'Monedero' => -$pagoMonedero,
                         'BatchGasto' => $batchGasto
                     ]);
 
                     MovimientoMonederoElectronico::insert([
-                        'NumNomina' => $numNomina,
+                        'NumNomina' => $temporalPos->NumNomina,
                         'IdEncabezado' => $idEncabezado,
                         'FechaMovimiento' => date('d-m-Y H:i:s'),
                         'Monedero' => -$pagoMonedero,
