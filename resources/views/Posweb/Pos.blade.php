@@ -172,16 +172,16 @@
                         <tbody>
                             @foreach ($datTipoPago as $pagoRestante)
                                 <tr>
-                                    <td>{{ $pagoRestante->NomTipoPago }}</td>
-                                    <td>{{ number_format($pagoRestante->Pago, 2) }}</td>
-                                    <td style="font-weight: bold; color: red;">
+                                    <td style="font-size: 15px">{{ $pagoRestante->NomTipoPago }}</td>
+                                    <td style="font-size: 15px">{{ number_format($pagoRestante->Pago, 2) }}</td>
+                                    <td style="font-weight: bold; color: red; font-size: 15px;">
                                         {{ number_format($pagoRestante->Restante, 2) }}
                                     </td>
                                     <td>
                                         <form id="eliminarPago{{ $pagoRestante->IdDatTipoPago }}" action="EliminarPago/{{ $pagoRestante->IdDatTipoPago }}"
                                             method="POST">
                                             @csrf
-                                            <i style="color: red" class="fa fa-trash" data-bs-toggle="mensaje"
+                                            <i style="color: red; font-size: 15px" class="fa fa-trash" data-bs-toggle="mensaje"
                                                 title="Eliminar Pago"
                                                 onclick="event.preventDefault();
                                                 document.getElementById('eliminarPago<?php echo $pagoRestante->IdDatTipoPago; ?>').submit();"></i>
