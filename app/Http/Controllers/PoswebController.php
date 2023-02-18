@@ -1102,7 +1102,8 @@ class PoswebController extends Controller
                             'FechaExpiracion' => $fechaExpiracion,
                             'FechaGenerado' => date('d-m-Y H:i:s'),
                             'Monedero' => -$pagoMonedero,
-                            'BatchGasto' => $batchGasto
+                            'BatchGasto' => $batchGasto,
+                            'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda
                         ]);
     
                         MovimientoMonederoElectronico::insert([
@@ -1153,7 +1154,8 @@ class PoswebController extends Controller
                             'NumNomina' => $numNomina,
                             'FechaExpiracion' => $fechaExpiracion,
                             'FechaGenerado' => date('d-m-Y H:i:s'),
-                            'Monedero' => $monederoGenerado
+                            'Monedero' => $monederoGenerado,
+                            'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda
                         ]);
                     }
 
@@ -1411,7 +1413,8 @@ class PoswebController extends Controller
                         'FechaExpiracion' => $fechaExpiracion,
                         'FechaGenerado' => date('d-m-Y H:i:s'),
                         'Monedero' => -$pagoMonedero,
-                        'BatchGasto' => $batchGasto
+                        'BatchGasto' => $batchGasto,
+                        'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda
                     ]);
 
                     MovimientoMonederoElectronico::insert([
@@ -1463,7 +1466,8 @@ class PoswebController extends Controller
                         'NumNomina' => $temporalPos->NumNomina,
                         'FechaExpiracion' => $fechaExpiracion,
                         'FechaGenerado' => date('d-m-Y H:i:s'),
-                        'Monedero' => $monederoGenerado
+                        'Monedero' => $monederoGenerado,
+                        'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda
                     ]);
     
                 }
