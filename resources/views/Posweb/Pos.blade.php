@@ -157,7 +157,7 @@
                     </div>
                 </div>
                 <div class="border border-3 mb-3 rounded DetalleMultiPagoPos table-responsive"
-                    style="font-size: 18px; display: {!! $banderaMultiPago > 0 ? 'block' : 'none' !!}">
+                    style="display: {!! $banderaMultiPago > 0 ? 'block' : 'none' !!}">
                     <table class="table table-striped table-responsive">
                         <thead class="table-dark">
                             <tr>
