@@ -20,33 +20,33 @@ class MenuTipoUsuarioController extends Controller
         $filtroIdTipoUsuario = $request->get('IdTipoUsuario');
  
         $menuTipoUsuarios = DB::table('DatMenuTipoUsuario as a')
-                                ->leftJoin('CatMenus as b', 'b.IdMenu', 'a.IdMenu')
-                                ->select(
-                                    'a.IdMenuTipoUsuario as dmtpIdMenuTipoUsuario',
-                                    'a.IdTipoUsuario as dmtpIdTipoUsuario',
-                                    'a.IdMenu as dmtpIdMenu',
-                                    'a.Status as dmtpStatus',
-                                    'b.IdMenu as cmpIdMenu',
-                                    'b.NomMenu as cmpNomMenu',
-                                    'b.IdTipoMenu as cmpIdTipoMenu',
-                                    'b.Link as cmpLink',
-                                    'b.Status as cmpStatus'
-                                )
-                                ->where('a.IdTipoUsuario', $filtroIdTipoUsuario)
-                                ->get();
+            ->leftJoin('CatMenus as b', 'b.IdMenu', 'a.IdMenu')
+            ->select(
+                'a.IdMenuTipoUsuario as dmtpIdMenuTipoUsuario',
+                'a.IdTipoUsuario as dmtpIdTipoUsuario',
+                'a.IdMenu as dmtpIdMenu',
+                'a.Status as dmtpStatus',
+                'b.IdMenu as cmpIdMenu',
+                'b.NomMenu as cmpNomMenu',
+                'b.IdTipoMenu as cmpIdTipoMenu',
+                'b.Link as cmpLink',
+                'b.Status as cmpStatus'
+            )
+            ->where('a.IdTipoUsuario', $filtroIdTipoUsuario)
+            ->get();
 
-            if($filtroIdTipoUsuario == "" || $filtroIdTipoUsuario == 0){
-                $menus = [];
-            }
-            else{
-                $select = "select * from CatMenus".
-                          " where IdMenu not in(select IdMenu from DatMenuTipoUsuario where IdTipoUsuario = ".$filtroIdTipoUsuario.")";
-                $menus = DB::select($select);
-            }
-            //return $menus;
+        if($filtroIdTipoUsuario == "" || $filtroIdTipoUsuario == 0){
+            $menus = [];
+        }
+        else{
+            $select = "select * from CatMenus".
+                " where IdMenu not in(select IdMenu from DatMenuTipoUsuario where IdTipoUsuario = ".$filtroIdTipoUsuario.")";
+            $menus = DB::select($select);
+        }
+        //return $menus;
 
-            $TipoUsuarioFind = TipoUsuario::find($filtroIdTipoUsuario);
-        //return $TipoUsuarioFind;
+        $TipoUsuarioFind = TipoUsuario::find($filtroIdTipoUsuario);
+
         return view('MenuTipoUsuario.DatMenuTipoUsuario', compact('tipoUsuarios','filtroIdTipoUsuario', 'menuTipoUsuarios', 'menus','TipoUsuarioFind'));
     }
 
