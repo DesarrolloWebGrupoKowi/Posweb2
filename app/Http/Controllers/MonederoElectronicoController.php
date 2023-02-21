@@ -9,6 +9,7 @@ use App\Models\MonederoElectronico;
 use App\Models\Grupo;
 use App\Models\MovimientoMonederoElectronico;
 use App\Models\Empleado;
+use App\Models\DatMonederoAcumulado;
 
 class MonederoElectronicoController extends Controller
 {
@@ -59,20 +60,16 @@ class MonederoElectronicoController extends Controller
 
         try {
             DB::beginTransaction();
+
             $empleado = Empleado::where('NumNomina', $numNomina)
                 ->first();
 
-            $movimientos = MovimientoMonederoElectronico::with(['Encabezado' => function ($encabezado) {
-                $encabezado->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatEncabezado.IdTienda');
-            }, 'Detalle' => function ($articulo) {
-                $articulo->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo');
-            }])
-                ->where('NumNomina', $numNomina)
-                ->whereRaw("cast(FechaMovimiento as date) between '".$fecha1."' and '".$fecha2."' ")
+            $movimientos = DatMonederoAcumulado::where('NumNomina', $numNomina)
+                ->whereRaw("cast(FechaGenerado as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
                 ->get();
-    
-            $monederoFinal = MovimientoMonederoElectronico::where('NumNomina', $numNomina)
-                ->whereRaw("cast(FechaMovimiento as date) between '".$fecha1."' and '".$fecha2."'")
+
+            $monederoFinal = DatMonederoAcumulado::where('NumNomina', $numNomina)
+                ->whereRaw("cast(FechaGenerado as date) between '". $fecha1 ."' and '". $fecha2 ."' ")
                 ->sum('Monedero');
 
             DB::commit();

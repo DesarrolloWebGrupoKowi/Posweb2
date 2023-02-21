@@ -60,9 +60,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Fecha</th>
-                        <th>Tienda</th>
-                        <th>Ticket</th>
-                        <th>Monedero</th>
+                        <th>Movimiento</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,26 +70,16 @@
                         </tr>
                     @else
                         @foreach ($movimientos as $movimiento)
-                            @foreach ($movimiento->Encabezado as $eMon)
-                                <tr>
-                                    <td>{{ strftime('%d %B %Y, %H:%M', strtotime($movimiento->FechaMovimiento)) }}</td>
-                                    <td>{{ $eMon->NomTienda }}</td>
-                                    <td>
-                                        <i id="dTicket" data-bs-toggle="modal"
-                                            data-bs-target="#DetalleTicket{{ $eMon->IdEncabezado }}">{{ $eMon->IdTicket }}</i>
-                                        @include('MonederoElectronico.ModalDetalleTicket')
-                                    </td>
-                                    <td style="color: {!! $movimiento->Monedero < 0 ? 'red' : '' !!}">{{ $movimiento->Monedero }}</td>
-                                </tr>
-                            @endforeach
+                            <tr>
+                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($movimiento->FechaGenerado)) }}</td>
+                                <td style="color: {!! $movimiento->Monedero < 0 ? 'red' : '' !!}">{{ $movimiento->Monedero }}</td>
+                            </tr>
                         @endforeach
                     @endif
                 </tbody>
                 @if ($movimientos->count() > 0)
                     <tfoot>
                         <tr>
-                            <th></th>
-                            <th></th>
                             <th>Monedero Disponible :</th>
                             <th>${{ number_format($monederoFinal < 0 ? 0 : $monederoFinal, 2) }}</th>
                         </tr>
