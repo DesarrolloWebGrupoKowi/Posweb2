@@ -8,27 +8,24 @@ use App\Models\Empleado;
 use App\Models\CorteTienda;
 use App\Models\CreditoEmpleado;
 use App\Models\LimiteCredito;
+use App\Models\VentaCreditoEmpleado;
 
 class EmpleadosController extends Controller
 {
     public function AdeudosEmpleado(Request $request){
         $numNomina = $request->numNomina;
 
-        //$fecha1 = $request->fecha1;
-        //$fecha2 = $request->fecha2;
-
         $adeudo = Empleado::with(['Adeudos' => function ($query){
             $query->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatCreditos.IdTienda')
-                  ->where('StatusCredito', 0)
-                  //->whereRaw("cast(FechaVenta as date) between '".$fecha1."' and '".$fecha2."'")
-                  ->orderBy('FechaVenta', 'desc');
-        }])
+                ->where('StatusCredito', 0)
+                ->orderBy('FechaVenta', 'desc');
+            }])
         ->where('NumNomina', $numNomina)
         ->get();
 
         $adeudoTotal = CreditoEmpleado::where('NumNomina', $numNomina)
-                    ->where('StatusCredito', 0)
-                    ->sum('ImporteCredito');
+            ->where('StatusCredito', 0)
+            ->sum('ImporteCredito');
 
         //return $adeudo;
 

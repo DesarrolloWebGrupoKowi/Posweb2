@@ -274,8 +274,13 @@ class PoswebController extends Controller
 
             $empleado = Empleado::with('LimiteCredito')
                 ->where('NumNomina', $numNomina)
-                ->where('Status', 0)
                 ->first();
+
+            // validar que el empleado este activo en la empresa
+            $statusEmpleado = 0;
+            if(!empty($empleado) && $empleado->Status == 1){
+                $statusEmpleado = 1;
+            }
 
             if(!empty($empleado)){
                 // gastos del empleado
@@ -310,8 +315,10 @@ class PoswebController extends Controller
                 $banVentasDiarias = 2;
             }
 
+            //return $empleado;
+
             DB::commit();
-            return view('Posweb.Ifrempleado', compact('empleado', 'saldoEmpleado', 'banVentasDiarias'));
+            return view('Posweb.Ifrempleado', compact('empleado', 'saldoEmpleado', 'banVentasDiarias', 'statusEmpleado'));
 
         } catch (\Throwable $th) {
             DB::rollback();

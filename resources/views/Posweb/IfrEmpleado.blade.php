@@ -38,27 +38,33 @@
                 </tr>
             </thead>
             <tbody>
-                @if (empty($empleado))
+                @if ($statusEmpleado == 1)
                     <tr>
-                        <td colspan="6">No se Encontro el Empleado!</td>
+                        <th style="font-size: 20px; color: red" colspan="6">¡El empleado esta dado de baja!</th>
                     </tr>
                 @else
-                    <tr>
-                        <td>{{ $empleado->NumNomina }}</td>
-                        <td>{{ $empleado->Nombre }}</td>
-                        <td>{{ $empleado->Apellidos }}</td>
-                        <td>${{ number_format($empleado->LimiteCredito->Limite, 2) }}</td>
-                        <td style="color: {!! $saldoEmpleado == 0 ? 'red; font-weight: bold;' : '' !!}">${{ number_format($saldoEmpleado, 2) }}</td>
-                        <form action="/CobroEmpleado" method="GET">
-                            <input type="hidden" name="numNomina" value="{{ $empleado->NumNomina }}">
-                            <td>
-                                <button style="display: {!! $banVentasDiarias == 1 ? 'none' : '' !!}"
-                                    class="col-auto btn btn-sm btn-warning mt-0">
-                                    <i class="fa fa-check-circle"></i> Elegir
-                                </button>
-                            </td>
-                        </form>
-                    </tr>
+                    @if (empty($empleado))
+                        <tr>
+                            <td colspan="6">No se Encontro el Empleado!</td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td>{{ $empleado->NumNomina }}</td>
+                            <td>{{ $empleado->Nombre }}</td>
+                            <td>{{ $empleado->Apellidos }}</td>
+                            <td>${{ number_format($empleado->LimiteCredito->Limite, 2) }}</td>
+                            <td style="color: {!! $saldoEmpleado == 0 ? 'red; font-weight: bold;' : '' !!}">${{ number_format($saldoEmpleado, 2) }}</td>
+                            <form action="/CobroEmpleado" method="GET">
+                                <input type="hidden" name="numNomina" value="{{ $empleado->NumNomina }}">
+                                <td>
+                                    <button style="display: {!! $banVentasDiarias == 1 ? 'none' : '' !!}"
+                                        class="col-auto btn btn-sm btn-warning mt-0">
+                                        <i class="fa fa-check-circle"></i> Elegir
+                                    </button>
+                                </td>
+                            </form>
+                        </tr>
+                    @endif
                 @endif
             </tbody>
         </table>
