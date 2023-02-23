@@ -553,7 +553,7 @@ Route::get('/AgregarTablasActualizablesTienda/{idTienda}', 'App\Http\Controllers
 Route::get('/ActualizarTablas/{idTienda}', 'App\Http\Controllers\TablasUpdateController@ActualizarTablas');
 
 //AgregarTablaUpdate
-Route::post('/AgregarTablaUpdate', 'App\Http\Controllers\TablasUpdateController@AgregarTablaUpdate');
+Route::post('/AgregarTablaUpdate/{idTienda}', 'App\Http\Controllers\TablasUpdateController@AgregarTablaUpdate');
 
 //+============================================================================================================================================+//
 //CatPaquetes

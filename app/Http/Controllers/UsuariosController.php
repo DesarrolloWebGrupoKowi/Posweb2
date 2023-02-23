@@ -19,21 +19,21 @@ class UsuariosController extends Controller
         
         if($Activo == null or $Activo == '0' ){
             $usuarios = DB::table('CatUsuarios')
-            ->leftJoin('CatTipoUsuarios','CatUsuarios.IdTipoUsuario','=','CatTipoUsuarios.IdTipoUsuario')
-            ->select('IdUsuario','NomUsuario','NumNomina','Correo','CatTipoUsuarios.NomTipoUsuario','CatUsuarios.IdTipoUsuario','CatUsuarios.Status')
-            ->where('CatUsuarios.Status','=', '0')
-            ->where('NomUsuario','like','%'.$txtFiltro.'%')
-            ->whereNotIn('IdUsuario', [Auth::user()->IdUsuario])
-            ->paginate(10);
+                ->leftJoin('CatTipoUsuarios','CatUsuarios.IdTipoUsuario','=','CatTipoUsuarios.IdTipoUsuario')
+                ->select('IdUsuario','NomUsuario','NumNomina','Correo','CatTipoUsuarios.NomTipoUsuario','CatUsuarios.IdTipoUsuario','CatUsuarios.Status')
+                ->where('CatUsuarios.Status','=', '0')
+                ->where('NomUsuario','like','%'.$txtFiltro.'%')
+                ->whereNotIn('IdUsuario', [Auth::user()->IdUsuario])
+                ->paginate(10);
         }
         else{
             $usuarios = DB::table('CatUsuarios')
-            ->leftJoin('CatTipoUsuarios','CatUsuarios.IdTipoUsuario','=','CatTipoUsuarios.IdTipoUsuario')
-            ->select('IdUsuario','NomUsuario','NumNomina','Correo','CatTipoUsuarios.NomTipoUsuario','CatUsuarios.IdTipoUsuario','CatUsuarios.Status')
-            ->where('CatUsuarios.Status','=', $Activo)
-            ->where('NomUsuario','like','%'.$txtFiltro.'%')
-            ->whereNotIn('IdUsuario', [Auth::user()->IdUsuario])
-            ->paginate(10)->withQueryString();
+                ->leftJoin('CatTipoUsuarios','CatUsuarios.IdTipoUsuario','=','CatTipoUsuarios.IdTipoUsuario')
+                ->select('IdUsuario','NomUsuario','NumNomina','Correo','CatTipoUsuarios.NomTipoUsuario','CatUsuarios.IdTipoUsuario','CatUsuarios.Status')
+                ->where('CatUsuarios.Status','=', $Activo)
+                ->where('NomUsuario','like','%'.$txtFiltro.'%')
+                ->whereNotIn('IdUsuario', [Auth::user()->IdUsuario])
+                ->paginate(10)->withQueryString();
         }
 
         //return $usuarios;

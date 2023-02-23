@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Tabla;
 use App\Models\TablaUpdate;
 use App\Models\Tienda;
+use App\Models\Caja;
+use App\Models\DatCaja;
 
 class TablasUpdateController extends Controller
 {
@@ -28,7 +30,14 @@ class TablasUpdateController extends Controller
             $checkedTodas = 0;
         }
 
-        return view('TablasUpdate.TablasUpdate', compact('tiendas', 'tablasActualizables', 'idTienda', 'tablasPorDescargar', 'checkedTodas'));
+        $nomTablas = TablaUpdate::where('IdTienda', $idTienda)
+            ->pluck('NombreTabla');
+
+        $tablas = Tabla::where('Status', 0)
+            ->whereNotIn('NomTabla', $nomTablas)
+            ->get();
+
+        return view('TablasUpdate.TablasUpdate', compact('tiendas', 'tablasActualizables', 'idTienda', 'tablasPorDescargar', 'checkedTodas', 'tablas'));
     }
 
     public function CatTablas(Request $request){
@@ -91,27 +100,25 @@ class TablasUpdateController extends Controller
         }
     }
 
-    public function AgregarTablaUpdate(Request $request){
-        $nomTabla = $request->nomTabla;
+    public function AgregarTablaUpdate($idTienda, Request $request){
+        $cajas = DatCaja::where('IdTienda', $idTienda)
+            ->leftJoin('CatCajas', 'CatCajas.IdCaja', 'DatCajas.IdCaja')
+            ->get();
 
-        try {
-            DB::beginTransaction();
+        $nomTablas = $request->nomTablas;
 
-            DB::table('CatTablas')
-                ->insert([
-                    'NomTabla' => $nomTabla,
-                    'Status' => 0
+        foreach ($cajas as $key => $caja) {
+            foreach ($nomTablas as $key => $nomTabla) {
+                TablaUpdate::insert([
+                    'IdTienda' => $idTienda,
+                    'IdCaja' => $caja->IdCaja,
+                    'NombreTabla' => $nomTabla,
+                    'Descargar' => 1
                 ]);
-
-            $insert = "insert into CatTablasUpdate select IdTienda, 1, '". $nomTabla ."', 1 from CatTiendas";
-            DB::insert($insert);
-
-        } catch (\Throwable $th) {
-            DB::rollback();
-            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            }
         }
-        
-        DB::commit();
-        return back()->with('msjAdd', 'Se agregó una nueva tabla de descarga' . $nomTabla);
+
+        return back();
+
     }
 }

@@ -61,13 +61,10 @@ class StockTiendaController extends Controller
 
                 $subject = 'ALERTA BAJO INVENTARIO EN : ' . $nomTienda;
 
-                //return new BajoStockMail($subject, $articulosBajoInventario);
-
                 Mail::to($correos)
                     ->send(new BajoStockMail($subject, $articulosBajoInventario));
                     
             } catch (\Throwable $th) {
-                return $th;
             }
         }
             

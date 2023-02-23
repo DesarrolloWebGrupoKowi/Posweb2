@@ -32,6 +32,16 @@
         </form>
     </div>
     @if ($idTienda != 0)
+        <div class="container mb-2">
+            <div class="d-flex justify-content-end">
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#AgregarTablaUpdate">
+                        <i class="fa fa-plus-circle"></i>
+                        Agregar Tablas
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="container mb-3">
             <div class="table-responsive" style="height: 70vh">
                 <table class="table table-striped table-reponsive shadow">
@@ -49,15 +59,6 @@
                     </thead>
                     <tbody>
                         @if ($tablasActualizables->count() == 0)
-                            <tr>
-                                <td style="text-align: center" colspan="3">
-                                    <a href="/AgregarTablasActualizablesTienda/{{ $idTienda }}"
-                                        class="btn btn-sm btn-warning">
-                                        <i class="fa fa-plus-circle"></i>
-                                        Agregar Tablas
-                                    </a>
-                                </td>
-                            </tr>
                         @else
                             <form id="formActualizarTablas" action="/ActualizarTablas/{{ $idTienda }}">
                                 @foreach ($tablasActualizables as $tActualizable)
@@ -96,6 +97,7 @@
                 </div>
             </div>
         @endif
+        @include('TablasUpdate.AgregarTablaUpdate')
     @endif
 
     <script>
