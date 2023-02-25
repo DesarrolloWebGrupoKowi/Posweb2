@@ -12,7 +12,8 @@
         <div class="row">
             @if ($menus->count() == 0)
                 <div class="d-flex justify-content-center">
-                    <h3><i style="color: red" class="fa fa-exclamation-triangle"></i> No Hay Menus Para Este Tipo de Usuario!
+                    <h3><i style="color: red" class="fa fa-exclamation-triangle"></i> No Hay Menus Para Este Tipo de
+                        Usuario!
                     </h3>
                 </div>
             @else

@@ -706,6 +706,10 @@ Route::post('/DesbloquearEmpleado/{numNomina}', 'App\Http\Controllers\BloqueoEmp
 Route::get('/BuscarEmpleadoParaBloqueo/{numNomina}', 'App\Http\Controllers\BloqueoEmpleadosController@BuscarEmpleadoParaBloqueo');
 
 //+============================================================================================================================================+//
+//ResumenVentas
+Route::get('/ResumenVentas', 'App\Http\Controllers\ResumenVentasController@ResumenVentas');
+
+//+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
 
