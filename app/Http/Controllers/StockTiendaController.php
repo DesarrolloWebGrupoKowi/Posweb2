@@ -52,7 +52,7 @@ class StockTiendaController extends Controller
                     'soporte@kowi.com.mx'
                 ];
 
-                array_push($correos, !empty($correoTienda->GerenteCorreo), !empty($correoTienda->Supervisor), !empty($correoTienda->AlmacenistaCorreo));
+                array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
 
                 $correos = array_filter($correos);
 
