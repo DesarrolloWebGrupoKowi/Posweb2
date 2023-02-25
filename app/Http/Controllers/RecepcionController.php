@@ -208,7 +208,7 @@ class RecepcionController extends Controller
                             'CantArticulo' => $cRecepcionada,
                             'FechaMovimiento' => date('d-m-Y H:i:s'),
                             'Referencia' => $referencia,
-                            'IdMovimiento' => $referencia == 'MANUAL' ? 3 : 1,
+                            'IdMovimiento' => $referencia == 'MANUAL' ? 11 : 1,
                             'IdUsuario' => Auth::user()->IdUsuario
                         ]);
                     }
