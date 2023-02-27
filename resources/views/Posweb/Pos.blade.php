@@ -41,7 +41,7 @@
                 <h5>{{ $fechaHoy }}</h5>
             </div>
         </div>
-        <div class="d-flex justify-content-center">
+        <div class="row">
             <div class="col-auto">
                 @include('Alertas.Alertas')
             </div>
