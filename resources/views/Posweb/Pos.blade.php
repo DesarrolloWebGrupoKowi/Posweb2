@@ -41,7 +41,7 @@
                 <h5>{{ $fechaHoy }}</h5>
             </div>
         </div>
-        <div>
+        <div class="d-flex justify-content-center">
             @include('Alertas.Alertas')
         </div>
         <div class="row mt-1 mb-1">
@@ -131,9 +131,10 @@
                         <button id="btnPedidos" class="position-relative shadow btnOpcion">
                             <i class="fa fa-cart-plus"></i> PEDIDOS
                             @if ($pedidosPendientes > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                {{ $pedidosPendientes }}
-                            </span>
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ $pedidosPendientes }}
+                                </span>
                             @endif
                         </button>
                     </div>
@@ -178,11 +179,11 @@
                                         {{ number_format($pagoRestante->Restante, 2) }}
                                     </td>
                                     <td>
-                                        <form id="eliminarPago{{ $pagoRestante->IdDatTipoPago }}" action="EliminarPago/{{ $pagoRestante->IdDatTipoPago }}"
-                                            method="POST">
+                                        <form id="eliminarPago{{ $pagoRestante->IdDatTipoPago }}"
+                                            action="EliminarPago/{{ $pagoRestante->IdDatTipoPago }}" method="POST">
                                             @csrf
-                                            <i style="color: red; font-size: 15px" class="fa fa-trash" data-bs-toggle="mensaje"
-                                                title="Eliminar Pago"
+                                            <i style="color: red; font-size: 15px" class="fa fa-trash"
+                                                data-bs-toggle="mensaje" title="Eliminar Pago"
                                                 onclick="event.preventDefault();
                                                 document.getElementById('eliminarPago<?php echo $pagoRestante->IdDatTipoPago; ?>').submit();"></i>
                                         </form>
