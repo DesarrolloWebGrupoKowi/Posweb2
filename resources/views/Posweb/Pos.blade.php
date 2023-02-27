@@ -42,7 +42,9 @@
             </div>
         </div>
         <div class="d-flex justify-content-center">
-            @include('Alertas.Alertas')
+            <div class="col-auto">
+                @include('Alertas.Alertas')
+            </div>
         </div>
         <div class="row mt-1 mb-1">
             <div id="pos" class="col-md-9 border border-warning border-2 shadow table-responsive">
