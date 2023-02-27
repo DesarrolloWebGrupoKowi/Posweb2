@@ -43,6 +43,7 @@ use App\Models\DatPaquete;
 use App\Models\Empleado43;
 use App\Models\VentaCreditoEmpleado;
 use App\Models\SolicitudCancelacionTicket;
+use App\Models\BloqueoEmpleado;
 
 class PoswebController extends Controller
 {
@@ -272,9 +273,13 @@ class PoswebController extends Controller
             
             $numNomina = $request->numNomina;
 
-            $empleado = Empleado::with('LimiteCredito')
+            $empleado = Empleado::with('LimiteCredito', 'BloqueoEmpleado')
                 ->where('NumNomina', $numNomina)
                 ->first();
+
+            if(!empty($empleado->BloqueoEmpleado)){
+                return '¡Empleado Bloqueado!, motivo: ' . $empleado->BloqueoEmpleado->MotivoBloqueo;
+            }
 
             // validar que el empleado este activo en la empresa
             $statusEmpleado = 0;

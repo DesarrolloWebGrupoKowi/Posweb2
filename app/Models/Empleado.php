@@ -39,4 +39,8 @@ class Empleado extends Model
     public function Monedero(){
         return $this->hasMany(MovimientoMonederoElectronico::class, 'NumNomina', 'NumNomina');
     }
+
+    public function BloqueoEmpleado(){
+        return $this->hasOne(BloqueoEmpleado::class, 'NumNomina', 'NumNomina');
+    }
 }
