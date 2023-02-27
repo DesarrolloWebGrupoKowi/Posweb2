@@ -1531,24 +1531,19 @@ class PoswebController extends Controller
         $fecha = $request->fecha;
         empty($fecha) ? $fecha = date('Y-m-d') : $fecha = $fecha;
 
-        // verificar soliciudes de cancelacion
-        $idEncabezadosSolCancelacion = SolicitudCancelacionTicket::whereDate('FechaSolicitud', $fecha)
-            ->pluck('IdEncabezado');
 
         $billsTo = CorteTienda::where('IdTienda', $idTienda)
             ->distinct('Bill_To')
             ->whereDate('FechaVenta', $fecha)
             ->where('StatusVenta', 0)
             ->whereNull('IdSolicitudFactura')
-            ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
             ->pluck('Bill_To');
 
-        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda, $idEncabezadosSolCancelacion){
+        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda){
             $query->where('DatCortesTienda.IdTienda', $idTienda)
                 ->where('DatCortesTienda.StatusVenta', 0)
                 ->whereDate('FechaVenta', $fecha)
-                ->whereNull('DatCortesTienda.IdSolicitudFactura')
-                ->whereNotIn('DatCortesTienda.IdEncabezado', $idEncabezadosSolCancelacion);
+                ->whereNull('DatCortesTienda.IdSolicitudFactura');
         }])
             ->where('IdTienda', $idTienda)
             ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
@@ -1564,7 +1559,6 @@ class PoswebController extends Controller
             ->where('IdListaPrecio', 4)
             ->where('b.TipoNomina', 4)
             ->where('StatusVenta', 0)
-            ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
             ->sum('ImporteArticulo');
 
         $totalMonederoSemanal = DB::table('DatCortesTienda as a')
@@ -1575,28 +1569,24 @@ class PoswebController extends Controller
             ->where('IdListaPrecio', 4)
             ->where('b.TipoNomina', 3)
             ->where('StatusVenta', 0)
-            ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
             ->sum('ImporteArticulo');
 
         $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
             ->whereDate('FechaVenta', $fecha)
             ->where('IdTipoPago', 5)
             ->where('StatusVenta', 0)
-            ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
             ->sum('ImporteArticulo');
 
         $totalTarjetaCredito = CorteTienda::where('IdTienda', $idTienda)
             ->whereDate('FechaVenta', $fecha)
             ->where('IdTipoPago', 4)
             ->where('StatusVenta', 0)
-            ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
             ->sum('ImporteArticulo');
 
         $totalEfectivo = CorteTienda::where('IdTienda', $idTienda)
             ->whereDate('FechaVenta', $fecha)
             ->where('IdTipoPago', 1)
             ->where('StatusVenta', 0)
-            ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
             ->sum('ImporteArticulo');
 
         $creditoQuincenal = DB::table('DatCortesTienda as a')
@@ -1606,7 +1596,6 @@ class PoswebController extends Controller
             ->where('StatusVenta', 0)
             ->whereIn('IdTipoPago', [2, 7])
             ->where('TipoNomina', 4)
-            ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
             ->sum('ImporteArticulo');
 
         $creditoSemanal = DB::table('DatCortesTienda as a')
@@ -1616,27 +1605,23 @@ class PoswebController extends Controller
             ->where('StatusVenta', 0)
             ->whereIn('IdTipoPago', [2, 7])
             ->where('TipoNomina', 3)
-            ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
             ->sum('ImporteArticulo');
 
         $totalTransferencia = DB::table('DatCortesTienda as a')
             ->where('IdTienda', $idTienda)
             ->whereDate('FechaVenta', $fecha)
             ->where('StatusVenta', 0)
-            ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
             ->where('IdTipoPago', 3)
             ->sum('ImporteArticulo');
 
         $totalFactura = CorteTienda::where('IdTienda', $idTienda)
             ->whereDate('FechaVenta', $fecha)
             ->where('StatusVenta', 0)
-            ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
             ->whereNotNull('IdSolicitudFactura')
             ->sum('ImporteArticulo');
 
-        $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idEncabezadosSolCancelacion){
-            $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion);
+        $facturas = SolicitudFactura::with(['Factura' => function ($query){
+            $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
         }])
             ->where('IdTienda', $idTienda)
             ->whereDate('FechaSolicitud', $fecha)
@@ -1656,23 +1641,17 @@ class PoswebController extends Controller
         $numCaja = DatCaja::where('IdDatCajas', $idDatCaja)
             ->value('IdCaja');
 
-        // verificar soliciudes de cancelacion
-        $idEncabezadosSolCancelacion = SolicitudCancelacionTicket::whereDate('FechaSolicitud', $fecha)
-            ->pluck('IdEncabezado');
-
         if($idDatCaja == 0){
             $billsTo = CorteTienda::where('IdTienda', $idTienda)
                 ->distinct('Bill_To')
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
                 ->whereNull('IdSolicitudFactura')
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->pluck('Bill_To');
     
-            $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda, $idEncabezadosSolCancelacion){
+            $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda){
                 $query->where('DatCortesTienda.IdTienda', $idTienda)
                     ->where('DatCortesTienda.StatusVenta', 0)
-                    ->whereNotIn('DatCortesTienda.IdEncabezado', $idEncabezadosSolCancelacion)
                     ->whereDate('DatCortesTienda.FechaVenta', $fecha)
                     ->whereNull('DatCortesTienda.IdSolicitudFactura');
                 }])
@@ -1683,8 +1662,7 @@ class PoswebController extends Controller
                 ->get();
 
             $facturas = SolicitudFactura::with(['Factura' => function ($query){
-                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                    ->whereNotIn('DatCortesTienda.IdEncabezado', $idEncabezadosSolCancelacion);
+                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
             }])
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaSolicitud', $fecha)
@@ -1694,21 +1672,18 @@ class PoswebController extends Controller
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 5)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->sum('ImporteArticulo');
 
             $totalTarjetaCredito = CorteTienda::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 4)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->sum('ImporteArticulo');
 
             $totalEfectivo = CorteTienda::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 1)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->sum('ImporteArticulo');
 
             $creditoQuincenal = DB::table('DatCortesTienda as a')
@@ -1716,7 +1691,6 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->whereIn('IdTipoPago', [2, 7])
                 ->where('TipoNomina', 4)
                 ->sum('ImporteArticulo');
@@ -1726,7 +1700,6 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->whereIn('IdTipoPago', [2, 7])
                 ->where('TipoNomina', 3)
                 ->sum('ImporteArticulo');
@@ -1735,14 +1708,12 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('IdTipoPago', 3)
                 ->sum('ImporteArticulo');
 
             $totalFactura = CorteTienda::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->whereNotNull('IdSolicitudFactura')
                 ->sum('ImporteArticulo');
 
@@ -1754,7 +1725,6 @@ class PoswebController extends Controller
                 ->where('IdListaPrecio', 4)
                 ->where('b.TipoNomina', 4)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->sum('ImporteArticulo');
 
             $totalMonederoSemanal = DB::table('DatCortesTienda as a')
@@ -1765,7 +1735,6 @@ class PoswebController extends Controller
                 ->where('IdListaPrecio', 4)
                 ->where('b.TipoNomina', 3)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->sum('ImporteArticulo');
 
             $info = [
@@ -1790,15 +1759,13 @@ class PoswebController extends Controller
                 ->distinct('Bill_To')
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('IdDatCaja', $idDatCaja)
                 ->whereNull('IdSolicitudFactura')
                 ->pluck('Bill_To');
     
-            $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda, $idDatCaja, $idEncabezadosSolCancelacion){
+            $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda, $idDatCaja){
                 $query->where('DatCortesTienda.IdTienda', $idTienda)
                     ->where('DatCortesTienda.StatusVenta', 0)
-                    ->whereNotIn('DatCortesTienda.IdEncabezado', $idEncabezadosSolCancelacion)
                     ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
                     ->whereDate('DatCortesTienda.FechaVenta', $fecha)
                     ->whereNull('DatCortesTienda.IdSolicitudFactura');
@@ -1809,10 +1776,9 @@ class PoswebController extends Controller
                 ->whereIn('Bill_To', $billsTo)
                 ->get();
 
-            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja, $idEncabezadosSolCancelacion){
+            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja){
                 $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                        ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
-                        ->whereNotIn('DatCortesTienda.IdEncabezado', $idEncabezadosSolCancelacion);
+                        ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
             }])
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaSolicitud', $fecha)
@@ -1822,7 +1788,6 @@ class PoswebController extends Controller
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 5)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
 
@@ -1830,7 +1795,6 @@ class PoswebController extends Controller
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 4)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
 
@@ -1838,7 +1802,6 @@ class PoswebController extends Controller
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 1)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
 
@@ -1847,7 +1810,6 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->whereIn('IdTipoPago', [2, 7])
                 ->where('TipoNomina', 4)
                 ->where('a.IdDatCaja', $idDatCaja)
@@ -1858,7 +1820,6 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->whereIn('IdTipoPago', [2, 7])
                 ->where('TipoNomina', 3)
                 ->where('a.IdDatCaja', $idDatCaja)
@@ -1868,7 +1829,6 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('IdTipoPago', 3)
                 ->where('a.IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
@@ -1876,7 +1836,6 @@ class PoswebController extends Controller
             $totalFactura = CorteTienda::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('IdDatCaja', $idDatCaja)
                 ->whereNotNull('IdSolicitudFactura')
                 ->sum('ImporteArticulo');
@@ -1889,7 +1848,6 @@ class PoswebController extends Controller
                 ->where('IdListaPrecio', 4)
                 ->where('b.TipoNomina', 4)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->where('a.IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
 
@@ -1902,7 +1860,6 @@ class PoswebController extends Controller
                 ->where('b.TipoNomina', 3)
                 ->where('a.IdDatCaja', $idDatCaja)
                 ->where('StatusVenta', 0)
-                ->whereNotIn('a.IdEncabezado', $idEncabezadosSolCancelacion)
                 ->sum('ImporteArticulo');
 
             $info = [
