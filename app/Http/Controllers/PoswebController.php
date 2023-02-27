@@ -296,7 +296,7 @@ class PoswebController extends Controller
             // consultar numero de ventas del dia del empleado
             $ventasDiariasEmpleado = VentaCreditoEmpleado::whereDate('FechaVenta', date('d-m-Y'))
                 ->where('NumNomina', $numNomina)
-                ->value('TotalNumVenta');
+                ->sum('TotalNumVenta');
 
             if(!empty($empleado)){
                 $limiteCredito = LimiteCredito::where('TipoNomina', $empleado->TipoNomina)
