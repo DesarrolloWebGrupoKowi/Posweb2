@@ -57,10 +57,11 @@
                             <form action="/CobroEmpleado" method="GET">
                                 <input type="hidden" name="numNomina" value="{{ $empleado->NumNomina }}">
                                 <td>
-                                    <button style="display: {!! $banVentasDiarias == 1 ? 'none' : '' !!}"
-                                        class="col-auto btn btn-sm btn-warning mt-0">
-                                        <i class="fa fa-check-circle"></i> Elegir
-                                    </button>
+                                    @if ($saldoEmpleado > 0 || $banVentasDiarias == 0)
+                                        <button class="col-auto btn btn-sm btn-warning mt-0">
+                                            <i class="fa fa-check-circle"></i> Elegir
+                                        </button>
+                                    @endif
                                 </td>
                             </form>
                         </tr>
