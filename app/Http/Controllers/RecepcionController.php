@@ -234,6 +234,42 @@ class RecepcionController extends Controller
             
             DB::connection('server')->commit();
             DB::commit();
+
+            // enviar correo de recepcion realizada
+            try {
+
+                $correoTienda = CorreoTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('Status', 0)
+                    ->first();
+                
+                $correos = [
+                    'soporte@kowi.com.mx',
+                    'cponce@kowi.com.mx'
+                ];
+
+                array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
+
+                $correos = array_filter($correos);
+
+                $maxIdCapRecepcion = CapRecepcion::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->max('IdCapRecepcion');
+
+                $recepcion = CapRecepcion::with(['DetalleRecepcion', function($query){
+                    $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo');
+                }])
+                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('IdCapRecepcion', $maxIdCapRecepcion)
+                    ->first();
+
+                $nomTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->value('NomTienda');
+
+                Mail::to($correos)
+                    ->send(new RecepcionProductoMail($recepcion, $nomTienda));
+
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
     
             return redirect('RecepcionProducto')->with('msjAdd', 'Productos Recepcionados Correctamente!');
 

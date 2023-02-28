@@ -273,7 +273,9 @@ class PoswebController extends Controller
             
             $numNomina = $request->numNomina;
 
-            $empleado = Empleado::with('LimiteCredito', 'BloqueoEmpleado')
+            $empleado = Empleado::with(['LimiteCredito', 'BloqueoEmpleado' => function($query){
+                $query->where('Status', 0);
+            }])
                 ->where('NumNomina', $numNomina)
                 ->first();
 
