@@ -5,7 +5,6 @@
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background-color: rgb(212, 244, 247);
             padding: 5px;
         }
 

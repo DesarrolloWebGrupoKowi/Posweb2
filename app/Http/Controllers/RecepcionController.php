@@ -236,49 +236,45 @@ class RecepcionController extends Controller
             }
 
             // enviar correo de recepcion realizada
-            try {
+            if ($idRecepcion > 0) {
+                try {
+                    $correoTienda = CorreoTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->where('Status', 0)
+                        ->first();
+                    
+                    $correos = [
+                        'soporte@kowi.com.mx',
+                        'cponce@kowi.com.mx',
+                        'sistemas@kowi.com.mx'
+                    ];
 
-                $correoTienda = CorreoTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('Status', 0)
-                    ->first();
-                
-                $correos = [
-                    'soporte@kowi.com.mx',
-                    'cponce@kowi.com.mx',
-                    'sistemas@kowi.com.mx'
-                ];
+                    array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
 
-                array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
+                    $correos = array_filter($correos);
 
-                $correos = array_filter($correos);
+                    $recepcion = CapRecepcion::with(['DetalleRecepcion' => function($query){
+                        $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo');
+                    }])
+                        ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->where('IdCapRecepcion', $idRecepcion)
+                        ->first();
 
-                $maxIdCapRecepcion = CapRecepcion::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->max('IdCapRecepcion');
+                    $nomTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->value('NomTienda');
 
-                $recepcion = CapRecepcion::with(['DetalleRecepcion' => function($query){
-                    $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo');
-                }])
-                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('IdCapRecepcion', $maxIdCapRecepcion)
-                    ->first();
+                    Mail::to($correos)
+                        ->send(new RecepcionProductoMail($recepcion, $nomTienda));
 
-                $nomTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->value('NomTienda');
-
-                Mail::to($correos)
-                    ->send(new RecepcionProductoMail($recepcion, $nomTienda));
-
-            } catch (\Throwable $th) {
-                DB::connection('server')->rollback();
-                DB::rollBack();
-                return $th;
+                } catch (\Throwable $th) {
+                    DB::connection('server')->rollback();
+                    DB::rollBack();
+                    return back()->with('msjdelete', 'Error:' . $th->getMessage());
+                }
             }
             
             DB::connection('server')->commit();
             DB::commit();
 
-            
-    
             return redirect('RecepcionProducto')->with('msjAdd', 'Productos Recepcionados Correctamente!');
 
         } catch (\Throwable $th) {
