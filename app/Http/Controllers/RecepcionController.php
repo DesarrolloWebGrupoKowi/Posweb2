@@ -269,7 +269,7 @@ class RecepcionController extends Controller
                     ->send(new RecepcionProductoMail($recepcion, $nomTienda));
 
             } catch (\Throwable $th) {
-                //throw $th;
+                return $th->getMessage();
             }
     
             return redirect('RecepcionProducto')->with('msjAdd', 'Productos Recepcionados Correctamente!');
