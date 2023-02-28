@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: rgb(212, 244, 247);
+            padding: 5px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -36,6 +43,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Nueva Recepción</title>
 </head>
+
 <body>
     <h3 style="text-align: center">La tienda: {{ $nomTienda }} realizó una nueva recepción</h3>
 
@@ -54,10 +62,10 @@
             <tbody>
                 <tr>
                     <td>{{ $recepcion->IdCapRecepcion }}</td>
-                    <td>{{ $recepcion->FechaLlegada }}</td>
-                    <td>{{ $recepcion->FechaRecepcion }}</td>
+                    <td>{{ strftime('%d %B %Y, %H:%M', strtotime($recepcion->FechaLlegada)) }}</td>
+                    <td>{{ strftime('%d %B %Y, %H:%M', strtotime($recepcion->FechaRecepcion)) }}</td>
                     <td>{{ $recepcion->PackingList }}</td>
-                    <td>{{ Auth::user()->NomUsuario }}</td>
+                    <td>{{ Str::upper(Auth::user()->NomUsuario) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -86,4 +94,5 @@
         </table>
     </div>
 </body>
+
 </html>
