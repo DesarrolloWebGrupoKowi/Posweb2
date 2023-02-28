@@ -14,6 +14,8 @@ use App\Models\InventarioTienda;
 use App\Models\HistorialMovimientoProducto;
 use App\Models\RecepcionSinInternet;
 use App\Models\DatCaja;
+use App\Mail\RecepcionProductoMail;
+use App\Models\CorreoTienda;
 
 class RecepcionController extends Controller
 {
