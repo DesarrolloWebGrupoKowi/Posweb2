@@ -57,7 +57,7 @@
                     <td>{{ $recepcion->FechaLlegada }}</td>
                     <td>{{ $recepcion->FechaRecepcion }}</td>
                     <td>{{ $recepcion->PackingList }}</td>
-                    <td>{{ Str::upper(Auth::user()->NomUsuario) }}</td>
+                    <td>{{ Auth::user()->NomUsuario }}</td>
                 </tr>
             </tbody>
         </table>

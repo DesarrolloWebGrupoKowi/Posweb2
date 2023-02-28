@@ -233,9 +233,6 @@ class RecepcionController extends Controller
                         'IdTienda' => Auth::user()->usuarioTienda->IdTienda
                     ]);
             }
-            
-            DB::connection('server')->commit();
-            DB::commit();
 
             // enviar correo de recepcion realizada
             try {
@@ -271,8 +268,15 @@ class RecepcionController extends Controller
                     ->send(new RecepcionProductoMail($recepcion, $nomTienda));
 
             } catch (\Throwable $th) {
-                return $th->getMessage();
+                DB::connection('server')->rollback();
+                DB::rollBack();
+                return $th;
             }
+            
+            DB::connection('server')->commit();
+            DB::commit();
+
+            
     
             return redirect('RecepcionProducto')->with('msjAdd', 'Productos Recepcionados Correctamente!');
 
