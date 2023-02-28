@@ -34,10 +34,20 @@ use App\Models\DatTipoPago;
 use App\Models\DatEncabezado;
 use App\Models\CorreoTienda;
 use Mail;
+use App\Models\CapRecepcion;
 
 class PruebasController extends Controller
 {
     public function pruebas(Request $request){
+        $recepcion = CapRecepcion::with(['DetalleRecepcion' => function ($query){
+            $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo');
+        }])
+            ->where('IdTienda', 1)
+            ->where('IdCapRecepcion', 2)
+            ->first();
+        
+        return $recepcion;
+
         $identityEncabezado = DB::select("select IDENT_CURRENT('DatEncabezado') as identityMax");
 
         foreach ($identityEncabezado as $key => $identity) {

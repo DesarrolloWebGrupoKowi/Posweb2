@@ -254,7 +254,7 @@ class RecepcionController extends Controller
                 $maxIdCapRecepcion = CapRecepcion::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->max('IdCapRecepcion');
 
-                $recepcion = CapRecepcion::with(['DetalleRecepcion', function($query){
+                $recepcion = CapRecepcion::with(['DetalleRecepcion' => function($query){
                     $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo');
                 }])
                     ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
