@@ -244,7 +244,8 @@ class RecepcionController extends Controller
                 
                 $correos = [
                     'soporte@kowi.com.mx',
-                    'cponce@kowi.com.mx'
+                    'cponce@kowi.com.mx',
+                    'sistemas@kowi.com.mx'
                 ];
 
                 array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
