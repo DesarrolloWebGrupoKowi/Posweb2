@@ -39,6 +39,12 @@ use App\Models\CapRecepcion;
 class PruebasController extends Controller
 {
     public function pruebas(Request $request){
+        $usuarios = DB::table('CatUsuarios')
+            ->where('IdUsuario', 1)
+            ->toSql();
+
+        return $usuarios;
+
         $recepcion = CapRecepcion::with(['DetalleRecepcion' => function ($query){
             $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo');
         }])

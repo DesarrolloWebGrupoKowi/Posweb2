@@ -28,7 +28,8 @@ class ClienteCloudTienda extends Model
                         'Codigo_Postal',
                         'IdListaPrecio',
                         'IdTipoPago',
-                        'IdTipoNomina'];
+                        'IdTipoNomina'
+                    ];
                         
     public $timestamps = false;
 
@@ -38,21 +39,21 @@ class ClienteCloudTienda extends Model
 
     public function CorteTienda(){        
         return $this->belongsToMany(Articulo::class, CorteTienda::class, 'Bill_To', 'IdArticulo', 'Bill_To')
-                    ->select([
-                            DB::raw("CatArticulos.CodArticulo"),
-                            DB::raw("CatArticulos.NomArticulo"), 
-                            DB::raw("DatCortesTienda.IdListaPrecio"),
-                            DB::raw("DatCortesTienda.IdTipoPago"),
-                            DB::raw("sum(DatCortesTienda.CantArticulo) as CantArticulo"), 
-                            DB::raw("DatCortesTienda.PrecioArticulo as PrecioArticulo"),
-                            DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
-                            DB::raw("sum(DatCortesTienda.IvaArticulo) as IvaArticulo"),
-                            DB::raw("sum(DatCortesTienda.ImporteArticulo) as ImporteArticulo")
-                            ])
-                    ->groupBy(
-                            'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
-                            'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',
-                            'CatArticulos.CodArticulo'
-                            );
+            ->select([
+                DB::raw("CatArticulos.CodArticulo"),
+                DB::raw("CatArticulos.NomArticulo"), 
+                DB::raw("DatCortesTienda.IdListaPrecio"),
+                DB::raw("DatCortesTienda.IdTipoPago"),
+                DB::raw("sum(DatCortesTienda.CantArticulo) as CantArticulo"), 
+                DB::raw("DatCortesTienda.PrecioArticulo as PrecioArticulo"),
+                DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
+                DB::raw("sum(DatCortesTienda.IvaArticulo) as IvaArticulo"),
+                DB::raw("sum(DatCortesTienda.ImporteArticulo) as ImporteArticulo")
+            ])
+            ->groupBy(
+                'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
+                'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',
+                'CatArticulos.CodArticulo'
+            );
     }
 }
