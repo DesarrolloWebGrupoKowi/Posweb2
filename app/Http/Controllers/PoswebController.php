@@ -1940,6 +1940,7 @@ class PoswebController extends Controller
                 ->value('FechaExpiracion');
             
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
+                ->whereDate('FechaExpiracion', '<=', $vigenciaMonedero)
                 ->sum('Monedero');
         }
 
@@ -2111,6 +2112,7 @@ class PoswebController extends Controller
                 ->value('FechaExpiracion');
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
+                ->whereDate('FechaExpiracion', '<=', $vigenciaMonedero)
                 ->sum('Monedero');
         }
 

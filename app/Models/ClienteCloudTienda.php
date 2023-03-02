@@ -14,22 +14,23 @@ class ClienteCloudTienda extends Model
 {
     use HasFactory;
     protected $table = 'DatClientesCloudTienda';
-    protected $fillable = ['IdDatClientesCloudTienda',
-                        'IdTienda',
-                        'IdClienteCloud',
-                        'TipoCliente',
-                        'Ship_To',
-                        'Bill_To',
-                        'Codigo_Envio',
-                        'Direccion',
-                        'Locacion',
-                        'Pais',
-                        'Ciudad',
-                        'Codigo_Postal',
-                        'IdListaPrecio',
-                        'IdTipoPago',
-                        'IdTipoNomina'
-                    ];
+    protected $fillable = [
+        'IdDatClientesCloudTienda',
+        'IdTienda',
+        'IdClienteCloud',
+        'TipoCliente',
+        'Ship_To',
+        'Bill_To',
+        'Codigo_Envio',
+        'Direccion',
+        'Locacion',
+        'Pais',
+        'Ciudad',
+        'Codigo_Postal',
+        'IdListaPrecio',
+        'IdTipoPago',
+        'IdTipoNomina'
+    ];
                         
     public $timestamps = false;
 
@@ -44,6 +45,7 @@ class ClienteCloudTienda extends Model
                 DB::raw("CatArticulos.NomArticulo"), 
                 DB::raw("DatCortesTienda.IdListaPrecio"),
                 DB::raw("DatCortesTienda.IdTipoPago"),
+                DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
                 DB::raw("sum(DatCortesTienda.CantArticulo) as CantArticulo"), 
                 DB::raw("DatCortesTienda.PrecioArticulo as PrecioArticulo"),
                 DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
@@ -53,7 +55,11 @@ class ClienteCloudTienda extends Model
             ->groupBy(
                 'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
                 'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',
-                'CatArticulos.CodArticulo'
+                'CatArticulos.CodArticulo', 'DatCortesTienda.Source_Transaction_Identifier'
             );
+    }
+
+    public function PedidoOracle(){
+        return $this->hasMany(CorteTienda::class, 'IdTienda', 'IdTienda');
     }
 }

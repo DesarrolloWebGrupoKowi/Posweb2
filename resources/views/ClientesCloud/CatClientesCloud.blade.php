@@ -24,6 +24,9 @@
                     <th>Id Cliente</th>
                     <th>Nombre</th>
                     <th>Tipo de Cliente</th>
+                    <th>Uso CFDI</th>
+                    <th>Metodo Pago</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,6 +40,8 @@
                     <td>{{ $clienteCloud->IdClienteCloud }}</td>
                     <td>{{ $clienteCloud->NomClienteCloud }}</td>
                     <td>{{ $clienteCloud->TipoCliente }}</td>
+                    <td>{{ $clienteCloud->UsoCfdi }}</td>
+                    <td>{{ $clienteCloud->MetodoPago }}</td>
                 </tr>
                 @endforeach
                 @endif

@@ -95,30 +95,7 @@
             @foreach ($cortesTienda as $corteTienda)
                 @foreach ($corteTienda->Customer as $customer)
                     <div class="d-flex justify-content-left">
-                        <h6 class="p-1 bg-dark text-white rounded-3">{{ $customer->NomClienteCloud }}</h6>&nbsp;&nbsp;
-                        @if (empty($corteTienda->headerPedido))
-                            <h6 class="p-1 text-danger">SIN PEDIDO</h6>
-                        @else
-                            <h6
-                                class="p-1 bg-{{ ($corteTienda->status == 'ERROR' ?: $corteTienda->batchName == 'REGIMEN ERROR') ? 'danger' : 'success' }} text-white rounded-3">
-                                {{ $corteTienda->headerPedido }}
-                            </h6>
-                        @endif
-                        &nbsp;&nbsp;
-                        @if ($corteTienda->status == 'ERROR')
-                            <h6 style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#mensajeError"
-                                class="p-1 bg-danger text-white rounded-3"><i class="fa fa-exclamation-circle"></i> Ver
-                                error</h6>
-                            @include('CortesTienda.ModalMensajeErrorOracle')
-                        @else
-                            @if (empty($corteTienda->mensajeError) && empty($corteTienda->headerPedido))
-                                <h6 class="p-1 text-danger">SIN PROCESAR</h6>
-                            @else
-                                <h6 class="p-1 bg-success text-white rounded-3">
-                                    {{ $corteTienda->mensajeError }}
-                                </h6>
-                            @endif
-                        @endif
+                        <h6 class="p-1 bg-dark text-white rounded-3">{{ $customer->NomClienteCloud }}</h6>
                     </div>
                 @endforeach
                 <table class="table table-responsive table-striped table-sm">
@@ -146,13 +123,7 @@
                                 <td style="width: 15vh">{{ number_format($detalleCorte->PrecioArticulo, 2) }}</td>
                                 <td>{{ number_format($detalleCorte->IvaArticulo, 2) }}</td>
                                 <td style="width: 15vh">{{ number_format($detalleCorte->ImporteArticulo, 2) }}</td>
-                                @if ($corteTienda->status == 'ERROR' || $corteTienda->batchName == 'REGIMEN ERROR')
-                                    <th style="color: red">ERROR</th>
-                                @else
-                                    <th>{{ empty($detalleCorte->lineaPedido) ? 'SIN PEDIDO' : $detalleCorte->lineaPedido }}
-                                    </th>
-                                @endif
-
+                                <th style="color: red">{{ substr_replace($detalleCorte->Source_Transaction_Identifier, '_', 3, 0) }}</th>
                             </tr>
                             @php
                                 $sumCantArticulo = $sumCantArticulo + $detalleCorte->CantArticulo;

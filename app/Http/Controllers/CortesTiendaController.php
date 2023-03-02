@@ -178,77 +178,21 @@ class CortesTiendaController extends Controller
                     ->where('IdDatCaja', $idCaja)
                     ->pluck('Bill_To');
 
-                $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($idTienda, $fecha1, $idCaja){
-                    $query->selectSub(function ($lineaPedido) use ($idTienda, $fecha1, $idCaja) {
-                            $lineaPedido->selectRaw('header.Source_Transaction_Number')
-                                ->from('CLOUD_INTERFACE.dbo.XXKW_SOURCES_TIKETS as sTicket')
-                                ->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as header', 'header.Source_Transaction_Identifier', 'sTicket.Source_Transaction_Identifier')
-                                ->whereIn('sTicket.IDENCABEZA', function($corte) use ($idTienda, $fecha1, $idCaja) {
-                                    $corte->select('IdEncabezado')
-                                        ->from('DatCortesTienda')
-                                        ->whereDate('FechaVenta', $fecha1)
-                                        ->where('IdTienda', $idTienda)
-                                        ->where('IdDatCaja', $idCaja);
-                                });
-                        }, 'lineaPedido')
-                        ->where('DatCortesTienda.IdTienda', $idTienda)
-                        ->where('DatCortesTienda.StatusVenta', 0)
-                        ->where('DatCortesTienda.IdDatCaja', $idCaja)
-                        ->whereDate('FechaVenta', $fecha1)
-                        ->whereNull('DatCortesTienda.IdSolicitudFactura');
-                    }])
-                    ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
+                $cortesTienda = ClienteCloudTienda::with([
+                    'Customer', 
+                    'CorteTienda' => function ($query) use ($idTienda, $fecha1, $idCaja){
+                        $query->where('DatCortesTienda.IdTienda', $idTienda)
+                            ->where('DatCortesTienda.StatusVenta', 0)
+                            ->where('DatCortesTienda.IdDatCaja', $idCaja)
+                            ->whereDate('FechaVenta', $fecha1)
+                            ->whereNull('DatCortesTienda.IdSolicitudFactura');
+                    }, 
+                    'PedidoOracle'
+                ])
+                    ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina', 'IdTienda')
                     ->distinct('Bill_To')
                     ->where('IdTienda', $idTienda)
                     ->whereIn('Bill_To', $billsTo)
-                        ->selectSub(function ($batchName) use ($idTienda, $fecha1, $idCaja) {
-                            $batchName->selectRaw('header.Batch_Name')
-                            ->from('CLOUD_INTERFACE.dbo.XXKW_SOURCES_TIKETS as sTicket')
-                            ->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as header', 'header.Source_Transaction_Identifier', 'sTicket.Source_Transaction_Identifier')
-                            ->whereIn('sTicket.IDENCABEZA', function($corte) use ($idTienda, $fecha1, $idCaja) {
-                                $corte->select('IdEncabezado')
-                                    ->from('DatCortesTienda')
-                                    ->whereDate('FechaVenta', $fecha1)
-                                    ->where('IdTienda', $idTienda)
-                                    ->where('IdDatCaja', $idCaja);
-                            });
-                        }, 'batchName')
-                        ->selectSub(function ($headerPedido) use ($idTienda, $fecha1, $idCaja) {
-                            $headerPedido->selectRaw('header.Source_Transaction_Number')
-                            ->from('CLOUD_INTERFACE.dbo.XXKW_SOURCES_TIKETS as sTicket')
-                            ->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as header', 'header.Source_Transaction_Identifier', 'sTicket.Source_Transaction_Identifier')
-                            ->whereIn('sTicket.IDENCABEZA', function($corte) use ($idTienda, $fecha1, $idCaja) {
-                                $corte->select('IdEncabezado')
-                                    ->from('DatCortesTienda')
-                                    ->whereDate('FechaVenta', $fecha1)
-                                    ->where('IdTienda', $idTienda)
-                                    ->where('IdDatCaja', $idCaja);
-                            });
-                        }, 'headerPedido')
-                        ->selectSub(function ($mensajeError) use ($idTienda, $fecha1, $idCaja) {
-                            $mensajeError->selectRaw('header.MENSAJE_ERROR')
-                                ->from('CLOUD_INTERFACE.dbo.XXKW_SOURCES_TIKETS as sTicket')
-                                ->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as header', 'header.Source_Transaction_Identifier', 'sTicket.Source_Transaction_Identifier')
-                                ->whereIn('sTicket.IDENCABEZA', function($corte) use ($idTienda, $fecha1, $idCaja) {
-                                    $corte->select('IdEncabezado')
-                                        ->from('DatCortesTienda')
-                                        ->whereDate('FechaVenta', $fecha1)
-                                        ->where('IdTienda', $idTienda)
-                                        ->where('IdDatCaja', $idCaja);
-                                });
-                        }, 'mensajeError')
-                        ->selectSub(function ($status) use ($idTienda, $fecha1, $idCaja) {
-                            $status->selectRaw('header.STATUS')
-                                ->from('CLOUD_INTERFACE.dbo.XXKW_SOURCES_TIKETS as sTicket')
-                                ->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as header', 'header.Source_Transaction_Identifier', 'sTicket.Source_Transaction_Identifier')
-                                ->whereIn('sTicket.IDENCABEZA', function($corte) use ($idTienda, $fecha1, $idCaja) {
-                                    $corte->select('IdEncabezado')
-                                        ->from('DatCortesTienda')
-                                        ->whereDate('FechaVenta', $fecha1)
-                                        ->where('IdTienda', $idTienda)
-                                        ->where('IdDatCaja', $idCaja);
-                                });
-                        }, 'status')
                     ->get();
 
                 //return $cortesTienda;
@@ -274,8 +218,6 @@ class CortesTiendaController extends Controller
                     ->where('StatusVenta', 0)
                     ->where('a.IdDatCaja', $idCaja)
                     ->sum('ImporteArticulo');
-
-                //return $totalMonederoSemanal;
 
                 $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha1)
@@ -333,8 +275,6 @@ class CortesTiendaController extends Controller
                     ->where('IdDatCaja', $idCaja)
                     ->sum('ImporteArticulo');
 
-                //return $totalFactura;
-
                 $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idCaja){
                     $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
                         ->where('DatCortesTienda.IdDatCaja', $idCaja);
@@ -342,8 +282,6 @@ class CortesTiendaController extends Controller
                     ->where('IdTienda', $idTienda)
                     ->whereDate('FechaSolicitud', $fecha1)
                     ->get();
-
-                //return $facturas;
             }
 
             $numCaja = DatCaja::where('IdDatCajas', $idCaja)
