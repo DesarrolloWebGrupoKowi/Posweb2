@@ -695,6 +695,9 @@ Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerC
 //BuscarCajasTienda
 Route::get('/BuscarCajasTienda', 'App\Http\Controllers\CortesTiendaController@BuscarCajasTienda')->name('BuscarCajasTienda');
 
+//GenerarCorteOraclePDF
+Route::get('/GenerarCorteOraclePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@GenerarCorteOraclePDF')->name('GenerarCorteOraclePDF');
+
 //+============================================================================================================================================+//
 //BloqueoEmpleados
 Route::get('/BloqueoEmpleados', 'App\Http\Controllers\BloqueoEmpleadosController@BloqueoEmpleados');

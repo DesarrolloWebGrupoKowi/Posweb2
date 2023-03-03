@@ -1546,7 +1546,9 @@ class PoswebController extends Controller
             ->whereNull('IdSolicitudFactura')
             ->pluck('Bill_To');
 
-        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda){
+        $cortesTienda = ClienteCloudTienda::with([
+            'Customer',
+             'CorteTienda' => function ($query) use ($fecha, $idTienda){
             $query->where('DatCortesTienda.IdTienda', $idTienda)
                 ->where('DatCortesTienda.StatusVenta', 0)
                 ->whereDate('FechaVenta', $fecha)

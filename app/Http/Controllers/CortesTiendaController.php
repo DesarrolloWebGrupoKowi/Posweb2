@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use PDF;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tienda;
@@ -179,15 +180,25 @@ class CortesTiendaController extends Controller
                     ->pluck('Bill_To');
 
                 $cortesTienda = ClienteCloudTienda::with([
+                    'PedidoOracle' => function ($oraclePedido) use ($fecha1) {
+                        $oraclePedido->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                            ->whereDate('FechaVenta', $fecha1)
+                            ->select(
+                                'DatCortesTienda.Bill_To', 
+                                'DatCortesTienda.Source_Transaction_Identifier',
+                                'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS'
+                            )
+                            ->distinct('DatCortesTienda.Source_Transaction_Identifier');
+                    },
                     'Customer', 
-                    'CorteTienda' => function ($query) use ($idTienda, $fecha1, $idCaja){
-                        $query->where('DatCortesTienda.IdTienda', $idTienda)
+                    'CorteTiendaOracle' => function ($query) use ($idTienda, $fecha1, $idCaja){
+                        $query->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                            ->where('DatCortesTienda.IdTienda', $idTienda)
                             ->where('DatCortesTienda.StatusVenta', 0)
                             ->where('DatCortesTienda.IdDatCaja', $idCaja)
                             ->whereDate('FechaVenta', $fecha1)
                             ->whereNull('DatCortesTienda.IdSolicitudFactura');
-                    }, 
-                    'PedidoOracle'
+                    }
                 ])
                     ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina', 'IdTienda')
                     ->distinct('Bill_To')
@@ -504,5 +515,275 @@ class CortesTiendaController extends Controller
         return DatCaja::where('IdTienda', $idTienda)
             ->orderBy('IdCaja')
             ->get();
+    }
+
+    public function GenerarCorteOraclePDF($fecha, $idTienda, $idDatCaja){
+        $tienda = Tienda::where('IdTienda', $idTienda)
+                ->first();
+
+        $numCaja = DatCaja::where('IdDatCajas', $idDatCaja)
+            ->value('IdCaja');
+
+        if($idDatCaja == 0){
+            $billsTo = CorteTienda::where('IdTienda', $idTienda)
+                ->distinct('Bill_To')
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->whereNull('IdSolicitudFactura')
+                ->pluck('Bill_To');
+    
+            $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda){
+                $query->where('DatCortesTienda.IdTienda', $idTienda)
+                    ->where('DatCortesTienda.StatusVenta', 0)
+                    ->whereDate('DatCortesTienda.FechaVenta', $fecha)
+                    ->whereNull('DatCortesTienda.IdSolicitudFactura');
+                }])
+                ->where('IdTienda', $idTienda)
+                ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
+                ->distinct('Bill_To')
+                ->whereIn('Bill_To', $billsTo)
+                ->get();
+
+            $facturas = SolicitudFactura::with(['Factura' => function ($query){
+                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
+            }])
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaSolicitud', $fecha)
+                ->get();
+
+            $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 5)
+                ->where('StatusVenta', 0)
+                ->sum('ImporteArticulo');
+
+            $totalTarjetaCredito = CorteTienda::where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 4)
+                ->where('StatusVenta', 0)
+                ->sum('ImporteArticulo');
+
+            $totalEfectivo = CorteTienda::where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 1)
+                ->where('StatusVenta', 0)
+                ->sum('ImporteArticulo');
+
+            $creditoQuincenal = DB::table('DatCortesTienda as a')
+                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->whereIn('IdTipoPago', [2, 7])
+                ->where('TipoNomina', 4)
+                ->sum('ImporteArticulo');
+
+            $creditoSemanal = DB::table('DatCortesTienda as a')
+                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->whereIn('IdTipoPago', [2, 7])
+                ->where('TipoNomina', 3)
+                ->sum('ImporteArticulo');
+
+            $totalTransferencia = DB::table('DatCortesTienda as a')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->where('IdTipoPago', 3)
+                ->sum('ImporteArticulo');
+
+            $totalFactura = CorteTienda::where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->whereNotNull('IdSolicitudFactura')
+                ->sum('ImporteArticulo');
+
+            $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
+                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 7)
+                ->where('IdListaPrecio', 4)
+                ->where('b.TipoNomina', 4)
+                ->where('StatusVenta', 0)
+                ->sum('ImporteArticulo');
+
+            $totalMonederoSemanal = DB::table('DatCortesTienda as a')
+                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 7)
+                ->where('IdListaPrecio', 4)
+                ->where('b.TipoNomina', 3)
+                ->where('StatusVenta', 0)
+                ->sum('ImporteArticulo');
+
+            $info = [
+                'titulo' => 'Corte Diario de Tienda',
+                'nomTienda' => $tienda->NomTienda,
+                'numCaja' => $numCaja,
+                'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
+                'cortesTienda' => $cortesTienda,
+                'facturas' => $facturas,
+                'totalTarjetaDebito' => $totalTarjetaDebito,
+                'totalTarjetaCredito' => $totalTarjetaCredito,
+                'totalEfectivo' => $totalEfectivo,
+                'creditoQuincenal' => $creditoQuincenal,
+                'creditoSemanal' => $creditoSemanal,
+                'totalTransferencia' => $totalTransferencia,
+                'totalFactura' => $totalFactura,
+                'totalMonederoQuincenal' => $totalMonederoQuincenal,
+                'totalMonederoSemanal' => $totalMonederoSemanal
+            ];
+        }else{
+            $billsTo = CorteTienda::where('IdTienda', $idTienda)
+                ->distinct('Bill_To')
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->where('IdDatCaja', $idDatCaja)
+                ->whereNull('IdSolicitudFactura')
+                ->pluck('Bill_To');
+    
+                $cortesTienda = ClienteCloudTienda::with([
+                    'PedidoOracle' => function ($oraclePedido) use ($fecha) {
+                        $oraclePedido->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                            ->whereDate('FechaVenta', $fecha)
+                            ->select(
+                                'DatCortesTienda.Bill_To', 
+                                'DatCortesTienda.Source_Transaction_Identifier',
+                                'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS'
+                            )
+                            ->distinct('DatCortesTienda.Source_Transaction_Identifier');
+                    },
+                    'Customer', 
+                    'CorteTiendaOracle' => function ($query) use ($idTienda, $fecha, $idDatCaja){
+                        $query->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                            ->where('DatCortesTienda.IdTienda', $idTienda)
+                            ->where('DatCortesTienda.StatusVenta', 0)
+                            ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
+                            ->whereDate('FechaVenta', $fecha)
+                            ->whereNull('DatCortesTienda.IdSolicitudFactura');
+                    }
+                ])
+                    ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina', 'IdTienda')
+                    ->distinct('Bill_To')
+                    ->where('IdTienda', $idTienda)
+                    ->whereIn('Bill_To', $billsTo)
+                    ->get();
+
+            //return $cortesTienda;
+
+            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja){
+                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+                        ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
+            }])
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaSolicitud', $fecha)
+                ->get();
+
+            $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 5)
+                ->where('StatusVenta', 0)
+                ->where('IdDatCaja', $idDatCaja)
+                ->sum('ImporteArticulo');
+
+            $totalTarjetaCredito = CorteTienda::where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 4)
+                ->where('StatusVenta', 0)
+                ->where('IdDatCaja', $idDatCaja)
+                ->sum('ImporteArticulo');
+
+            $totalEfectivo = CorteTienda::where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 1)
+                ->where('StatusVenta', 0)
+                ->where('IdDatCaja', $idDatCaja)
+                ->sum('ImporteArticulo');
+
+            $creditoQuincenal = DB::table('DatCortesTienda as a')
+                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->whereIn('IdTipoPago', [2, 7])
+                ->where('TipoNomina', 4)
+                ->where('a.IdDatCaja', $idDatCaja)
+                ->sum('ImporteArticulo');
+
+            $creditoSemanal = DB::table('DatCortesTienda as a')
+                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->whereIn('IdTipoPago', [2, 7])
+                ->where('TipoNomina', 3)
+                ->where('a.IdDatCaja', $idDatCaja)
+                ->sum('ImporteArticulo');
+
+            $totalTransferencia = DB::table('DatCortesTienda as a')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->where('IdTipoPago', 3)
+                ->where('a.IdDatCaja', $idDatCaja)
+                ->sum('ImporteArticulo');
+
+            $totalFactura = CorteTienda::where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('StatusVenta', 0)
+                ->where('IdDatCaja', $idDatCaja)
+                ->whereNotNull('IdSolicitudFactura')
+                ->sum('ImporteArticulo');
+
+            $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
+                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 7)
+                ->where('IdListaPrecio', 4)
+                ->where('b.TipoNomina', 4)
+                ->where('StatusVenta', 0)
+                ->where('a.IdDatCaja', $idDatCaja)
+                ->sum('ImporteArticulo');
+
+            $totalMonederoSemanal = DB::table('DatCortesTienda as a')
+                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+                ->where('IdTienda', $idTienda)
+                ->whereDate('FechaVenta', $fecha)
+                ->where('IdTipoPago', 7)
+                ->where('IdListaPrecio', 4)
+                ->where('b.TipoNomina', 3)
+                ->where('a.IdDatCaja', $idDatCaja)
+                ->where('StatusVenta', 0)
+                ->sum('ImporteArticulo');
+
+            $info = [
+                'titulo' => 'Corte Diario de Tienda',
+                'nomTienda' => $tienda->NomTienda,
+                'numCaja' => $numCaja,
+                'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
+                'cortesTienda' => $cortesTienda,
+                'facturas' => $facturas,
+                'totalTarjetaDebito' => $totalTarjetaDebito,
+                'totalTarjetaCredito' => $totalTarjetaCredito,
+                'totalEfectivo' => $totalEfectivo,
+                'creditoQuincenal' => $creditoQuincenal,
+                'creditoSemanal' => $creditoSemanal,
+                'totalTransferencia' => $totalTransferencia,
+                'totalFactura' => $totalFactura,
+                'totalMonederoQuincenal' => $totalMonederoQuincenal,
+                'totalMonederoSemanal' => $totalMonederoSemanal
+            ];
+        }
+    
+        //return $info;
+    
+        view()->share('GenerarCorteOraclePDF', $info);
+        $pdf = PDF::loadView('CortesTienda.GenerarCorteOraclePDF', $info);
+        return $pdf->stream('Corte '.$fecha.' '.$tienda->NomTienda. ' Caja '. $numCaja .'.pdf');
     }
 }

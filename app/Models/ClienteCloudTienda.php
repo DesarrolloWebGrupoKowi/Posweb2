@@ -45,7 +45,7 @@ class ClienteCloudTienda extends Model
                 DB::raw("CatArticulos.NomArticulo"), 
                 DB::raw("DatCortesTienda.IdListaPrecio"),
                 DB::raw("DatCortesTienda.IdTipoPago"),
-                DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
+                DB::raw("DatCortesTienda.IdCortesTienda"),
                 DB::raw("sum(DatCortesTienda.CantArticulo) as CantArticulo"), 
                 DB::raw("DatCortesTienda.PrecioArticulo as PrecioArticulo"),
                 DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
@@ -53,13 +53,41 @@ class ClienteCloudTienda extends Model
                 DB::raw("sum(DatCortesTienda.ImporteArticulo) as ImporteArticulo")
             ])
             ->groupBy(
-                'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
+                'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdCortesTienda', 
+                'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
                 'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',
-                'CatArticulos.CodArticulo', 'DatCortesTienda.Source_Transaction_Identifier'
+                'CatArticulos.CodArticulo'
+            );
+    }
+
+    public function CorteTiendaOracle(){        
+        return $this->belongsToMany(Articulo::class, CorteTienda::class, 'Bill_To', 'IdArticulo', 'Bill_To')
+            ->select([
+                DB::raw("CatArticulos.CodArticulo"),
+                DB::raw("CatArticulos.NomArticulo"), 
+                DB::raw("DatCortesTienda.IdListaPrecio"),
+                DB::raw("DatCortesTienda.IdTipoPago"),
+                DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
+                DB::raw("DatCortesTienda.IdCortesTienda"),
+                DB::raw("sum(DatCortesTienda.CantArticulo) as CantArticulo"), 
+                DB::raw("DatCortesTienda.PrecioArticulo as PrecioArticulo"),
+                DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
+                DB::raw("sum(DatCortesTienda.IvaArticulo) as IvaArticulo"),
+                DB::raw("sum(DatCortesTienda.ImporteArticulo) as ImporteArticulo"),
+                DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS as STATUS"), 
+                DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.MENSAJE_ERROR as MENSAJE_ERROR"), 
+                DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name as Batch_Name")
+            ])
+            ->groupBy(
+                'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdCortesTienda', 
+                'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
+                'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',
+                'CatArticulos.CodArticulo', 'DatCortesTienda.Source_Transaction_Identifier', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS',
+                'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.MENSAJE_ERROR', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name'
             );
     }
 
     public function PedidoOracle(){
-        return $this->hasMany(CorteTienda::class, 'IdTienda', 'IdTienda');
+        return $this->hasMany(CorteTienda::class, 'Bill_To', 'Bill_To');
     }
 }

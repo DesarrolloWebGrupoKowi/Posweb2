@@ -83,7 +83,7 @@
             </div>
             <div class="row d-flex justify-content-end mb-2">
                 <div class="col-auto">
-                    <a href="/GenerarCortePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
+                    <a href="/GenerarCorteOraclePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
                         target="_blank" type="button" class="btn card">
                         <span class="material-icons">print</span>
                     </a>
@@ -95,7 +95,22 @@
             @foreach ($cortesTienda as $corteTienda)
                 @foreach ($corteTienda->Customer as $customer)
                     <div class="d-flex justify-content-left">
-                        <h6 class="p-1 bg-dark text-white rounded-3">{{ $customer->NomClienteCloud }}</h6>
+                        <h6 class="p-1 bg-dark text-white rounded-3">{{ $customer->NomClienteCloud }}</h6>&nbsp;&nbsp;
+                        @foreach ($corteTienda->PedidoOracle as $pedidoOracle)
+                            @if (empty($pedidoOracle->Source_Transaction_Identifier))
+                                <h6 class="p-1 bg-danger text-white rounded-3">SIN PEDIDO</h6>
+                            @else
+                                <h6
+                                    class="p-1 bg-{{ $pedidoOracle->STATUS == 'ERROR' ? 'danger' : 'success' }} text-white rounded-3">
+                                    {{ substr_replace($pedidoOracle->Source_Transaction_Identifier, '_', 3, 0) }}
+                                </h6>
+                                @if ($pedidoOracle->STATUS == 'ERROR')
+                                    <h6 class="p-1 text-white rounded-3">
+                                        <i style="color: red" class="fa fa-exclamation-circle p-1 rounded-3"></i>
+                                    </h6>
+                                @endif
+                            @endif
+                        @endforeach
                     </div>
                 @endforeach
                 <table class="table table-responsive table-striped table-sm">
@@ -108,6 +123,7 @@
                             <th>Iva</th>
                             <th>Importe</th>
                             <th>Pedido</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody class="cuchi">
@@ -115,15 +131,39 @@
                             $sumCantArticulo = 0;
                             $sumImporte = 0;
                         @endphp
-                        @foreach ($corteTienda->CorteTienda as $detalleCorte)
+                        @foreach ($corteTienda->CorteTiendaOracle as $detalleCorte)
                             <tr>
                                 <td style="width: 10vh">{{ $detalleCorte->CodArticulo }}</td>
                                 <td style="width: 60vh">{{ $detalleCorte->NomArticulo }}</td>
                                 <td style="width: 15vh">{{ number_format($detalleCorte->CantArticulo, 4) }}</td>
                                 <td style="width: 15vh">{{ number_format($detalleCorte->PrecioArticulo, 2) }}</td>
                                 <td>{{ number_format($detalleCorte->IvaArticulo, 2) }}</td>
-                                <td style="width: 15vh">{{ number_format($detalleCorte->ImporteArticulo, 2) }}</td>
-                                <th style="color: red">{{ substr_replace($detalleCorte->Source_Transaction_Identifier, '_', 3, 0) }}</th>
+                                <td style="width: 10vh">{{ number_format($detalleCorte->ImporteArticulo, 2) }}</td>
+                                @if (empty($detalleCorte->Source_Transaction_Identifier))
+                                    <th style="color: red">SIN PEDIDO</th>
+                                @else
+                                    <th style="color: {{ $detalleCorte->STATUS == 'ERROR' ? 'red' : 'blue' }}">
+                                        {{ substr_replace($detalleCorte->Source_Transaction_Identifier, '_', 3, 0) }}
+                                    </th>
+                                @endif
+                                @if (
+                                    (empty($detalleCorte->STATUS) || $detalleCorte->STATUS == 'NULL') &&
+                                        empty($detalleCorte->MENSAJE_ERROR) &&
+                                        empty($detalleCorte->Batch_Name))
+                                    <th style="color: red">SIN PROCESAR</th>
+                                @endif
+                                @if ($detalleCorte->STATUS == 'ERROR')
+                                    <th style="cursor: pointer" data-bs-toggle="modal"
+                                        data-bs-target="#mensajeError{{ $detalleCorte->IdCortesTienda }}">
+                                        <i style="color: red; cursor: pointer; font-size: 18px"
+                                            class="fa fa-exclamation-circle">
+                                        </i> VER ERROR
+                                        @include('CortesTienda.ModalMensajeErrorOracle')
+                                    </th>
+                                @endif
+                                @if ($detalleCorte->STATUS == 'PROCESADO')
+                                    <th style="color: blue">{{ $detalleCorte->STATUS }}</th>
+                                @endif
                             </tr>
                             @php
                                 $sumCantArticulo = $sumCantArticulo + $detalleCorte->CantArticulo;
