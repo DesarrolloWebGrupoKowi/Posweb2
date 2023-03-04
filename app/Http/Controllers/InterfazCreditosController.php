@@ -361,9 +361,13 @@ class InterfazCreditosController extends Controller
                         'DatCortesTienda.StatusCredito' => 1,
                         'Interfazado' => $idHistorialCredito
                     ]);
+
+                // devolver el credito cobrado al empleado VENTAWEB_NEW : model -> VentaCreditoEmpleado
+
+
                 // termina interfazado de la DB VENTAWEB_NEW
 
-                // interfazado de la DB VENTAWEB
+                // inicia interfazado de la DB VENTAWEB
                 DB::connection('server4.3')->statement(
                     "insert into SPARTEST..D2000.KW_INTERFASE_VENTAS
                     SELECT A.EMPLEADO,A.FECHA,A.ID,A.IDTIENDA,

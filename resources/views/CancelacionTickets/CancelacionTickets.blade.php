@@ -33,7 +33,7 @@
             <tbody>
                 @if ($solicitudesCancelacion->count() == 0)
                     <tr>
-                        <th style="text-align: center; font-size: 22px" colspan="7">No hay solicitudes de cancelación de
+                        <th style="text-align: center; font-size: 22px" colspan="8">No hay solicitudes de cancelación de
                             tickets</th>
                     </tr>
                 @else
