@@ -636,8 +636,6 @@ class PoswebController extends Controller
             $articuloPorAmece = Articulo::where('Amece', $codigo)
                 ->where('Status', 0)
                 ->first();
-                                
-            return $articuloPorAmece;
             
             //Si la etiqueta esta mal escrita
             if(empty($articuloPorAmece)){
