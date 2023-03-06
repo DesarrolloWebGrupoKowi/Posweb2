@@ -45,7 +45,6 @@ class ClienteCloudTienda extends Model
                 DB::raw("CatArticulos.NomArticulo"), 
                 DB::raw("DatCortesTienda.IdListaPrecio"),
                 DB::raw("DatCortesTienda.IdTipoPago"),
-                DB::raw("DatCortesTienda.IdCortesTienda"),
                 DB::raw("sum(DatCortesTienda.CantArticulo) as CantArticulo"), 
                 DB::raw("DatCortesTienda.PrecioArticulo as PrecioArticulo"),
                 DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
@@ -53,7 +52,7 @@ class ClienteCloudTienda extends Model
                 DB::raw("sum(DatCortesTienda.ImporteArticulo) as ImporteArticulo")
             ])
             ->groupBy(
-                'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdCortesTienda', 
+                'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 
                 'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
                 'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',
                 'CatArticulos.CodArticulo'
@@ -68,7 +67,6 @@ class ClienteCloudTienda extends Model
                 DB::raw("DatCortesTienda.IdListaPrecio"),
                 DB::raw("DatCortesTienda.IdTipoPago"),
                 DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
-                DB::raw("DatCortesTienda.IdCortesTienda"),
                 DB::raw("sum(DatCortesTienda.CantArticulo) as CantArticulo"), 
                 DB::raw("DatCortesTienda.PrecioArticulo as PrecioArticulo"),
                 DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
@@ -79,7 +77,7 @@ class ClienteCloudTienda extends Model
                 DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name as Batch_Name")
             ])
             ->groupBy(
-                'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 'DatCortesTienda.IdCortesTienda', 
+                'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago', 
                 'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',  
                 'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',
                 'CatArticulos.CodArticulo', 'DatCortesTienda.Source_Transaction_Identifier', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS',
