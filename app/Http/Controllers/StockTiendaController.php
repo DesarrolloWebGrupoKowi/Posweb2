@@ -40,7 +40,7 @@ class StockTiendaController extends Controller
             ->where('a.StockArticulo', '<=', 5)
             ->get();
 
-        //Enviar Correo alerta bajo stock
+        /*//Enviar Correo alerta bajo stock no usada por el momento 
         if($articulosBajoInventario->count() > 0){
             try {
                 $correoTienda = CorreoTienda::where('IdTienda', $idTienda)
@@ -66,7 +66,7 @@ class StockTiendaController extends Controller
                     
             } catch (\Throwable $th) {
             }
-        }
+        }*/
             
         //return $articulosBajoInventario;
 
