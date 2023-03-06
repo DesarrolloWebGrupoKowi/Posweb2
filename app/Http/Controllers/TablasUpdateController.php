@@ -75,7 +75,8 @@ class TablasUpdateController extends Controller
                     TablaUpdate::where('IdTienda', $idTienda)
                         ->where('NombreTabla', $tabla)
                         ->update([
-                            'Descargar' => 0
+                            'Descargar' => 0,
+                            'FechaDescarga' => date('d-m-Y H:i:s')
                         ]);
                 }
 
@@ -94,6 +95,7 @@ class TablasUpdateController extends Controller
 
             DB::commit();
             return back()->with('msjAdd', 'Tablas a Espera de Actualización');
+
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th);
