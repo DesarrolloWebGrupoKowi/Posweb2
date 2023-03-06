@@ -23,10 +23,11 @@ class StockTiendaController extends Controller
         $tienda = Tienda::where('IdTienda', $idTienda)
             ->first();
 
-        $stocks = InventarioTienda::with('Articulo')
-            ->where('IdTienda', $idTienda)
-            ->where('CodArticulo', 'like', '%'.$codArticulo.'%')
-            ->orderBy('CodArticulo')
+        $stocks = DB::table('DatInventario as a')
+            ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+            ->where('a.IdTienda', $idTienda)
+            ->where('a.CodArticulo', 'like', '%'.$codArticulo.'%')
+            ->orderBy('a.CodArticulo')
             ->get();
 
         $totalStock = InventarioTienda::where('IdTienda', $idTienda)

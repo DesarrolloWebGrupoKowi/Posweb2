@@ -47,9 +47,7 @@
                         <tr>
                             <td>{{ $stock->CodArticulo }}</td>
                             <td>
-                                @if (!empty($stock->Articulo->NomArticulo))
-                                {{ $stock->Articulo->NomArticulo }}
-                                @endif
+                                {{ $stock->NomArticulo }}
                             </td>
                             <td style="color: {!! $stock->StockArticulo == 0 ? 'red; font-weight:bold;' : '' !!}">{{ $stock->StockArticulo }}</td>
                         </tr>
