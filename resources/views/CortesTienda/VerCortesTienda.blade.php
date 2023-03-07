@@ -161,8 +161,8 @@
                                         @include('CortesTienda.ModalMensajeErrorOracle')
                                     </th>
                                 @endif
-                                @if ($detalleCorte->STATUS == 'PROCESADO')
-                                    <th style="color: blue">{{ $detalleCorte->STATUS }}</th>
+                                @if ($detalleCorte->STATUS == 'PROCESADO' || $detalleCorte->STATUS == 'EN PROCESO')
+                                    <th>{{ $detalleCorte->STATUS }}</th>
                                 @endif
                             </tr>
                             @php
