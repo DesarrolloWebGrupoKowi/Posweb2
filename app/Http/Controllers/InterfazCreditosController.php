@@ -289,7 +289,10 @@ class InterfazCreditosController extends Controller
                     ]);
                     
                 // devolver el credito cobrado al empleado VENTAWEB_NEW
-                
+                VentaCreditoEmpleado::where('Origen', 1)
+                    ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
+                    ->where('NumNomina', $numNomina)
+                    ->delete();
 
                 // termina interfazado de la DB VENTAWEB_NEW
 
@@ -315,6 +318,16 @@ class InterfazCreditosController extends Controller
                     and c.STATUS = 1 
                     ORDER BY A.ID
                     SET XACT_ABORT OFF;"
+                );
+
+                // pagar creditos a un empleado
+                DB::connection('server4.3')->statement(
+                    "update DatEncabezado set edocredito = 1     			  
+                    WHERE EMPLEADO = '". $numNomina ."'
+                    AND TIPOPAGO=28 
+                    AND EDOCREDITO = 0 
+                    AND EDOVENTA = 0
+                    AND cast(A.FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."'"
                 );
 
                 // termina interfazado de la DB VENTAWEB
@@ -363,6 +376,14 @@ class InterfazCreditosController extends Controller
                     ]);
 
                 // devolver el credito cobrado al empleado VENTAWEB_NEW : model -> VentaCreditoEmpleado
+                VentaCreditoEmpleado::where('Origen', 1)
+                    ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
+                    ->whereIn('NumNomina', function($query){
+                        $query->select('NumNomina')
+                            ->from('CatEmpleados')
+                            ->where('TipoNomina', $idTipoNomina);
+                    })
+                    ->delete();
 
 
                 // termina interfazado de la DB VENTAWEB_NEW
@@ -389,7 +410,15 @@ class InterfazCreditosController extends Controller
                     ORDER BY A.ID"
                 );
 
-
+                // pagar creditos a un tipo de nomina
+                DB::connection('server4.3')->statement(
+                    "update DatEncabezado set edocredito = 1     			  
+                    WHERE TIPONOMINA = ". $idTipoNomina ."
+                    AND TIPOPAGO=28 
+                    AND EDOCREDITO = 0 
+                    AND EDOVENTA = 0
+                    AND cast(A.FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."'"
+                );
 
                 // termina interfazado de la DB VENTAWEB
             }
