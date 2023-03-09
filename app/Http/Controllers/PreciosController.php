@@ -112,6 +112,7 @@ class PreciosController extends Controller
 
             }
             if($radioActualizar == 'FechaPara'){
+                return 'Function en mantenimiento';
                 foreach ($precios as $codArticulo => $precioArticulo) {
                     PrecioTmp::where('IdListaPrecio', $idListaPrecioHidden)
                         ->where('CodArticulo', ''. $codArticulo .'')
