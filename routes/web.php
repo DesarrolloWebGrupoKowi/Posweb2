@@ -715,6 +715,11 @@ Route::get('/ResumenVentas', 'App\Http\Controllers\ResumenVentasController@Resum
 //+============================================================================================================================================+//
   });//->Termina Middleware Auth
 
+// pagina de error 404
+Route::fallback(function () {
+    return view('Errores.Error404');
+});
+
 
 Route::get('/Login', 'App\Http\Controllers\Auth\LoginController@Login')->middleware('guest')->name('login');
 
