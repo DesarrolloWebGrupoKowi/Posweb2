@@ -101,15 +101,17 @@ class PreciosController extends Controller
                     ->get();
                 
                 // actualizar precios
-                DB::statement(
-                    "UPDATE A SET A.PrecioArticulo=B.PrecioArticulo
-                    FROM DATPRECIOS A
-                    LEFT JOIN (SELECT CodArticulo,PrecioArticulo FROM DatPreciosTmp A
-                    WHERE IdListaPrecio=". $idListaPrecioHidden .") B ON A.CodArticulo=B.CodArticulo
-                    WHERE IdListaPrecio=". $idListaPrecioHidden ."
-                    AND A.PrecioArticulo<>B.PrecioArticulo"
-                );
-
+                DB::table('DatPrecios AS A')
+                    ->leftJoin(
+                        DB::raw('(SELECT CodArticulo, PrecioArticulo FROM DatPreciosTmp 
+                            WHERE IdListaPrecio = '. $idListaPrecioHidden .') AS B'),
+                            'A.CodArticulo', '=', 'B.CodArticulo'
+                        )
+                    ->where('A.IdListaPrecio', '=', $idListaPrecioHidden)
+                    ->where('A.PrecioArticulo', '<>', DB::raw('B.PrecioArticulo'))
+                    ->update([
+                        'A.PrecioArticulo' => DB::raw('B.PrecioArticulo')
+                    ]);
             }
             if($radioActualizar == 'FechaPara'){
                 return 'Function en mantenimiento';
