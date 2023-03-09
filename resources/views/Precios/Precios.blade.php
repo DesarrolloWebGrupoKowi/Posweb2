@@ -15,13 +15,14 @@
                             <option {!! $idListaPrecio != null ? 'disabled' : '' !!} value="">Seleccione Lista de Precios</option>
                             @foreach ($listaPrecios as $listaPrecio)
                                 <option {!! $listaPrecio->IdListaPrecio == $idListaPrecio ? 'selected' : '' !!} value="{{ $listaPrecio->IdListaPrecio }}">
-                                    {{ $listaPrecio->NomListaPrecio }}</option>
+                                    {{ $listaPrecio->NomListaPrecio }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-auto">
                         <select class="form-select" name="IdGrupo" id="IdGrupo">
-                            <option value="0">TODOS</option>
+                            <option value="">TODOS</option>
                             @foreach ($grupos as $grupo)
                                 <option {!! $idGrupo == $grupo->IdGrupo ? 'selected' : '' !!} value="{{ $grupo->IdGrupo }}">{{ $grupo->NomGrupo }}
                                 </option>
@@ -31,9 +32,6 @@
                     <div class="col-auto">
                         <button class="btn"><span class="material-icons">search</span></button>
                     </div>
-                    <!--<div class="col-auto">
-                                    <a href="/Precios" class="btn"><span class="material-icons">visibility</span></a>
-                                </div>-->
                 </div>
             </form>
         </div>
@@ -93,8 +91,6 @@
                                 @foreach ($precios as $precio)
                                     <tr>
                                         <td>{{ $precio->CodArticulo }}</td>
-                                        <input type="hidden" name="codigos[]" id="codigos"
-                                            value="{{ $precio->CodArticulo }}">
                                         <td>{{ $precio->NomArticulo }}</td>
                                         <td><span id="pArticulo">{{ $precio->PrecioArticulo }}</span></td>
                                         <td>
@@ -157,8 +153,9 @@
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-warning" onclick="visualizarCambios()"><i
-                                    class="fa fa-check-square-o"></i> Aplicar Precios</button>
+                            <button type="button" class="btn btn-warning" onclick="visualizarCambios()">
+                                <i class="fa fa-check-square-o"></i> Aplicar Precios
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -167,20 +164,25 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text">
                         <input class="form-check-input" type="radio" name="radioActualizar" id="radioActualizarPara"
-                            value="FechaPara"></span>
+                            value="FechaPara">
+                    </span>
                     <span class="input-group-text">Actualizar Para</span>
                     <input disabled type="date" class="form-control" name="FechaPara" id="Fecha"
                         min="{{ $tomorrow }}" required>
                 </div>
                 <div class="input-group mb-3">
-                    <span class="input-group-text"><input class="form-check-input" type="radio" name="radioActualizar"
-                            id="radioActualizarAhora" value="Ahora"></span>
-                    <span class="input-group-text">Actualizar Precios Ahora</span>
+                    <span class="input-group-text">
+                        <input class="form-check-input" type="radio" name="radioActualizar" id="radioActualizarAhora"
+                            value="Ahora">
+                    </span>
+                    <span class="input-group-text">
+                        Actualizar Precios Ahora
+                    </span>
                 </div>
                 <div>
-                    <button disabled id="btnActualizar" type="submit" class="btn btn-warning"><i
-                            class="fa fa-refresh"></i>
-                        Actualizar</button>
+                    <button disabled id="btnActualizar" type="submit" class="btn btn-warning">
+                        <i class="fa fa-refresh"></i> Actualizar
+                    </button>
                 </div>
             </div>
         </form>

@@ -39,6 +39,22 @@ use App\Models\CapRecepcion;
 class PruebasController extends Controller
 {
     public function pruebas(Request $request){
+        $preciosActualizaados = DB::table('DatPrecios as a')
+            ->leftJoin('CatArticulos as c', 'c.CodArticulo', 'a.CodArticulo')
+            ->select('a.CodArticulo', 'c.NomArticulo', 'a.PrecioArticulo as PrecioArticuloViejo', 'b.PrecioArticulo as PrecioArticuloNuevo')
+            ->leftJoin(DB::raw('(SELECT CodArticulo, PrecioArticulo FROM DatPreciosTmp WHERE IdListaPrecio = 1) as b'), function($join) {
+                $join->on('a.CodArticulo', '=', 'b.CodArticulo');
+            })
+            ->where('a.IdListaPrecio', '=', 1)
+            ->where('a.PrecioArticulo', '<>', DB::raw('b.PrecioArticulo'))
+            ->orderBy('a.CodArticulo')
+            ->get();
+
+        return $preciosActualizaados;
+        
+        
+        
+        
         $usuarios = DB::table('CatUsuarios')
             ->where('IdUsuario', 1)
             ->toSql();
