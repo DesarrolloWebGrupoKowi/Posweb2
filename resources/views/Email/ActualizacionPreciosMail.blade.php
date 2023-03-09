@@ -32,6 +32,7 @@
     <table>
         <thead>
             <tr>
+                <td>Lista de Precios</td>
                 <th>Código</th>
                 <th>Articulo</th>
                 <th>Precio Anterior</th>

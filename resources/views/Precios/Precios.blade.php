@@ -56,7 +56,7 @@
                 @endif
             </div>
         </div>
-        <form action="/ActualizarPrecios" method="POST">
+        <form id="formActualizarPrecios" action="/ActualizarPrecios" method="POST">
             <input type="hidden" name="idListaPrecioHidden" value="{{ $idListaPrecio }}">
             @csrf
             <div class="col-6 card shadow mb-3" style="float: left; height: 70%;">
@@ -183,12 +183,21 @@
                     <button disabled id="btnActualizar" type="submit" class="btn btn-warning">
                         <i class="fa fa-refresh"></i> Actualizar
                     </button>
+                    <button id="btnActualizandoPrecios" hidden class="btn btn-warning" type="button">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Actualizando Precios...
+                    </button>
                 </div>
             </div>
         </form>
     </div>
     <script src="{{ asset('js/scriptPrecios.js') }}"></script>
     <script>
+        document.getElementById('formActualizarPrecios').addEventListener('submit', function (){
+            document.getElementById('btnActualizar').hidden = true;
+            document.getElementById('btnActualizandoPrecios').hidden = false;
+        })
+
         document.getElementById('filtro').addEventListener('keyup', (e) => {
             const radioCodigo = document.getElementById('codigo').checked;
 
