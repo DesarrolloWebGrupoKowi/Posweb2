@@ -57,6 +57,8 @@ class PreciosController extends Controller
         $radioActualizar = $request->radioActualizar;
         $fechaPara = $request->FechaPara;
 
+        return $precios;
+
         try {
             DB::beginTransaction();
 

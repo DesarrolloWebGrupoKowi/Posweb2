@@ -1185,7 +1185,7 @@ class PoswebController extends Controller
                         $pago = $idTipoPago == 2 ? $pago : 0;
 
                         // guardar numero de ventas e importe del credito
-                        DB::statement("exec Sp_Guardar_DatConcenVenta ". $numNomina .", '". date('d-m-Y') ."', ". $pago .", 1");
+                        DB::statement("exec Sp_Guardar_DatConcenVenta " . $idTienda .", '". $idEncabezado ."', " . $numNomina .", '". date('d-m-Y') ."', ". $pago .", 1");
                     }
     
                     // imprimir ticket
@@ -1496,11 +1496,11 @@ class PoswebController extends Controller
                 if(!empty($temporalPos->NumNomina)){
 
                     $pagoCredito = DatTipoPago::where('IdEncabezado', $idEncabezado)
-                    ->where('IdTipoPago', 2)
-                    ->sum('Pago');
-
+                        ->where('IdTipoPago', 2)
+                        ->sum('Pago');
+                        
                     // guardar numero de ventas e importe del credito
-                    DB::statement("exec Sp_Guardar_DatConcenVenta ". $temporalPos->NumNomina .", '". date('d-m-Y') ."', ". $pagoCredito .", 1");
+                    DB::statement("exec Sp_Guardar_DatConcenVenta " . Auth::user()->usuarioTienda->IdTienda .", '". $idEncabezado ."', " . $temporalPos->NumNomina .", '". date('d-m-Y') ."', ". $pagoCredito .", 1");
                 }
     
                 // imprimir ticket venta
