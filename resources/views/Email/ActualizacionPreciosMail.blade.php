@@ -41,6 +41,7 @@
         <tbody>
             @foreach ($preciosActualizados as $pActualizado)
                 <tr>
+                    <td>{{ $pActualizado->NomListaPrecio }}</td>
                     <td>{{ $pActualizado->CodArticulo }}</td>
                     <td>{{ $pActualizado->NomArticulo }}</td>
                     <td>{{ $pActualizado->PrecioArticuloViejo }}</td>

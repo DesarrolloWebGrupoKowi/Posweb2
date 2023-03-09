@@ -88,8 +88,9 @@ class PreciosController extends Controller
                 
                 // sacar precios que se van a actualizar
                 $preciosActualizaados = DB::table('DatPrecios as a')
-                    ->select('a.CodArticulo', 'c.NomArticulo', 'a.PrecioArticulo as PrecioArticuloViejo', 'b.PrecioArticulo as PrecioArticuloNuevo')
+                    ->select('d.NomListaPrecio', 'a.CodArticulo', 'c.NomArticulo', 'a.PrecioArticulo as PrecioArticuloViejo', 'b.PrecioArticulo as PrecioArticuloNuevo')
                     ->leftJoin('CatArticulos as c', 'c.CodArticulo', 'a.CodArticulo')
+                    ->leftJoin('CatListasPrecio as d', 'd.IdListaPrecio', 'a.IdListaPrecio')
                     ->leftJoin(DB::raw('(SELECT CodArticulo, PrecioArticulo FROM DatPreciosTmp WHERE IdListaPrecio = '. $idListaPrecioHidden .') as b'), 
                         function($join) {
                             $join->on('a.CodArticulo', '=', 'b.CodArticulo');
