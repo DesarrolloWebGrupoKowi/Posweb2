@@ -1184,7 +1184,7 @@ class PoswebController extends Controller
                         // validar el pago para saber si es credito o no
                         $pago = $idTipoPago == 2 ? $pago : 0;
 
-                        // guardar numero de ventas e importe del credito
+                        // guardar numero de ventas e importe del credito del empleado
                         DB::statement("exec Sp_Guardar_DatConcenVenta " . $idTienda .", '". $idEncabezado ."', " . $numNomina .", '". date('d-m-Y') ."', ". $pago .", 1");
                     }
     
