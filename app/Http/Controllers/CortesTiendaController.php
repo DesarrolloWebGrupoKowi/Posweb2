@@ -180,9 +180,10 @@ class CortesTiendaController extends Controller
                     ->pluck('Bill_To');
 
                 $cortesTienda = ClienteCloudTienda::with([
-                    'PedidoOracle' => function ($oraclePedido) use ($fecha1) {
+                    'PedidoOracle' => function ($oraclePedido) use ($fecha1, $idTienda) {
                         $oraclePedido->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->whereDate('FechaVenta', $fecha1)
+                            ->where('IdTienda', $idTienda)
                             ->select(
                                 'DatCortesTienda.Bill_To', 
                                 'DatCortesTienda.Source_Transaction_Identifier',
@@ -647,9 +648,10 @@ class CortesTiendaController extends Controller
                 ->pluck('Bill_To');
     
                 $cortesTienda = ClienteCloudTienda::with([
-                    'PedidoOracle' => function ($oraclePedido) use ($fecha) {
+                    'PedidoOracle' => function ($oraclePedido) use ($fecha, $idTienda) {
                         $oraclePedido->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->whereDate('FechaVenta', $fecha)
+                            ->where('IdTienda', $idTienda)
                             ->select(
                                 'DatCortesTienda.Bill_To', 
                                 'DatCortesTienda.Source_Transaction_Identifier',
