@@ -12,6 +12,7 @@ use App\Models\HistorialCredito;
 use App\Models\CorteTienda;
 use App\Models\Abono;
 use App\Models\AjusteDeuda;
+use App\Models\VentaCreditoEmpleado;
 
 class InterfazCreditosController extends Controller
 {
