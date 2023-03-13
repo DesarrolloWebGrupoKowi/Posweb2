@@ -386,12 +386,12 @@ class InterfazCreditosController extends Controller
 
                 // pagar creditos a un empleado
                 DB::connection('server4.3')->statement(
-                    "update DatEncabezado set edocredito = 1     			  
+                    "update DatEncabezado set edocredito = 1, exportado = ". $idHistorialCredito ."     			  
                     WHERE EMPLEADO = '". $numNomina ."'
                     AND TIPOPAGO=28 
                     AND EDOCREDITO = 0 
                     AND EDOVENTA = 0
-                    AND cast(A.FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."'"
+                    AND cast(FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."'"
                 );
 
                 // termina interfazado de la DB VENTAWEB
@@ -420,12 +420,12 @@ class InterfazCreditosController extends Controller
 
                 // pagar creditos a un tipo de nomina
                 DB::connection('server4.3')->statement(
-                    "update DatEncabezado set edocredito = 1     			  
+                    "update DatEncabezado set edocredito = 1, exportado = ". $idHistorialCredito ."    			  
                     WHERE TIPONOMINA = ". $idTipoNomina ."
                     AND TIPOPAGO=28 
                     AND EDOCREDITO = 0 
                     AND EDOVENTA = 0
-                    AND cast(A.FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."'"
+                    AND cast(FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."'"
                 );
 
                 // termina interfazado de la DB VENTAWEB
