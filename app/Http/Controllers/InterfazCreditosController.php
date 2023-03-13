@@ -250,8 +250,7 @@ class InterfazCreditosController extends Controller
             if($idTipoNomina == 0 && !empty($numNomina)){
                 // interfazar creditos de la DB VENTAWEB_NEW
                 DB::statement(
-                    "SET XACT_ABORT ON;
-                    insert into SPARH..D2000.KW_INTERFASE_VENTAS
+                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS
                     select a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, 
                     SUM(a.ImporteCredito), f.IdTicket, ". $idHistorialCredito ." 
                     from DatCreditos as a 
@@ -264,8 +263,7 @@ class InterfazCreditosController extends Controller
                     and a.NumNomina = ". $numNomina ."
                     and a.Interfazado is null 
                     and CAST(a.FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'
-                    group by a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, f.IdTicket
-                    SET XACT_ABORT OFF;"
+                    group by a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, f.IdTicket"
                 );
 
                 CreditoEmpleado::whereRaw("CAST(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
@@ -298,8 +296,7 @@ class InterfazCreditosController extends Controller
 
                 // interfazado de la DB VENTAWEB
                 DB::connection('server4.3')->statement(
-                    "SET XACT_ABORT ON;
-                    insert into SPARH..D2000.KW_INTERFASE_VENTAS
+                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS
                     SELECT A.EMPLEADO,A.FECHA,A.ID,A.IDTIENDA,
                     B.NOMBRE AS NOMTIE,B.CIUDAD,A.IMPORTE,A.IDDIA, 
                     ". $idHistorialCredito ." as ID_HISTORIAL  
@@ -316,8 +313,7 @@ class InterfazCreditosController extends Controller
                     AND A.TIPOPAGO = 28 
                     AND EMPLEADO = '". $numNomina ."' 
                     and c.STATUS = 1 
-                    ORDER BY A.ID
-                    SET XACT_ABORT OFF;"
+                    ORDER BY A.ID"
                 );
 
                 // pagar creditos a un empleado
@@ -335,8 +331,7 @@ class InterfazCreditosController extends Controller
             }if(!empty($idTipoNomina) && $numNomina == 0){
                 // interfazar creditos de la DB VENTAWEB_NEW
                 DB::statement(
-                    "SET XACT_ABORT ON;
-                    insert into SPARH..D2000.KW_INTERFASE_VENTAS
+                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS
                     select a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, 
                     SUM(a.ImporteCredito), f.IdTicket, ". $idHistorialCredito ." 
                     from DatCreditos as a 
@@ -349,8 +344,7 @@ class InterfazCreditosController extends Controller
                     and c.TipoNomina = ". $idTipoNomina ."
                     and a.Interfazado is null 
                     and CAST(a.FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'
-                    group by a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, f.IdTicket
-                    SET XACT_ABORT OFF;"
+                    group by a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, f.IdTicket"
                 );
 
                 CreditoEmpleado::whereRaw("CAST(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
