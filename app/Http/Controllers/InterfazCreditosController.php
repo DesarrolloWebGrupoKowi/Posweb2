@@ -352,9 +352,6 @@ class InterfazCreditosController extends Controller
         } catch (\Throwable $th) {
             //DB::rollback();// hubo algun error
 
-            HistorialCredito::where('IdHistorialCredito', $idHistorialCredito)
-                ->delete();
-
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
@@ -436,9 +433,6 @@ class InterfazCreditosController extends Controller
 
         } catch (\Throwable $th) {
             //DB::connection('server4.3')->rollback();
-
-            HistorialCredito::where('IdHistorialCredito', $idHistorialCredito)
-                ->delete();
 
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
