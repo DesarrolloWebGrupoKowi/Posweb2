@@ -233,8 +233,8 @@ class InterfazCreditosController extends Controller
 
     public function InterfazarCreditos($fecha1, $fecha2, $idTipoNomina, $numNomina){
         try {
-            DB::beginTransaction();// inicio de transacciones
-            DB::connection('server4.3')->beginTransaction(); // inicio de transacciones server 4.3
+            //DB::beginTransaction();// inicio de transacciones
+            //DB::connection('server4.3')->beginTransaction(); // inicio de transacciones server 4.3
 
             HistorialCredito::insert([
                 'FechaDesde' => $fecha1,
@@ -424,14 +424,14 @@ class InterfazCreditosController extends Controller
             }
 
         } catch (\Throwable $th) {
-            DB::rollback();// hubo algun error
-            DB::connection('server4.3')->rollback();
+            //DB::rollback();// hubo algun error
+            //DB::connection('server4.3')->rollback();
             
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
-        DB::commit(); // todo salio bien
-        DB::connection('server4.3')->commit();
+        //DB::commit(); // todo salio bien
+        //DB::connection('server4.3')->commit();
 
         return back()->with('IdentificadorSparh', 'Identificador SPARH: ' . $idHistorialCredito);
     }
