@@ -39,6 +39,23 @@ use App\Models\CapRecepcion;
 class PruebasController extends Controller
 {
     public function pruebas(Request $request){
+        return DB::statement("insert into SPARH..D2000.KW_INTERFASE_VENTAS 
+        select top 1 a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, SUM(a.ImporteCredito), f.IdTicket, 2 
+        from DatCreditos as a left join CatTiendas as b on b.IdTienda=a.IdTienda 
+        left join CatEmpleados as c on c.NumNomina=a.NumNomina 
+        left join CatCiudades as d on d.IdCiudad=b.IdCiudad 
+        left join DatEncabezado as f on f.IdEncabezado=a.IdEncabezado 
+        where a.StatusCredito = 0 
+        and a.StatusVenta = 0 
+        and c.TipoNomina = 3 
+        and a.Interfazado is null 
+        and CAST(a.FechaVenta as date) between '2023-03-06' and '2023-03-12' 
+        group by a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, 
+        b.NomTienda, d.NomCiudad, f.IdTicket");
+
+
+
+
         $preciosActualizaados = DB::table('DatPrecios as a')
             ->leftJoin('CatArticulos as c', 'c.CodArticulo', 'a.CodArticulo')
             ->select('a.CodArticulo', 'c.NomArticulo', 'a.PrecioArticulo as PrecioArticuloViejo', 'b.PrecioArticulo as PrecioArticuloNuevo')
