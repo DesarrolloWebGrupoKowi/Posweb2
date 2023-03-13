@@ -233,7 +233,6 @@ class InterfazCreditosController extends Controller
     }
 
     public function InterfazarCreditos($fecha1, $fecha2, $idTipoNomina, $numNomina){
-
         HistorialCredito::insert([
             'FechaDesde' => $fecha1,
             'FechaHasta' => $fecha2,
@@ -296,6 +295,38 @@ class InterfazCreditosController extends Controller
 
                 // termina interfazado de la DB VENTAWEB_NEW
 
+                // interfazado de la DB VENTAWEB
+                DB::connection('server4.3')->statement(
+                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS
+                    SELECT A.EMPLEADO,A.FECHA,A.ID,A.IDTIENDA,
+                    B.NOMBRE AS NOMTIE,B.CIUDAD,A.IMPORTE,A.IDDIA, 
+                    ". $idHistorialCredito ." as ID_HISTORIAL  
+                    FROM DATENCABEZADO AS A 
+                    LEFT JOIN CATTIENDAS AS B ON A.IDTIENDA=B.ID
+                    LEFT JOIN CATEMPLEADOS AS C ON CAST(A.EMPLEADO AS INT)=C.NUM_NOMINA
+                    LEFT JOIN CAPCTEACUM AS D ON A.ID = D.IDVTA 
+                    AND D.PUNTOS < 0	 
+                    WHERE A.IDTIENDA <> 30  
+                    AND EDOVENTA = 0 
+                    AND cast(A.FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."' 
+                    AND EXPORTADO = 0 
+                    AND EXPORTADO <> -1 
+                    AND A.TIPOPAGO = 28 
+                    AND EMPLEADO = '". $numNomina ."' 
+                    and c.STATUS = 1 
+                    ORDER BY A.ID"
+                );
+
+                // pagar creditos a un empleado
+                DB::connection('server4.3')->statement(
+                    "update DatEncabezado set edocredito = 1, exportado = ". $idHistorialCredito ."     			  
+                    WHERE EMPLEADO = '". $numNomina ."'
+                    AND TIPOPAGO=28 
+                    AND EDOCREDITO = 0 
+                    AND EDOVENTA = 0
+                    AND cast(FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."'"
+                );
+
             }if(!empty($idTipoNomina) && $numNomina == 0){
                 // interfazar creditos de la DB VENTAWEB_NEW para un tipo de nomina
                 DB::statement(
@@ -340,63 +371,14 @@ class InterfazCreditosController extends Controller
                 // devolver el credito cobrado al empleado VENTAWEB_NEW : model -> VentaCreditoEmpleado
                 VentaCreditoEmpleado::where('Origen', 1)
                     ->whereRaw("cast(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
-                    ->whereIn('NumNomina', function($query){
+                    ->whereIn('NumNomina', function($query) use ($idTipoNomina){
                         $query->select('NumNomina')
                             ->from('CatEmpleados')
                             ->where('TipoNomina', $idTipoNomina);
                     })
                     ->delete();
                 // termina interfazado de la DB VENTAWEB_NEW
-            }
 
-        } catch (\Throwable $th) {
-            //DB::rollback();// hubo algun error
-
-            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
-        }
-
-        //DB::commit(); // todo salio bien
-
-        try {
-            //DB::connection('server4.3')->beginTransaction(); // inicio de transacciones server 4.3
-
-            // empieza interfazado del sistema viejo para un empleado
-            if($idTipoNomina == 0 && !empty($numNomina)){
-                // interfazado de la DB VENTAWEB
-                DB::connection('server4.3')->statement(
-                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS
-                    SELECT A.EMPLEADO,A.FECHA,A.ID,A.IDTIENDA,
-                    B.NOMBRE AS NOMTIE,B.CIUDAD,A.IMPORTE,A.IDDIA, 
-                    ". $idHistorialCredito ." as ID_HISTORIAL  
-                    FROM DATENCABEZADO AS A 
-                    LEFT JOIN CATTIENDAS AS B ON A.IDTIENDA=B.ID
-                    LEFT JOIN CATEMPLEADOS AS C ON CAST(A.EMPLEADO AS INT)=C.NUM_NOMINA
-                    LEFT JOIN CAPCTEACUM AS D ON A.ID = D.IDVTA 
-                    AND D.PUNTOS < 0	 
-                    WHERE A.IDTIENDA <> 30  
-                    AND EDOVENTA = 0 
-                    AND cast(A.FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."' 
-                    AND EXPORTADO = 0 
-                    AND EXPORTADO <> -1 
-                    AND A.TIPOPAGO = 28 
-                    AND EMPLEADO = '". $numNomina ."' 
-                    and c.STATUS = 1 
-                    ORDER BY A.ID"
-                );
-
-                // pagar creditos a un empleado
-                DB::connection('server4.3')->statement(
-                    "update DatEncabezado set edocredito = 1, exportado = ". $idHistorialCredito ."     			  
-                    WHERE EMPLEADO = '". $numNomina ."'
-                    AND TIPOPAGO=28 
-                    AND EDOCREDITO = 0 
-                    AND EDOVENTA = 0
-                    AND cast(FECHA as date) between '". $fecha1 ."' and '". $fecha2 ."'"
-                );
-
-                // termina interfazado de la DB VENTAWEB
-            }if(!empty($idTipoNomina) && $numNomina == 0){
-                // inicia interfazado de la DB VENTAWEB sistema viejo para un tipo de nomina
                 DB::connection('server4.3')->statement(
                     "insert into SPARH..D2000.KW_INTERFASE_VENTAS
                     SELECT A.EMPLEADO,A.FECHA,A.ID,A.IDTIENDA,
@@ -432,12 +414,10 @@ class InterfazCreditosController extends Controller
             }
 
         } catch (\Throwable $th) {
-            //DB::connection('server4.3')->rollback();
+            //DB::rollback();// hubo algun error
 
-            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            return back()->with('msjdelete', 'Error: ' . $th);
         }
-
-        //DB::connection('server4.3')->commit();
 
         return back()->with('IdentificadorSparh', 'Identificador SPARH: ' . $idHistorialCredito);
     }
