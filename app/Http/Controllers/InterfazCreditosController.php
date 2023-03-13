@@ -246,7 +246,7 @@ class InterfazCreditosController extends Controller
         $idHistorialCredito = HistorialCredito::max('IdHistorialCredito');
 
         try {
-            DB::beginTransaction();// inicio de transacciones
+            //DB::beginTransaction();// inicio de transacciones
 
             // interfazar creditos del sistema nuevo para un solo empleado
             if($idTipoNomina == 0 && !empty($numNomina)){
@@ -350,7 +350,7 @@ class InterfazCreditosController extends Controller
             }
 
         } catch (\Throwable $th) {
-            DB::rollback();// hubo algun error
+            //DB::rollback();// hubo algun error
 
             HistorialCredito::where('IdHistorialCredito', $idHistorialCredito)
                 ->delete();
@@ -358,10 +358,10 @@ class InterfazCreditosController extends Controller
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
-        DB::commit(); // todo salio bien
+        //DB::commit(); // todo salio bien
 
         try {
-            DB::connection('server4.3')->beginTransaction(); // inicio de transacciones server 4.3
+            //DB::connection('server4.3')->beginTransaction(); // inicio de transacciones server 4.3
 
             // empieza interfazado del sistema viejo para un empleado
             if($idTipoNomina == 0 && !empty($numNomina)){
@@ -435,7 +435,7 @@ class InterfazCreditosController extends Controller
             }
 
         } catch (\Throwable $th) {
-            DB::connection('server4.3')->rollback();
+            //DB::connection('server4.3')->rollback();
 
             HistorialCredito::where('IdHistorialCredito', $idHistorialCredito)
                 ->delete();
@@ -443,7 +443,7 @@ class InterfazCreditosController extends Controller
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
-        DB::connection('server4.3')->commit();
+        //DB::connection('server4.3')->commit();
 
         return back()->with('IdentificadorSparh', 'Identificador SPARH: ' . $idHistorialCredito);
     }
