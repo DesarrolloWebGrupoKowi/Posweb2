@@ -14,20 +14,30 @@ class SocioFrecuenteController extends Controller
 {
     public function LigarSocioFrecuente(Request $request){
 
-        $numNomina = $request->numNomina;
+        try {
+            $numNomina = $request->numNomina;
 
-        $socioFrecuente = Empleado43::where('Num_Nomina', $numNomina)
-            ->whereNotIn('Num_Nomina', Empleado::where('NumNomina', $numNomina)
-            ->select('NumNomina')
-            ->where('Status', 0)
-            ->get())  
-            ->where('Status', 1)
-            ->first();
+            // validar que exista el socio/frecuente, ademas de que no sea un empleado y que no este dado de alta.
+            $socioFrecuente = Empleado43::where('Num_Nomina', $numNomina)
+                ->whereNotIn('Num_Nomina', Empleado::where('NumNomina', $numNomina)
+                    ->select('NumNomina')
+                    ->where('Status', 0)
+                    ->get()
+                )
+                ->whereNotIn('Num_Nomina', FrecuenteSocio::where('FolioViejo', $numNomina)
+                    ->select('FolioViejo')
+                    ->where('Status', 0)
+                    ->get()
+                )  
+                ->where('Status', 1)
+                ->first();
 
-        $tiposCliente = TipoCliente::where('Status', 0)
-            ->get();
+            $tiposCliente = TipoCliente::where('Status', 0)
+                ->get();
 
-        //return $socioFrecuente;
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
 
         return view('Posweb.LigarSocioFrecuente', compact('numNomina', 'socioFrecuente', 'tiposCliente'));
     }
