@@ -96,7 +96,7 @@
                                     </label>
                                     <select class="form-select" name="sexo" id="sexo">
                                         <option {!! $socioFrecuente->Sexo == 'F' ? 'selected' : '' !!} value="F">Femenino</option>
-                                        <option {!! $socioFrecuente->Sexo == 'M' ? 'selected' : '' !!} value="F">Masculino</option>
+                                        <option {!! $socioFrecuente->Sexo == 'M' ? 'selected' : '' !!} value="M">Masculino</option>
                                     </select>
                                 </div>
                                 <div class="col-10">

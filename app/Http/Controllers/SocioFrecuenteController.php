@@ -18,9 +18,9 @@ class SocioFrecuenteController extends Controller
 
         $socioFrecuente = Empleado43::where('Num_Nomina', $numNomina)
             ->whereNotIn('Num_Nomina', Empleado::where('NumNomina', $numNomina)
-                ->select('NumNomina')
-                ->where('Status', 0)
-                ->get())  
+            ->select('NumNomina')
+            ->where('Status', 0)
+            ->get())  
             ->where('Status', 1)
             ->first();
 
