@@ -15,7 +15,7 @@ class SocioFrecuenteController extends Controller
     public function LigarSocioFrecuente(Request $request){
 
         try {
-            $numNomina = $request->numNomina;
+            $numNomina = $request->numNomina; // request del front
 
             // validar que exista el socio/frecuente, ademas de que no sea un empleado y que no este dado de alta.
             $socioFrecuente = Empleado43::where('Num_Nomina', $numNomina)
@@ -68,7 +68,7 @@ class SocioFrecuenteController extends Controller
                 'Status' => 0
             ]);
 
-            // limpiar la tabla para insertar de nuevo
+            // limpiar la tabla local para insertar de nuevo
             DB::table('CatFrecuentesSocios')->truncate();
 
             // insert into select de la tabla web a la local
@@ -90,7 +90,7 @@ class SocioFrecuenteController extends Controller
                     'IdTienda' => $frecuenteSocio->IdTienda,
                     'Ciudad' => $frecuenteSocio->Ciudad,
                     'IdUsuario' => $frecuenteSocio->IdUsuario,
-                    'Status' => 0
+                    'Status' => $frecuenteSocio->Status
                 ]);
             }
             
