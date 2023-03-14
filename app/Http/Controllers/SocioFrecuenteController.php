@@ -90,7 +90,7 @@ class SocioFrecuenteController extends Controller
                     'IdTienda' => $frecuenteSocio->IdTienda,
                     'Ciudad' => $frecuenteSocio->Ciudad,
                     'IdUsuario' => $frecuenteSocio->IdUsuario,
-                    'Status' => $frecuenteSocio->Status
+                    'Status' => 0
                 ]);
             }
             
