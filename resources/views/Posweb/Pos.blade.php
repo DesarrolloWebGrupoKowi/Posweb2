@@ -95,11 +95,22 @@
             <div id="opciones" class="col-md-3 border border-warning border-2 shadow">
                 <div id="divCountArticulo" class="row mt-1 me-1 ms-1 shadow text-black">
                     <div class="col-12 mt-1">
+                        @if (!empty($frecuenteSocio))
+                            <h6>Cliente : {{ $frecuenteSocio->Nombre }} <i data-bs-toggle="mensaje"
+                                    title="Quitar Empleado"
+                                    style="color: red; cursor: pointer; display: {!! $banderaMultiPago > 0 ? 'none' : '' !!}"
+                                    class="fa fa-close" name="chkCliente" id="chkCliente"></i>
+                            </h6>
+                            <h6>Dinero Electrónico Disponible:
+                                <strong>${{ number_format($monederoEmpleado, 2) }}</strong>
+                            </h6>
+                        @endif
                         @if (!empty($cliente))
                             <h6>Cliente : {{ $cliente->Nombre }} {{ $cliente->Apellidos }} <i data-bs-toggle="mensaje"
                                     title="Quitar Empleado"
                                     style="color: red; cursor: pointer; display: {!! $banderaMultiPago > 0 ? 'none' : '' !!}"
-                                    class="fa fa-close" name="chkCliente" id="chkCliente"></i></h6>
+                                    class="fa fa-close" name="chkCliente" id="chkCliente"></i>
+                            </h6>
                             <h6>Crédito Disponible : <strong
                                     style="color: {!! $creditoDisponible == 0 ? 'red' : '' !!}">${{ number_format($creditoDisponible, 2) }}</strong>
                             </h6>
@@ -145,7 +156,8 @@
                     <div class="col-6">
                         <form id="frmPaquetes" action="/PaquetesPreventa" method="GET">
                             <select class="btnOpcion" name="idPaquete" id="idPaquete" required>
-                                <option style="color: white; background-color: black;" value="">PAQUETES</option>
+                                <option style="color: white; background-color: black;" value="">PAQUETES
+                                </option>
                                 @foreach ($paquetes as $paquete)
                                     <option style="color: black; background-color: white;"
                                         value="{{ $paquete->IdPaquete }}">{{ $paquete->NomPaquete }}</option>

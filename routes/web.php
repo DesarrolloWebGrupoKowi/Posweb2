@@ -411,6 +411,9 @@ Route::get('/QuitarEmpleado', 'App\Http\Controllers\PoswebController@QuitarEmple
 //CobroEmpleado
 Route::get('/CobroEmpleado', 'App\Http\Controllers\PoswebController@CobroEmpleado')->name('CobroEmpleado');
 
+//CobroFrecuenteSocio
+Route::post('/CobroFrecuenteSocio/{folioFrecuenteSocio}', 'App\Http\Controllers\PoswebController@CobroFrecuenteSocio')->name('CobroFrecuenteSocio');
+
 //CalculosPreventa
 Route::get('/CalculosPreventa', 'App\Http\Controllers\PoswebController@CalculosPreventa');
 

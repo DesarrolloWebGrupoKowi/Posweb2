@@ -44,6 +44,7 @@ use App\Models\Empleado43;
 use App\Models\VentaCreditoEmpleado;
 use App\Models\SolicitudCancelacionTicket;
 use App\Models\BloqueoEmpleado;
+use App\Models\FrecuenteSocio;
 
 class PoswebController extends Controller
 {
@@ -57,6 +58,10 @@ class PoswebController extends Controller
 
         $cliente = Empleado::with('LimiteCredito')
             ->where('NumNomina', $numNomina)
+            ->first();
+
+        $frecuenteSocio = FrecuenteSocio::with('TipoCliente')
+            ->where('FolioViejo', $numNomina)
             ->first();
 
         if(!empty($cliente)){
@@ -154,7 +159,7 @@ class PoswebController extends Controller
         return view('Posweb.Pos', compact('usuario', 'fechaHoy', 'preventa', 'subTotalPreventa', 'ivaPreventa', 'totalPreventa', 
                     'idTienda', 'banderaMultiPago', 'datTipoPago', 'caja', 'tiposPago', 'bancos', 
                     'nombre', 'apellido', 'cliente', 'creditoDisponible', 'banArticuloSinPrecio', 
-                    'monederoEmpleado', 'monederoDescuento', 'paquetes', 'pedidosPendientes'));
+                    'monederoEmpleado', 'monederoDescuento', 'paquetes', 'pedidosPendientes', 'frecuenteSocio'));
     }
 
     public function EliminarPago($idDatTipoPago){
@@ -279,6 +284,20 @@ class PoswebController extends Controller
                 ->where('NumNomina', $numNomina)
                 ->first();
 
+            $frecuenteSocio = FrecuenteSocio::with('TipoCliente')
+                ->where('FolioViejo', $numNomina)
+                ->first();
+
+            if(!empty($frecuenteSocio)){
+                // validar que el frecuente / socio este activo
+                if($frecuenteSocio->Status == 1){
+                    return 'El cliente: ' . $frecuenteSocio->TipoCliente->NomTipoCliente . ' ' . $frecuenteSocio->Nombre . ' esta inactivo';
+                }
+
+                DB::commit();
+                return view('Posweb.Ifrempleado', compact('frecuenteSocio')); // va al cliente frecuente
+            }
+
             if(!empty($empleado->BloqueoEmpleado)){
                 return '¡Empleado Bloqueado!, motivo: ' . $empleado->BloqueoEmpleado->MotivoBloqueo;
             }
@@ -356,6 +375,122 @@ class PoswebController extends Controller
                 ->first();
 
             if(empty($numNomina) || $pArticulo->CantArticulo > $empySoc->PesoMaximo){
+                $articulo = DB::table('CatArticulos as a')
+                        ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                        ->select('a.IdArticulo', 
+                        'a.CodArticulo', 
+                        'a.NomArticulo', 
+                        'a.Peso', 
+                        'a.Iva', 
+                        'a.Status', 
+                        'b.PrecioArticulo', 
+                        'c.IdListaPrecio', 
+                        'c.NomListaPrecio', 
+                        'c.PorcentajeIva')
+                        ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
+                        ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                        ->where('c.IdListaPrecio', '<>', 4)
+                        ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
+                        ->first();
+            }
+            else{
+                $articulo = DB::table('CatArticulos as a')
+                    ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                    ->select('a.IdArticulo', 
+                        'a.CodArticulo', 
+                        'a.NomArticulo', 
+                        'a.Peso', 
+                        'a.Iva', 
+                        'a.Status', 
+                        'b.PrecioArticulo', 
+                        'c.IdListaPrecio', 
+                        'c.NomListaPrecio', 
+                        'c.PorcentajeIva')
+                    ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
+                    ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('c.IdListaPrecio', 4)
+                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
+                    ->first();
+            }
+
+            $subTotal = $articulo->PrecioArticulo * $pArticulo->CantArticulo;
+            if($articulo->Iva == 0){
+                $iva = $subTotal * $articulo->PorcentajeIva;
+            }
+            else{
+                $iva = 0;
+            }
+
+            if($articulo->PrecioArticulo == 0){
+                $nomArticulos[] = $articulo->NomArticulo;
+                $iva = 0;
+            }
+
+            $total = $subTotal + $iva;
+
+            // validar que el precio del paquete no se vea afectado, al pasar la tarjeta del empleado/socio/frecuente
+            if(empty($pArticulo->IdPaquete)){
+
+                PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('IdArticulo', $pArticulo->IdArticulo)
+                    ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
+                        ->update([
+                            'PrecioLista' => $articulo->PrecioArticulo,
+                            'PrecioVenta' => $articulo->PrecioArticulo,
+                            'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
+                            'SubTotalArticulo' => $subTotal,
+                            'IvaArticulo' => $iva,
+                            'ImporteArticulo' => $total
+                ]);
+
+            }else{
+                PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('IdArticulo', $pArticulo->IdArticulo)
+                    ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
+                        ->update([
+                            'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4
+                ]);
+            }
+            
+        }
+
+        if(count($nomArticulos) > 0){
+            $articulos = '';
+            for ($i=0; $i < count($nomArticulos); $i++) { 
+                $articulos = $articulos . $nomArticulos[$i] . ', ';
+            }
+
+            return redirect()->route('Pos')->with('Pos', 'Los Siguientes Articulos: ' . $articulos . 'No Tienen Precio de Empleado, Comunicarse con el Gerente!');
+        }
+
+        return redirect()->route('Pos');
+    }
+
+    public function CobroFrecuenteSocio($folioFrecuenteSocio){
+        TemporalPos::where('TemporalPos', 1)
+            ->update([
+                'NumNomina' => $folioFrecuenteSocio,
+                'MonederoDescuento' => null
+        ]);
+
+        $preventa = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            ->get();
+
+        //Lista de Precios EMPYSOC
+        $empySoc = ListaPrecio::where('IdListaPrecio', 4)
+            ->first();
+
+        $nomArticulos = [];
+        foreach ($preventa as $key => $pArticulo) {
+
+            $buscarArticulo = Articulo::where('IdArticulo', $pArticulo->IdArticulo)
+                ->first();
+
+            if(empty($folioFrecuenteSocio) || $pArticulo->CantArticulo > $empySoc->PesoMaximo){
                 $articulo = DB::table('CatArticulos as a')
                         ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                         ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
