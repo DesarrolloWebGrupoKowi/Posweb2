@@ -33,9 +33,12 @@
                     <h3>El cliente se ha dado de alta en otra tienda <strong>¿Desea Descargarlo?</strong></h3>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <button class="btn btn-success">
-                        <i class="fa fa-download"></i> Descargar Cliente
-                    </button>
+                    <form action="DescargarSociosFrecuentes/{{ $numNomina }}" method="POST">
+                        @csrf
+                        <button class="btn btn-success">
+                            <i class="fa fa-download"></i> Descargar Cliente
+                        </button>
+                    </form>
                 </div>
             </div>
         @else

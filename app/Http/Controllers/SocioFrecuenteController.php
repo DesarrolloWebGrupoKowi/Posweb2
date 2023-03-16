@@ -114,4 +114,46 @@ class SocioFrecuenteController extends Controller
         DB::connection('server')->commit();
         return redirect('LigarSocioFrecuente')->with('msjAdd', 'Se ligo correctamente el cliente!');
     }
+
+    public function DescargarSociosFrecuentes($folioViejo){
+        try {
+            DB::beginTransaction();
+            DB::connection('server')->beginTransaction();
+            
+            // limpiar la tabla local para insertar de nuevo
+            DB::table('CatFrecuentesSocios')->truncate();
+
+            // insert into select de la tabla web a la local
+            $frecuentesSocios = FrecuenteSocio::all();
+
+            foreach ($frecuentesSocios as $key => $frecuenteSocio) {
+                DB::table('CatFrecuentesSocios')->insert([
+                    'IdFrecuenteSocio' => $frecuenteSocio->IdFrecuenteSocio,
+                    'IdTipoCliente' => $frecuenteSocio->IdTipoCliente,
+                    'FolioViejo' => $frecuenteSocio->FolioViejo,
+                    'FechaAlta' => strftime('%d %B %Y %H:%M:%S', strtotime($frecuenteSocio->FechaAlta)),
+                    'Nombre' => $frecuenteSocio->Nombre,
+                    'Sexo' => $frecuenteSocio->Sexo,
+                    'FechaNacimiento' => $frecuenteSocio->FechaNacimiento,
+                    'Direccion' => $frecuenteSocio->Direccion,
+                    'Colonia' => $frecuenteSocio->Colonia,
+                    'Telefono' => $frecuenteSocio->Telefono,
+                    'Correo' => $frecuenteSocio->Correo,
+                    'IdTienda' => $frecuenteSocio->IdTienda,
+                    'Ciudad' => $frecuenteSocio->Ciudad,
+                    'IdUsuario' => $frecuenteSocio->IdUsuario,
+                    'Status' => 0
+                ]);
+            }
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            DB::connection('server')->rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+
+        DB::commit();
+        DB::connection('server')->commit();
+        return redirect('LigarSocioFrecuente')->with('msjAdd', 'Se hizo merge a la tabla de socios y frecuentes correctamente!');
+    }
 }

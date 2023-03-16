@@ -473,6 +473,8 @@ Route::get('/ReporteVentasListaPrecio', 'App\Http\Controllers\PoswebController@R
 Route::get('/LigarSocioFrecuente', 'App\Http\Controllers\SocioFrecuenteController@LigarSocioFrecuente')->name('LigarSocioFrecuente');
 //GuardarSocioFrecuente
 Route::post('/GuardarSocioFrecuente/{folioViejo}', 'App\Http\Controllers\SocioFrecuenteController@GuardarSocioFrecuente')->name('GuardarSocioFrecuente');
+//DescargarSociosFrecuentes
+Route::post('/DescargarSociosFrecuentes/{folioViejo}', 'App\Http\Controllers\SocioFrecuenteController@DescargarSociosFrecuentes')->name('DescargarSociosFrecuentes');
 
 //+============================================================================================================================================+//
 //Reporte de Stock
