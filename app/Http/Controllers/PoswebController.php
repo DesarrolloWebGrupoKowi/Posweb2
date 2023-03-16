@@ -2037,38 +2037,42 @@ class PoswebController extends Controller
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
         $tienda = DB::table('CatTiendas as a')
-                    ->leftJoin('CatCiudades as b', 'b.IdCiudad', 'a.IdCiudad')
-                    ->leftJoin('CatEstados as c', 'c.IdEstado', 'b.IdEstado')
-                    ->where('a.IdTienda', $idTienda)
-                    ->first();
+            ->leftJoin('CatCiudades as b', 'b.IdCiudad', 'a.IdCiudad')
+            ->leftJoin('CatEstados as c', 'c.IdEstado', 'b.IdEstado')
+            ->where('a.IdTienda', $idTienda)
+            ->first();
 
         $venta = DB::table('DatEncabezado as a')
-                    ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
-                    ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
-                    ->where('IdTienda', $idTienda)
-                    ->where('a.IdEncabezado', $idEncabezado)
-                    ->get();
+            ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
+            ->where('IdTienda', $idTienda)
+            ->where('a.IdEncabezado', $idEncabezado)
+            ->get();
 
 
         $encabezado = DatEncabezado::where('IdEncabezado', $idEncabezado)
-                        ->where('IdTienda', $idTienda)
-                        ->first();
+            ->where('IdTienda', $idTienda)
+            ->first();
 
         $datTipoPago = DB::table('DatTipoPago as a')
-                        ->leftJoin('CatTipoPago as b', 'b.IdTipoPago', 'a.IdTipoPago')
-                        ->where('a.IdEncabezado', $idEncabezado)
-                        ->get();
+            ->leftJoin('CatTipoPago as b', 'b.IdTipoPago', 'a.IdTipoPago')
+            ->where('a.IdEncabezado', $idEncabezado)
+            ->get();
 
         $firmaEmpleado = DB::table('DatTipoPago')
-                        ->where('IdEncabezado', $encabezado->IdEncabezado)
-                        ->whereIn('IdTipoPago', [2])
-                        ->get();
+            ->where('IdEncabezado', $encabezado->IdEncabezado)
+            ->whereIn('IdTipoPago', [2])
+            ->get();
 
         $empleado = DB::table('CatEmpleados')
-                    ->where('NumNomina', $encabezado->NumNomina)
-                    ->first();
+            ->where('NumNomina', $encabezado->NumNomina)
+            ->first();
 
-        if(!empty($empleado)){
+        $frecuenteSocio = DB::table('CatFrecuentesSocios')
+            ->where('FolioViejo', $encabezado->NumNomina)
+            ->first();
+
+        if(!empty($empleado) || !empty($frecuenteSocio)){
             $datMonedero = DatMonederoAcumulado::where('IdEncabezado', $encabezado->IdEncabezado)
                 ->where('Monedero', '>', 0)
                 ->sum('Monedero');
@@ -2077,17 +2081,17 @@ class PoswebController extends Controller
                 ->where('Monedero', '>', 0)
                 ->value('FechaExpiracion');
 
-            $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $empleado->NumNomina)
+            $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $encabezado->NumNomina)
                 ->whereRaw("'".date('Y-m-d')."' <= cast(FechaExpiracion as date)")
                 ->sum('Monedero');
         }
 
         $caja = DB::table('DatCajas as a')
-                ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                ->where('IdTienda', $idTienda)
-                ->where('a.Activa', 0)
-                ->where('a.Status', 0)
-                ->first();
+            ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
+            ->where('IdTienda', $idTienda)
+            ->where('a.Activa', 0)
+            ->where('a.Status', 0)
+            ->first();
 
         $n = explode(' ', empty(Auth::user()->Empleado->Nombre) ? 'Nomina' : Auth::user()->Empleado->Nombre);
         $a = explode(' ', empty(Auth::user()->Empleado->Apellidos) ? 'Vacio' : Auth::user()->Empleado->Apellidos);
@@ -2121,7 +2125,13 @@ class PoswebController extends Controller
             $impresora->text("CAJERO: ".$nombre . " " . $apellido."\n");
             $impresora->text("==========================================\n");
             if(!empty($encabezado->NumNomina)){
-                $impresora->text($empleado->NumNomina . " " .$empleado->Nombre." ".$empleado->Apellidos."\n");
+                if(!empty($empleado)){
+                    $impresora->text($empleado->NumNomina . " " .$empleado->Nombre." ".$empleado->Apellidos."\n");
+                }
+                if(!empty($frecuenteSocio)){
+                    $impresora->text($frecuenteSocio->FolioViejo . " " .$frecuenteSocio->Nombre."\n");
+                }
+                
                 $impresora->text("==========================================\n");
             }
             $impresora->setJustification(Printer::JUSTIFY_LEFT);
@@ -2144,7 +2154,7 @@ class PoswebController extends Controller
             $impresora->text("================\n");
             $impresora->feed(2);
             $impresora->setJustification(Printer::JUSTIFY_CENTER);
-            if(!empty($empleado)){
+            if(!empty($empleado) || !empty($frecuenteSocio)){
                 if($datMonedero > 0){
                     $impresora->text("**GENERÓ $".number_format($datMonedero, 2)." EN MONEDERO ELECTRÓNICO**\n");
                     $impresora->text("Monedero Válido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
