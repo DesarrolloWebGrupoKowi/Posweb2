@@ -674,7 +674,8 @@ class PoswebController extends Controller
 
     public function CalculosPreventa(Request $request){
         //return $request->all();
-        $numNomina = $request->nNominaEmpleado;
+        $numNomina = TemporalPos::where('TemporalPos', 1)
+            ->value('NumNomina');
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
         $cantidad = $request->txtCantidad;
