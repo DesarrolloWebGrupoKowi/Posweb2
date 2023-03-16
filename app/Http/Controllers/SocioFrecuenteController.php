@@ -17,7 +17,13 @@ class SocioFrecuenteController extends Controller
         try {
             $numNomina = $request->numNomina; // request del front
 
-            // validar que exista el socio/frecuente, ademas de que no sea un empleado y que no este dado de alta.
+            // validar que el cliente no se haya dado de alta en otra tienda
+            $clienteExistente = false;
+            if(FrecuenteSocio::where('FolioViejo', $numNomina)->where('Status', 0)->exists()){
+                $clienteExistente = true;
+            }
+
+            // validar que exista el socio/frecuente, ademas que no sea un empleado y que no este dado de alta.
             $socioFrecuente = Empleado43::where('Num_Nomina', $numNomina)
                 ->whereNotIn('Num_Nomina', Empleado::where('NumNomina', $numNomina)
                     ->select('NumNomina')
@@ -39,7 +45,7 @@ class SocioFrecuenteController extends Controller
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
-        return view('Posweb.LigarSocioFrecuente', compact('numNomina', 'socioFrecuente', 'tiposCliente'));
+        return view('Posweb.LigarSocioFrecuente', compact('numNomina', 'socioFrecuente', 'tiposCliente', 'clienteExistente'));
     }
 
     public function GuardarSocioFrecuente(Request $request, $folioViejo){

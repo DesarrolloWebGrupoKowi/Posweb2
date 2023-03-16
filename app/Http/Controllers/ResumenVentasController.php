@@ -20,15 +20,17 @@ class ResumenVentasController extends Controller
 
         $primerDiaMesActual = '01' . '-' . date('m') . '-' . date('Y'); // sacar el primer dia del mes actual
 
-        $idEncabezados = DatEncabezado::where('IdTienda', $idTienda)
-            ->where('StatusVenta', 0)
-            ->pluck('IdEncabezado');
-
         $idListasPrecio = ListaPrecioTienda::where('IdTienda', $idTienda)
-            ->whereIn('IdListaPrecio', function ($query) use ($idEncabezados){
+            ->whereIn('IdListaPrecio', function ($query) use ($primerDiaMesActual, $idTienda){
                 $query->selectRaw('distinct(IdListaPrecio)')
                     ->from('DatDetalle')
-                    ->whereIn('IdEncabezado', $idEncabezados);
+                    ->whereIn('IdEncabezado', function ($encabezado) use ($primerDiaMesActual, $idTienda){
+                        $encabezado->select('IdEncabezado')
+                            ->where('StatusVenta', 0)
+                            ->where('IdTienda', $idTienda)
+                            ->whereRaw("cast(FechaVenta as date) >= '". $primerDiaMesActual ."' ")
+                            ->from('DatEncabezado');
+                    });
             })
             ->pluck('IdListaPrecio');
 
@@ -37,7 +39,13 @@ class ResumenVentasController extends Controller
             ->pluck('NomListaPrecio');
 
         $totalIngresos = DatDetalle::whereIn('IdListaPrecio', $idListasPrecio)
-            ->whereIn('IdEncabezado', $idEncabezados)
+            ->whereIn('IdEncabezado', function ($encabezado) use ($primerDiaMesActual, $idTienda){
+                $encabezado->select('IdEncabezado')
+                    ->where('StatusVenta', 0)
+                    ->where('IdTienda', $idTienda)
+                    ->whereRaw("cast(FechaVenta as date) >= '". $primerDiaMesActual ."' ")
+                    ->from('DatEncabezado');
+                })
             ->selectRaw('SUM(DatDetalle.ImporteArticulo) as ImporteTotal')
             ->groupBy('IdListaPrecio')
             ->orderBy('IdListaPrecio')
