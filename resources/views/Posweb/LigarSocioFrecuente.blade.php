@@ -33,10 +33,15 @@
                     <h3>El cliente se ha dado de alta en otra tienda <strong>¿Desea Descargarlo?</strong></h3>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <form action="DescargarSociosFrecuentes/{{ $numNomina }}" method="POST">
+                    <form id="frmDescargarSociosFrecuentes" action="DescargarSociosFrecuentes/{{ $numNomina }}"
+                        method="POST">
                         @csrf
-                        <button class="btn btn-success">
+                        <button id="btnDescargarCliente" class="btn btn-success">
                             <i class="fa fa-download"></i> Descargar Cliente
+                        </button>
+                        <button id="btnDescargandoCliente" hidden class="btn btn-warning" type="button">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Descargando Clientes...
                         </button>
                     </form>
                 </div>
@@ -182,6 +187,11 @@
                     document.getElementById('formGuardarSocioFrecuente').addEventListener('submit', function() {
                         document.getElementById('btnLigarSocioFrecuente').hidden = true;
                         document.getElementById('btnLigarndoSocioFrecuente').hidden = false;
+                    });
+
+                    document.getElementById('frmDescargarSociosFrecuentes').addEventListener('submit', function() {
+                        document.getElementById('btnDescargarCliente').hidden = true;
+                        document.getElementById('btnDescargandoCliente').hidden = false;
                     });
                 </script>
             @endif
