@@ -45,7 +45,7 @@
                             @else
                                 @foreach ($tiposPago as $tipoPago)
                                     @foreach ($tipoPago->TiposPago as $tPago)
-                                        <option {!! $tPago->IdTipoPago == 7 && $monederoEmpleado == 0 ? 'disabled' : '' !!} {!! $tPago->IdTipoPago == 7 && empty($cliente->NumNomina) ? 'disabled' : '' !!} {!! $tPago->IdTipoPago == 2 && empty($cliente->NumNomina) ? 'disabled' : '' !!}
+                                        <option {!! $tPago->IdTipoPago == 7 && $monederoEmpleado == 0 ? 'disabled' : '' !!} {!! $tPago->IdTipoPago == 7 && empty($cliente->NumNomina && empty($frecuenteSocio)) ? 'disabled' : '' !!} {!! $tPago->IdTipoPago == 2 && empty($cliente->NumNomina) ? 'disabled' : '' !!}
                                             {!! $tPago->IdTipoPago == 2 && $creditoDisponible == 0 ? 'disabled' : '' !!} {!! $tPago->IdTipoPago == 3 && !empty($cliente->NumNomina) ? 'disabled' : '' !!}
                                             value="{{ $tPago->IdTipoPago }}">{{ $tPago->NomTipoPago }}</option>
                                     @endforeach
