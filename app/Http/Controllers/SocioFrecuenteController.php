@@ -19,7 +19,10 @@ class SocioFrecuenteController extends Controller
 
             // validar que el cliente no se haya dado de alta en otra tienda
             $clienteExistente = false;
-            if(FrecuenteSocio::where('FolioViejo', $numNomina)->where('Status', 0)->exists()){
+            if(
+                FrecuenteSocio::where('FolioViejo', $numNomina)->where('Status', 0)->exists() &&
+                DB::table('CatFrecuentesSocios')->where('FolioViejo', $numNomina)->where('Status', 0)->doesntExist()
+            ){
                 $clienteExistente = true;
             }
 
