@@ -2241,7 +2241,7 @@ class PoswebController extends Controller
             ->first();
 
         $frecuenteSocio = DB::table('CatFrecuentesSocios')
-            ->where('NumNomina', $encabezado->NumNomina)
+            ->where('FolioViejo', $encabezado->NumNomina)
             ->first();
 
         if(!empty($empleado) || !empty($frecuenteSocio)){
