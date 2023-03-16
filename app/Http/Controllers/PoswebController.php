@@ -2304,7 +2304,7 @@ class PoswebController extends Controller
                         $impresora->text($empleado->NumNomina . " " .$empleado->Nombre." ".$empleado->Apellidos."\n");
                     }
                     if(!empty($frecuenteSocio)){
-                        $impresora->text($frecuenteSocio->FolioViejo . " " .$empleado->Nombre."\n");
+                        $impresora->text($frecuenteSocio->FolioViejo . " " .$frecuenteSocio->Nombre."\n");
                     }
                     
                     $impresora->text("==========================================\n");
