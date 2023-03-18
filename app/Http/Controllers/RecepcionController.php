@@ -231,7 +231,8 @@ class RecepcionController extends Controller
                         'IdStatusRecepcion' => 2,
                         'FechaRecepcion' => date('d-m-Y H:i:s'),
                         'IdUsuario' => Auth::user()->IdUsuario,
-                        'IdTienda' => Auth::user()->usuarioTienda->IdTienda
+                        'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                        'Subir' => 1
                     ]);
             }
 
