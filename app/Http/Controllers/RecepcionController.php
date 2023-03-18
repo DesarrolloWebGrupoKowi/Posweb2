@@ -477,7 +477,7 @@ class RecepcionController extends Controller
                     'CodArticulo' => $producto->CodArticulo,
                     'CantArticulo' => $producto->CantArticulo,
                     'FechaMovimiento' => date('d-m-Y H:i:s'),
-                    'Referencia' => strtoupper($origen),
+                    'Referencia' => $idRecepcion,
                     'IdMovimiento' => 13,
                     'IdUsuario' => Auth::user()->IdUsuario
                 ]);
