@@ -153,7 +153,7 @@ class PoswebController extends Controller
 
         $pedidosPendientes = DatEncPedido::where('IdTienda', $idTienda)
             ->where('Status', 0)
-            ->whereDate('FechaRecoger', date('d-m-Y'))
+            ->whereDate('FechaRecoger', date('Y-m-d'))
             ->count();
 
         return view('Posweb.Pos', compact('usuario', 'fechaHoy', 'preventa', 'subTotalPreventa', 'ivaPreventa', 'totalPreventa', 
