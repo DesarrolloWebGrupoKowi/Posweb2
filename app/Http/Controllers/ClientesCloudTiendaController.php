@@ -18,8 +18,12 @@ class ClientesCloudTiendaController extends Controller
 
         $idTienda = $request->idTienda;
 
+        $idsClienteCloudTienda = ClienteCloudTienda::where('IdTienda', $idTienda)
+            ->pluck('IdClienteCloud');
+
         $clientesCloud = ClienteCloud::orderBy('NomClienteCloud')
-                        ->get();
+            ->whereNotIn('IdClienteCloud', $idsClienteCloudTienda)
+            ->get();
 
         //return $clientesCloud;
 

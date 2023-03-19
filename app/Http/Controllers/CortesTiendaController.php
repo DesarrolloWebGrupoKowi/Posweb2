@@ -79,12 +79,14 @@ class CortesTiendaController extends Controller
                     ->whereNull('IdSolicitudFactura')
                     ->pluck('Bill_To');
 
-                $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($idTienda, $fecha1, $idCaja){
-                    $query->where('DatCortesTienda.IdTienda', $idTienda)
-                        ->where('DatCortesTienda.StatusVenta', 0)
-                        ->whereDate('FechaVenta', $fecha1)
-                        ->whereNull('DatCortesTienda.IdSolicitudFactura');
-                }])
+                $cortesTienda = ClienteCloudTienda::with([
+                    'Customer', 
+                    'CorteTienda' => function ($query) use ($idTienda, $fecha1, $idCaja){
+                        $query->where('DatCortesTienda.IdTienda', $idTienda)
+                            ->where('DatCortesTienda.StatusVenta', 0)
+                            ->whereDate('FechaVenta', $fecha1)
+                            ->whereNull('DatCortesTienda.IdSolicitudFactura');
+                    }])
                     ->where('IdTienda', $idTienda)
                     ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
                     ->distinct('Bill_To')
@@ -287,10 +289,11 @@ class CortesTiendaController extends Controller
                     ->where('IdDatCaja', $idCaja)
                     ->sum('ImporteArticulo');
 
-                $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idCaja){
-                    $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                        ->where('DatCortesTienda.IdDatCaja', $idCaja);
-                }])
+                $facturas = SolicitudFactura::with([
+                        'Factura' => function ($query) use ($idCaja) {
+                        $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+                            ->where('DatCortesTienda.IdDatCaja', $idCaja);
+                        }])
                     ->where('IdTienda', $idTienda)
                     ->whereDate('FechaSolicitud', $fecha1)
                     ->get();
@@ -677,10 +680,11 @@ class CortesTiendaController extends Controller
 
             //return $cortesTienda;
 
-            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja){
-                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                        ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
-            }])
+            $facturas = SolicitudFactura::with([
+                'Factura' => function ($query) use ($idDatCaja){
+                    $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+                            ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
+                }])
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaSolicitud', $fecha)
                 ->get();
