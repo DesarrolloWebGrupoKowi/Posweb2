@@ -251,12 +251,13 @@ class RecepcionController extends Controller
                 foreach ($chkArticulo as $codArticulo => $refArticulo) {
                     foreach ($cantRecepcionada as $codArticuloRec => $cantRecepcion) {
                         if($codArticulo==$codArticuloRec){
+                            $Linea=$Linea+1;
                             DatRecepcion::insert([
                                 'IdCapRecepcion' => $idCapRecepcionReturned,
                                 'CodArticulo' => $codArticulo,
                                 'CantEnviada' => $cantRecepcion,
                                 'CantRecepcionada' => $cantRecepcion,
-                                'Linea' => $Linea+1,
+                                'Linea' => $Linea,
                                 'IdStatusRecepcion' => 2
                             ]);
                         }
