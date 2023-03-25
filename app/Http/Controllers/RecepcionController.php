@@ -217,6 +217,52 @@ class RecepcionController extends Controller
                     }
                 } 
             }
+
+            //Solo inserta los articulos manuales
+            if($idRecepcion==0){
+                //Obetener tienda
+                $almacen = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)->value('Almacen');
+               
+                //Obtener caja
+                $idCaja = DatCaja::where('Status', 0)
+                ->where('Activa', 0)
+                ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->value('IdCaja');
+
+                //Insert a CapRecepcion y DatRecepcion cuando el idRecepcion==0
+                CapRecepcion::insert([
+                    'FechaRecepcion' => date('d-m-Y H:i:s'),
+                    'FechaLlegada' => date('d-m-Y H:i:s'),
+                    'PackingList' => 'RECEPCION MANUAL',
+                    'Almacen' => $almacen,
+                    'IdStatusRecepcion' => 2,
+                    'IdUsuario' => Auth::user()->IdUsuario,
+                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                    'IdCaja' => $idCaja,
+                    'StatusInventario' => 1
+                ]);
+
+                //Id Insertado
+                $idCapRecepcionReturned = CapRecepcion::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)->max('IdCapRecepcion');
+                
+                $Linea=0;
+    
+                //Articulos checkeados
+                foreach ($chkArticulo as $codArticulo => $refArticulo) {
+                    foreach ($cantRecepcionada as $codArticuloRec => $cantRecepcion) {
+                        if($codArticulo==$codArticuloRec){
+                            DatRecepcion::insert([
+                                'IdCapRecepcion' => $idCapRecepcionReturned,
+                                'CodArticulo' => $codArticulo,
+                                'CantEnviada' => $cantRecepcion,
+                                'CantRecepcionada' => $cantRecepcion,
+                                'Linea' => $Linea+1,
+                                'IdStatusRecepcion' => 2
+                            ]);
+                        }
+                    }
+                }
+            }
     
             CapturaManualTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->delete();
