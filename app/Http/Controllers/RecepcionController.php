@@ -314,7 +314,8 @@ class RecepcionController extends Controller
                     $correos = array_filter($correos);
 
                     $recepcion = CapRecepcion::with(['DetalleRecepcion' => function($query){
-                        $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo');
+                        $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
+                            ->where('DatRecepcion.IdStatusRecepcion', 2);
                     }])
                         ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                         ->where('IdCapRecepcion', $idRecepcion)
