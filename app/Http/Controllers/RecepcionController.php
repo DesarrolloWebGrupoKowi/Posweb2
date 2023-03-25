@@ -163,6 +163,7 @@ class RecepcionController extends Controller
             DB::connection('server')->beginTransaction();
             DB::beginTransaction();
 
+            $Linea=0;
             foreach ($chkArticulo as $key => $referencia) {
                 foreach ($cantRecepcionada as $codArticulo => $cRecepcionada) {
                     if($key == $codArticulo){
@@ -172,6 +173,18 @@ class RecepcionController extends Controller
                                 'CantRecepcionada' => $cRecepcionada,
                                 'IdStatusRecepcion' => 2
                         ]);
+                        //A un packingLst se le agrega un articulo manual
+                        $Linea=$Linea+1;
+                        if($idRecepcion>0 && $referencia == 'MANUAL'){
+                            DatRecepcion::insert([
+                                'IdCapRecepcion' => $idRecepcion,
+                                'CodArticulo' => $codArticulo,
+                                'CantEnviada' => $cRecepcionada,
+                                'CantRecepcionada' => $cRecepcionada,
+                                'Linea' => $Linea,
+                                'IdStatusRecepcion' => 2
+                            ]);
+                        }
     
                         //Si hay inventario de ese articulo para la tienda
                         $inventario = InventarioTienda::where('CodArticulo', ''.$key.'')
