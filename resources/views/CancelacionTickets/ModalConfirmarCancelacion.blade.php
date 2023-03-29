@@ -7,11 +7,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/CancelarTicket/{{ $solicitud->IdEncabezado }}" method="POST">
+                @csrf
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-auto">
                             <textarea class="form-control" name="motivoCancelacion" id="motivoCancelacion" cols="60" rows="5"
-                                placeholder="Motivo de Cancelación" required>{{ $solicitud->MotivoCancelacion }}</textarea>
+                                placeholder="Motivo de Cancelación" required>{{ $solicitud->MotivoCancelacion }}
+                            </textarea>
                         </div>
                     </div>
                 </div>
@@ -19,7 +21,6 @@
                     <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">
                         <i class="fa fa-close"></i> Cerrar
                     </button>
-                    @csrf
                     <button type="submit" class="btn btn-sm btn-danger">
                         <i class="fa fa-ban"></i> Cancelar Ticket
                     </button>

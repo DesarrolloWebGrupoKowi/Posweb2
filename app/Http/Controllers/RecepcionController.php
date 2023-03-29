@@ -21,7 +21,7 @@ use App\Models\CorreoTienda;
 class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request){
-        exec("ping -n 1 google.com", $salida, $codigo);
+        exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
 
         if($codigo === 1){
             return redirect('RecepcionLocalSinInternet');
@@ -39,18 +39,20 @@ class RecepcionController extends Controller
         $idRecepcion = $request->idRecepcion;
         empty($idRecepcion) ? $idRecepcion = 0 : $idRecepcion = $idRecepcion;
 
-        $detalleRecepcion = DB::connection('server')->select("select c.PackingList, d.NomTienda as TiendaOrigen, c.Almacen, a.*, b.NomArticulo".
-                                        " from DatRecepcion as a".
-                                        " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
-                                        " left join CapRecepcion as c on c.IdCapRecepcion=a.IdCapRecepcion".
-                                        ' left join CatTiendas as d on d.IdTienda = c.IdTiendaOrigen'.
-                                        " where a.IdCapRecepcion = ".$idRecepcion."".
-                                        " and a.IdStatusRecepcion = 1".
-                                        " union all".
-                                        " select Referencia, '', '".$tienda->Almacen."', 0, 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo".
-                                        " from CapRecepcionManualTmp as a".
-                                        " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
-                                        " where a.IdTienda = '".$tienda->IdTienda."' ");
+        $detalleRecepcion = DB::connection('server')
+            ->select("select c.PackingList, d.NomTienda as TiendaOrigen, c.Almacen, a.*, b.NomArticulo".
+                " from DatRecepcion as a".
+                " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
+                " left join CapRecepcion as c on c.IdCapRecepcion=a.IdCapRecepcion".
+                ' left join CatTiendas as d on d.IdTienda = c.IdTiendaOrigen'.
+                " where a.IdCapRecepcion = ".$idRecepcion."".
+                " and a.IdStatusRecepcion = 1".
+                " union all".
+                " select Referencia, '', '".$tienda->Almacen."', 0, 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo".
+                " from CapRecepcionManualTmp as a".
+                " left join CatArticulos as b on b.CodArticulo=a.CodArticulo".
+                " where a.IdTienda = '".$tienda->IdTienda."' "
+            );
 
         $totalRecepcion = DatRecepcion::where('IdCapRecepcion', $idRecepcion)
             ->where('IdStatusRecepcion', 1)
@@ -58,6 +60,7 @@ class RecepcionController extends Controller
 
         $totalManual = CapturaManualTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
             ->sum('CantArticulo');
+            
         $totalCantidad = $totalRecepcion + $totalManual;
 
         return view('Recepcion.RecepcionProducto', compact('tienda', 'recepcion', 'detalleRecepcion', 'totalCantidad', 'idRecepcion'));

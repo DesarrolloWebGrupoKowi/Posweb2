@@ -22,22 +22,30 @@ use App\Models\SolicitudCancelacionTicket;
 class CancelacionTicketsController extends Controller
 {
     public function CancelacionTickets(Request $request){
-        $solicitudesCancelacion = SolicitudCancelacionTicket::with(['Tienda' => function ($query) {
-            $query->select('IdTienda', 'NomTienda');
-        }, 'Encabezado' => function ($query) {
-            $query->leftJoin('DatCajas', 'DatCajas.IdDatCajas', 'DatEncabezado.IdDatCaja')
-                ->leftJoin('CatCajas', 'CatCajas.IdCaja', 'DatCajas.IdCaja')
-                ->select('DatEncabezado.IdEncabezado', 'CatCajas.NumCaja', 'DatEncabezado.IdDatCaja', 'DatEncabezado.IdTicket', 
-                    'DatEncabezado.FechaVenta', 'DatEncabezado.ImporteVenta');
-        }, 'Detalle' => function ($query) {
-            $query->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
-                ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
-                ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido')
-                ->select('DatDetalle.IdEncabezado', 'DatDetalle.IdArticulo', 'CatArticulos.CodArticulo', 'CatArticulos.NomArticulo', 
-                    'DatDetalle.CantArticulo', 'DatDetalle.PrecioArticulo', 'DatDetalle.IvaArticulo', 
-                    'DatDetalle.SubTotalArticulo', 'DatDetalle.ImporteArticulo', 'DatDetalle.IdPaquete', 
-                    'DatDetalle.IdPedido', 'CatPaquetes.NomPaquete', 'DatEncPedido.Cliente');
-        }])
+        $solicitudesCancelacion = SolicitudCancelacionTicket::with([
+            'Tienda' => function ($query) {
+                $query->select('IdTienda', 'NomTienda');
+            }, 
+            'Encabezado' => function ($query) {
+                $query->leftJoin('DatCajas', 'DatCajas.IdDatCajas', 'DatEncabezado.IdDatCaja')
+                    ->leftJoin('CatCajas', 'CatCajas.IdCaja', 'DatCajas.IdCaja')
+                    ->select(
+                        'DatEncabezado.IdEncabezado', 'CatCajas.NumCaja', 'DatEncabezado.IdDatCaja', 'DatEncabezado.IdTicket', 
+                        'DatEncabezado.FechaVenta', 'DatEncabezado.ImporteVenta'
+                    );
+            }, 
+            'Detalle' => function ($query) {
+                $query->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
+                    ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
+                    ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido')
+                    ->select(
+                        'DatDetalle.IdEncabezado', 'DatDetalle.IdArticulo', 'CatArticulos.CodArticulo', 'CatArticulos.NomArticulo', 
+                        'DatDetalle.CantArticulo', 'DatDetalle.PrecioArticulo', 'DatDetalle.IvaArticulo', 
+                        'DatDetalle.SubTotalArticulo', 'DatDetalle.ImporteArticulo', 'DatDetalle.IdPaquete', 
+                        'DatDetalle.IdPedido', 'CatPaquetes.NomPaquete', 'DatEncPedido.Cliente'
+                    );
+            }
+        ])
             ->whereNull('SolicitudAprobada')
             ->whereNull('FechaAprobacion')
             ->whereNull('IdUsuarioAprobacion')
@@ -54,22 +62,29 @@ class CancelacionTicketsController extends Controller
 
             $motivoCancelacion = $request->motivoCancelacion;
 
-            $solicitudCancelacion = SolicitudCancelacionTicket::with(['Tienda' => function ($query) {
-                $query->select('IdTienda', 'NomTienda');
-            }, 'Encabezado' => function ($query) {
-                $query->leftJoin('DatCajas', 'DatCajas.IdDatCajas', 'DatEncabezado.IdDatCaja')
-                    ->leftJoin('CatCajas', 'CatCajas.IdCaja', 'DatCajas.IdCaja')
-                    ->select('DatEncabezado.IdEncabezado', 'CatCajas.NumCaja', 'DatEncabezado.IdDatCaja', 'DatEncabezado.IdTicket', 
-                        'DatEncabezado.FechaVenta', 'DatEncabezado.ImporteVenta');
-            }, 'Detalle' => function ($query) {
-                $query->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
-                    ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
-                    ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido')
-                    ->select('DatDetalle.IdEncabezado', 'DatDetalle.IdArticulo', 'CatArticulos.CodArticulo', 'CatArticulos.NomArticulo', 
-                        'DatDetalle.CantArticulo', 'DatDetalle.PrecioArticulo', 'DatDetalle.IvaArticulo', 
-                        'DatDetalle.SubTotalArticulo', 'DatDetalle.ImporteArticulo', 'DatDetalle.IdPaquete', 
-                        'DatDetalle.IdPedido', 'CatPaquetes.NomPaquete', 'DatEncPedido.Cliente');
-            }])
+            // todo el detail del ticket a cancelar, se usa para el envio del correo
+            $solicitudCancelacion = SolicitudCancelacionTicket::with([
+                'Tienda' => function ($query) {
+                    $query->select('IdTienda', 'NomTienda');
+                }, 
+                'Encabezado' => function ($query) {
+                    $query->leftJoin('DatCajas', 'DatCajas.IdDatCajas', 'DatEncabezado.IdDatCaja')
+                        ->leftJoin('CatCajas', 'CatCajas.IdCaja', 'DatCajas.IdCaja')
+                        ->select('DatEncabezado.IdEncabezado', 'CatCajas.NumCaja', 'DatEncabezado.IdDatCaja', 'DatEncabezado.IdTicket', 
+                            'DatEncabezado.FechaVenta', 'DatEncabezado.ImporteVenta');
+                }, 
+                'Detalle' => function ($query) {
+                    $query->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
+                        ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
+                        ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido')
+                        ->select(
+                            'DatDetalle.IdEncabezado', 'DatDetalle.IdArticulo', 'CatArticulos.CodArticulo', 'CatArticulos.NomArticulo', 
+                            'DatDetalle.CantArticulo', 'DatDetalle.PrecioArticulo', 'DatDetalle.IvaArticulo', 
+                            'DatDetalle.SubTotalArticulo', 'DatDetalle.ImporteArticulo', 'DatDetalle.IdPaquete', 
+                            'DatDetalle.IdPedido', 'CatPaquetes.NomPaquete', 'DatEncPedido.Cliente'
+                        );
+                }
+            ])
                 ->whereNull('SolicitudAprobada')
                 ->whereNull('FechaAprobacion')
                 ->whereNull('IdUsuarioAprobacion')
@@ -77,6 +92,7 @@ class CancelacionTicketsController extends Controller
                 ->first();
 
             // enviar correo de aprobacion de solicitud de cancelacion de ticket
+            // -> bajar function antes del commit para comprobar que todo salio bien
             $correos = [
                 'soporte@kowi.com.mx',
                 'sistemas@kowi.com.mx'
@@ -106,14 +122,24 @@ class CancelacionTicketsController extends Controller
                         'StatusVenta' => 1
                     ]);
 
-                // cancelar el credito del empleado del concentrado
+                // cancelar el credito del empleado del concentrado de creditos (DatConcenVenta) **
+                VentaCreditoEmpleado::where('IdEncabezado', $idEncabezado)
+                    ->delete();
                 
 
                 // revisar si la venta genero monedero electronico, para cancelarlo **
+                $monederoGenerado = DatMonederoElectronico::where('IdEncabezado', $idEncabezado)
+                    ->sum('Monedero');
 
+                $fechaExpiracion = DatMonederoElectronico::where('IdEncabezado', $idEncabezado)
+                    ->value('FechaExpiracion');
+
+                DatMonederoElectronico::insert([
+
+                ]);
             }
 
-            //DEVOLVER INVENTARIO DEL TICKET CANCELADO
+            // devolver inventario del ticket cancelado
             $detalleVenta = DatDetalle::where('IdEncabezado', $idEncabezado)
                 ->get();
 
@@ -130,10 +156,9 @@ class CancelacionTicketsController extends Controller
                     ->update([
                         'StockArticulo' => $stock + $detalle->CantArticulo
                     ]);
-
             }
 
-            //INSERTAR EN HISTORIAL MOVIMIENTOS PRODUCTO
+            // insertar en el historial de movimientos de producto, con referencia del IdEncabezado
             HistorialMovimientoProducto::insert([
                 'IdTienda' => $idTienda,
                 'FechaMovimiento' => date('d-m-Y H:i:s'),
@@ -143,23 +168,26 @@ class CancelacionTicketsController extends Controller
             ]);
 
         } catch (\Throwable $th) {
-            DB::rollback();
-            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            DB::rollback(); // hubo algun error
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage()); // me devuelvo con el mensaje de error
         }
 
-        DB::commit();
-        return back()->with('msjAdd', 'Se Canceló Correctamente el Ticket!');
+        DB::commit(); // todo salio bien
+        return back()->with('msjAdd', 'Se Canceló Correctamente el Ticket!'); // me dvuelvo con el mensaje de éxito
     }
 
     public function SolicitudCancelacionTicket(Request $request){
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
         $idTicket = $request->idTicket;
 
-        $ticket = DatEncabezado::with(['detalle' => function ($join) {
-            $join->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
-                ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido')
-                ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete');
-        }, 'TipoPago'])
+        $ticket = DatEncabezado::with([
+            'detalle' => function ($join) {
+                $join->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
+                    ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido')
+                    ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete');
+            }, 
+            'TipoPago'
+        ])
             ->where('IdTicket', $idTicket)
             ->where('IdTienda', $idTienda)
             ->whereDate('FechaVenta', date('d-m-Y'))
@@ -181,7 +209,7 @@ class CancelacionTicketsController extends Controller
     
     public function SolicitarCancelacion($idEncabezado, Request $request){
         try {
-            DB::connection('server')->getPDO(); // revisar conexion al server
+            DB::connection('server')->getPDO(); // revisar conexion al server ?
 
             DB::beginTransaction();
             DB::connection('server')->beginTransaction();
