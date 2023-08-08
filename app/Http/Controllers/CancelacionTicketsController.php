@@ -43,13 +43,14 @@ class CancelacionTicketsController extends Controller
             ->whereNull('IdUsuarioAprobacion')
             ->get();
 
-        //return $solicitudesCancelacion;
+//        return $solicitudesCancelacion;
 
         return view('CancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion'));
     }
 
     public function CancelarTicket(Request $request, $idEncabezado){
         try {
+           
             DB::beginTransaction();
 
             $motivoCancelacion = $request->motivoCancelacion;
@@ -75,7 +76,8 @@ class CancelacionTicketsController extends Controller
                 ->whereNull('IdUsuarioAprobacion')
                 ->where('IdEncabezado', $idEncabezado)
                 ->first();
-
+                $idTienda=$solicitudCancelacion->IdTienda;   
+             
             // enviar correo de aprobacion de solicitud de cancelacion de ticket
             $correos = [
                 'soporte@kowi.com.mx',
@@ -85,7 +87,7 @@ class CancelacionTicketsController extends Controller
             Mail::to($correos)
                 ->send(new CancelacionTicketMail($solicitudCancelacion));
             
-            return 'menito';
+            //return 'menito';
 
             DatEncabezado::where('IdEncabezado', $idEncabezado)
                 ->update([

@@ -41,7 +41,7 @@
                         <tr>
                             <td>{{ $solicitud->Tienda->NomTienda }}</td>
                             <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
-                            <td>{{ $solicitud->Encabezado->NumCaja }}</td>
+                            <td>{{ $solicitud->encabezado->NumCaja }}</td>
                             <td>{{ $solicitud->Encabezado->IdTicket }}</td>
                             <th>${{ number_format($solicitud->Encabezado->ImporteVenta, 2) }}</th>
                             <td>
