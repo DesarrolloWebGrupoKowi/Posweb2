@@ -745,7 +745,6 @@ Route::group(['middleware' => 'auth'], function () {
     //DetalleAsignados
     Route::get('/DetalleAsignados', 'App\Http\Controllers\AsignacionPreparadosController@Asignados')->name('Asignados.index');
 
-    //+============================================================================================================================================+//
 }); //->Termina Middleware Auth
 
 // pagina de error 404
