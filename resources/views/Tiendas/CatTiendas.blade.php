@@ -1,92 +1,87 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Tiendas')
+@section('dashboardWidth', 'max-width: 95%;')
 @section('contenido')
-    <div class="personalizadoContainer cuchi">
-        <div class="row">
-            <h2 class="titulo">Catálogo de Tiendas</h2>
+    <div class="container-fluid pt-4" style="max-width: 95%;">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Catálogo de Tiendas'])
+            <div>
+                <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                    <i class="fa fa-plus-circle pe-1"></i> Agregar tienda
+                </button>
+                <a href="/CatTiendas" class="btn btn-dark-outline">
+                    <span class="material-icons">visibility</span>
+                </a>
+            </div>
         </div>
+
         <div>
             @include('Alertas.Alertas')
         </div>
-        <div class="row">
-            <div class="col-12">
-                <form action="/CatTiendas" method="get">
-                    <div class="row">
-                        <div class="col-sm-2 my-2">
-                            <select class="form-select" name="filtroEstado" id="filtroEstado">
-                                @foreach ($estados as $estado)
-                                    <option {!! $estado->IdEstado == $filtroEstado ? 'selected' : '' !!} value="{{ $estado->IdEstado }}">{{ $estado->NomEstado }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-sm-2 my-2">
-                            <select class="form-select" name="filtroCiudad" id="filtroCiudad">
-                                <option selected value="0">Seleccione</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-1 my-2">
-                            <button class="btn btn-default"><span class="material-icons">search</span></button>
-                        </div>
-                        <div class="col-sm-1 my-2">
-                            <a href="/CatTiendas" class="btn btn-default"><span class="material-icons">visibility</span></a>
-                        </div>
-                        <div class="col-5 my-1">
-                            <button type="button" class="btn btn-default Agregar" data-bs-toggle="modal"
-                                data-bs-target="#ModalAgregar">
-                                <span class="material-icons">add_circle_outline</span>
-                            </button>
-                        </div>
-                    </div>
-                </form>
+
+        <form class="d-flex align-items-center justify-content-end pb-4 gap-2"action="/CatTiendas" method="get">
+            <div class="input-group" style="max-width: 300px">
+                <select class="form-select" name="filtroEstado" id="filtroEstado">
+                    @foreach ($estados as $estado)
+                        <option {!! $estado->IdEstado == $filtroEstado ? 'selected' : '' !!} value="{{ $estado->IdEstado }}">{{ $estado->NomEstado }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
-        </div>
-        <div class="col-12">
-            <div class="table-responsive">
-                <table class="table table-responsive table-striped table-sm">
-                    <thead>
+            <div class="input-group" style="max-width: 300px">
+                <select class="form-select" name="filtroCiudad" id="filtroCiudad">
+                    <option selected value="0">Seleccione</option>
+                </select>
+            </div>
+            <button class="btn btn-dark-outline">
+                <span class="material-icons">search</span>
+            </button>
+        </form>
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
+                    <tr>
+                        <th class="rounded-start">Id</th>
+                        <th>Tienda</th>
+                        <th>Telefono</th>
+                        <th>Dirección</th>
+                        <th>Ciudad</th>
+                        <th class="rounded-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (count($tiendas) <= 0)
                         <tr>
-                            <th>Id</th>
-                            <th>Tienda</th>
-                            <th>Telefono</th>
-                            <th>Dirección</th>
-                            <th>Ciudad</th>
-                            <th>Acciones</th>
+                            <td colspan="6">No Hay Tiendas!</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @if (count($tiendas) <= 0)
+                    @else
+                        @foreach ($tiendas as $tienda)
                             <tr>
-                                <td colspan="6">No Hay Tiendas!</td>
+                                <td>{{ $tienda->IdTienda }}</td>
+                                <td>{{ $tienda->NomTienda }}</td>
+                                <td>{{ $tienda->Telefono }}</td>
+                                <td>{{ $tienda->Direccion }}</td>
+                                <td>{{ $tienda->ccNomCiudad }}</td>
+                                <td>
+                                    <button class="btn btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEditar{{ $tienda->IdTienda }}">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="btn btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEliminar{{ $tienda->IdTienda }}">
+                                        <span class="material-icons eliminar">delete_forever</span>
+                                    </button>
+                                </td>
                             </tr>
-                        @else
-                            @foreach ($tiendas as $tienda)
-                                <tr>
-                                    <td>{{ $tienda->IdTienda }}</td>
-                                    <td>{{ $tienda->NomTienda }}</td>
-                                    <td>{{ $tienda->Telefono }}</td>
-                                    <td>{{ $tienda->Direccion }}</td>
-                                    <td>{{ $tienda->ccNomCiudad }}</td>
-                                    <td>
-                                        <button class="btn btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#ModalEditar{{ $tienda->IdTienda }}">
-                                            <span class="material-icons">edit</span>
-                                        </button>
-                                        <button class="btn btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#ModalEliminar{{ $tienda->IdTienda }}">
-                                            <span class="material-icons eliminar">delete_forever</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <!-- Modal Editar Informacion -->
-                                @include('Tiendas.ModalEditar')
-                                <!-- Modal Eliminar -->
-                                @include('Tiendas.ModalEliminar')
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
-            </div>
+                            <!-- Modal Editar Informacion -->
+                            @include('Tiendas.ModalEditar')
+                            <!-- Modal Eliminar -->
+                            @include('Tiendas.ModalEliminar')
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
         </div>
     </div>
     <br>
