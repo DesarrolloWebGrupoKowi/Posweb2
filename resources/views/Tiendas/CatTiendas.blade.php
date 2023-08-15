@@ -1,8 +1,8 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Tiendas')
-@section('dashboardWidth', 'max-width: 95%;')
+@section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="container-fluid pt-4" style="max-width: 95%;">
+    <div class="container-fluid pt-4 width-95">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Catálogo de Tiendas'])
             <div>

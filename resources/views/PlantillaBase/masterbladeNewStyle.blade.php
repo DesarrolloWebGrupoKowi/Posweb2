@@ -1,10 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-<style>
-    .material-icons:active {
-        transform: scale(1.5);
-    }
-</style>
 
 <head>
     <meta charset="UTF-8">
@@ -12,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{{ asset('img/logokowi.png') }}">
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
-    {{-- <link rel="stylesheet" href="{{ asset('css/Style.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
     <link href="{{ asset('material-icon/material-icon.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('Icons/font-awesome.min.css') }}">
@@ -22,10 +16,11 @@
 <body>
 
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
-            <div class="container-fluid" style="@yield('dashboardWidth')">
-                <a id="imgLogo" class="navbar-brand" href="/"><img src="{{ asset('img/logokowi.png') }}"
-                        class="rounded" width="30" height="30"></a>
+        <nav class="navbar navbar-expand navbar-dark" style="background: #1e293b">
+            <div class="container-fluid @yield('dashboardWidth')">
+                <a id="imgLogo" class="navbar-brand" href="/"><img
+                        src="https://www.kowi.com.mx/wp-content/uploads/elementor/thumbs/01_LOGO_KOWI-pdb6yay1990vudjiiivqobds1rhtcw2u1qinecxwpy.png"
+                        class="rounded" height="32"></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
                     aria-label="Toggle navigation">
@@ -52,28 +47,35 @@
                                 <a href="#"
                                     class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
                                     id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="material-icons" style="color: white">account_circle</span>
-                                    <strong>{{ Auth::user()->NomUsuario }}</strong>
+                                    <span class="material-icons pe-1 text-white"
+                                        style="font-size: 2.5rem">account_circle</span>
+                                    <span class="pe-1" style="line-height: 1rem">
+                                        {{ strtoupper(Auth::user()->NomUsuario) }} <br>
+                                        <small>{{ Auth::user()->tipoUsuario->NomTipoUsuario }}</small>
+                                    </span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1">
-                                    <a class="dropdown-item disabled"><i class="fa fa-id-card-o"></i>
-                                        {{ Auth::user()->tipoUsuario->NomTipoUsuario }}</a>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1"
+                                    style="background: #1e293b">
+                                    @if (!request()->routeIs('login'))
+                                        <li>
+                                            <a href="/MiPerfil" class="dropdown-item text-white">
+                                                <i class="fa fa-user-circle"></i> Mi Perfil
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if (!request()->routeIs('dashboard'))
+                                        <li>
+                                            <a href="/Dashboard" class="dropdown-item text-white">
+                                                <i class="fa fa-bars"></i> Dashboard
+                                            </a>
+                                        </li>
+                                    @endif
                                     <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a href="/MiPerfil" class="dropdown-item"><i class="fa fa-user"></i> Mi Perfil</a>
-                                    </li>
-                                    <li>
-                                        <a href="/Dashboard" class="dropdown-item"><i class="fa fa-bars"></i> Dashboard</a>
-                                    </li>
-                                    <hr class="dropdown-divider">
-                                    <li>
-                                        <a class="dropdown-item" href="/Logout"
+                                        <a class="dropdown-item text-white" href="/Logout"
                                             onclick="event.preventDefault();
-                                                document.getElementById('logout-form').submit();"><i
-                                                class="fa fa-sign-out"></i> Cerrar
-                                            Sesión</a>
+                                                document.getElementById('logout-form').submit();">
+                                            <i class="fa fa-sign-out"></i> Cerrar Sesión
                                         </a>
                                         <form id="logout-form" action="/Logout" method="POST" class="d-none">
                                             @csrf
@@ -86,15 +88,6 @@
                 </div>
             </div>
         </nav>
-        <div>
-            @if (request()->routeIs('index') or request()->routeIs('login') or request()->routeIs('dashboard'))
-            @else
-                {{-- <a class="bAtras" style="margin-left: 10px;" href="/Dashboard">
-                    <span style="font-size: 28px; color:black"
-                        class="material-icons my-2 card shadow bg-warning">keyboard_return</span>
-                </a> --}}
-            @endif
-        </div>
         <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
         @yield('contenido')
 

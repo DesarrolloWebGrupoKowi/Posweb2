@@ -1,8 +1,8 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Plazas')
-@section('dashboardWidth', 'max-width: 1440px;')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4" style="max-width: 1440px;">
+    <div class="container-fluid pt-4 width-general">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Catálogo de Plazas'])
             <div>

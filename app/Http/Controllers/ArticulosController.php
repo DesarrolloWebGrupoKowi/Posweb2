@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Articulo;
-use Illuminate\Support\Facades\DB;
 use App\Models\Familia;
 use App\Models\Grupo;
 use App\Models\TipoArticulo;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ArticulosController extends Controller
 {
-    public function CatArticulos(Request $request){
+    public function CatArticulos(Request $request)
+    {
         $filtroArticulo = $request->txtFiltroArticulo;
 
         $articulos = DB::table('CatArticulos as a')
@@ -20,9 +21,9 @@ class ArticulosController extends Controller
             ->leftJoin('CatTipoArticulos as d', 'd.IdTipoArticulo', 'a.IdTipoArticulo')
             ->select('a.*', 'b.NomGrupo', 'c.NomFamilia', 'd.NomTipoArticulo')
             ->where('a.Status', 0)
-            ->where('a.NomArticulo', 'like', '%'.$filtroArticulo.'%')
+            ->where('a.NomArticulo', 'like', '%' . $filtroArticulo . '%')
             ->orderBy('a.CodArticulo')
-            ->paginate(20);
+            ->paginate(10);
 
         //return $articulos;
 
@@ -36,28 +37,29 @@ class ArticulosController extends Controller
         return view('Articulos.CatArticulos', compact('articulos', 'filtroArticulo', 'familias', 'grupos', 'tiposArticulo'));
     }
 
-    public function EditarArticulo(Request $request, $id){
+    public function EditarArticulo(Request $request, $id)
+    {
 
         try {
             DB::beginTransaction();
 
             Articulo::where('CodArticulo', $id)
-            ->update([
-                'Amece' => $request->txtCodAmece,
-                'UOM' => $request->txtUOM,
-                'UOM2' => $request->txtUOM,
-                'Peso' => $request->txtPeso,
-                'Tercero' => $request->txtTercero,
-                'PrecioRecorte' => $request->txtPrecioRecorte,
-                'Factor' => $request->txtFactor,
-                'IdTipoArticulo' => $request->idTipoArticulo,
-                'IdFamilia' => $request->txtIdFamilia,
-                'IdGrupo' => $request->txtIdGrupo,
-                'Iva' => $request->txtIva
-            ]);
+                ->update([
+                    'Amece' => $request->txtCodAmece,
+                    'UOM' => $request->txtUOM,
+                    'UOM2' => $request->txtUOM,
+                    'Peso' => $request->txtPeso,
+                    'Tercero' => $request->txtTercero,
+                    'PrecioRecorte' => $request->txtPrecioRecorte,
+                    'Factor' => $request->txtFactor,
+                    'IdTipoArticulo' => $request->idTipoArticulo,
+                    'IdFamilia' => $request->txtIdFamilia,
+                    'IdGrupo' => $request->txtIdGrupo,
+                    'Iva' => $request->txtIva,
+                ]);
 
             $articulo = Articulo::where('CodArticulo', $id)
-                                    ->first();
+                ->first();
 
         } catch (\Throwable $th) {
             DB::rollback();
@@ -68,11 +70,12 @@ class ArticulosController extends Controller
         return back()->with('msjupdate', 'Se ha editado el articulo: ' . $articulo->NomArticulo);
     }
 
-    public function EnviarArticulo(Request $request){
+    public function EnviarArticulo(Request $request)
+    {
         $filtroArticulo = $request->get('filtroArticulo');
         $radioBuscar = $request->radioBuscar;
 
-        if($radioBuscar == 'radioCodigo'){
+        if ($radioBuscar == 'radioCodigo') {
 
             $arrayArticulo = Articulo::where('CodArticulo', $filtroArticulo)
                 ->select('CodArticulo')
@@ -81,23 +84,22 @@ class ArticulosController extends Controller
             //return $arrayArticulo;
 
             $xxkw_items = DB::connection('Cloud_Tables')->table('XXKW_ITEMS')
-                ->select('ITEM_NUMBER','DESCRIPTION')
+                ->select('ITEM_NUMBER', 'DESCRIPTION')
                 ->where('ORGANIZATION_NAME', 'MAESTRO DE ARTICULOS')
                 ->where('ITEM_NUMBER', $filtroArticulo)
                 ->whereNotIn('ITEM_NUMBER', $arrayArticulo)
                 ->get();
-        }
-        else{
-            $arrayArticulo = Articulo::where('NomArticulo', 'like', '%'. $filtroArticulo . '%')
+        } else {
+            $arrayArticulo = Articulo::where('NomArticulo', 'like', '%' . $filtroArticulo . '%')
                 ->select('CodArticulo')
                 ->get()
                 ->toArray();
             //return $arrayArticulo;
 
             $xxkw_items = DB::connection('Cloud_Tables')->table('XXKW_ITEMS')
-                ->select('ITEM_NUMBER','DESCRIPTION')
+                ->select('ITEM_NUMBER', 'DESCRIPTION')
                 ->where('ORGANIZATION_NAME', 'MAESTRO DE ARTICULOS')
-                ->where('DESCRIPTION', 'like', '%'.$filtroArticulo.'%')
+                ->where('DESCRIPTION', 'like', '%' . $filtroArticulo . '%')
                 ->where('ITEM_NUMBER', 'not like', 'D%')
                 ->where('ITEM_NUMBER', 'not like', '%PI%')
                 ->where('ITEM_NUMBER', 'not like', '%-B%')
@@ -108,16 +110,18 @@ class ArticulosController extends Controller
         return view('Articulos.EnviarArticulo', compact('xxkw_items'));
     }
 
-    public function mostrarArticulo(){
+    public function mostrarArticulo()
+    {
 
         return view('Articulos.MostrarArticulo');
     }
 
-    public function AgregarArticulo($id){
+    public function AgregarArticulo($id)
+    {
 
         $articulo_XXKW_ITEMS = DB::connection('Cloud_Tables')
             ->table('XXKW_ITEMS')
-            ->select('ITEM_NUMBER','DESCRIPTION')
+            ->select('ITEM_NUMBER', 'DESCRIPTION')
             ->where('ORGANIZATION_NAME', 'MAESTRO DE ARTICULOS')
             ->where('ITEM_NUMBER', $id)
             ->get();
@@ -129,53 +133,55 @@ class ArticulosController extends Controller
 
         $tiposArticulo = TipoArticulo::where('Status', 0)
             ->get();
-                                                            
+
         return view('Articulos.MostrarArticulo', compact('articulo_XXKW_ITEMS', 'familias', 'grupos', 'tiposArticulo'));
     }
 
-    public function BuscarArticulo(){
+    public function BuscarArticulo()
+    {
         return view('Articulos.BuscarArticulo');
     }
 
-    public function LigarArticulo(Request $request){
+    public function LigarArticulo(Request $request)
+    {
 
         try {
             DB::beginTransaction();
 
             $articulo_XXKW_ITEMS = DB::connection('Cloud_Tables')
-                                ->table('XXKW_ITEMS')
-                                ->select('Inventory_Item_Id')
-                                ->where('ORGANIZATION_NAME', 'MAESTRO DE ARTICULOS')
-                                ->where('ITEM_NUMBER', $request->banCodArticulo)
-                                ->first();
+                ->table('XXKW_ITEMS')
+                ->select('Inventory_Item_Id')
+                ->where('ORGANIZATION_NAME', 'MAESTRO DE ARTICULOS')
+                ->where('ITEM_NUMBER', $request->banCodArticulo)
+                ->first();
 
-            $maxCodEtiqueta = Articulo::max('CodEtiqueta')+1;
+            $maxCodEtiqueta = Articulo::max('CodEtiqueta') + 1;
 
             $articulo = new Articulo();
-            $articulo -> CodArticulo = $request->banCodArticulo;
-            $articulo -> NomArticulo = $request->banNomArticulo;
-            $articulo -> Amece = $request->banCodAmece;
-            $articulo -> UOM = $request->banUOM;
-            $articulo -> UOM2 = $request->banUOM;
-            $articulo -> Peso = $request->banPeso;
-            $articulo -> Tercero = $request->banTercero;
-            $articulo -> CodEtiqueta = $maxCodEtiqueta;
-            $articulo -> PrecioRecorte = $request->banPrecioRecorte;
-            $articulo -> Factor = $request->banFactor;
-            $articulo -> Inventory_Item_Id = $articulo_XXKW_ITEMS->Inventory_Item_Id;
-            $articulo -> IdTipoArticulo = $request->banIdTipoArticulo;
-            $articulo -> IdFamilia = $request->banIdFamilia;
-            $articulo -> IdGrupo = $request->banIdGrupo;
-            $articulo -> Iva = $request->banIva;
-            $articulo -> Status = 0;
-            $articulo -> save();
+            $articulo->CodArticulo = $request->banCodArticulo;
+            $articulo->NomArticulo = $request->banNomArticulo;
+            $articulo->Amece = $request->banCodAmece;
+            $articulo->UOM = $request->banUOM;
+            $articulo->UOM2 = $request->banUOM;
+            $articulo->Peso = $request->banPeso;
+            $articulo->Tercero = $request->banTercero;
+            $articulo->CodEtiqueta = $maxCodEtiqueta;
+            $articulo->PrecioRecorte = $request->banPrecioRecorte;
+            $articulo->Factor = $request->banFactor;
+            $articulo->Inventory_Item_Id = $articulo_XXKW_ITEMS->Inventory_Item_Id;
+            $articulo->IdTipoArticulo = $request->banIdTipoArticulo;
+            $articulo->IdFamilia = $request->banIdFamilia;
+            $articulo->IdGrupo = $request->banIdGrupo;
+            $articulo->Iva = $request->banIva;
+            $articulo->Status = 0;
+            $articulo->save();
 
             $spArticulo = DB::table('CatArticulos')
                 ->select('CodArticulo')
                 ->where('CodArticulo', $request->banCodArticulo)
                 ->first();
 
-            DB::statement('Execute SP_NUEVOARTICULOYPRECIO '.$spArticulo->CodArticulo.'');
+            DB::statement('Execute SP_NUEVOARTICULOYPRECIO ' . $spArticulo->CodArticulo . '');
 
         } catch (\Throwable $th) {
             DB::rollback();

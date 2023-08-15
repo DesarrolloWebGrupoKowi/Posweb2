@@ -736,6 +736,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/AsignarPreparados', 'App\Http\Controllers\AsignarPreparadosController@Preparados')->name('AsignarPreparados.index');
     //RegresarPreparado
     Route::post('/RegresarPreparado/{id}', 'App\Http\Controllers\AsignarPreparadosController@RegresarPreparado');
+    //FinalizarPreparado
+    Route::post('/FinalizarPreparado/{id}', 'App\Http\Controllers\AsignarPreparadosController@FinalizarPreparado');
     //AsignarTienda
     Route::post('/AsignarTienda/{id}', 'App\Http\Controllers\AsignarPreparadosController@AsignarTienda');
     //EliminarTiendaAsignada
