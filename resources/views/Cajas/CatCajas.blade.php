@@ -1,35 +1,35 @@
-@extends('plantillaBase.masterblade')
-@section('title','Catálogo de Cajas')
+@extends('PlantillaBase.masterbladeNewStyle')
+@section('title', 'Catálogo de Cajas')
+@section('dashboardWidth', 'max-width: 1440px;')
 @section('contenido')
-<div class="container cuchi">
-    <div class="titulo">
-        <h2>Catálogo de Cajas</h2>
-    </div>
-    <div class="row">
-        <div class="col d-flex justify-content-end">
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                <span class="material-icons">add_circle</span>
-            </button>
+    <div class="container-fluid pt-4" style="max-width: 1440px;">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Catálogo de Cajas'])
+            <div>
+                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                    <i class="fa fa-plus-circle pe-1"></i> Agregar familia
+                </button>
+            </div>
+        </div>
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
+                    <tr>
+                        <th class="rounded-start">Id Caja</th>
+                        <th class="rounded-end">Número de Caja</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($cajas as $caja)
+                        <tr>
+                            <td>{{ $caja->IdCaja }}</td>
+                            <td>{{ $caja->NumCaja }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-responsive table-striped">
-            <thead>
-                <tr>
-                    <th>Id Caja</th>
-                    <th>Número de Caja</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($cajas as $caja)
-                <tr>
-                    <td>{{ $caja->IdCaja }}</td>
-                    <td>{{ $caja->NumCaja }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-@include('Cajas.ModalAgregar')
+    @include('Cajas.ModalAgregar')
 @endsection

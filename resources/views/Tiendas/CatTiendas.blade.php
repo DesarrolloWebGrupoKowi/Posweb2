@@ -10,7 +10,7 @@
                     <i class="fa fa-plus-circle pe-1"></i> Agregar tienda
                 </button>
                 <a href="/CatTiendas" class="btn btn-dark-outline">
-                    <span class="material-icons">visibility</span>
+                    <span class="material-icons">refresh</span>
                 </a>
             </div>
         </div>
@@ -19,7 +19,7 @@
             @include('Alertas.Alertas')
         </div>
 
-        <form class="d-flex align-items-center justify-content-end pb-4 gap-2"action="/CatTiendas" method="get">
+        <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/CatTiendas" method="get">
             <div class="input-group" style="max-width: 300px">
                 <select class="form-select" name="filtroEstado" id="filtroEstado">
                     @foreach ($estados as $estado)

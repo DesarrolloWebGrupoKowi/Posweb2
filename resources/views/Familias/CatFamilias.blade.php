@@ -1,38 +1,42 @@
-@extends('plantillaBase.masterblade')
-@section('title','Catálogo de Familias')
+@extends('PlantillaBase.masterbladeNewStyle')
+@section('title', 'Catálogo de Familias')
+@section('dashboardWidth', 'max-width: 1440px;')
 @section('contenido')
-    <div class="container cuchi mb-3">
-        <div>
-            <h2 class="titulo">Catálogo de Familias</h2>
+    <div class="container-fluid pt-4" style="max-width: 1440px;">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Catálogo de Familias'])
+            <div>
+                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                    <i class="fa fa-plus-circle pe-1"></i> Agregar familia
+                </button>
+                <a href="/CatFamilias" class="btn btn-dark-outline">
+                    <span class="material-icons">refresh</span>
+                </a>
+            </div>
         </div>
-        <div class="mb-3">
+
+        <div>
             @include('Alertas.Alertas')
         </div>
-        <form action="/CatFamilias">
-            <div class="row">
-                <div class="col-2">
-                    <input type="text" name="txtFiltro" class="form-control" placeholder="Busqueda" value="{{ $txtFiltro }}">
-                </div>
-                <div class="col-2">
-                    <button class="btn">
-                        <span class="material-icons">search</span>
-                    </button>
-                </div>
-                <div class="col-2">
-                    <a href="/CatFamilias"><span class="material-icons">visibility</span></a>
-                </div>
-                <div class="col-6">
-                    <button type="button" class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar"><span class="material-icons">add_circle_outline</span></button>
+
+        <form class="d-flex align-items-center justify-content-end pb-4 gap-4" action="/CatFamilias">
+            <div class="input-group" style="max-width: 300px">
+                <input type="text" name="txtFiltro" class="form-control" placeholder="Busqueda"
+                    value="{{ $txtFiltro }}">
+                <div class="input-group-append">
+                    <button class="input-group-text"><span class="material-icons">search</span></button>
                 </div>
             </div>
         </form>
-        <div class="table-responsive table-sm">
-            <table class="table table-sm table-striped table-responsive">
-                <thead>
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <th>Id</th>
+                        <th class="rounded-start">Id</th>
                         <th>Familia</th>
-                        <th>Acciones</th>
+                        <th class="rounded-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,10 +47,11 @@
                     @else
                         @foreach ($familias as $familia)
                             <tr>
-                                <td>{{$familia->IdFamilia}}</td>
-                                <td>{{$familia->NomFamilia}}</td>
+                                <td>{{ $familia->IdFamilia }}</td>
+                                <td>{{ $familia->NomFamilia }}</td>
                                 <td>
-                                    <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#ModalEditar-{{ $familia->IdFamilia }}">
+                                    <button class="btn btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEditar-{{ $familia->IdFamilia }}">
                                         <span class="material-icons">edit</span>
                                     </button>
                                     <button class="btn btn-sm">
@@ -62,7 +67,7 @@
             </table>
         </div>
     </div>
-    <div class="d-flex justify-content-center">
+    <div class="mt-5 d-flex justify-content-center">
         {!! $familias->links() !!}
     </div>
     @include('Familias.ModalAgregar')

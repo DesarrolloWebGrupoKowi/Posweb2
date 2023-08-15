@@ -1,46 +1,50 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Tablas Para Actualizar')
+@section('dashboardWidth', 'max-width: 1440px;')
 @section('contenido')
-    <div class="d-flex justify-content-center">
-        <div class="col-auto">
-            <h2 class="card shadow p-1">Catálogo de Tablas</h2>
-        </div>
-    </div>
-    <div class="d-flex justify-content-center">
-        <div class="col-auto">
-            @include('Alertas.Alertas')
-        </div>
-    </div>
-    <div class="container mb-3">
-        <div class="d-flex justify-content-end">
-            <div class="col-auto">
-                <button class="btn card shadow" data-bs-toggle="modal" data-bs-target="#ModalAgregarTabla">
-                    <span class="material-icons">add_circle</span>
+    <div class="container-fluid pt-4" style="max-width: 1440px;">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Catálogo de Tablas'])
+            <div>
+                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar tabla"
+                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarTabla">
+                    <i class="fa fa-plus-circle pe-1"></i> Agregar tabla
                 </button>
             </div>
         </div>
-    </div>
-    <div class="container">
-        <table class="table table-striped table-responsive shadow">
-            <thead class="table-dark">
-                <tr>
-                    <th>Tabla</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($tablas as $tabla)
+
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <td>{{ $tabla->NomTabla }}</td>
-                        <td>
-                            @if ($tabla->Status == 0)
-                                <i class="fa fa-check"></i>
-                            @endif
-                        </td>
+                        <th class="rounded-start">Tabla</th>
+                        <th class="rounded-end">Status</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (count($tablas) == 0)
+                        <tr>
+                            <td colspan="2">No ahi tablas!</td>
+                        </tr>
+                    @else
+                        @foreach ($tablas as $tabla)
+                            <tr>
+                                <td>{{ $tabla->NomTabla }}</td>
+                                <td>
+                                    @if ($tabla->Status == 0)
+                                        <i class="fa fa-check"></i>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
     </div>
     @include('TablasUpdate.ModalAgregarTabla')
 @endsection

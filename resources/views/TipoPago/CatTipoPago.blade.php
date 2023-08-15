@@ -1,44 +1,46 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Tipos de Pago')
+@section('dashboardWidth', 'max-width: 1440px;')
 @section('contenido')
 
-<div class="titulo">
-    <h2>Catálogo de Tipos de Pago</h2>
-</div>
-<div class="mb-3">
-    @include('Alertas.Alertas')
-</div>
-<div class="container cuchi">
-    <div class="row">
-        <div class="d-flex justify-content-end">
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                <span class="material-icons">add_circle</span>
-            </button>
+    <div class="container-fluid pt-4" style="max-width: 1440px;">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Catálogo de Tipos de Pago'])
+            <div>
+                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                    <i class="fa fa-plus-circle pe-1"></i> Agregar tipo de pago
+                </button>
+            </div>
+        </div>
+
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
+                    <tr>
+                        <th class="rounded-start">Id de Tipo de Pago</th>
+                        <th>Nombre</th>
+                        <th>Clave Sat</th>
+                        <th class="rounded-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($tiposPago as $tipoPago)
+                        <tr>
+                            <td>{{ $tipoPago->IdTipoPago }}</td>
+                            <td>{{ $tipoPago->NomTipoPago }}</td>
+                            <td>{{ $tipoPago->ClaveSat }}</td>
+                            <td></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-responsive table-striped">
-            <thead>
-                <tr>
-                    <th>Id de Tipo de Pago</th>
-                    <th>Nombre</th>
-                    <th>Clave Sat</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($tiposPago as $tipoPago)
-                    <tr>
-                        <td>{{ $tipoPago->IdTipoPago }}</td>
-                        <td>{{ $tipoPago->NomTipoPago }}</td>
-                        <td>{{ $tipoPago->ClaveSat }}</td>
-                        <td></td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-@include('TipoPago.ModalAgregar')
+    @include('TipoPago.ModalAgregar')
 
 @endsection

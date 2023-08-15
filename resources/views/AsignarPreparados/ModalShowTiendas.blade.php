@@ -19,7 +19,7 @@
                     <tbody>
                         @if (count($preparado->Tiendas) == 0)
                             <tr>
-                                <td colspan="2">No tiene tiendas asignadas aun</td>
+                                <td colspan="3">No tiene tiendas asignadas aun</td>
                             </tr>
                         @endif
                         @foreach ($preparado->Tiendas as $detalle)
@@ -27,14 +27,16 @@
                                 <td>{{ $detalle->NomTienda }}</td>
                                 <td>{{ $detalle->CantidadEnvio }}</td>
                                 <td>
-                                    <form class="d-inline-block"
-                                        action="/EliminarTiendaAsignada/{{ $detalle->IdDatAsignacionPreparado }}"
-                                        method="POST">
-                                        @csrf
-                                        <button class="btn btn-sm">
-                                            <span class="material-icons eliminar">delete_forever</span>
-                                        </button>
-                                    </form>
+                                    @if ($preparado->IdCatStatusPreparado == 2)
+                                        <form class="d-inline-block"
+                                            action="/EliminarTiendaAsignada/{{ $detalle->IdDatAsignacionPreparado }}"
+                                            method="POST">
+                                            @csrf
+                                            <button class="btn btn-sm">
+                                                <span class="material-icons eliminar">delete_forever</span>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

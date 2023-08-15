@@ -39,13 +39,16 @@
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Cantidad</th>
-                                    <th></th>
+                                    <th>Editar</th>
+                                    <th>Ver</th>
+                                    <th>Eliminar</th>
+                                    <th>Enviar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if (count($preparados) == 0)
                                     <tr>
-                                        <td colspan="3">No se encuentra ningun preparado en proceso</td>
+                                        <td colspan="6">No se encuentra ningun preparado en proceso</td>
                                     </tr>
                                 @else
                                     @foreach ($preparados as $preparado)
@@ -57,6 +60,9 @@
                                                     data-bs-target="#ModalEditar{{ $preparado->IdPreparado }}"><span
                                                         class="material-icons">edit</span>
                                                 </button>
+                                                @include('Preparados.ModalEditar')
+                                            </td>
+                                            <td class="bg-opacity-75">
                                                 <form class="d-inline-block" action="/Preparados">
                                                     <input type="hidden" name="idPreparado"
                                                         value="{{ $preparado->IdPreparado }}">
@@ -64,15 +70,18 @@
                                                         data-bs-target="#ModalEliminar"><span
                                                             class="material-icons">visibility</span></button>
                                                 </form>
+                                            </td>
+                                            <td class="bg-opacity-75">
                                                 <button class="btn btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#ModalEliminarPreparado{{ $preparado->IdPreparado }}"><span
                                                         class="material-icons eliminar">delete_forever</span></button>
+                                                @include('Preparados.ModalEliminarPreparado')
+                                            </td>
+                                            <td class="bg-opacity-75">
                                                 <button class="btn btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#ModalEnviar{{ $preparado->IdPreparado }}"
                                                     {{ !$preparado->Cantidad ? 'disabled' : '' }}><span
                                                         class="material-icons send">send</span></button>
-                                                @include('Preparados.ModalEditar')
-                                                @include('Preparados.ModalEliminarPreparado')
                                                 @include('Preparados.ModalEnviar')
                                             </td>
                                         </tr>
