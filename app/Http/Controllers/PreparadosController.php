@@ -7,6 +7,7 @@ use App\Models\CatPreparado;
 use App\Models\DatPreparados;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PreparadosController extends Controller
@@ -15,7 +16,9 @@ class PreparadosController extends Controller
     {
         $idPreparado = $request->idPreparado;
 
-        $preparados = CatPreparado::where('Status', 'En Preparacion')->get();
+        $preparados = CatPreparado::where('IdCatStatusPreparado', 1)
+            ->where('IdUsuario', Auth::user()->IdUsuario)
+            ->get();
 
         $detallePreparado = DatPreparados::where('IdPreparado', $idPreparado)
             ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo')
@@ -30,12 +33,10 @@ class PreparadosController extends Controller
     {
         $preparado = new CatPreparado();
         $preparado->Nombre = $request->nombre . '_' . Carbon::now()->format('Y-d-m');
-        // $preparado->Nombre = $request->nombre . '_' . Carbon::now()->format('Y-m-d');
-        // $preparado->Nombre = $request->nombre . '_' . Carbon::now();
         $preparado->Cantidad = $request->cantidad;
-        // $preparado->Fecha = Carbon::now();
+        $preparado->IdUsuario = Auth::user()->IdUsuario;
         $preparado->Fecha = Carbon::now()->format('Y-d-m');
-        $preparado->Status = 'En Preparacion';
+        $preparado->IdCatStatusPreparado = 1;
         $preparado->save();
 
         return back()->with('msjAdd', 'Preparado agregado correctamente');
@@ -60,7 +61,7 @@ class PreparadosController extends Controller
     public function EnviarPreparados($idPreparado)
     {
         CatPreparado::where('IdPreparado', $idPreparado)->update([
-            'Status' => 'Preparado',
+            'IdCatStatusPreparado' => 2,
         ]);
 
         return redirect()->route('Preparados.index');

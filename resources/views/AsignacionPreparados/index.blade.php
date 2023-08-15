@@ -1,47 +1,48 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Preparados asignados')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
 
-    <div style="min-height: 70vh" class="container cuchi">
-        <div>
-            <h2 class="titulo">Detalle de asignados</h2>
-        </div>
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-        <div class="row">
-            <form class="col-8 d-flex gap-2" action="/DetalleAsignados">
-                <div class="col-3">
-                    <input type="date" name="fecha" value="{{ $fecha }}" class="form-control"
-                        placeholder="Nombre del preparado" autofocus>
-                </div>
-                <div class="col-1">
-                    <button type="submit" class="btn btn-default" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                        <span class="material-icons">search</span>
-                    </button>
-                </div>
-            </form>
-            <div class="col-4">
-                <a href="/AsignarPreparados" class="btn btn-sm btnAgregar alinearDerecha">
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-between align-items-center pb-2">
+            @include('components.title', ['titulo' => 'Detalle de asignados'])
+            <div class="">
+                <a href="/AsignarPreparados" class="btn btn-sm btn-dark">
                     <i class="fa fa-eye"></i> Lista de preparados
                 </a>
             </div>
         </div>
-        <div class="col-12">
-            <table class="table table-responsive table-sm table-striped">
-                <thead>
+
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
+        <form class="d-flex align-items-center justify-content-end pb-4" action="/DetalleAsignados">
+            <div class="input-group" style="max-width: 300px">
+                <input type="date" class="form-control" name="fecha" value="{{ $fecha }}">
+                <div class="input-group-append">
+                    <button type="submit" class="input-group-text">
+                        <span class="material-icons">search</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <th>Nombre</th>
+                        <th class="rounded-start">Nombre</th>
                         <th>Tienda</th>
                         <th>Fecha</th>
                         <th>Cantidad Enviada</th>
-                        <th>Detalle</th>
+                        <th class="rounded-end">Detalle</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (count($asignados) == 0)
                         <tr>
-                            <td colspan="8">No se encuentra ningun preparado en proceso</td>
+                            <td colspan="8">No se encuentra ningun preparado asignado</td>
                         </tr>
                     @else
                         @foreach ($asignados as $asignado)
@@ -64,7 +65,8 @@
                 </tbody>
             </table>
         </div>
-        <div class="mt-5 d-flex justify-content-center">
+
+        <div class="d-flex justify-content-center">
             {!! $asignados->links() !!}
         </div>
     </div>

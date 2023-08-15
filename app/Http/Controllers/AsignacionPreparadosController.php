@@ -6,6 +6,7 @@ use App\Models\CatPreparado;
 use App\Models\DatAsignacionPreparados;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AsignacionPreparadosController extends Controller
 {
@@ -13,7 +14,7 @@ class AsignacionPreparadosController extends Controller
     {
         $fecha = $request->fecha;
         if ($request->fecha) {
-            $fecha = Carbon::parse($request->fecha)->format('Y-d-m');
+            $fecha = Carbon::parse($request->fecha)->format('Y-m-d');
         }
 
         $asignados = [];
@@ -30,7 +31,8 @@ class AsignacionPreparadosController extends Controller
                     'DatAsignacionPreparados.CantidadEnvio')
                 ->leftJoin('CatPreparado', 'CatPreparado.IdPreparado', 'DatAsignacionPreparados.IdPreparado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')
-                ->where('CatPreparado.Fecha', $fecha)
+                ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
+                ->whereDate('CatPreparado.Fecha', $fecha)
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
         } else {
@@ -45,6 +47,7 @@ class AsignacionPreparadosController extends Controller
                     'DatAsignacionPreparados.CantidadEnvio')
                 ->leftJoin('CatPreparado', 'CatPreparado.IdPreparado', 'DatAsignacionPreparados.IdPreparado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')
+                ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
         }
