@@ -88,7 +88,6 @@
     .Crear {
         float: right;
     }
-
 </style>
 <div class="modal fade" id="ModalAgregar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -117,8 +116,8 @@
                         <div class="form-step form-step-active">
                             <div>
                                 <label for="" class="form-label">Nombre de Tienda</label>
-                                <input type="text" id="NomTienda" name="NomTienda" class="form-control" tabindex="1"
-                                    onkeyup="mayusculas(this)" required>
+                                <input type="text" id="NomTienda" name="NomTienda" class="form-control"
+                                    tabindex="1" onkeyup="mayusculas(this)" required>
                             </div>
                             <div>
                                 <label for="" class="form-label">Correo</label>
@@ -138,8 +137,8 @@
                         <div class="form-step">
                             <div>
                                 <label for="" class="form-label">Dirección</label>
-                                <input type="text" id="Direccion" name="Direccion" class="form-control" tabindex="2"
-                                    onkeyup="mayusculas(this)" required>
+                                <input type="text" id="Direccion" name="Direccion" class="form-control"
+                                    tabindex="2" onkeyup="mayusculas(this)" required>
                             </div>
                             <div>
                                 <label for="" class="form-label">Colonia</label>
@@ -211,8 +210,8 @@
                         <div class="form-step">
                             <div>
                                 <label for="" class="form-label">Almacen</label>
-                                <input type="text" id="Almacen" name="Almacen" class="form-control" tabindex="2"
-                                    onkeyup="mayusculas(this)" required>
+                                <input type="text" id="Almacen" name="Almacen" class="form-control"
+                                    tabindex="2" onkeyup="mayusculas(this)" required>
                             </div>
                             <div>
                                 <label for="" class="form-label">Organización Nombre</label>
@@ -226,13 +225,12 @@
                             </div>
                             <div>
                                 <label for="" class="form-label">Tipo de Orden</label>
-                                <input type="text" id="Order_Type_Cloud" name="Order_Type_Cloud" class="form-control"
-                                    tabindex="2" onkeyup="mayusculas(this)" required>
+                                <input type="text" id="Order_Type_Cloud" name="Order_Type_Cloud"
+                                    class="form-control" tabindex="2" onkeyup="mayusculas(this)" required>
                             </div>
                             <div>
                                 <a class="btn atrasBtn"><span class="material-icons">arrow_back</span></a>
-                                <a class="btn siguienteBtn"><span
-                                        class="material-icons">arrow_forward</span></a>
+                                <a class="btn siguienteBtn"><span class="material-icons">arrow_forward</span></a>
                             </div>
                         </div>
                         <div class="form-step">
@@ -245,13 +243,13 @@
                             </div>
                             <div>
                                 <label for="" class="form-label">Costo a Domicilio</label>
-                                <input type="number" id="CostoaDomicilio" name="CostoaDomicilio" class="form-control"
-                                    tabindex="2">
+                                <input type="number" id="CostoaDomicilio" name="CostoaDomicilio"
+                                    class="form-control" tabindex="2">
                             </div>
                             <div>
                                 <label for="" class="form-label">Comentario</label>
-                                <input type="text" id="Comentario" name="Comentario" class="form-control" tabindex="2"
-                                    onkeyup="mayusculas(this)">
+                                <input type="text" id="Comentario" name="Comentario" class="form-control"
+                                    tabindex="2" onkeyup="mayusculas(this)">
                             </div>
                             <div>
                                 <a class="btn btn-default my-1 atrasBtn"><span

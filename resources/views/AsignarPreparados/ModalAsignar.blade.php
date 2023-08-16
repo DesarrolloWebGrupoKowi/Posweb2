@@ -9,29 +9,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/AsignarTienda/{{ $preparado->IdPreparado }}" method="POST">
-                    @csrf
-                    <div class="row">
-                        <div class="col-8">
-                            <select class="form-select" name="idTienda">
-                                @foreach ($tiendas as $tienda)
-                                    <option value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-4">
-                            <input class="form-control" name="cantidad" type="number" min="1"
-                                max="{{ $preparado->Cantidad - $preparado->CantidadAsignada }}" placeholder="Cantidad"
-                                value="1" autofocus required>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-end gap-2 pt-2">
-                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cerrar</button>
-                        <input type="submit" class="btn btn-primary" value="Asignar">
-                    </div>
-                </form>
-                <table class="mt-3 table table-sm table-responsive table-striped">
+                <table>
                     <thead>
                         <tr>
                             <th>Nombre</th>
@@ -63,6 +41,31 @@
                         @endforeach
                     </tbody>
                 </table>
+                <form action="/AsignarTienda/{{ $preparado->IdPreparado }}" method="POST">
+                    @csrf
+                    <div class="row">
+
+                        <div class="col-8">
+                            <label class="form-label m-0">Tienda</label>
+                            <select class="form-select" name="idTienda">
+                                @foreach ($tiendas as $tienda)
+                                    <option value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label m-0">Cantidad envio</label>
+                            <input class="form-control" name="cantidad" type="number" min="1"
+                                max="{{ $preparado->Cantidad - $preparado->CantidadAsignada }}" placeholder="Cantidad"
+                                value="1" autofocus required>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 pt-2">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                        <input type="submit" class="btn btn-warning" value="Asignar">
+                    </div>
+                </form>
             </div>
             {{-- <div class="modal-footer">
 

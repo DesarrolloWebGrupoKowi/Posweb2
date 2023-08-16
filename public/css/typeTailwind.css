@@ -28,6 +28,18 @@ h2 {
     box-shadow: none;
 }
 
+.btn-warning {
+    background: #1e293b;
+    color: #fff;
+    border: 1px solid #1e293b;
+}
+
+.btn-warning:hover {
+    background: #38465e;
+    color: #fff;
+    border: 1px solid #1e293b;
+}
+
 .btn-dark {
     background: #1e293b;
     color: #fff;
@@ -108,4 +120,71 @@ button[disabled] i {
     background-color: #1e293b;
     color: #fff;
     font-weight: bold;
+}
+
+/* Modales */
+.fade {
+    margin-top: 5rem;
+    background-color: #f1f5f988;
+    backdrop-filter: blur(2px) brightness(0.73) contrast(215%);
+}
+
+.modal-dialog .modal-content {
+    border: 1px solid #1e293b;
+    margin-top: 2rem;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #1e293b;
+    color: white;
+    border: none;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.modal-footer {
+    border: none;
+    padding-top: 0;
+}
+
+.modal-body label {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* Tablas en modales*/
+.modal-body table {
+    width: 100%;
+}
+
+.modal-body thead {
+    padding: 0;
+    color: #1e293b;
+}
+
+.modal-body thead th {
+    padding: 0 8px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.modal-body {
+    overflow-x: auto;
+}
+
+.modal-body tr {
+    line-height: 2rem;
+}
+
+.modal-body th,
+.modal-body td {
+    padding-left: 16px;
+    white-space: nowrap;
+    vertical-align: text-top;
+}
+
+.modal-body td {
+    font-size: 14px;
+    color: #4f5464;
 }

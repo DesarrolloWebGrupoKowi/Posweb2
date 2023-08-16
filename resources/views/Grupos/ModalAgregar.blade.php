@@ -11,12 +11,13 @@
                     @csrf
                     <div class="mb-3">
                         <label for="" class="form-label">Grupo</label>
-                        <input type="text" id="NomGrupo" name="NomGrupo" class="form-control" onkeyup="mayusculas(this)" required>
+                        <input type="text" id="NomGrupo" name="NomGrupo" class="form-control"
+                            onkeyup="mayusculas(this)" required>
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cerrar</button>
-                <input type="submit" class="btn btn-primary" value="Crear Grupo">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                <input type="submit" class="btn btn-warning" value="Crear Grupo">
                 </form>
             </div>
         </div>
