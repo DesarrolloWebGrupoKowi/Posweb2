@@ -12,22 +12,23 @@
                     <div class="mb-3">
                         <label for="" class="form-label">Nombre de Usuario</label>
                         <input type="text" id="NomUsuario" name="NomUsuario" class="form-control"
-                            onkeypress="return (event.charCode != 32)" tabindex="1" required>
+                            onkeypress="return (event.charCode != 32)" tabindex="1"
+                            placeholder="Escribe el nombre de usuario" required>
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Numero de Nomina</label>
-                        <input type="text" id="NumNomina" name="NumNomina" class="form-control" tabindex="2"
-                            required>
+                        <input type="text" id="NumNomina" name="NumNomina" class="form-control"
+                            placeholder="Escribe el numero de nomina" tabindex="2" required>
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Contraseña</label>
-                        <input type="password" id="Password" name="Password" class="form-control" tabindex="3"
-                            required>
+                        <input type="password" id="Password" name="Password" class="form-control"
+                            placeholder="Escribe la contraseña" tabindex="3" required>
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Correo</label>
                         <input type="email" id="Correo" name="Correo" class="form-control" tabindex="4"
-                            required>
+                            placeholder="Escribe el correo" required>
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Tipo Usuario</label>

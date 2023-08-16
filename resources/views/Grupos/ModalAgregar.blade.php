@@ -12,7 +12,7 @@
                     <div class="mb-3">
                         <label for="" class="form-label">Grupo</label>
                         <input type="text" id="NomGrupo" name="NomGrupo" class="form-control"
-                            onkeyup="mayusculas(this)" required>
+                            onkeyup="mayusculas(this)" required placeholder="Escribe el nombre del grupo">
                     </div>
             </div>
             <div class="modal-footer">

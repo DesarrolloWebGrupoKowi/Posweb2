@@ -12,7 +12,8 @@
                     <div class="mb-3">
                         <label for="" class="form-label">Nombre de Estado</label>
                         <input type="text" id="NomEstado" name="NomEstado" class="form-control"
-                            onkeyup="mayusculas(this)" tabindex="1" required>
+                            onkeyup="mayusculas(this)" tabindex="1" required
+                            placeholder="Escribe el nombre del estado">
                     </div>
             </div>
             <div class="modal-footer">

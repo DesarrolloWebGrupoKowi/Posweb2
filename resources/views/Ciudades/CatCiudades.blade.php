@@ -61,8 +61,8 @@
     </div>
     <!--Modal Agregar Estado-->
     @include('Ciudades.ModalAgregar')
-    <br>
-    <div class="d-flex justify-content-center">
+
+    <div class="mt-5 d-flex justify-content-center">
         {!! $ciudades->links() !!}
     </div>
 @endsection

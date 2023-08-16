@@ -12,7 +12,7 @@
                     <div class="mb-3">
                         <label for="" class="form-label">Tipo de Usuario</label>
                         <input type="text" id="NomTipoUsuario" name="NomTipoUsuario" class="form-control"
-                            onkeyup="firstMayus(this)" tabindex="1" required>
+                            onkeyup="firstMayus(this)" tabindex="1" required placeholder="Escribe el tipo de usuario">
                     </div>
             </div>
             <div class="modal-footer">

@@ -36,7 +36,8 @@
                     <tr>
                         <th class="rounded-start">Id</th>
                         <th>Familia</th>
-                        <th class="rounded-end">Acciones</th>
+                        {{-- <th class="rounded-end">Acciones</th> --}}
+                        <th class="rounded-end"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,13 +51,13 @@
                                 <td>{{ $familia->IdFamilia }}</td>
                                 <td>{{ $familia->NomFamilia }}</td>
                                 <td>
-                                    <button class="btn btn-sm" data-bs-toggle="modal"
+                                    {{-- <button class="btn btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#ModalEditar-{{ $familia->IdFamilia }}">
                                         <span class="material-icons">edit</span>
                                     </button>
                                     <button class="btn btn-sm">
                                         <span class="material-icons eliminar">delete_forever</span>
-                                    </button>
+                                    </button> --}}
                                 </td>
                                 <!-- Modal Editar -->
                                 @include('Familias.ModalEditar')

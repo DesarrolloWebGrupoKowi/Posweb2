@@ -10,11 +10,13 @@
                 <form action="/AgregarTipoPago">
                     <div class="mb-3">
                         <label for="" class="form-label">Tipo de Pago</label>
-                        <input type="text" id="NomTipoPago" name="NomTipoPago" class="form-control" onkeyup="mayusculas(this)" required>
+                        <input type="text" id="NomTipoPago" name="NomTipoPago" class="form-control"
+                            onkeyup="mayusculas(this)" required placeholder="Escribe el tipo de pago">
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Clave Sat</label>
-                        <input type="text" id="ClaveSat" name="ClaveSat" class="form-control" required>
+                        <input type="text" id="ClaveSat" name="ClaveSat" class="form-control" required
+                            placeholder="Escribe la clave Sat">
                     </div>
 
             </div>

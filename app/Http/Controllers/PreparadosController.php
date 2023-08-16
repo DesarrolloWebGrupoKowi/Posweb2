@@ -31,10 +31,16 @@ class PreparadosController extends Controller
 
     public function AgregarPreparados(Request $request)
     {
+
+        if (!Auth::user()->usuarioTienda->IdTienda) {
+            return back()->with('msjdelete', 'Error: Este usuario no puede crear una preparado');
+        }
+
         $preparado = new CatPreparado();
         $preparado->Nombre = $request->nombre . '_' . Carbon::now()->format('Y-d-m');
         $preparado->Cantidad = $request->cantidad;
         $preparado->IdUsuario = Auth::user()->IdUsuario;
+        $preparado->IdTienda = Auth::user()->usuarioTienda->IdTienda;
         $preparado->Fecha = Carbon::now()->format('Y-d-m');
         $preparado->IdCatStatusPreparado = 1;
         $preparado->save();

@@ -66,7 +66,7 @@
             </table>
         </div>
 
-        <div class="d-flex justify-content-center">
+        <div class="mt-5 d-flex justify-content-center">
             {!! $asignados->links() !!}
         </div>
     </div>

@@ -12,7 +12,7 @@
                     <div class="mb-3">
                         <label for="" class="form-label">Nombre de la Plaza</label>
                         <input type="text" id="NomPlaza" name="NomPlaza" class="form-control" tabindex="1"
-                            onkeyup="mayusculas(this)" required>
+                            onkeyup="mayusculas(this)" required placeholder="Escribe el nombre de la plaza">
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Ciudad</label>
