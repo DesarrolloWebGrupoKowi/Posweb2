@@ -93,6 +93,7 @@ button[disabled] i {
 .content-table th,
 .content-table td {
     padding-left: 16px;
+    padding-right: 16px;
     white-space: nowrap;
     vertical-align: text-top;
 }

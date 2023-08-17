@@ -1,56 +1,48 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Tablas Actualizables Por Tienda')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="d-flex justify-content-center">
-        <div class="col-auto">
-            <h2 class="card shadow p-1">
-                Catálogo de Tablas Actualizables
-            </h2>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Catálogo de Tablas Actualizables'])
+            @if ($idTienda != 0)
+                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#AgregarTablaUpdate">
+                    <i class="fa fa-plus-circle"></i>
+                    Agregar Tablas
+                </button>
+            @endif
         </div>
-    </div>
-    <div class="container">
-        @include('Alertas.Alertas')
-    </div>
-    <div class="container mb-3">
-        <form id="formTabla" action="/TablasUpdate" method="GET">
-            <div class="row">
-                <div class="col-auto">
-                    <select class="form-select shadow" name="idTienda" id="idTienda">
-                        <option value="0">Seleccione Tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $tienda->IdTienda == $idTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
+        <form class="d-flex align-items-center justify-content-between pb-4 gap-4" id="formTabla" action="/TablasUpdate"
+            method="GET">
+            @if (!empty($idTienda))
+                <div>
+                    <h6>Tablas pendientes por descargar: ({{ $tablasPorDescargar }})</h6>
                 </div>
-                @if (!empty($idTienda))
-                    <div class="col d-flex justify-content-end">
-                        <h4 class="mt-1">Tablas pendientes por descargar: ({{ $tablasPorDescargar }})</h4>
-                    </div>
-                @endif
+            @endif
+            <div class="input-group" style="max-width: 350px">
+                <select class="form-select" name="idTienda" id="idTienda">
+                    <option value="0">Seleccione Tienda</option>
+                    @foreach ($tiendas as $tienda)
+                        <option {!! $tienda->IdTienda == $idTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
         </form>
-    </div>
-    @if ($idTienda != 0)
-        <div class="container mb-2">
-            <div class="d-flex justify-content-end">
-                <div class="col-auto">
-                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#AgregarTablaUpdate">
-                        <i class="fa fa-plus-circle"></i>
-                        Agregar Tablas
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="container mb-3">
-            <div class="table-responsive" style="height: 70vh">
-                <table class="table table-striped table-reponsive shadow">
-                    <thead class="table-dark">
+
+        @if ($idTienda != 0)
+            <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+                <table>
+                    <thead class="table-head">
                         <tr>
-                            <th>Nombre Tabla</th>
+                            <th class="rounded-start">Nombre Tabla</th>
                             <th>Descargada</th>
-                            <th>Descargar Todas
-                                <div class="form-switch d-inline">
+                            <th class="rounded-end">Descargar Todas
+                                <div class="ps-5 form-switch d-inline-block" style="line-height: 18px">
                                     <input {!! $checkedTodas == 0 ? 'checked' : '' !!} class="form-check-input" type="checkbox" role="switch"
                                         name="descargarTodas" id="descargarTodas" />
                                 </div>
@@ -84,21 +76,22 @@
                         @endif
                     </tbody>
                 </table>
-            </div>
-        </div>
-        @if ($tablasActualizables->count() > 0)
-            <div class="container mb-3">
-                <div class="d-flex justify-content-end">
-                    <div class="col-auto">
-                        <button id="btnActualizarTablas" class="btn btn-warning">
-                            <i class="fa fa-save"></i> Guardar
-                        </button>
+                @if ($tablasActualizables->count() > 0)
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-end">
+                            <div class="col-auto">
+                                <button id="btnActualizarTablas" class="btn btn-warning">
+                                    <i class="fa fa-save"></i> Guardar
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
+            @include('TablasUpdate.AgregarTablaUpdate')
         @endif
-        @include('TablasUpdate.AgregarTablaUpdate')
-    @endif
+    </div>
+
 
     <script>
         const idTienda = document.getElementById('idTienda');

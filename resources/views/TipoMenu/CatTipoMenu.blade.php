@@ -4,7 +4,7 @@
 @section('contenido')
     <div class="container-fluid pt-4 width-general">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Tipos de Menús'])>
+            @include('components.title', ['titulo' => 'Catálogo de Tipos de Menús'])
             <div>
                 <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
                     class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
