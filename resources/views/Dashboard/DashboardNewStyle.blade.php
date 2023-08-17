@@ -13,7 +13,7 @@
         <div>
             @include('Alertas.Alertas')
         </div>
-        {{-- <div class="row"> --}}
+
         @if ($menus->count() == 0)
             <div class="d-flex justify-content-center">
                 <h3><i style="color: red" class="fa fa-exclamation-triangle"></i> No Hay Menus Para Este Tipo de
@@ -22,16 +22,7 @@
             </div>
         @else
             @foreach ($menus as $headerMenu)
-                {{-- <div class=""> --}}
-                {{-- <div class="router">
-                            <a class="text-secondary text-decoration-none" href="/Dashboard">Dashboard</a>
-                            <span class="text-secondary fw-bold">/</span>
-                            <a class="text-dark text-decoration-none" href="">@yield('title')</a>
-                        </div> --}}
                 <h5 class="pb-2 fw-normal">{{ ucfirst(mb_strtolower($headerMenu->NomTipoMenu, 'UTF-8')) }}</h5>
-                {{-- <h2>{{ strtoupper($headerMenu->NomTipoMenu, 'UTF-8') }}</h2> --}}
-                {{-- <h5>{{ $headerMenu->NomTipoMenu }}</h5> --}}
-                {{-- </div> --}}
                 <div class="row">
                     @foreach ($headerMenu->DetalleMenu as $detalleMenu)
                         <a href="{{ $detalleMenu->PivotMenu->Link }}" class="col-xxl-2 col-lg-3 col-sm-6 mb-3 menu-item">
@@ -49,6 +40,5 @@
                 </div>
             @endforeach
         @endif
-        {{-- </div> --}}
     </div>
 @endsection

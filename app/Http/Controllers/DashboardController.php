@@ -44,6 +44,6 @@ class DashboardController extends Controller
 
         //return $menus;
 
-        return view('Dashboard.DashboardNewStyle', compact('menus'));
+        return view('Dashboard.DashboardMaterial', compact('menus'));
     }
 }
