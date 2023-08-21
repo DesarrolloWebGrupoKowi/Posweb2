@@ -85,7 +85,7 @@ class MenuPoswebController extends Controller
         $tiposUsuario = TipoUsuario::where('Status', 0)
             ->get();
 
-        $idTipoUsuario = $request->idTipoUsuario;
+        $idTipoUsuario = $request->idTipoUsuario ? $request->idTipoUsuario : 0;
 
         $tipoMenus = DB::table('CatMenus as a')
             ->leftJoin('CatTipoMenu as b', 'b.IdTipoMenu', 'a.IdTipoMenu')
@@ -116,8 +116,6 @@ class MenuPoswebController extends Controller
         }])
             ->whereIn('IdTipoMenu', $tipoMenu)
             ->get();
-
-        //return $menus;
 
         return view('Menus.OrdenarMenus', compact('tiposUsuario', 'idTipoUsuario', 'menus'));
     }

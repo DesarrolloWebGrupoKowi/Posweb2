@@ -1,100 +1,89 @@
-@extends('PlantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Bloqueo de Empleados')
-<style>
-    i:active {
-        transform: scale(1.5);
-    }
-</style>
+@section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="container mb-3">
-        <div class="d-flex justify-content-center">
-            <div class="col-auto">
-                <h3 class="card shadow p-1">Bloqueo de Empleados</h3>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Bloqueo de Empleados'])
+            <div>
+                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar bloqueo"
+                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#AgregarBloqueo">
+                    <i class="fa fa-plus-circle pe-1"></i> Agregar menú
+                </button>
+                <a href="/BloqueoEmpleados" class="btn btn-dark-outline">
+                    <span class="material-icons">refresh</span>
+                </a>
             </div>
         </div>
-    </div>
-    <div class="container">
-        <div class="d-flex justify-content-center">
+        <div>
             @include('Alertas.Alertas')
         </div>
-    </div>
-    <div class="container mb-2">
-        <form action="/BloqueoEmpleados" method="GET">
-            <div class="row">
-                <div class="col-5 d-flex justify-content-start ms-3">
-                    <div class="input-group">
-                        <span class="input-group-text shadow">
-                            <input {!! $radioFiltro == 'numNomina' ? 'checked' : '' !!} checked class="form-check-input mt-0" type="radio"
-                                name="radioFiltro" id="numNomina" value="numNomina">
-                        </span>
-                        <span class="input-group-text card shadow">Nómina</span>
-                        <span class="input-group-text shadow">
-                            <input {!! $radioFiltro == 'nomEmpleado' ? 'checked' : '' !!} class="form-check-input mt-0" type="radio" name="radioFiltro"
-                                id="nomEmpleado" value="nomEmpleado">
-                        </span>
-                        <span class="input-group-text card shadow">Nombre</span>
-                        <input type="text" class="form-control shadow" name="filtroBusqueda" id="filtroBusqueda"
-                            placeholder="Buscar empleado..." value="{{ $filtroBusqueda }}" required>
-                    </div>
-                </div>
-                <div class="col d-flex justify-content-start">
-                    <button class="btn card">
-                        <i style="color: orange" class="fa fa-search mt-1"></i>
-                    </button>
-                </div>
-                <div class="col d-flex justify-content-start">
-                    <a class="btn card" href="/BloqueoEmpleados">
-                        <i class="fa fa-refresh mt-1"></i>
-                    </a>
-                </div>
-                <div class="col d-flex justify-content-end me-3">
-                    <button type="button" class="btn card d-inline shadow" data-bs-toggle="modal"
-                        data-bs-target="#AgregarBloqueo">
-                        <i class="fa fa-user-times"></i> Nuevo Bloqueo
-                    </button>
+        <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/BloqueoEmpleados" method="GET">
+            <div class="input-group d-flex justify-content-end" style="max-width: 300px">
+                <span class="input-group-text">
+                    <input {!! $radioFiltro == 'numNomina' ? 'checked' : '' !!} checked class="form-check-input mt-0" type="radio" name="radioFiltro"
+                        id="numNomina" value="numNomina">
+                </span>
+                <span class="input-group-text card">Nómina</span>
+
+                <span class="input-group-text">
+                    <input {!! $radioFiltro == 'nomEmpleado' ? 'checked' : '' !!} class="form-check-input mt-0" type="radio" name="radioFiltro"
+                        id="nomEmpleado" value="nomEmpleado">
+                </span>
+                <span class="input-group-text card ">Nombre</span>
+            </div>
+            <div class="input-group" style="max-width: 300px">
+                <input type="text" class="form-control" name="filtroBusqueda" id="filtroBusqueda"
+                    placeholder="Buscar empleado..." value="{{ $filtroBusqueda }}" required>
+                <div class="input-group-append">
+                    <button class="input-group-text"><span class="material-icons">search</span></button>
                 </div>
             </div>
         </form>
-    </div>
-    <div class="container">
-        <table class="table table-striped table-responsive shadow">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nómina</th>
-                    <th>Empleado</th>
-                    <th>Motivo de Bloqueo</th>
-                    <th>Fecha de Bloqueo</th>
-                    <th>Bloqueado Por</th>
-                    <th>Desbloquear</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if ($bloqueos->count() == 0)
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <th colspan="6">No hay bloqueos</th>
+                        <th class="rounded-start">Nómina</th>
+                        <th>Empleado</th>
+                        <th>Motivo de Bloqueo</th>
+                        <th>Fecha de Bloqueo</th>
+                        <th>Bloqueado Por</th>
+                        <th class="rounded-end">Desbloquear</th>
                     </tr>
-                @else
-                    @foreach ($bloqueos as $bloqueo)
+                </thead>
+                <tbody>
+                    @if ($bloqueos->count() == 0)
                         <tr>
-                            <td>{{ $bloqueo->NumNomina }}</td>
-                            <td>{{ $bloqueo->Empleado->Nombre }} {{ $bloqueo->Empleado->Apellidos }}</td>
-                            <td>{{ $bloqueo->MotivoBloqueo }}</td>
-                            <td>{{ strftime('%d %B %Y, %H:%M', strtotime($bloqueo->FechaBloqueo)) }}</td>
-                            <td>{{ $bloqueo->Usuario->NomUsuario }}</td>
-                            <td>
-                                <i style="font-size: 20px; cursor: pointer;" class="fa fa-user-plus" data-bs-toggle="modal"
-                                    data-bs-target="#DesbloquearEmpleado{{ $bloqueo->NumNomina }}"></i>
-                            </td>
-                            @include('BloqueoEmpleados.ModalDesbloquearEmpleado')
+                            <th colspan="6">No hay bloqueos</th>
                         </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
+                    @else
+                        @foreach ($bloqueos as $bloqueo)
+                            <tr>
+                                <td>{{ $bloqueo->NumNomina }}</td>
+                                <td>{{ $bloqueo->Empleado->Nombre }} {{ $bloqueo->Empleado->Apellidos }}</td>
+                                <td>{{ $bloqueo->MotivoBloqueo }}</td>
+                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($bloqueo->FechaBloqueo)) }}</td>
+                                <td>{{ $bloqueo->Usuario->NomUsuario }}</td>
+                                <td>
+                                    <i style="font-size: 20px; cursor: pointer;" class="fa fa-user-plus"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#DesbloquearEmpleado{{ $bloqueo->NumNomina }}"></i>
+                                </td>
+                                @include('BloqueoEmpleados.ModalDesbloquearEmpleado')
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-center">
+            {{ $bloqueos->links() }}
+        </div>
     </div>
-    <div class="d-flex justify-content-center">
-        {{ $bloqueos->links() }}
-    </div>
+
+
     @include('BloqueoEmpleados.ModalAgregarBloqueo')
 
     <script>

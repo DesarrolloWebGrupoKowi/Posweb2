@@ -8,6 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../Icons/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
     <link href="{{ asset('material-icon/material-icon.css') }}" rel="stylesheet">
     <title>Agregar Producto Manual</title>
     <style>
@@ -17,22 +18,23 @@
     </style>
 </head>
 
-<body>
-    <div class="container-fluid">
-        <table class="table table-responsive table-striped">
-            <thead class="table-dark">
+<body class="bg-white">
+    <div class="content-table content-table-full">
+        <table class="w-100">
+            <thead class="table-head">
                 <tr>
-                    <th>Código</th>
+                    <th class="rounded-start">Código</th>
                     <th>Articulo</th>
                     <th>Cantidad</th>
-                    <th>Seleccionar</th>
+                    <th class="rounded-end">Seleccionar</th>
                 </tr>
             </thead>
             <tbody>
                 @if ($articuloPendiente == 0)
-                <tr>
-                    <th colspan="4"><i style="color: red" class="fa fa-exclamation-triangle"></i> Articulo Pendiente Por Recepcionar, Vaya a Recepciones Pendientes!</th>
-                </tr>
+                    <tr>
+                        <th colspan="4"><i style="color: red" class="fa fa-exclamation-triangle"></i> Articulo
+                            Pendiente Por Recepcionar, Vaya a Recepciones Pendientes!</th>
+                    </tr>
                 @else
                     @if ($articulos->count() == 0)
                         <tr>
@@ -45,9 +47,10 @@
                                 <tr>
                                     <td>{{ $articulo->CodArticulo }}</td>
                                     <td>{{ $articulo->NomArticulo }}</td>
-                                    <td>
-                                        <input type="number" min="0.1" step="any" class="form-control form-control-sm"
-                                            name="cantArticulo" id="cantArticulo" required>
+                                    <td class="d-flex">
+                                        <input type="number" min="0.1" step="any"
+                                            class="form-control form-control-sm" name="cantArticulo" id="cantArticulo"
+                                            required>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm">

@@ -1,5 +1,6 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Reporte de Monedero Electrónico')
+@section('dashboardWidth', 'width-general')
 <style>
     .container #dTicket {
         cursor: pointer;
@@ -13,60 +14,62 @@
     }
 </style>
 @section('contenido')
-    <div class="d-flex justify-content-center mb-2">
-        <div class="col-auto">
-            <h2 class="card shadow p-1">Reporte de Monedero Electrónico</h2>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Reporte de Monedero Electrónico'])
         </div>
-    </div>
-    <div class="container mb-3">
-        <form action="/ReporteMonedero" method="GET">
-            <div class="row">
-                <div class="col-auto">
-                    <input type="date" class="form-control shadow" name="fecha1" id="fecha1"
-                        value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" required>
-                </div>
-                <div class="col-auto">
-                    <input type="date" class="form-control shadow" name="fecha2" id="fecha2"
-                        value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}" required>
-                </div>
-                <div class="col-auto">
-                    <input type="text" class="form-control" name="numNomina" id="numNomina" value="{{ $numNomina }}"
-                        placeholder="Nómina" autofocus required>
-                </div>
-                <div class="col-auto">
-                    <button class="btn card shadow">
-                        <span class="material-icons">search</span>
-                    </button>
-                </div>
+
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
+        <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/ReporteMonedero" method="GET">
+            <div class="col-auto">
+                <input type="date" class="form-control" name="fecha1" id="fecha1"
+                    value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" required>
+            </div>
+            <div class="col-auto">
+                <input type="date" class="form-control" name="fecha2" id="fecha2"
+                    value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}" required>
+            </div>
+            <div class="col-auto">
+                <input type="number" class="form-control" name="numNomina" id="numNomina" value="{{ $numNomina }}"
+                    placeholder="Nómina" autofocus required>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-dark-outline">
+                    <span class="material-icons">search</span>
+                </button>
             </div>
         </form>
-    </div>
-    <div class="container">
-        @include('Alertas.Alertas')
-    </div>
-    <div class="container">
-        <div class="row d-flex justify-content-center">
-            <div class="col-auto">
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <div class="mb-2 d-flex align-items-center gap-2">
                 @if (empty($empleado) && !empty($numNomina))
-                    <h4><i class="fa fa-exclamation-triangle"></i> No se Encontro el Empleado <i
-                            class="fa fa-exclamation-triangle"></i></h4>
+                    <h5>
+                        <i class="fa fa-exclamation-triangle"></i> No se Encontro el Empleado
+                        <i class="fa fa-exclamation-triangle"></i>
+                    </h5>
                 @elseif(!empty($empleado))
-                    <h4>{{ $empleado->NumNomina }} - {{ $empleado->Nombre }} {{ $empleado->Apellidos }}</h4>
+                    <h5 style="font-size: 1rem;"><i class="fa fa-id-card pe-1"></i> {{ $empleado->NumNomina }}</h5>
+                    <h5 style="font-size: 1rem;">{{ $empleado->Nombre }} {{ $empleado->Apellidos }}</h5>
                 @endif
             </div>
-        </div>
-        @if (!empty($numNomina) && !empty($empleado))
-            <table class="table table-responsive table-striped shadow">
-                <thead class="table-dark">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <th>Fecha</th>
-                        <th>Movimiento</th>
+                        <th class="rounded-start">Fecha</th>
+                        <th class="rounded-end">Movimiento</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @if (empty($numNomina) && empty($empleado))
+                        <tr>
+                            <th colspan="4">Selecciona un numero de nomina!</th>
+                        </tr>
+                    @endif
                     @if ($movimientos->count() == 0)
                         <tr>
-                            <th colspan="4">No se encontraron movimientos en ese rango de fechas!</th>
+                            <th colspan="4">No se encuentan movimientos!</th>
                         </tr>
                     @else
                         @foreach ($movimientos as $movimiento)
@@ -86,6 +89,6 @@
                     </tfoot>
                 @endif
             </table>
-        @endif
+        </div>
     </div>
 @endsection

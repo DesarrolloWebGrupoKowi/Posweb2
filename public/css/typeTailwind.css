@@ -1,3 +1,36 @@
+/* Cambiando los estilos de los scroll */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #797979 #f1f2f300;
+}
+
+*::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+*::-webkit-scrollbar:vertical {
+    width: 10px;
+}
+
+*::-webkit-scrollbar-button:increment,
+*::-webkit-scrollbar-button {
+    display: none;
+}
+
+*::-webkit-scrollbar:horizontal {
+    height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #797979;
+    border-radius: 20px;
+    border: 2px solid #f1f2f3;
+}
+
+*::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+
 body {
     background-color: #f1f5f9;
 }
@@ -87,7 +120,7 @@ button[disabled] i {
 }
 
 .content-table tr {
-    line-height: 3rem;
+    line-height: 2.5rem;
 }
 
 .content-table th,
@@ -100,6 +133,18 @@ button[disabled] i {
 
 .content-table td {
     color: #4f5464;
+}
+
+tbody tr {
+    transition: all .1s ease;
+}
+
+tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.table-active {
+    background-color: #cbd5e1;
 }
 
 /* Paginacion */

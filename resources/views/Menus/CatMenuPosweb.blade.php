@@ -23,7 +23,7 @@
         <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/CatMenuPosweb">
             <div class="input-group" style="max-width: 300px">
                 <input type="text" name="txtFiltroMenu" class="form-control" placeholder="Menú"
-                    value="{{ $filtroMenu }}">
+                    value="{{ $filtroMenu }}" autofocus>
                 <div class="input-group-append">
                     <button class="input-group-text"><span class="material-icons">search</span></button>
                 </div>
