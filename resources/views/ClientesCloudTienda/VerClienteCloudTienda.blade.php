@@ -2,7 +2,7 @@
 @section('title', 'Ver Clientes Cloud Por Tienda')
 @section('contenido')
     <div class="container">
-        <h2 class="titulo">Clientes Cloud Por Tienda SD</h2>
+        <h2 class="titulo">Clientes Cloud Por Tienda</h2>
     </div>
     <div class="container">
         <form action="/VerClientesCloudTienda">
