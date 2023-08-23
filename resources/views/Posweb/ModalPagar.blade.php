@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body">
                 <div class="row d-flex justify-content-center">
-                    <div id="total" class="col-6 shadow border border-warning border-2 mb-3">
+                    <div id="total" class="col-6 card p-4 border border-2 mb-3">
                         <h4>TOTAL</h4>
                         <h2>${{ $totalPreventa }}</h2>
                     </div>

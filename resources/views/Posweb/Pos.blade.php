@@ -2,11 +2,6 @@
 <html lang="es">
 
 <head>
-    <style>
-        .btnOpcion:hover {
-            transform: scale(.95);
-        }
-    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -14,86 +9,48 @@
     <link href="material-icon/material-icon.css" rel="stylesheet">
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="Icons/font-awesome.min.css">
-    <link rel="stylesheet" href="css/stylePos.css">
+    <link rel="stylesheet" href="css/stylePosTailwind.css">
     <title>:: Punto de Venta ::</title>
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row shadow">
+    <div class="d-flex flex-column justify-content-between gap-4 p-4" style="height: 100vh">
+        {{-- Header --}}
+        <div class="d-flex flex-row card p-4" style="border-radius: 20px;">
             <div class="col-3">
-                <div class="row">
-                    <div class="col-auto">
-                        <a href="/Dashboard"><img class="rounded lKowi mt-1" src="img/logokowi.png" width="50"
-                                height="50"></a>
-                    </div>
-                    <div class="col-auto mt-2">
+                <div class="d-flex">
+                    <a href="/Dashboard">
+                        <img src="img/logokowi.png" width="50" height="50">
+                    </a>
+                    <div class="ps-2" style="height: 50px">
                         <h6>{{ $usuario->NomCiudad }}</h6>
                         <h6 style="color: {!! empty($caja->NumCaja) ? 'red' : '' !!}">Caja: {!! empty($caja->NumCaja) ? 'No Hay Caja Activa' : $caja->NumCaja !!}</h6>
                     </div>
                 </div>
             </div>
-            <div class="col-6 mt-1 d-flex justify-content-center">
-                <h1 style="font-weight: bold; position: absolute;">{{ $usuario->NomTienda }}</h1>
+
+            <div class="col-6 d-flex align-items-center justify-content-center" style="height: 50px">
+                <h1 class="slate-700-color text-center titulo">{{ $usuario->NomTienda }}</h1>
             </div>
-            <div class="col-3" style="text-align: right">
-                <h5>{{ $nombre }} {{ $apellido }}</h5>
-                <h5>{{ $fechaHoy }}</h5>
+
+            <div class="col-3" style="text-align: right; height: 50px">
+                <h6 class="slate-700-color">{{ $nombre }} {{ $apellido }}</h6>
+                <h6 class="slate-700-color">{{ $fechaHoy }}</h6>
             </div>
+            {{-- Notificaciones --}}
         </div>
-        <div class="row">
+
+        <div class="position-absolute" style="top: 100px; width: calc(100% - 24px); z-index: 99;">
             <div class="col-auto">
                 @include('Alertas.Alertas')
             </div>
         </div>
-        <div class="row mt-1 mb-1">
-            <div id="pos" class="col-md-9 border border-warning border-2 shadow table-responsive">
-                <table class="table table-responsive mb-2">
-                    <thead style="font-size: 22px">
-                        <tr>
-                            <th>Articulo</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                            <th>Subtotal</th>
-                            <th>Iva</th>
-                            <th>
-                                <i style="color: red; font-size: 18px; display: {!! ($preventa->count() == 0 ? 'none' : $banderaMultiPago > 0) ? 'none' : 'block' !!}"
-                                    class="fa fa-trash" data-bs-toggle="modal"
-                                    data-bs-target="#ModalEliminarPreventa"></i>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($preventa as $pArticulo)
-                            <tr style="{!! $pArticulo->IdPaquete != null ? 'background-color: rgb(213, 253, 213);' : '' !!}">
-                                <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
-                                    @if ($pArticulo->IvaArticulo > 0)
-                                        {{ $pArticulo->NomArticulo }} (I)
-                                    @else
-                                        {{ $pArticulo->NomArticulo }}
-                                    @endif
-                                </td>
-                                <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
-                                    {{ number_format($pArticulo->CantArticulo, 3) }}</td>
-                                <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
-                                    ${{ number_format($pArticulo->PrecioVenta, 2) }}</td>
-                                <td style="color: {!! $pArticulo->SubTotalArticulo == 0 ? 'red; font-weight:bold;' : '' !!}">
-                                    ${{ number_format($pArticulo->SubTotalArticulo, 2) }}</td>
-                                <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
-                                    ${{ number_format($pArticulo->IvaArticulo, 2) }}</td>
-                                <td>
-                                    <i id="btnEliminar" class="fa fa-trash"
-                                        style="color: red; display: {!! $banderaMultiPago > 0 ? 'none' : 'block' !!}" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEliminar{{ $pArticulo->IdDatVentaTmp }}"></i>
-                                    @include('Posweb.ModalEliminar')
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div id="opciones" class="col-md-3 border border-warning border-2 shadow">
-                <div id="divCountArticulo" class="row mt-1 me-1 ms-1 shadow text-black">
+
+        {{-- Body --}}
+        <div class="d-flex flex-xl-row-reverse flex-grow-1 gap-4">
+
+            <div id="opciones" class="col-12 col-xl-3 border p-4 card" style="border-radius: 20px;">
+                <div id="divCountArticulo" class="d-flex border card text-black p-4">
                     <div class="col-12 mt-1">
                         @if (!empty($frecuenteSocio))
                             <h6>Cliente : {{ $frecuenteSocio->Nombre }} <i data-bs-toggle="mensaje"
@@ -106,72 +63,60 @@
                             </h6>
                         @endif
                         @if (!empty($cliente))
-                            <h6>Cliente : {{ $cliente->Nombre }} {{ $cliente->Apellidos }} <i data-bs-toggle="mensaje"
-                                    title="Quitar Empleado"
+                            <h6><span class="orange">Cliente :</span> {{ $cliente->Nombre }} {{ $cliente->Apellidos }}
+                                <i data-bs-toggle="mensaje" title="Quitar Empleado"
                                     style="color: red; cursor: pointer; display: {!! $banderaMultiPago > 0 ? 'none' : '' !!}"
                                     class="fa fa-close" name="chkCliente" id="chkCliente"></i>
                             </h6>
-                            <h6>Crédito Disponible : <strong
+                            <h6><span class="orange">Crédito Disponible :</span> <strong
                                     style="color: {!! $creditoDisponible == 0 ? 'red' : '' !!}">${{ number_format($creditoDisponible, 2) }}</strong>
                             </h6>
-                            <h6>Dinero Electrónico Disponible:
+                            <h6><span class="orange">Dinero Electrónico Disponible:</span>
                                 <strong>${{ number_format($monederoEmpleado, 2) }}</strong>
                             </h6>
                         @endif
-                        <h6>Articulos : {{ $preventa->count() }}</h6>
+                        <h6><span class="orange">Articulos :</span> {{ $preventa->count() }}</h6>
                     </div>
                 </div>
-                <div style="text-align: center" class="row mt-2">
-                    <div class="col-6">
-                        <button {!! $banderaMultiPago > 0 ? 'disabled' : '' !!} class="btnOpcion" data-bs-toggle="modal"
-                            data-bs-target="#ModalEmpleado">
-                            <i class="fa fa-user"></i> EMPLEADO
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button id="btnSolicitudFactura" class="btnOpcion">
-                            <i class="fa fa-id-badge"></i> FACTURA
-                        </button>
-                    </div>
+                <div class="d-flex gap-2 mt-2">
+                    <button {!! $banderaMultiPago > 0 ? 'disabled' : '' !!} class="btnOpcion" data-bs-toggle="modal"
+                        data-bs-target="#ModalEmpleado">
+                        <i class="fa fa-user"></i> EMPLEADO
+                    </button>
+                    <button id="btnSolicitudFactura" class="btnOpcion">
+                        <i class="fa fa-id-badge"></i> FACTURA
+                    </button>
                 </div>
-                <div style="text-align: center" class="row mt-2">
-                    <div class="col-6">
-                        <button class="btnOpcion">
-                            <i class="fa fa-comments"></i> EVENTOS
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button id="btnPedidos" class="position-relative shadow btnOpcion">
-                            <i class="fa fa-cart-plus"></i> PEDIDOS
-                            @if ($pedidosPendientes > 0)
-                                <span
-                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    {{ $pedidosPendientes }}
-                                </span>
-                            @endif
-                        </button>
-                    </div>
+                <div class="d-flex gap-2 mt-2">
+                    <button class="btnOpcion">
+                        <i class="fa fa-comments"></i> EVENTOS
+                    </button>
+                    <button id="btnPedidos" class="position-relative shadow btnOpcion">
+                        <i class="fa fa-cart-plus"></i> PEDIDOS
+                        @if ($pedidosPendientes > 0)
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $pedidosPendientes }}
+                            </span>
+                        @endif
+                    </button>
                 </div>
-                <div style="text-align: center" class="row mt-2 mb-3">
-                    <div class="col-6">
-                        <form id="frmPaquetes" action="/PaquetesPreventa" method="GET">
-                            <select class="btnOpcion" name="idPaquete" id="idPaquete" required>
-                                <option style="color: white; background-color: black;" value="">PAQUETES
-                                </option>
-                                @foreach ($paquetes as $paquete)
-                                    <option style="color: black; background-color: white;"
-                                        value="{{ $paquete->IdPaquete }}">{{ $paquete->NomPaquete }}</option>
-                                @endforeach
-                            </select>
-                        </form>
-                    </div>
-                    <div class="col-6">
-                        <button class="btnOpcion" data-bs-toggle="modal" data-bs-target="#ModalOpciones">
-                            <i class="fa fa-bars"></i> OPCIONES
-                        </button>
-                    </div>
+                <div class="d-flex gap-2 mt-2">
+                    <form id="frmPaquetes" action="/PaquetesPreventa" method="GET" style="width: 50%">
+                        <select class="btnOpcion" name="idPaquete" id="idPaquete" style="width: 100%;" required>
+                            <option value="">PAQUETES
+                            </option>
+                            @foreach ($paquetes as $paquete)
+                                <option style="color: black; background-color: white;"
+                                    value="{{ $paquete->IdPaquete }}">{{ $paquete->NomPaquete }}</option>
+                            @endforeach
+                        </select>
+                    </form>
+                    <button class="btnOpcion" data-bs-toggle="modal" data-bs-target="#ModalOpciones">
+                        <i class="fa fa-bars"></i> OPCIONES
+                    </button>
                 </div>
-                <div class="border border-3 mb-3 rounded DetalleMultiPagoPos table-responsive"
+                <div class="border border-3 mt-2 rounded DetalleMultiPagoPos table-responsive"
                     style="display: {!! $banderaMultiPago > 0 ? 'block' : 'none' !!}">
                     <table class="table table-striped table-responsive">
                         <thead class="table-dark">
@@ -207,10 +152,10 @@
                         </tbody>
                     </table>
                 </div>
-                <form id="formPos" action="/CalculosPreventa">
+                <form id="formPos" class="mt-4" action="/CalculosPreventa">
                     <input type="hidden" name="nNominaEmpleado"
                         value="{{ empty($cliente->NumNomina) ? '' : $cliente->NumNomina }}">
-                    <div class="row mb-3">
+                    <div class="row mb-2">
                         <div class="col-6">
                             <input {!! $banderaMultiPago > 0 ? 'disabled' : '' !!} class="form-control txtPos" type="number"
                                 name="txtCantidad" id="txtCantidad" placeholder="Peso" min="0.001"
@@ -227,37 +172,86 @@
                     </div>
                 </form>
             </div>
+
+            {{-- <div id="pos" class="col-12 col-xl-9 border border-warning border-2"> --}}
+            <div id="pos" class="content-table content-table-full card p-4 border"
+                style="border-radius: 20px; width: 100%;">
+                <table>
+                    <thead class="table-head">
+                        <tr>
+                            <th class="rounded-start">Articulo</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Subtotal</th>
+                            <th>Iva</th>
+                            <th class="rounded-end">
+                                <i style="color: red; font-size: 18px; display: {!! ($preventa->count() == 0 ? 'none' : $banderaMultiPago > 0) ? 'none' : 'block' !!}"
+                                    class="fa fa-trash" data-bs-toggle="modal"
+                                    data-bs-target="#ModalEliminarPreventa"></i>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($preventa as $pArticulo)
+                            <tr style="{!! $pArticulo->IdPaquete != null ? 'background-color: rgb(213, 253, 213);' : '' !!}">
+                                <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
+                                    @if ($pArticulo->IvaArticulo > 0)
+                                        {{ $pArticulo->NomArticulo }} (I)
+                                    @else
+                                        {{ $pArticulo->NomArticulo }}
+                                    @endif
+                                </td>
+                                <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
+                                    {{ number_format($pArticulo->CantArticulo, 3) }}</td>
+                                <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
+                                    ${{ number_format($pArticulo->PrecioVenta, 2) }}</td>
+                                <td style="color: {!! $pArticulo->SubTotalArticulo == 0 ? 'red; font-weight:bold;' : '' !!}">
+                                    ${{ number_format($pArticulo->SubTotalArticulo, 2) }}</td>
+                                <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
+                                    ${{ number_format($pArticulo->IvaArticulo, 2) }}</td>
+                                <td>
+                                    <i id="btnEliminar" class="fa fa-trash"
+                                        style="color: red; display: {!! $banderaMultiPago > 0 ? 'none' : 'block' !!}" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEliminar{{ $pArticulo->IdDatVentaTmp }}"></i>
+                                    @include('Posweb.ModalEliminar')
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="row">
-            <div id="subtotal" class="col-3 shadow border border-warning border-2">
-                <h3>SUBTOTAL</h3>
-                <h1>${{ $subTotalPreventa }}</h1>
+
+        {{-- Footer --}}
+        <div class="d-flex gap-4">
+            <div id="subtotal"
+                class="col-3 border flex-shrink-1 d-flex flex-column justify-content-center align-items-center card"
+                style="border-radius: 20px;">
+                <h6 class="text-dark">SUBTOTAL</h6>
+                <h1 class="text-secondary m-0">${{ $subTotalPreventa }}</h1>
             </div>
-            <div id="iva" class="col-3 shadow border border-warning border-2">
-                <h3>IVA</h3>
-                <h1>${{ $ivaPreventa }}</h1>
+            <div id="iva"
+                class="col-3 border flex-shrink-1 d-flex flex-column justify-content-center align-items-center card"
+                style="border-radius: 20px;">
+                <h6 class="text-dark">IVA</h6>
+                <h1 class="text-secondary m-0">${{ $ivaPreventa }}</h1>
             </div>
-            <div id="total" class="col-3 shadow border border-warning border-2">
-                <h3>TOTAL</h3>
-                <h1>${{ $totalPreventa }}</h1>
+            <div id="total"
+                class="col-3 border flex-shrink-1 d-flex flex-column justify-content-center align-items-center card"
+                style="border-radius: 20px;">
+                <h6 class="text-dark">TOTAL</h6>
+                <h1 class="text-secondary m-0">${{ $totalPreventa }}</h1>
             </div>
-            <div id="botones" class="col-3 shadow border border-warning border-2">
-                <div class="row">
-                    <div class="col-6">
-                        <button id="btnConsultar" class="btnOpcion" data-bs-toggle="modal"
-                            data-bs-target="#ModalConsultar">
-                            <i class="fa fa-search"></i> CONSULTAR
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        @if ($banArticuloSinPrecio->count() == 0)
-                            <button id="btnPagar" class="btnPagar" data-bs-toggle="modal"
-                                data-bs-target="#ModalPagar">
-                                <i class="fa fa-usd"></i> PAGAR
-                            </button>
-                        @endif
-                    </div>
-                </div>
+            <div id="botones" class="col-3 card d-flex flex-row align-items-center border p-4 gap-4"
+                style="border-radius: 20px;">
+                <button id="btnConsultar" class="btnOpcion" data-bs-toggle="modal" data-bs-target="#ModalConsultar">
+                    <i class="fa fa-search"></i> CONSULTAR
+                </button>
+                @if ($banArticuloSinPrecio->count() == 0)
+                    <button id="btnPagar" class="btnPagar" data-bs-toggle="modal" data-bs-target="#ModalPagar">
+                        <i class="fa fa-usd"></i> PAGAR
+                    </button>
+                @endif
             </div>
         </div>
     </div>

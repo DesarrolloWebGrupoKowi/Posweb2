@@ -1,0 +1,257 @@
+body {
+    background-color: #f1f5f9;
+}
+
+#opciones {
+    /* border-radius: 10px; */
+}
+
+.lKowi:active {
+    transform: scale(1.1);
+}
+
+/* #subtotal,
+#iva,
+#total,
+#botones {
+    border-radius: 10px;
+    height: 13vh;
+    display: grid;
+    place-content: center;
+    text-align: center;
+} */
+
+#divCountArticulo {
+    border-radius: 5px;
+    /*background-color: #eee;*/
+}
+
+.btnOpciones {
+    background-color: orange;
+    border: 1px solid orange;
+    border-radius: 5px;
+    color: black;
+    text-align: center;
+    cursor: pointer;
+    width: 15vh;
+    height: 8vh;
+}
+
+.btnOpciones:hover {
+    background-color: rgba(245, 178, 53, 0.959);
+    border: 1px solid orange;
+    color: white;
+}
+
+.DetalleMultiPagoPos {
+    height: 20vh;
+}
+
+.txtPos {
+    font-size: 22px;
+}
+
+i {
+    cursor: pointer;
+}
+
+td {
+    font-size: 19px;
+}
+
+.cambio {
+    position: absolute;
+    margin-left: 80vh;
+    margin-top: 20vh;
+    border-radius: 15px;
+    background-color: white;
+    box-shadow: 0 .5rem 1rem orange;
+}
+
+#txtPago {
+    font-size: 22px;
+}
+
+.dinCambio {
+    display: grid;
+    text-align: center;
+}
+
+#alerta {
+    position: absolute;
+    width: 98%;
+}
+
+/* Nuevos estilos */
+
+.orange {
+    color: #ff6900;
+}
+
+.card {
+    box-shadow: 1px 1px 10px #33415565;
+}
+
+#pos {
+    border-radius: 10px;
+}
+
+.slate-700-color {
+    color: #334155;
+}
+
+.titulo {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+@media (max-width: 1024px) {
+    .titulo {
+        font-size: 1.3rem;
+    }
+}
+
+/* Botones */
+.btnOpcion {
+    /* flex-grow: 1; */
+    background-color: #334155;
+    border: 1px solid #334155;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+    width: 50%;
+    height: 6vh;
+    transition: all .3s ease;
+}
+
+.btnOpcion:hover {
+    background-color: #1e293bac;
+    /* border: 1px solid orange; */
+    color: white;
+}
+
+.btnPagar {
+    background-color: black;
+    border: 1px solid #334155;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+    width: 50%;
+    height: 6vh;
+    transition: all .3s ease;
+}
+
+.btnPagar:hover {
+    background-color: white;
+    border: 1px solid orange;
+    color: black;
+}
+
+/* Tablas */
+.table-head {
+    background: #334155;
+    color: white;
+}
+
+.content-table {
+    overflow-x: auto;
+}
+
+.content-table tr {
+    line-height: 2.5rem;
+}
+
+.content-table th,
+.content-table td {
+    padding-left: 16px;
+    padding-right: 16px;
+    white-space: nowrap;
+    vertical-align: text-top;
+}
+
+.content-table td {
+    color: #4f5464;
+}
+
+tbody tr {
+    transition: all .1s ease;
+}
+
+tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.table-active {
+    background-color: #cbd5e1;
+}
+
+/* Modales */
+.fade {
+    /* margin-top: 5rem; */
+    /* background-color: #f1f5f988;
+    backdrop-filter: blur(2px) brightness(0.73) contrast(215%); */
+}
+
+.modal-dialog .modal-content {
+    border: 1px solid #1e293b;
+    margin-top: 3rem;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #1e293b;
+    color: white;
+    border: none;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.modal-footer {
+    border: none;
+    padding-top: 0;
+}
+
+.modal-body label {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* Tablas en modales*/
+.modal-body table {
+    width: 100%;
+}
+
+.modal-body thead {
+    padding: 0;
+    color: #1e293b;
+}
+
+.modal-body thead th {
+    padding: 0 8px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.modal-body {
+    overflow-x: auto;
+}
+
+.modal-body tr {
+    line-height: 2rem;
+}
+
+.modal-body th,
+.modal-body td {
+    padding-left: 16px;
+    white-space: nowrap;
+    vertical-align: text-top;
+}
+
+.modal-body td {
+    font-size: 14px;
+    color: #4f5464;
+}
