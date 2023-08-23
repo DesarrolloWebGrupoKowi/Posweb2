@@ -17,26 +17,125 @@
 @section('contenido')
 
     <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
             @include('components.title', ['titulo' => 'Corte Diario - ' . $tienda->NomTienda])
+            <form class="d-flex align-items-center justify-content-end gap-2" id="formCorte" action="/CorteDiario">
+                <div class="input-group" style="min-width: 200px">
+                    <input class="form-control" name="fecha" id="fecha" type="date" value="{{ $fecha }}">
+                </div>
+                <a href="/GenerarCortePDF/{{ $fecha }}/{{ $tienda->IdTienda }}/{{ $idDatCaja }}" target="_blank"
+                    type="button" class="btn btn-sm btn-dark">
+                    <span class="material-icons text-white">print</span>
+                </a>
+            </form>
         </div>
 
-        <form class="d-flex align-items-center justify-content-end pb-4 gap-4" id="formCorte" action="/CorteDiario">
-            <div class="input-group" style="max-width: 300px">
-                <input class="form-control" name="fecha" id="fecha" type="date" value="{{ $fecha }}">
+        <!--SUMATORIAS FINALES-->
+        <div class="row">
+            {{-- Dinero Electrónico --}}
+            <div class="col-12 col-md-6 col-lg-3 pb-4">
+                <div class="card p-4" style="border-radius: 20px;">
+                    <h6 class="text-dark">Dinero Electrónico</h6>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Crédito Quincenal: </span>
+                        <span>${{ number_format($totalMonederoQuincenal, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Crédito Semanal: </span>
+                        <span>${{ number_format($totalMonederoSemanal, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Total: </span>
+                        <b class="{{ number_format($totalMonederoQuincenal + $totalMonederoSemanal, 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totalMonederoQuincenal + $totalMonederoSemanal, 2) }}
+                        </b>
+                    </div>
+                </div>
             </div>
-            <a href="/GenerarCortePDF/{{ $fecha }}/{{ $tienda->IdTienda }}/{{ $idDatCaja }}" target="_blank"
-                type="button" class="btn btn-sm btn-dark">
-                <span class="material-icons text-white">print</span>
-            </a>
-        </form>
+            {{-- Crédito  --}}
+            <div class="col-12 col-md-6 col-lg-3 pb-4">
+                <div class="card p-4" style="border-radius: 20px;">
+                    <h6 class="text-dark">Crédito</h6>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Crédito Quincenal: </span>
+                        <span>${{ number_format($creditoQuincenal, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Crédito Semanal: </span>
+                        <span>${{ number_format($creditoSemanal, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Total Créditos: </span>
+                        <b class="{{ number_format($creditoSemanal + $creditoQuincenal, 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($creditoSemanal + $creditoQuincenal, 2) }}
+                        </b>
+                    </div>
+                </div>
+            </div>
+            {{-- Tarjeta  --}}
+            <div class="col-12 col-md-6 col-lg-3 pb-4">
+                <div class="card p-4" style="border-radius: 20px;">
+                    <h6 class="text-dark">Tarjeta</h6>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Tarjeta Débito: </span>
+                        <span>${{ number_format($totalTarjetaDebito, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Tarjeta Crédito: </span>
+                        <span>${{ number_format($totalTarjetaCredito, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Total Tarjeta: </span>
+                        <b class="{{ number_format($totalTarjetaDebito + $totalTarjetaCredito, 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totalTarjetaDebito + $totalTarjetaCredito, 2) }}
+                        </b>
+                    </div>
+                </div>
+            </div>
+            {{-- Totales --}}
+            <div class="col-12 col-md-6 col-lg-3 pb-4">
+                <div class="card p-4" style="border-radius: 20px;">
+                    <h6 class="text-dark">Totales</h6>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Total Transferencia: </span>
+                        <span>${{ number_format($totalTransferencia, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Total Factura: </span>
+                        <span>${{ number_format($totalFactura, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">Total Efectivo: </span>
+                        <b class="{{ number_format($totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totalEfectivo, 2) }}
+                        </b>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--TERMINA SUMATORIAS FINALES-->
 
         <!--CLIENTES DE TIENDA (SIN SOLICITUD DE FACTURA)-->
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
-            @foreach ($cortesTienda as $corteTienda)
+        @foreach ($cortesTienda as $corteTienda)
+            <div class="content-table content-table-full card p-4 mb-4" style="border-radius: 20px">
                 @foreach ($corteTienda->Customer as $customer)
-                    <div class="d-flex justify-content-left">
-                        <h6 class="p-1 bg-dark text-white rounded-3">{{ $customer->NomClienteCloud }}</h6>
+                    <div class="d-flex justify-content-between">
+                        <h6 class="">{{ $customer->NomClienteCloud }}</h6>
+                        <div class="d-flex gap-4">
+                            <span class="d-flex">
+                                <p>Cliente: </p>
+                                <h6 class="ps-1">{{ $corteTienda->IdClienteCloud }}</h6>
+                            </span>
+                            <span class="d-flex">
+                                <p>Bill to: </p>
+                                <h6 class="ps-1">{{ $corteTienda->Bill_To }}</h6>
+                            </span>
+                        </div>
                     </div>
                 @endforeach
                 <table>
@@ -125,14 +224,14 @@
                         </th>
                     </tr>
                 </table>
-            @endforeach
-        </div>
+            </div>
+        @endforeach
         <!--TERMINA CLIENTES DE TIENDA (SIN SOLICITUD DE FACTURA)-->
 
 
         <!--SOLICITUDES DE FACTURA-->
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
-            @foreach ($facturas as $factura)
+        @foreach ($facturas as $factura)
+            <div class="content-table content-table-full card p-4" style="border-radius: 20px">
                 <div class="d-flex justify-content-left">
                     <h6 class="p-1 bg-dark text-white rounded-3">{{ $factura->NomCliente }}</h6>
                 </div>
@@ -156,7 +255,8 @@
                             <tr>
                                 <td style="width: 10vh">{{ $detalleFactura->CodArticulo }}</td>
                                 <td style="width: 60vh">{{ $detalleFactura->NomArticulo }}</td>
-                                <td style="width: 15vh">{{ number_format($detalleFactura->PivotDetalle->CantArticulo, 4) }}
+                                <td style="width: 15vh">
+                                    {{ number_format($detalleFactura->PivotDetalle->CantArticulo, 4) }}
                                 </td>
                                 <td style="width: 15vh">
                                     {{ number_format($detalleFactura->PivotDetalle->PrecioArticulo, 2) }}
@@ -189,82 +289,9 @@
                         </th>
                     </tr>
                 </table>
-            @endforeach
-        </div>
-        <!--TERMINA SOLICITUDES DE FACTURA-->
-
-        <!--SUMATORIAS FINALES-->
-        <div class="content-table content-table-full">
-            <div class="d-flex justify-content-end">
-                <div class="col-auto">
-                    <table id="sumatorias" style="font-size: 18px" class="table">
-                        <thead>
-                            <tr>
-                                <td>Dinero Electrónico Crédito Quincenal: </td>
-                                <td>${{ number_format($totalMonederoQuincenal, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Dinero Electrónico Crédito Semanal: </td>
-                                <td>${{ number_format($totalMonederoSemanal, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Dinero Electrónico: </td>
-                                <td style="font-weight: bold; color: red;">
-                                    ${{ number_format($totalMonederoQuincenal + $totalMonederoSemanal, 2) }}</td>
-                            </tr>
-                        </thead>
-                        <thead>
-                            <tr>
-                                <td>Crédito Quincenal: </td>
-                                <td>${{ number_format($creditoQuincenal, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Crédito Semanal: </td>
-                                <td>${{ number_format($creditoSemanal, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Créditos: </td>
-                                <td style="font-weight: bold; color: red;">
-                                    ${{ number_format($creditoSemanal + $creditoQuincenal, 2) }}
-                                </td>
-                            </tr>
-                        </thead>
-                        <thead>
-                            <tr>
-                                <td>Tarjeta Débito: </td>
-                                <td>${{ number_format($totalTarjetaDebito, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Tarjeta Crédito: </td>
-                                <td>${{ number_format($totalTarjetaCredito, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Tarjeta: </td>
-                                <td style="font-weight: bold; color: red;">
-                                    ${{ number_format($totalTarjetaDebito + $totalTarjetaCredito, 2) }}
-                                </td>
-                            </tr>
-                        </thead>
-                        <thead>
-                            <tr>
-                                <td>Total Transferencia: </td>
-                                <td style="font-weight: bold; color: red;">${{ number_format($totalTransferencia, 2) }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Total Factura: </td>
-                                <td style="font-weight: bold; color: red;">${{ number_format($totalFactura, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <td>Total Efectivo: </td>
-                                <td style="font-weight: bold; color: red;">${{ number_format($totalEfectivo, 2) }}</td>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
             </div>
-        </div>
-        <!--TERMINA SUMATORIAS FINALES-->
+        @endforeach
+        <!--TERMINA SOLICITUDES DE FACTURA-->
 
     </div>
 
