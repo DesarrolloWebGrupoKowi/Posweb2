@@ -170,7 +170,7 @@ tbody tr:hover {
 
 /* Modales */
 .fade {
-    margin-top: 3rem;
+    margin-top: 3.7rem;
     background-color: #f1f5f988;
     backdrop-filter: blur(2px) brightness(0.73) contrast(215%);
 }

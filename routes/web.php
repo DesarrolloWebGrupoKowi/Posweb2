@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 //Index Home
 Route::get('/', function () {
-    return view('Index.index');
+    return redirect('Dashboard');
 })->name('index');
 
 Route::group(['middleware' => 'auth'], function () {
@@ -48,7 +48,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('ActivarUsuario/{id}', 'App\Http\Controllers\UsuariosController@ActivarUsuario');
 
     //MiPerfil
-    Route::get('MiPerfil', 'App\Http\Controllers\UsuariosController@MiPerfil');
+    Route::get('MiPerfil', 'App\Http\Controllers\UsuariosController@MiPerfil')->name('miperfil');
 
     //EditarPerfil
     Route::post('EditarPerfil/{id}', 'App\Http\Controllers\UsuariosController@EditarPerfil');

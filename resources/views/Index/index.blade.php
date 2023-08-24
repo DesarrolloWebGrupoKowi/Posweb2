@@ -1,5 +1,6 @@
-@extends('PlantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'PosWeb 2')
+@section('dashboardWidth', 'width-general')
 <style>
     body {
         background-image: url('img/BgPosweb2.png');
