@@ -116,15 +116,15 @@
                         <i class="fa fa-bars"></i> OPCIONES
                     </button>
                 </div>
-                <div class="border border-3 mt-2 rounded DetalleMultiPagoPos table-responsive"
+                <div class="content-table content-table-full card p-4 mt-2 border DetalleMultiPagoPos"
                     style="display: {!! $banderaMultiPago > 0 ? 'block' : 'none' !!}">
-                    <table class="table table-striped table-responsive">
-                        <thead class="table-dark">
+                    <table style="font-size: 11px">
+                        <thead class="table-head">
                             <tr>
-                                <th>Tipo Pago</th>
+                                <th class="rounded-start">Tipo Pago</th>
                                 <th>Pagado</th>
                                 <th>Por Pagar</th>
-                                <th>
+                                <th class="rounded-end">
                                     <i class="fa fa-trash-o"></i>
                                 </th>
                             </tr>
@@ -132,16 +132,16 @@
                         <tbody>
                             @foreach ($datTipoPago as $pagoRestante)
                                 <tr>
-                                    <td style="font-size: 15px">{{ $pagoRestante->NomTipoPago }}</td>
-                                    <td style="font-size: 15px">{{ number_format($pagoRestante->Pago, 2) }}</td>
-                                    <td style="font-weight: bold; color: red; font-size: 15px;">
+                                    <td style="font-size: 11px">{{ $pagoRestante->NomTipoPago }}</td>
+                                    <td style="font-size: 11px">{{ number_format($pagoRestante->Pago, 2) }}</td>
+                                    <td style="font-weight: bold; color: red; font-size: 11px;">
                                         {{ number_format($pagoRestante->Restante, 2) }}
                                     </td>
                                     <td>
                                         <form id="eliminarPago{{ $pagoRestante->IdDatTipoPago }}"
                                             action="EliminarPago/{{ $pagoRestante->IdDatTipoPago }}" method="POST">
                                             @csrf
-                                            <i style="color: red; font-size: 15px" class="fa fa-trash"
+                                            <i style="color: red; font-size: 11px" class="fa fa-trash"
                                                 data-bs-toggle="mensaje" title="Eliminar Pago"
                                                 onclick="event.preventDefault();
                                                 document.getElementById('eliminarPago<?php echo $pagoRestante->IdDatTipoPago; ?>').submit();"></i>
@@ -193,7 +193,7 @@
                     </thead>
                     <tbody>
                         @foreach ($preventa as $pArticulo)
-                            <tr style="{!! $pArticulo->IdPaquete != null ? 'background-color: rgb(213, 253, 213);' : '' !!}">
+                            <tr style="{!! $pArticulo->IdPaquete != null ? 'background-color: #F1F5F9;' : '' !!}">
                                 <td style="color: {!! $pArticulo->PrecioVenta == 0 ? 'red; font-weight:bold;' : '' !!}">
                                     @if ($pArticulo->IvaArticulo > 0)
                                         {{ $pArticulo->NomArticulo }} (I)

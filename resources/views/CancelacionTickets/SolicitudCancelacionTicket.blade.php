@@ -3,18 +3,18 @@
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
             @include('components.title', ['titulo' => 'Solicitud de Cancelación de Ticket'])
-            <form class="d-flex align-items-end justify-content-end pb-4 gap-2" action="/SolicitudCancelacionTicket"
+            <form class="d-flex align-items-end justify-content-end gap-2" action="/SolicitudCancelacionTicket"
                 method="GET">
-                <div class="col-auto">
-                    <div class="form-floating">
-                        <input type="number" class="form-control" id="idTicket" placeholder="# Ticket" name="idTicket"
-                            value="{{ $idTicket }}" autofocus required>
-                        <label for="idTicket"># Ticket</label>
-                    </div>
+                <div class="form-group">
+                    {{-- <div class="form-floating"> --}}
+                    <label class="text-secondary fw-bold" for="idTicket">No Ticket</label>
+                    <input type="number" class="form-control" id="idTicket" placeholder="No Ticket" name="idTicket"
+                        value="{{ $idTicket }}" autofocus required>
+                    {{-- </div> --}}
                 </div>
-                <button class="btn btn-warning mt-2">
+                <button class="btn btn-warning">
                     <i class="fa fa-search"></i> Buscar
                 </button>
             </form>
@@ -53,7 +53,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex justify-content-end">
+            <div class="mt-4 d-flex justify-content-end">
                 <div class="col-auto">
                     <button class="btn btn-danger" data-bs-toggle="modal"
                         data-bs-target="#ModalConfirmarSolicitudCancelacion">

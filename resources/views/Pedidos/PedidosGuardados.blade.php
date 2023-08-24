@@ -16,6 +16,9 @@
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Pedidos Guardados - ' . $tienda->NomTienda])
             <div>
+                <a href="/Pedidos" class="btn btn-sm btn-dark">
+                    <i class="fa fa-plus-circle pe-1"></i> Realizar Pedido
+                </a>
                 <a href="/PedidosGuardados" class="btn btn-dark-outline">
                     <span class="material-icons">refresh</span>
                     {{-- <span class="material-icons">visibility</span> --}}

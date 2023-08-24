@@ -1,3 +1,36 @@
+/* Cambiando los estilos de los scroll */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #797979 #f1f2f300;
+}
+
+*::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+*::-webkit-scrollbar:vertical {
+    width: 10px;
+}
+
+*::-webkit-scrollbar-button:increment,
+*::-webkit-scrollbar-button {
+    display: none;
+}
+
+*::-webkit-scrollbar:horizontal {
+    height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #797979;
+    border-radius: 20px;
+    border: 2px solid #f1f2f3;
+}
+
+*::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+
 body {
     background-color: #f1f5f9;
 }
@@ -65,7 +98,7 @@ td {
     margin-top: 20vh;
     border-radius: 15px;
     background-color: white;
-    box-shadow: 0 .5rem 1rem orange;
+    box-shadow: 1px 1px 10px #33415565;
 }
 
 #txtPago {

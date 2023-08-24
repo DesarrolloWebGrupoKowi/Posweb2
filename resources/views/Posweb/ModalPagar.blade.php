@@ -13,17 +13,17 @@
                         <h2>${{ $totalPreventa }}</h2>
                     </div>
                 </div>
-                <div class="border border-3 mb-3 rounded DetalleMultiPagoPos table-responsive"
-                    style="display: {!! $banderaMultiPago > 0 ? 'block' : 'none' !!}">
-                    <table class="table table-striped table-responsive">
-                        <thead class="table-dark">
+                <div class="content-table content-table-full mb-4"
+                    style="display: {!! $banderaMultiPago > 0 ? 'block' : 'none' !!};">
+                    <table>
+                        <thead class="table-head text-white">
                             <tr>
-                                <th>Tipo Pago</th>
+                                <th  class="rounded-start">Tipo Pago</th>
                                 <th>Pagado</th>
-                                <th>Por Pagar</th>
+                                <th class="rounded-end">Por Pagar</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="border">
                             @foreach ($datTipoPago as $pagoRestante)
                                 <tr>
                                     <td>{{ $pagoRestante->NomTipoPago }}</td>
@@ -35,6 +35,7 @@
                         </tbody>
                     </table>
                 </div>
+
                 <form id="formPago" action="/GuardarVenta">
                     <input type="hidden" name="nNominaEmpleado"
                         value="{{ empty($cliente->NumNomina) ? '' : $cliente->NumNomina }}">

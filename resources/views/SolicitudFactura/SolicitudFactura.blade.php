@@ -171,55 +171,55 @@
                         <div class="col-4">
                             <label for="">Nombre</label>
                             <input type="text" class="form-control" name="nomCliente" onkeyup="mayusculas(this)"
-                                required>
+                                required placeholder="Escribe el nombre">
                         </div>
                         <div class="col-4">
                             <label for="">Calle</label>
                             <input type="text" class="form-control" name="calle" onkeyup="mayusculas(this)"
-                                required>
+                                required placeholder="Escribe la calle">
                         </div>
                         <div class="col-1">
                             <label for="">Número Ext</label>
-                            <input type="text" class="form-control" name="numExt" required>
+                            <input type="text" class="form-control" name="numExt" required placeholder="Escribe el númeor exterior">
                         </div>
                         <div class="col-1">
                             <label for="">Número Int</label>
-                            <input type="text" class="form-control" name="numInt" required>
+                            <input type="text" class="form-control" name="numInt" required placeholder="Escribe el número interior">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-3">
                             <label for="">Colonia</label>
                             <input type="text" class="form-control" name="colonia" onkeyup="mayusculas(this)"
-                                required>
+                                required placeholder="Escribe el nombre de la colonia">
                         </div>
                         <div class="col-3">
                             <label for="">Ciudad</label>
-                            <input type="text" class="form-control" name="ciudad" required>
+                            <input type="text" class="form-control" name="ciudad" required placeholder="Escribe el nombre de la ciudad">
                         </div>
                         <div class="col-3">
                             <label for="">Municipio</label>
                             <input type="text" class="form-control" name="municipio" onkeyup="mayusculas(this)"
-                                required>
+                                required placeholder="Escribe el municipio">
                         </div>
                         <div class="col-3">
                             <label for="">Estado</label>
-                            <input type="text" class="form-control" name="estado" required>
+                            <input type="text" class="form-control" name="estado" required placeholder="Escribe el nombre del estado">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-3">
                             <label for="">Código Postal</label>
-                            <input type="text" class="form-control" name="codigoPostal" required>
+                            <input type="text" class="form-control" name="codigoPostal" required placeholder="Escribe el código postal">
                         </div>
                         <div class="col-3">
                             <label for="">Correo</label>
-                            <input type="email" class="form-control" name="correo" required>
+                            <input type="email" class="form-control" name="correo" required placeholder="Escribe el correo">
                         </div>
                         <div class="col-3">
-                            <label for="">Telefono</label>
+                            <label for="">Teléfono</label>
                             <input type="tel" class="form-control" name="telefono" minlength="10" maxlength="10"
-                                required>
+                                required placeholder="Escribe el teléfono">
                         </div>
                         <div class="col-3">
                             <label for="">Uso del CFDI</label>

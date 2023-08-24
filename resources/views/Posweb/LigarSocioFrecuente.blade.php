@@ -1,10 +1,13 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Ligar Socio/Frecuente')
+@section('title', 'Ligar Socio Frecuente')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid pt-4 width-general">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Ligar Socio/Frecuente'])
+            @include('components.title', [
+                'titulo' => 'Ligar Socio/Frecuente',
+                'options' => [['name' => 'Pos', 'value' => '/Pos']],
+            ])
         </div>
         <div>
             <div class="d-flex justify-content-center">
