@@ -20,7 +20,7 @@
         <div class="row" style="padding: 20px;">
             <div class="card">
                 <div class="container-float" style="text-align: center">
-                    <h4 class="card-title">Dashboard de {{ Auth::user()->tipoUsuario->NomTipoUsuario }}</h4>
+                    <h4 class="card-title">Dashboard de test {{ Auth::user()->tipoUsuario->NomTipoUsuario }}</h4>
                     <p class="card-category">
                         {{ ucfirst(\Carbon\Carbon::now()->locale('es')->isoFormat('dddd D \d\e MMMM \d\e\l Y')) }}
                     </p>
