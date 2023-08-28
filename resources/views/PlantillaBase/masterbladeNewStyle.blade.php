@@ -11,6 +11,13 @@
     <link href="{{ asset('material-icon/material-icon.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('Icons/font-awesome.min.css') }}">
     <title>@yield('title')</title>
+
+    <style>
+        .dropdown-menu[data-bs-popper] {
+            right: 0;
+            left: auto;
+        }
+    </style>
 </head>
 
 <body>
@@ -45,27 +52,32 @@
                                 </span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1"
-                                style="background: #1e293b">
+                                style="background: #1e293b; border-radius: 12px; width: 200px;">
                                 @if (!request()->routeIs('miperfil'))
                                     <li>
-                                        <a href="/MiPerfil" class="dropdown-item text-white">
-                                            <i class="fa fa-user-circle"></i> Mi Perfil
+                                        <a href="/MiPerfil" class="dropdown-item text-white py-2">
+                                            <i class="fa fa-user-circle pe-2"></i> Mi Perfil
                                         </a>
                                     </li>
                                 @endif
 
                                 @if (!request()->routeIs('dashboard'))
                                     <li>
-                                        <a href="/Dashboard" class="dropdown-item text-white">
-                                            <i class="fa fa-bars"></i> Dashboard
+                                        <a href="/Dashboard" class="dropdown-item text-white py-2">
+                                            <i class="fa fa-bars pe-2"></i> Dashboard
                                         </a>
                                     </li>
                                 @endif
                                 <li>
-                                    <a class="dropdown-item text-white" href="/Logout"
+                                    <a href="/Update" class="dropdown-item text-white py-2">
+                                        <i class="fa fa-cloud-download pe-2"></i> Actualizar
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-white py-2" href="/Logout"
                                         onclick="event.preventDefault();
                                                 document.getElementById('logout-form').submit();">
-                                        <i class="fa fa-sign-out"></i> Cerrar Sesión
+                                        <i class="fa fa-sign-out pe-2"></i> Cerrar Sesión
                                     </a>
                                     <form id="logout-form" action="/Logout" method="POST" class="d-none">
                                         @csrf
