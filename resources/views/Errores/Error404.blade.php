@@ -15,7 +15,7 @@
             <p class="text-secondary">Es posible que haya escrito mal la dirección o que la página se haya movido</p>
             <div class="pt-2">
                 @guest
-                    <a href="" class="btn btn-sm">Ir al inicio de sesión</a>
+                    <a href="/" class="btn btn-dark">Ir al inicio de sesión</a>
                 @else
                     <a href="/" class="btn btn-dark">Ir al inicio</a>
                 @endguest
