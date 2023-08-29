@@ -251,6 +251,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Actualizar Precios
     Route::post('/ActualizarPrecios', 'App\Http\Controllers\PreciosController@ActualizarPrecios');
 
+    //Detalle de precios
+    Route::get('/DetallePrecios', 'App\Http\Controllers\PreciosController@DetallePrecios');
+
     //+============================================================================================================================================+//
     //Pedidos
     Route::get('/Pedidos', 'App\Http\Controllers\PedidosController@Pedidos');
