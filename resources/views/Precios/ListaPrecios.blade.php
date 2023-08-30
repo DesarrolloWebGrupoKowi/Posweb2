@@ -3,17 +3,22 @@
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
             @include('components.title', ['titulo' => 'Módulo de Precios'])
-            <form class="d-flex align-items-center justify-content-end pb-4 gap-4" action="/DetallePrecios" method="get">
-                <div class="input-group" style="max-width: 300px">
-                    <input class="form-control" type="text" name="txtFiltro" id="txtFiltro"
-                        placeholder="Escribre el nombre de la ciudad" value="{{ $txtFiltro }}">
-                    <div class="input-group-append">
-                        <button class="input-group-text"><span class="material-icons">search</span></button>
+            <div class="d-flex align-items-center justify-content-end gap-4">
+                <form class="d-flex align-items-center justify-content-end gap-4" action="/DetallePrecios" method="get">
+                    <div class="input-group" style="max-width: 300px">
+                        <input class="form-control" type="text" name="txtFiltro" id="txtFiltro"
+                            placeholder="Escribre el nombre de la ciudad" value="{{ $txtFiltro }}">
+                        <div class="input-group-append">
+                            <button class="input-group-text"><span class="material-icons">search</span></button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+                <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none">
+                    <i class="fa fa-file-excel-o pe-2"></i> Excel
+                </a>
+            </div>
         </div>
 
         <div class="content-table content-table-full card p-4" style="border-radius: 20px">

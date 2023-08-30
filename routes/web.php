@@ -254,6 +254,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Detalle de precios
     Route::get('/DetallePrecios', 'App\Http\Controllers\PreciosController@DetallePrecios');
 
+    //Export detalle de precios a excel
+    Route::get('/ExportExcelDetallePrecios', 'App\Http\Controllers\PreciosController@ExportExcel');
+
     //+============================================================================================================================================+//
     //Pedidos
     Route::get('/Pedidos', 'App\Http\Controllers\PedidosController@Pedidos');

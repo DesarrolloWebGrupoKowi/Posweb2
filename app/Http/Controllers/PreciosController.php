@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PreciosExport;
 use App\Mail\ActualizacionPreciosMail;
 use App\Models\Grupo;
 use App\Models\HistorialPrecio;
@@ -12,6 +13,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Mail;
 
 class PreciosController extends Controller
@@ -179,5 +181,10 @@ class PreciosController extends Controller
             ->paginate(10)->withQueryString();
 
         return view('Precios.ListaPrecios', compact('precios', 'txtFiltro'));
+    }
+
+    public function ExportExcel(Request $request)
+    {
+        return Excel::download(new PreciosExport, 'precios.xlsx');
     }
 }
