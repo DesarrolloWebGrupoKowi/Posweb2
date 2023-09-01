@@ -88,6 +88,18 @@ h2 {
     line-height: 1.8rem;
 }
 
+.btn-excel {
+    background: #059669;
+    color: white;
+    border-color: #059669;
+    transition: all .3s ease;
+}
+
+.btn-excel:hover {
+    color: white;
+    transform: scale(1.02);
+}
+
 .material-icons {
     color: #1e293b;
 }

@@ -15,8 +15,8 @@
                         </div>
                     </div>
                 </form>
-                <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none">
-                    <i class="fa fa-file-excel-o pe-2"></i> Excel
+                <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none btn-excel">
+                    <i class="fa fa-file-excel-o pe-2"></i> Exportar
                 </a>
             </div>
         </div>
