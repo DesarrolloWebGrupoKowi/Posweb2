@@ -167,6 +167,7 @@ class AsignarPreparadosController extends Controller
                 // Creamos un detalle de recepcion por cada producto
                 DatRecepcionLocal::insert([
                     'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
+                    'IdRecepcionLocal' => $idRecepcion,
                     'CodArticulo' => $articulo->CodArticulo,
                     'CantEnviada' => $cantidadEnviada * $articulo->CantidadFormula,
                     'IdStatusRecepcion' => 1,
