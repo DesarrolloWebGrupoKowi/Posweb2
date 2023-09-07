@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class HistorialMovimientoProducto extends Model
 {
     use HasFactory;
-    protected $connection = 'server';
+    // protected $connection = 'server';
     protected $table = 'DatHistorialMovimientos';
     protected $fillable = ['IdTienda', 'CodArticulo', 'CantArticulo', 'FechaMovimiento', 'Referencia', 'IdMovimiento', 'IdUsuario'];
     public $timestamps = false;
-    protected $primaryKey = 'IdDatHistorialMovimientos'; 
+    protected $primaryKey = 'IdDatHistorialMovimientos';
 }

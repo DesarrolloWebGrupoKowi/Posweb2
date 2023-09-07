@@ -10,26 +10,28 @@ use App\Models\StatusRecepcion;
 class CapRecepcion extends Model
 {
     use HasFactory;
-    protected $connection = 'server';
+    // protected $connection = 'server';
     protected $table = 'CapRecepcion';
     protected $fillable = [
-        'FechaRecepcion', 
-        'PackingList', 
-        'IdTiendaOrigen', 
-        'Almacen', 
-        'Organization_Id', 
-        'MotivoCancelacion', 
-        'FechaCancelacion', 
+        'FechaRecepcion',
+        'PackingList',
+        'IdTiendaOrigen',
+        'Almacen',
+        'Organization_Id',
+        'MotivoCancelacion',
+        'FechaCancelacion',
         'IdStatusRecepcion'
     ];
     public $timestamps = false;
     protected $primaryKey = 'IdCapRecepcion';
 
-    public function DetalleRecepcion(){
+    public function DetalleRecepcion()
+    {
         return $this->hasMany(DatRecepcion::class, 'IdCapRecepcion', 'IdCapRecepcion');
     }
 
-    public function StatusRecepcion(){
+    public function StatusRecepcion()
+    {
         return $this->hasOne(StatusRecepcion::class, 'IdStatusRecepcion', 'IdStatusRecepcion');
     }
 }
