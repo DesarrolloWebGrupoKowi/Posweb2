@@ -123,6 +123,9 @@ class AsignarPreparadosController extends Controller
             $almacen = Tienda::where('IdTienda', $idTiendaDestino)
                 ->value('Almacen');
 
+            $IdTD = Tienda::where('IdTienda', $idTiendaDestino)
+                ->value('IdTiendaDestino');
+
             $nomDestinoTienda = Tienda::where('IdTienda', $idTiendaDestino)
                 ->value('NomTienda');
 
@@ -142,6 +145,7 @@ class AsignarPreparadosController extends Controller
             $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
             $capRecepcion->PackingList = $nombrePreparado;
             $capRecepcion->IdTiendaOrigen = Auth::user()->usuarioTienda->IdTienda;
+            $capRecepcion->IdTiendaDestino = $IdTD;
             $capRecepcion->Almacen = $almacen;
             $capRecepcion->IdStatusRecepcion = 1;
             // $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
