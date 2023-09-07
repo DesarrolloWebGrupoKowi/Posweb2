@@ -41,7 +41,7 @@ class AsignarPreparadosController extends Controller
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '<>', 1)
                 ->whereDate('CatPreparado.Fecha', $fecha)
-            // ->orWhere('IdCatStatusPreparado', 3)
+                // ->orWhere('IdCatStatusPreparado', 3)
                 ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
@@ -58,7 +58,7 @@ class AsignarPreparadosController extends Controller
                 ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.IdPreparado')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '<>', 1)
-            // ->orWhere('IdCatStatusPreparado', 3)
+                // ->orWhere('IdCatStatusPreparado', 3)
                 ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
@@ -131,7 +131,8 @@ class AsignarPreparadosController extends Controller
 
             // Aqui realizamos la transaccion del producto
             DB::beginTransaction();
-            DB::connection('server')->beginTransaction();
+            // DB::connection()->beginTransaction();
+            // DB::connection('server')->beginTransaction();
 
             // Creamos una recepcion
             $capRecepcion = new CapRecepcion();
@@ -181,11 +182,14 @@ class AsignarPreparadosController extends Controller
             }
 
             DB::commit();
-            DB::connection('server')->commit();
+            // DB::connection()->commit();
+            // DB::connection('server')->commit();
             return back();
         } catch (\Throwable $th) {
             DB::rollback();
-            DB::connection('server')->rollback();
+            // DB::connection('server')->rollback();
+            // DB::connection()->rollback();
+            DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
     }
