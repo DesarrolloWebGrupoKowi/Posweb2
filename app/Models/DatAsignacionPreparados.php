@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class DatAsignacionPreparados extends Model
 {
     use HasFactory;
-    protected $connection = 'server';
+    // protected $connection = 'server';
     protected $table = 'DatAsignacionPreparados';
     public $timestamps = false;
     protected $primaryKey = 'IdDatAsignacionPreparado';
@@ -22,7 +22,8 @@ class DatAsignacionPreparados extends Model
                 'CatArticulos.CodArticulo',
                 'CatArticulos.NomArticulo',
                 'DatPreparados.CantidadPaquete',
-                'DatPreparados.CantidadFormula')
+                'DatPreparados.CantidadFormula'
+            )
             ->leftjoin('DatPreparados', 'DatPreparados.IdPreparado', 'CatPreparado.IdPreparado')
             ->leftjoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo');
     }
