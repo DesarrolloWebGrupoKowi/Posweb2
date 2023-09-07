@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\CapRecepcion;
+use App\Models\CapRecepcionLocal;
 use App\Models\CatPreparado;
 use App\Models\DatAsignacionPreparados;
 use App\Models\DatPreparados;
 use App\Models\DatRecepcion;
+use App\Models\DatRecepcionLocal;
 use App\Models\HistorialMovimientoProducto;
+use App\Models\HistorialMovimientoProductoLocal;
 use App\Models\Tienda;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -135,7 +138,7 @@ class AsignarPreparadosController extends Controller
             // DB::connection('server')->beginTransaction();
 
             // Creamos una recepcion
-            $capRecepcion = new CapRecepcion();
+            $capRecepcion = new CapRecepcionLocal();
             $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
             $capRecepcion->PackingList = $nombrePreparado;
             $capRecepcion->IdTiendaOrigen = Auth::user()->usuarioTienda->IdTienda;
@@ -146,7 +149,7 @@ class AsignarPreparadosController extends Controller
 
             foreach ($detalleArticulos as $articulo) {
                 // Creamos un detalle de recepcion por cada producto
-                DatRecepcion::insert([
+                DatRecepcionLocal::insert([
                     'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
                     'CodArticulo' => $articulo->CodArticulo,
                     'CantEnviada' => $cantidadEnviada * $articulo->CantidadFormula,
@@ -154,7 +157,7 @@ class AsignarPreparadosController extends Controller
                 ]);
 
                 // Modificamos el historial
-                HistorialMovimientoProducto::insert([
+                HistorialMovimientoProductoLocal::insert([
                     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
                     'CodArticulo' => $articulo->CodArticulo,
                     'CantArticulo' => -$cantidadEnviada * $articulo->CantidadFormula,
