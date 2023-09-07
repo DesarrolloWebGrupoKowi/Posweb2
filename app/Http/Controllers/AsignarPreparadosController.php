@@ -6,6 +6,7 @@ use App\Models\CapRecepcion;
 use App\Models\CapRecepcionLocal;
 use App\Models\CatPreparado;
 use App\Models\DatAsignacionPreparados;
+use App\Models\DatCaja;
 use App\Models\DatPreparados;
 use App\Models\DatRecepcion;
 use App\Models\DatRecepcionLocal;
@@ -124,7 +125,7 @@ class AsignarPreparadosController extends Controller
                 ->value('Almacen');
 
             $IdTD = Tienda::where('IdTienda', $idTiendaDestino)
-                ->value('IdTiendaDestino');
+                ->value('IdTienda');
 
             $nomDestinoTienda = Tienda::where('IdTienda', $idTiendaDestino)
                 ->value('NomTienda');
@@ -135,6 +136,16 @@ class AsignarPreparadosController extends Controller
             $nomOrigenTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->value('NomTienda');
 
+            $idCapRecepcion = DB::table('CapRecepcion')
+                ->max('IdCapRecepcion') + 1;
+
+            $numCaja = DatCaja::where('Status', 0)
+                ->where('Activa', 0)
+                ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->value('IdCaja');
+
+            $idRecepcion = Auth::user()->usuarioTienda->IdTienda . $numCaja . $idCapRecepcion;
+
             // Aqui realizamos la transaccion del producto
             DB::beginTransaction();
             // DB::connection()->beginTransaction();
@@ -142,12 +153,13 @@ class AsignarPreparadosController extends Controller
 
             // Creamos una recepcion
             $capRecepcion = new CapRecepcionLocal();
+            $capRecepcion->IdRecepcionLocal = $idRecepcion;
             $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
             $capRecepcion->PackingList = $nombrePreparado;
             $capRecepcion->IdTiendaOrigen = Auth::user()->usuarioTienda->IdTienda;
             $capRecepcion->IdTiendaDestino = $IdTD;
             $capRecepcion->Almacen = $almacen;
-            $capRecepcion->IdStatusRecepcion = 1;
+            $capRecepcion->IdStatusRecepcion = 2;
             // $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
             $capRecepcion->save();
 
