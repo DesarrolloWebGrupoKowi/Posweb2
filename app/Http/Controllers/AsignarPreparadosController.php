@@ -39,6 +39,7 @@ class AsignarPreparadosController extends Controller
                     'CatPreparado.Fecha',
                     'CatPreparado.Cantidad',
                     'CatPreparado.IdCatStatusPreparado',
+                    'CatPreparado.preparado',
                     DB::raw('SUM(DatAsignacionPreparados.CantidadEnvio) as CantidadAsignada')
                 )
                 ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.IdPreparado')
@@ -46,7 +47,7 @@ class AsignarPreparadosController extends Controller
                 ->where('IdCatStatusPreparado', '<>', 1)
                 ->whereDate('CatPreparado.Fecha', $fecha)
                 // ->orWhere('IdCatStatusPreparado', 3)
-                ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado')
+                ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado', 'CatPreparado.preparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
         } else {
@@ -57,13 +58,14 @@ class AsignarPreparadosController extends Controller
                     'CatPreparado.Fecha',
                     'CatPreparado.Cantidad',
                     'CatPreparado.IdCatStatusPreparado',
+                    'CatPreparado.preparado',
                     DB::raw('SUM(DatAsignacionPreparados.CantidadEnvio) as CantidadAsignada')
                 )
                 ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.IdPreparado')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '<>', 1)
                 // ->orWhere('IdCatStatusPreparado', 3)
-                ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado')
+                ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado', 'CatPreparado.preparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
         }

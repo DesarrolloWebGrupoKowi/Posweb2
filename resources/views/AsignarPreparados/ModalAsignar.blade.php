@@ -41,7 +41,7 @@
                         @endforeach
                     </tbody>
                 </table>
-                <form action="/AsignarTienda/{{ $preparado->IdPreparado }}" method="POST">
+                <form action="/AsignarTienda/{{ $preparado->preparado }}" method="POST">
                     @csrf
                     <div class="row">
 
