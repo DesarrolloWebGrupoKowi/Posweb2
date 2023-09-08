@@ -42,7 +42,7 @@ class AsignarPreparadosController extends Controller
                     'CatPreparado.preparado',
                     DB::raw('SUM(DatAsignacionPreparados.CantidadEnvio) as CantidadAsignada')
                 )
-                ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.IdPreparado')
+                ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.preparado')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '<>', 1)
                 ->whereDate('CatPreparado.Fecha', $fecha)
@@ -61,7 +61,7 @@ class AsignarPreparadosController extends Controller
                     'CatPreparado.preparado',
                     DB::raw('SUM(DatAsignacionPreparados.CantidadEnvio) as CantidadAsignada')
                 )
-                ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.IdPreparado')
+                ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.preparado')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '<>', 1)
                 // ->orWhere('IdCatStatusPreparado', 3)

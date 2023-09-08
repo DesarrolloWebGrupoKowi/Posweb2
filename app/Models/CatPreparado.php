@@ -21,7 +21,7 @@ class CatPreparado extends Model
 
     public function Tiendas()
     {
-        return $this->hasMany(DatAsignacionPreparados::class, 'IdPreparado', 'IdPreparado')
+        return $this->hasMany(DatAsignacionPreparados::class, 'IdPreparado', 'preparado')
             ->leftjoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda');
     }
 }
