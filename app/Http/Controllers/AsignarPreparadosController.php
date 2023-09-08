@@ -163,6 +163,9 @@ class AsignarPreparadosController extends Controller
             $capRecepcion->IdTiendaDestino = $IdTD;
             $capRecepcion->Almacen = $almacen;
             $capRecepcion->IdStatusRecepcion = 2;
+            $capRecepcion->CantidadPreparado = $request->cantidad;
+            $capRecepcion->IdPreparado = $request->preparado;
+
             // $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
             $capRecepcion->save();
 
