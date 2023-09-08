@@ -98,7 +98,8 @@ class AsignarPreparadosController extends Controller
     {
         // Creando asignacion de preparados
         $asignacion = new DatAsignacionPreparados();
-        $asignacion->IdPreparado = $idPreparado;
+        // Aqui pones el idPreparado generado manualmente al crear el preparado
+        $asignacion->IdPreparado = $request->preparado;
         $asignacion->IdTienda = $request->idTienda;
         $asignacion->CantidadEnvio = $request->cantidad;
         $asignacion->save();
