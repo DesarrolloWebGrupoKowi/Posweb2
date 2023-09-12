@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CatPreparado extends Model
 {
     use HasFactory;
-    protected $connection = 'server';
+    // protected $connection = 'server';
     protected $table = 'CatPreparado';
     public $timestamps = false;
     protected $primaryKey = 'IdPreparado';
@@ -21,7 +21,7 @@ class CatPreparado extends Model
 
     public function Tiendas()
     {
-        return $this->hasMany(DatAsignacionPreparados::class, 'IdPreparado', 'IdPreparado')
+        return $this->hasMany(DatAsignacionPreparados::class, 'IdPreparado', 'preparado')
             ->leftjoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda');
     }
 }

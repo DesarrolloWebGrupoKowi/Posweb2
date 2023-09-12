@@ -45,6 +45,7 @@
                     @csrf
                     <div class="row">
 
+                        <input type="hidden" name="preparado" value="{{ $preparado->preparado }}">
                         <div class="col-8">
                             <label class="form-label m-0">Tienda</label>
                             <select class="form-select" name="idTienda">

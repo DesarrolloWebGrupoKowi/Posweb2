@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\CapRecepcion;
+use App\Models\CapRecepcionLocal;
 use App\Models\CatPreparado;
 use App\Models\DatAsignacionPreparados;
+use App\Models\DatCaja;
 use App\Models\DatPreparados;
 use App\Models\DatRecepcion;
+use App\Models\DatRecepcionLocal;
 use App\Models\HistorialMovimientoProducto;
+use App\Models\HistorialMovimientoProductoLocal;
 use App\Models\Tienda;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -35,14 +39,15 @@ class AsignarPreparadosController extends Controller
                     'CatPreparado.Fecha',
                     'CatPreparado.Cantidad',
                     'CatPreparado.IdCatStatusPreparado',
+                    'CatPreparado.preparado',
                     DB::raw('SUM(DatAsignacionPreparados.CantidadEnvio) as CantidadAsignada')
                 )
-                ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.IdPreparado')
+                ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.preparado')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '<>', 1)
                 ->whereDate('CatPreparado.Fecha', $fecha)
-            // ->orWhere('IdCatStatusPreparado', 3)
-                ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado')
+                // ->orWhere('IdCatStatusPreparado', 3)
+                ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado', 'CatPreparado.preparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
         } else {
@@ -53,13 +58,14 @@ class AsignarPreparadosController extends Controller
                     'CatPreparado.Fecha',
                     'CatPreparado.Cantidad',
                     'CatPreparado.IdCatStatusPreparado',
+                    'CatPreparado.preparado',
                     DB::raw('SUM(DatAsignacionPreparados.CantidadEnvio) as CantidadAsignada')
                 )
-                ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.IdPreparado')
+                ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.preparado')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '<>', 1)
-            // ->orWhere('IdCatStatusPreparado', 3)
-                ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado')
+                // ->orWhere('IdCatStatusPreparado', 3)
+                ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado', 'CatPreparado.preparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
         }
@@ -92,7 +98,8 @@ class AsignarPreparadosController extends Controller
     {
         // Creando asignacion de preparados
         $asignacion = new DatAsignacionPreparados();
-        $asignacion->IdPreparado = $idPreparado;
+        // Aqui pones el idPreparado generado manualmente al crear el preparado
+        $asignacion->IdPreparado = $request->preparado;
         $asignacion->IdTienda = $request->idTienda;
         $asignacion->CantidadEnvio = $request->cantidad;
         $asignacion->save();
@@ -120,6 +127,9 @@ class AsignarPreparadosController extends Controller
             $almacen = Tienda::where('IdTienda', $idTiendaDestino)
                 ->value('Almacen');
 
+            $IdTD = Tienda::where('IdTienda', $idTiendaDestino)
+                ->value('IdTienda');
+
             $nomDestinoTienda = Tienda::where('IdTienda', $idTiendaDestino)
                 ->value('NomTienda');
 
@@ -129,31 +139,48 @@ class AsignarPreparadosController extends Controller
             $nomOrigenTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->value('NomTienda');
 
+            $idCapRecepcion = DB::table('CapRecepcion')
+                ->max('IdCapRecepcion') + 1;
+
+            $numCaja = DatCaja::where('Status', 0)
+                ->where('Activa', 0)
+                ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->value('IdCaja');
+
+            $idRecepcion = Auth::user()->usuarioTienda->IdTienda . $numCaja . $idCapRecepcion;
+
             // Aqui realizamos la transaccion del producto
             DB::beginTransaction();
-            DB::connection('server')->beginTransaction();
+            // DB::connection()->beginTransaction();
+            // DB::connection('server')->beginTransaction();
 
             // Creamos una recepcion
-            $capRecepcion = new CapRecepcion();
+            $capRecepcion = new CapRecepcionLocal();
+            $capRecepcion->IdRecepcionLocal = $idRecepcion;
             $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
             $capRecepcion->PackingList = $nombrePreparado;
             $capRecepcion->IdTiendaOrigen = Auth::user()->usuarioTienda->IdTienda;
+            $capRecepcion->IdTiendaDestino = $IdTD;
             $capRecepcion->Almacen = $almacen;
-            $capRecepcion->IdStatusRecepcion = 1;
+            $capRecepcion->IdStatusRecepcion = 2;
+            $capRecepcion->CantidadPreparado = $request->cantidad;
+            $capRecepcion->IdPreparado = $request->preparado;
+
             // $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
             $capRecepcion->save();
 
             foreach ($detalleArticulos as $articulo) {
                 // Creamos un detalle de recepcion por cada producto
-                DatRecepcion::insert([
+                DatRecepcionLocal::insert([
                     'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
+                    'IdRecepcionLocal' => $idRecepcion,
                     'CodArticulo' => $articulo->CodArticulo,
                     'CantEnviada' => $cantidadEnviada * $articulo->CantidadFormula,
                     'IdStatusRecepcion' => 1,
                 ]);
 
                 // Modificamos el historial
-                HistorialMovimientoProducto::insert([
+                HistorialMovimientoProductoLocal::insert([
                     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
                     'CodArticulo' => $articulo->CodArticulo,
                     'CantArticulo' => -$cantidadEnviada * $articulo->CantidadFormula,
@@ -181,11 +208,14 @@ class AsignarPreparadosController extends Controller
             }
 
             DB::commit();
-            DB::connection('server')->commit();
+            // DB::connection()->commit();
+            // DB::connection('server')->commit();
             return back();
         } catch (\Throwable $th) {
             DB::rollback();
-            DB::connection('server')->rollback();
+            // DB::connection('server')->rollback();
+            // DB::connection()->rollback();
+            DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
     }

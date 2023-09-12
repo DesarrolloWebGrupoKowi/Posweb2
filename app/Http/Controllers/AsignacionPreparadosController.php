@@ -28,8 +28,9 @@ class AsignacionPreparadosController extends Controller
                     'CatPreparado.Nombre',
                     'CatPreparado.Fecha',
                     'CatTiendas.NomTienda',
-                    'DatAsignacionPreparados.CantidadEnvio')
-                ->leftJoin('CatPreparado', 'CatPreparado.IdPreparado', 'DatAsignacionPreparados.IdPreparado')
+                    'DatAsignacionPreparados.CantidadEnvio'
+                )
+                ->leftJoin('CatPreparado', 'CatPreparado.preparado', 'DatAsignacionPreparados.IdPreparado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->whereDate('CatPreparado.Fecha', $fecha)
@@ -44,8 +45,9 @@ class AsignacionPreparadosController extends Controller
                     'CatPreparado.Nombre',
                     'CatPreparado.Fecha',
                     'CatTiendas.NomTienda',
-                    'DatAsignacionPreparados.CantidadEnvio')
-                ->leftJoin('CatPreparado', 'CatPreparado.IdPreparado', 'DatAsignacionPreparados.IdPreparado')
+                    'DatAsignacionPreparados.CantidadEnvio'
+                )
+                ->leftJoin('CatPreparado', 'CatPreparado.preparado', 'DatAsignacionPreparados.IdPreparado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->orderBy('CatPreparado.Fecha', 'DESC')

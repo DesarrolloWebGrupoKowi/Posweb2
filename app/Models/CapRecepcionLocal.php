@@ -7,10 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\DatRecepcion;
 use App\Models\StatusRecepcion;
 
-class CapRecepcion extends Model
+class CapRecepcionLocal extends Model
 {
     use HasFactory;
-    protected $connection = 'server';
     protected $table = 'CapRecepcion';
     protected $fillable = [
         'FechaRecepcion',
