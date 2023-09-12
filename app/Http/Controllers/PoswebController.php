@@ -8,6 +8,7 @@ use App\Models\BloqueoEmpleado;
 use App\Models\CatPaquete;
 use App\Models\ClienteCloudTienda;
 use App\Models\CorteTienda;
+use App\Models\DatAsignacionPreparadosLocal;
 use App\Models\DatCaja;
 use App\Models\DatDetalle;
 use App\Models\DatEncabezado;
@@ -71,7 +72,6 @@ class PoswebController extends Controller
                 ->sum('Pago');
 
             $creditoDisponible = ($cliente->LimiteCredito->Limite - $gastoEmpleado) - $pagoParcial;
-
         } else {
             $creditoDisponible = 0;
         }
@@ -151,10 +151,30 @@ class PoswebController extends Controller
             ->whereDate('FechaRecoger', date('Y-m-d'))
             ->count();
 
-        return view('Posweb.Pos', compact('usuario', 'fechaHoy', 'preventa', 'subTotalPreventa', 'ivaPreventa', 'totalPreventa',
-            'idTienda', 'banderaMultiPago', 'datTipoPago', 'caja', 'tiposPago', 'bancos',
-            'nombre', 'apellido', 'cliente', 'creditoDisponible', 'banArticuloSinPrecio',
-            'monederoEmpleado', 'monederoDescuento', 'paquetes', 'pedidosPendientes', 'frecuenteSocio'));
+        return view('Posweb.Pos', compact(
+            'usuario',
+            'fechaHoy',
+            'preventa',
+            'subTotalPreventa',
+            'ivaPreventa',
+            'totalPreventa',
+            'idTienda',
+            'banderaMultiPago',
+            'datTipoPago',
+            'caja',
+            'tiposPago',
+            'bancos',
+            'nombre',
+            'apellido',
+            'cliente',
+            'creditoDisponible',
+            'banArticuloSinPrecio',
+            'monederoEmpleado',
+            'monederoDescuento',
+            'paquetes',
+            'pedidosPendientes',
+            'frecuenteSocio'
+        ));
     }
 
     public function EliminarPago($idDatTipoPago)
@@ -261,7 +281,6 @@ class PoswebController extends Controller
             DB::commit();
 
             return redirect()->route('Pos')->with('msjAdd', 'Descuento en Monedero: $' . number_format($pagoMonedero, 2));
-
         } catch (\Throwable $th) {
             DB::rollBack();
             return redirect()->route('Pos')->with('msjdelete', 'Error' . $th->getMessage());
@@ -339,7 +358,6 @@ class PoswebController extends Controller
 
             DB::commit();
             return view('Posweb.Ifrempleado', compact('empleado', 'saldoEmpleado', 'banVentasDiarias', 'statusEmpleado'));
-
         } catch (\Throwable $th) {
             DB::rollback();
             return 'Error Controlado: ' . $th->getMessage();
@@ -374,7 +392,8 @@ class PoswebController extends Controller
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
                     ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select('a.IdArticulo',
+                    ->select(
+                        'a.IdArticulo',
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
@@ -383,7 +402,8 @@ class PoswebController extends Controller
                         'b.PrecioArticulo',
                         'c.IdListaPrecio',
                         'c.NomListaPrecio',
-                        'c.PorcentajeIva')
+                        'c.PorcentajeIva'
+                    )
                     ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
                     ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('c.IdListaPrecio', '<>', 4)
@@ -394,7 +414,8 @@ class PoswebController extends Controller
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
                     ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select('a.IdArticulo',
+                    ->select(
+                        'a.IdArticulo',
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
@@ -403,7 +424,8 @@ class PoswebController extends Controller
                         'b.PrecioArticulo',
                         'c.IdListaPrecio',
                         'c.NomListaPrecio',
-                        'c.PorcentajeIva')
+                        'c.PorcentajeIva'
+                    )
                     ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
                     ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('c.IdListaPrecio', 4)
@@ -439,7 +461,6 @@ class PoswebController extends Controller
                         'IvaArticulo' => $iva,
                         'ImporteArticulo' => $total,
                     ]);
-
             } else {
                 PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('IdArticulo', $pArticulo->IdArticulo)
@@ -448,7 +469,6 @@ class PoswebController extends Controller
                         'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
                     ]);
             }
-
         }
 
         if (count($nomArticulos) > 0) {
@@ -489,7 +509,8 @@ class PoswebController extends Controller
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
                     ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select('a.IdArticulo',
+                    ->select(
+                        'a.IdArticulo',
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
@@ -498,7 +519,8 @@ class PoswebController extends Controller
                         'b.PrecioArticulo',
                         'c.IdListaPrecio',
                         'c.NomListaPrecio',
-                        'c.PorcentajeIva')
+                        'c.PorcentajeIva'
+                    )
                     ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
                     ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('c.IdListaPrecio', '<>', 4)
@@ -509,7 +531,8 @@ class PoswebController extends Controller
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
                     ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select('a.IdArticulo',
+                    ->select(
+                        'a.IdArticulo',
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
@@ -518,7 +541,8 @@ class PoswebController extends Controller
                         'b.PrecioArticulo',
                         'c.IdListaPrecio',
                         'c.NomListaPrecio',
-                        'c.PorcentajeIva')
+                        'c.PorcentajeIva'
+                    )
                     ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
                     ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('c.IdListaPrecio', 4)
@@ -554,7 +578,6 @@ class PoswebController extends Controller
                         'IvaArticulo' => $iva,
                         'ImporteArticulo' => $total,
                     ]);
-
             } else {
                 PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('IdArticulo', $pArticulo->IdArticulo)
@@ -563,7 +586,6 @@ class PoswebController extends Controller
                         'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
                     ]);
             }
-
         }
 
         if (count($nomArticulos) > 0) {
@@ -601,7 +623,8 @@ class PoswebController extends Controller
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
                     ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select('a.IdArticulo',
+                    ->select(
+                        'a.IdArticulo',
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
@@ -610,7 +633,8 @@ class PoswebController extends Controller
                         'b.PrecioArticulo',
                         'c.IdListaPrecio',
                         'c.NomListaPrecio',
-                        'c.PorcentajeIva')
+                        'c.PorcentajeIva'
+                    )
                     ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
                     ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->where('c.IdListaPrecio', '<>', 4)
@@ -642,7 +666,6 @@ class PoswebController extends Controller
                             'IvaArticulo' => $iva,
                             'ImporteArticulo' => $total,
                         ]);
-
                 } else {
                     PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                         ->where('IdArticulo', $pArticulo->IdArticulo)
@@ -651,9 +674,7 @@ class PoswebController extends Controller
                             'IdListaPrecio' => $articulo->IdListaPrecio,
                         ]);
                 }
-
             }
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
@@ -716,7 +737,8 @@ class PoswebController extends Controller
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
                     ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select('a.IdArticulo',
+                    ->select(
+                        'a.IdArticulo',
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
@@ -726,7 +748,8 @@ class PoswebController extends Controller
                         'c.IdListaPrecio',
                         'c.NomListaPrecio',
                         'c.PorcentajeIva',
-                        'b.IdDatPrecios')
+                        'b.IdDatPrecios'
+                    )
                     ->where('a.CodEtiqueta', $codEtiqueta)
                     ->where('d.IdTienda', $idTienda)
                     ->where('c.IdListaPrecio', '<>', 4)
@@ -737,7 +760,8 @@ class PoswebController extends Controller
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
                     ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select('a.IdArticulo',
+                    ->select(
+                        'a.IdArticulo',
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
@@ -747,7 +771,8 @@ class PoswebController extends Controller
                         'c.IdListaPrecio',
                         'c.NomListaPrecio',
                         'c.PorcentajeIva',
-                        'b.IdDatPrecios')
+                        'b.IdDatPrecios'
+                    )
                     ->where('a.CodEtiqueta', $codEtiqueta)
                     ->where('d.IdTienda', $idTienda)
                     ->where('c.IdListaPrecio', 4)
@@ -946,7 +971,6 @@ class PoswebController extends Controller
 
             DB::commit();
             return redirect()->route('Pos');
-
         } catch (\Throwable $th) {
             DB::rollback();
             return redirect()->route('Pos')->with('msjDelete', 'Error: ' . $th->getMessage());
@@ -994,6 +1018,7 @@ class PoswebController extends Controller
 
                 $pago = $request->txtPago;
 
+                // Aqui obtenemos la preventa
                 $detalle = PreventaTmp::where('IdTienda', $idTienda)
                     ->get();
 
@@ -1151,6 +1176,53 @@ class PoswebController extends Controller
                         'IdDatPrecios' => $detalle->IdDatPrecios,
                         'Linea' => $index + 1,
                     ]);
+                }
+
+                // Obtenemos los paquetes de la venta
+                $paquetesPreparados = PreventaTmp::select(
+                    'DatVentaTmp.IdPaquete',
+                    DB::raw('COUNT(DatVentaTmp.CantArticulo) as Cantidad')
+                )
+                    ->where('IdTienda', $idTienda)
+                    ->whereNotNull('DatVentaTmp.IdPaquete')
+                    ->groupBy('DatVentaTmp.IdPaquete', 'DatVentaTmp.IdArticulo')
+                    ->distinct()
+                    ->get();
+
+                // Iteramos la lista de paquetes
+                foreach ($paquetesPreparados as $pp) {
+                    $paquetesConPreparado = CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
+                        ->whereNotNull('CatPaquetes.IdPreparado')
+                        ->get();
+
+                    // Buscamos que los paquetes tengan id de prepadado
+                    if (count($paquetesConPreparado) != 0) {
+                        // Obtenemos la cantidad ya vendida
+                        $paquetesConPreparado[0]->IdPreparado;
+                        $cantidadTotal =  DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->value('CantidadEnvio');
+
+                        $cantidadVendida =  DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->value('CantidadVendida');
+
+                        if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) < 0) {
+                            return redirect()->route('Pos')->with('Pos', 'Inventario insuficiente para el paquete de preparado!');
+                        }
+
+                        if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) == 0) {
+                            CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
+                                ->whereNotNull('CatPaquetes.IdPreparado')
+                                ->update([
+                                    'Status' => 1,
+                                ]);
+                        }
+
+                        // Sumamos la cantidad vendida, mas la nueva cantidad que se esta vendiendo
+                        DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->update([
+                                'CantidadVendida' => !$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad,
+                            ]);
+                    }
                 }
 
                 $importeVenta = PreventaTmp::where('IdTienda', $idTienda)
@@ -1609,7 +1681,6 @@ class PoswebController extends Controller
                         'Monedero' => $monederoGenerado,
                         'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
                     ]);
-
                 }
 
                 //subir venta
@@ -1678,7 +1749,8 @@ class PoswebController extends Controller
                     ->where('DatCortesTienda.StatusVenta', 0)
                     ->whereDate('FechaVenta', $fecha)
                     ->whereNull('DatCortesTienda.IdSolicitudFactura');
-            }])
+            }
+        ])
             ->where('IdTienda', $idTienda)
             ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
             ->distinct('Bill_To')
@@ -1763,9 +1835,22 @@ class PoswebController extends Controller
 
         //return $facturas;
 
-        return view('Posweb.CorteDiario', compact('tienda', 'cortesTienda', 'fecha', 'totalEfectivo',
-            'facturas', 'creditoQuincenal', 'creditoSemanal', 'totalTarjetaDebito', 'totalTarjetaCredito',
-            'totalTransferencia', 'totalFactura', 'totalMonederoQuincenal', 'totalMonederoSemanal', 'idDatCaja'));
+        return view('Posweb.CorteDiario', compact(
+            'tienda',
+            'cortesTienda',
+            'fecha',
+            'totalEfectivo',
+            'facturas',
+            'creditoQuincenal',
+            'creditoSemanal',
+            'totalTarjetaDebito',
+            'totalTarjetaCredito',
+            'totalTransferencia',
+            'totalFactura',
+            'totalMonederoQuincenal',
+            'totalMonederoSemanal',
+            'idDatCaja'
+        ));
     }
 
     public function GenerarCortePDF($fecha, $idTienda, $idDatCaja)
@@ -2546,7 +2631,6 @@ class PoswebController extends Controller
             $ventas = DB::select($query);
 
             DB::commit();
-
         } catch (\Throwable $th) {
             DB::rollback();
             return redirect('ReporteVentasListaPrecio')->with('msjdelete', 'Error: ' . $th->getMessage());
@@ -2629,7 +2713,6 @@ class PoswebController extends Controller
 
             DB::commit();
             return redirect('Pos')->with('msjAdd', 'Paquete Enviado A Preventa!');
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());

@@ -68,8 +68,9 @@
                 </div>
             </div>
 
-            <form action="/RecepcionarProducto/{{ $idRecepcion }}" method="POST">
+            <form id="myform" action="/RecepcionarProducto/{{ $idRecepcion }}" method="POST">
                 @csrf
+                <input type="hidden" name="cantidad" value="{{ $cantidadPreparado }}">
 
                 <table style="width: 100%">
                     <thead class="table-head">
@@ -79,6 +80,9 @@
                             <th>Articulo</th>
                             <th>Cantidad</th>
                             <th>Confirmar</th>
+                            @if ($cantidadPreparado)
+                                <th>Cantidad platillos</th>
+                            @endif
                             <th class="rounded-end" style="text-align: center">
                                 Recepcionar
                                 <input checked type="checkbox" class="form-check-input mt-3" name="chkTodos" id="chkTodos">
@@ -96,12 +100,40 @@
                                     <td>{{ $dRecepcion->PackingList }}</td>
                                     <td>{{ $dRecepcion->CodArticulo }}</td>
                                     <td>{{ $dRecepcion->NomArticulo }}</td>
-                                    <td>{{ number_format($dRecepcion->CantEnviada, 2) }}</td>
-                                    <td class="d-flex">
-                                        <input style="width: 15vh" type="text" class="form-control form-control-sm"
-                                            name="cantRecepcionada[{{ $dRecepcion->CodArticulo }}]"
-                                            value="{{ $dRecepcion->CantEnviada }}">
+                                    <td>
+                                        <span class="cantRecepcionada[{{ $dRecepcion->CodArticulo }}]">
+                                            {{ number_format($dRecepcion->CantEnviada, 2) }}
+                                        </span>
                                     </td>
+                                    <td>
+                                        <div class="d-flex">
+                                            @if (!$cantidadPreparado)
+                                                <input style="width: 15vh" type="text"
+                                                    class="form-control form-control-sm"
+                                                    name="cantRecepcionada[{{ $dRecepcion->CodArticulo }}]"
+                                                    value="{{ $dRecepcion->CantEnviada }}">
+                                            @else
+                                                <input style="width: 15vh" type="hidden"
+                                                    class="form-control form-control-sm "
+                                                    name="cantRecepcionada[{{ $dRecepcion->CodArticulo }}]"
+                                                    value="{{ $dRecepcion->CantEnviada }}">
+                                                <input style="width: 15vh" type="text"
+                                                    class="form-control form-control-sm"
+                                                    name="hiddencantRecepcionada[{{ $dRecepcion->CodArticulo }}]"
+                                                    value="{{ $dRecepcion->CantEnviada }}" disabled>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    @if ($cantidadPreparado)
+                                        <td>
+                                            <div class="d-flex">
+                                                <input style="width: 15vh" type="number" step="1"
+                                                    class="form-control form-control-sm data-cant"
+                                                    id="cantRecepcionada[{{ $dRecepcion->CodArticulo }}]"
+                                                    value="{{ $cantidadPreparado }}" min="0">
+                                            </div>
+                                        </td>
+                                    @endif
                                     <td>
                                         <input checked type="checkbox" class="form-check-input d-block"
                                             style="margin: 0 auto;" name="chkArticulo[{{ $dRecepcion->CodArticulo }}]"
@@ -153,5 +185,43 @@
                 });
             }
         });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.matches('.data-cant')) {
+                let id = e.target.id;
+                let value = parseInt(e.target.value);
+                e.target.value = value;
+
+                document.getElementsByName('cantidad')[0].value = value;
+
+                document.querySelectorAll('.data-cant').forEach(item => {
+                    item.value = value;
+                    let myid = item.id;
+
+                    // Aqui obtenemos el factor a multiplicar del paquete
+                    let cantidadOriginal = {{ $cantidadPreparado }};
+                    let beforeValue = document.getElementsByClassName(myid)[0].textContent;
+
+                    let factor = beforeValue / cantidadOriginal;
+                    document.getElementsByName(myid)[0].value = (value * factor).toFixed(3);
+                    document.getElementsByName('hidden' + myid)[0].value = (value * factor).toFixed(3);
+                })
+
+                // console.log(document.querySelectorAll('.data-cant-hidden'));
+
+
+                // document.querySelectorAll('.data-cant-hidden').forEach(item => {
+                //     item.value = value;
+                //     let myid = item.id;
+
+                //     // Aqui obtenemos el factor a multiplicar del paquete
+                //     let cantidadOriginal = {{ $cantidadPreparado }};
+                //     let beforeValue = document.getElementsByClassName(myid)[0].textContent;
+
+                //     let factor = beforeValue / cantidadOriginal;
+                //     document.getElementsByName(myid)[0].value = (value * factor).toFixed(3);
+                // })
+            }
+        })
     </script>
 @endsection

@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    <div class="d-flex flex-column justify-content-between gap-4 p-4" style="height: 100vh">
+    <div class="d-flex flex-column justify-content-between gap-4 p-4" style="min-height: 100vh">
         {{-- Header --}}
         <div class="d-flex flex-row card p-4" style="border-radius: 20px;">
             <div class="col-3">
@@ -47,8 +47,9 @@
         </div>
 
         {{-- Body --}}
-        <div class="d-flex flex-xl-row-reverse flex-grow-1 gap-4">
+        <div class="d-flex flex-xl-row-reverse flex-column flex-xl-row flex-grow-1 gap-4">
 
+            {{-- Menu --}}
             <div id="opciones" class="col-12 col-xl-3 border p-4 card" style="border-radius: 20px;">
                 <div id="divCountArticulo" class="d-flex border card text-black p-4">
                     <div class="col-12 mt-1">
@@ -174,10 +175,11 @@
             </div>
 
             {{-- <div id="pos" class="col-12 col-xl-9 border border-warning border-2"> --}}
-            <div id="pos" class="content-table content-table-full card p-4 border"
-                style="border-radius: 20px; width: 100%;">
+            {{-- Tabla --}}
+            <div id="pos" class="content-table card p-4 border"
+                style="border-radius: 20px; width: 100%; height: calc(100vh - 48px - 256px); overflow-y: scroll;">
                 <table>
-                    <thead class="table-head">
+                    <thead class="table-head" >
                         <tr>
                             <th class="rounded-start">Articulo</th>
                             <th>Cantidad</th>
