@@ -15,9 +15,10 @@ class DatAsignacionPreparados extends Model
 
     public function Detalle()
     {
-        return $this->hasMany(CatPreparado::class, 'IdPreparado', 'IdPreparado')
+        return $this->hasMany(CatPreparado::class, 'Preparado', 'IdPreparado')
             ->select(
                 'CatPreparado.IdPreparado',
+                'CatPreparado.Preparado',
                 'CatArticulos.IdArticulo',
                 'CatArticulos.CodArticulo',
                 'CatArticulos.NomArticulo',
