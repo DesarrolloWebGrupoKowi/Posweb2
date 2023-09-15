@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CapRecepcion;
 use App\Models\CapRecepcionLocal;
 use App\Models\CatPreparado;
 use App\Models\DatAsignacionPreparados;
 use App\Models\DatCaja;
 use App\Models\DatPreparados;
-use App\Models\DatRecepcion;
 use App\Models\DatRecepcionLocal;
-use App\Models\HistorialMovimientoProducto;
 use App\Models\HistorialMovimientoProductoLocal;
 use App\Models\Tienda;
 use Carbon\Carbon;
@@ -46,7 +43,7 @@ class AsignarPreparadosController extends Controller
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '=', 2)
                 ->whereDate('CatPreparado.Fecha', $fecha)
-                // ->orWhere('IdCatStatusPreparado', 3)
+            // ->orWhere('IdCatStatusPreparado', 3)
                 ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado', 'CatPreparado.preparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
@@ -64,7 +61,7 @@ class AsignarPreparadosController extends Controller
                 ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.preparado')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '=', 2)
-                // ->orWhere('IdCatStatusPreparado', 3)
+            // ->orWhere('IdCatStatusPreparado', 3)
                 ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado', 'CatPreparado.preparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
@@ -222,8 +219,19 @@ class AsignarPreparadosController extends Controller
 
     public function EliminarTiendaAsignada($idAsignacion)
     {
+        $asignado = DatAsignacionPreparados::where('IdDatAsignacionPreparado', $idAsignacion)
+            ->first();
+
+        //return CapRecepcionLocal::get();
+        $recepcion = CapRecepcionLocal::where('IdPreparado', $asignado->IdPreparado)
+            ->where('IdTiendaDestino', $asignado->IdTienda)->first();
+
+        $detalleRecepcion = DatRecepcionLocal::where('IdCapRecepcion', $recepcion->IdCapRecepcion)->get();
+
         $asignacion = DatAsignacionPreparados::where('IdDatAsignacionPreparado', $idAsignacion)->first();
 
+        DatRecepcionLocal::destroy($detalleRecepcion);
+        $recepcion->delete();
         $asignacion->delete();
 
         return back();
