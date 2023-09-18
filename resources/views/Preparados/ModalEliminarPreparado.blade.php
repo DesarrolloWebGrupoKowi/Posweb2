@@ -1,10 +1,10 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalEliminarPreparado{{ $preparado->IdPreparado }}"
-    aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+<div class="modal fade" id="ModalEliminarPreparado{{ $preparado->IdPreparado }}" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">¿Desea eliminar el preparado y sus articulos agregados?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" style="white-space: wrap">¿Desea eliminar el preparado y sus articulos agregados?
+                </h5>
             </div>
             <div class="modal-body">
                 <p class="titulo">Preparado: {{ $preparado->Nombre }}</p>
@@ -14,7 +14,7 @@
                 <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">
                     <i class="fa fa-close"></i> Cerrar
                 </button>
-                <form action="/EliminarPreparados/{{ $preparado->IdPreparado }}" method="POST">
+                <form class="d-flex" action="/EliminarPreparados/{{ $preparado->IdPreparado }}" method="POST">
                     @csrf
                     <button class="btn btn-sm btn-danger">
                         <i class="fa fa-trash-o"></i> Eliminar

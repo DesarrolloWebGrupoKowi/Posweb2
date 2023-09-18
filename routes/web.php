@@ -728,6 +728,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/Preparados', 'App\Http\Controllers\PreparadosController@AgregarPreparados');
     //EditarPreparados
     Route::post('/EditarPreparados/{id}', 'App\Http\Controllers\PreparadosController@EditarPreparados');
+    //EditarListaPreciosPreparados
+    Route::post('/EditarListaPreciosPreparados/{id}', 'App\Http\Controllers\PreparadosController@EditarListaPreciosPreparados');
     //EnviarPreparados
     Route::post('/EnviarPreparados/{id}', 'App\Http\Controllers\PreparadosController@EnviarPreparados');
     //EliminarPreparados

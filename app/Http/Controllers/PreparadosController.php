@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Articulo;
 use App\Models\CatPreparado;
 use App\Models\DatPreparados;
+use App\Models\ListaPrecio;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,17 +17,47 @@ class PreparadosController extends Controller
     {
         $idPreparado = $request->idPreparado;
 
-        $preparados = CatPreparado::where('IdCatStatusPreparado', 1)
-            ->where('IdUsuario', Auth::user()->IdUsuario)
+        $preparados = CatPreparado::select(
+            'CatPreparado.IdPreparado',
+            'CatPreparado.Nombre',
+            'CatPreparado.Cantidad',
+            DB::raw('SUM(DatPrecios.PrecioArticulo * DatPreparados.CantidadFormula) AS Total')
+        )
+            ->leftJoin('DatPreparados', 'CatPreparado.IdPreparado', 'DatPreparados.IdPreparado')
+            ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo')
+            ->leftJoin('DatPrecios', [['CatArticulos.CodArticulo', 'DatPrecios.CodArticulo'], ['DatPreparados.IDLISTAPRECIO', 'DatPrecios.IdListaPrecio']])
+            ->where('CatPreparado.IdCatStatusPreparado', 1)
+            ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
+            ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Cantidad')
             ->get();
 
         $detallePreparado = DatPreparados::where('IdPreparado', $idPreparado)
             ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo')
+            ->leftJoin('DatPrecios', [['CatArticulos.CodArticulo', 'DatPrecios.CodArticulo'], ['DatPreparados.IDLISTAPRECIO', 'DatPrecios.IdListaPrecio']])
             ->get();
 
         $articulos = Articulo::get();
 
-        return view('Preparados.index', compact('preparados', 'idPreparado', 'detallePreparado', 'articulos'));
+        $listaPrecios = ListaPrecio::get();
+        $people = array(
+            2 => array(
+                'name' => 'John',
+                'fav_color' => 'green'
+            ),
+            5 => array(
+                'name' => 'Samuel',
+                'fav_color' => 'blue'
+            )
+        );
+
+        $total = 0;
+        foreach ($preparados as $key => $objeto) {
+            if ($objeto->IdPreparado == $idPreparado) {
+                $total = $objeto->Total;
+            }
+        }
+
+        return view('Preparados.index', compact('preparados', 'idPreparado', 'detallePreparado', 'articulos', 'listaPrecios', 'total'));
     }
 
     public function AgregarPreparados(Request $request)
@@ -64,6 +95,14 @@ class PreparadosController extends Controller
         return back();
     }
 
+    public function EditarListaPreciosPreparados($idPreparado, Request $request)
+    {
+        DatPreparados::where('IdPreparado', $idPreparado)->update([
+            'IDLISTAPRECIO' => $request->IdListaPrecio
+        ]);
+        return back();
+    }
+
     public function EnviarPreparados($idPreparado)
     {
         CatPreparado::where('IdPreparado', $idPreparado)->update([
@@ -90,6 +129,8 @@ class PreparadosController extends Controller
 
     public function AgregarArticulo($idPreparado, Request $request)
     {
+        $idListaPrecio =  DatPreparados::where('IdPreparado', $idPreparado)->value('IDLISTAPRECIO');
+
         $idArticulo = Articulo::where('CodArticulo', $request->codigo)->value('IdArticulo');
 
         $cantidad = CatPreparado::where('IdPreparado', $idPreparado)->value('Cantidad');
@@ -99,6 +140,7 @@ class PreparadosController extends Controller
         $preparado->IdArticulo = $idArticulo;
         $preparado->CantidadPaquete = $request->cantidad;
         $preparado->CantidadFormula = $cantidad ? $request->cantidad / $cantidad : null;
+        $preparado->IDLISTAPRECIO  = $idListaPrecio ? $idListaPrecio : 4;
         $preparado->save();
 
         return back();

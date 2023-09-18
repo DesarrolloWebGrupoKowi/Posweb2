@@ -6,6 +6,18 @@
     <div class="container-fluid pt-4 width-95">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Creación de Preparados'])
+            <div>
+                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarPreparado">
+                    <i class="fa fa-plus-circle pe-1"></i> Agregar preparado
+                </button>
+                @if ($idPreparado)
+                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarDetalle">
+                        <i class="fa fa-plus-circle pe-1"></i> Agregar detalle
+                    </button>
+                @endif
+            </div>
         </div>
 
         <div>
@@ -15,25 +27,6 @@
         <div class="container-fluid my-3">
             <div class="row">
                 <div class="col-6">
-                    <form class="d-flex align-items-center justify-content-start pb-4 gap-2" action="/Preparados"
-                        method="POST">
-                        @csrf
-                        <div class="input-group" style="max-width: 300px">
-                            <input type="text" name="nombre" class="form-control" placeholder="Nombre del preparado"
-                                autofocus>
-                        </div>
-                        <div class="input-group" style="max-width: 300px">
-                            <input type="number" name="cantidad" min="0" class="form-control"
-                                placeholder="Cantidad">
-                        </div>
-                        <div class="col-1">
-                            <button type="submit" class="btn btn-dark-outline" data-bs-toggle="modal"
-                                data-bs-target="#ModalAgregar">
-                                <span class="material-icons">add_circle_outline</span>
-                            </button>
-                        </div>
-                    </form>
-
                     <div style="height: 70vh">
                         <div class="content-table content-table-full card p-4 pt-3" style="border-radius: 20px">
                             <h5 class="pb-1" style="text-align: center">Preparados en Proceso</h5>
@@ -42,10 +35,9 @@
                                     <tr>
                                         <th class="rounded-start">Nombre</th>
                                         <th>Cantidad</th>
-                                        <th>Editar</th>
-                                        <th>Ver</th>
-                                        <th>Eliminar</th>
-                                        <th class="rounded-end">Enviar</th>
+                                        <th>Costo</th>
+                                        <th class="text-center">Ver</th>
+                                        <th class="rounded-end text-center">Opciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -55,39 +47,33 @@
                                         </tr>
                                     @else
                                         @foreach ($preparados as $preparado)
-                                            <tr class="{{ $preparado->IdPreparado == $idPreparado ? 'table-active' : '' }}">
-                                                <td>{{ $preparado->Nombre }}</td>
-                                                <td>{{ $preparado->Cantidad }}</td>
-                                                <td class="bg-opacity-75">
-                                                    <button class="btn btn-default btn-sm" data-bs-toggle="modal"
-                                                        data-bs-target="#ModalEditar{{ $preparado->IdPreparado }}"><span
-                                                            class="material-icons">edit</span>
-                                                    </button>
-                                                    @include('Preparados.ModalEditar')
-                                                </td>
-                                                <td class="bg-opacity-75">
-                                                    <form class="d-inline-block" action="/Preparados">
-                                                        <input type="hidden" name="idPreparado"
-                                                            value="{{ $preparado->IdPreparado }}">
-                                                        <button class="btn btn-sm" data-bs-toggle="modal"
-                                                            data-bs-target="#ModalEliminar"><span
-                                                                class="material-icons">visibility</span></button>
-                                                    </form>
-                                                </td>
-                                                <td class="bg-opacity-75">
-                                                    <button class="btn btn-sm" data-bs-toggle="modal"
-                                                        data-bs-target="#ModalEliminarPreparado{{ $preparado->IdPreparado }}"><span
-                                                            class="material-icons eliminar">delete_forever</span></button>
-                                                    @include('Preparados.ModalEliminarPreparado')
-                                                </td>
-                                                <td class="bg-opacity-75">
-                                                    <button class="btn btn-sm" data-bs-toggle="modal"
-                                                        data-bs-target="#ModalEnviar{{ $preparado->IdPreparado }}"
-                                                        {{ !$preparado->Cantidad ? 'disabled' : '' }}><span
-                                                            class="material-icons send">send</span></button>
-                                                    @include('Preparados.ModalEnviar')
-                                                </td>
-                                            </tr>
+                                            <a>
+                                                <tr
+                                                    class="{{ $preparado->IdPreparado == $idPreparado ? 'table-active' : '' }}">
+                                                    <td>{{ $preparado->Nombre }}</td>
+                                                    <td>{{ $preparado->Cantidad }}</td>
+                                                    <td>${{ $preparado->Total == 0 ? '0.00' : $preparado->Total }}</td>
+                                                    <td class="text-center">
+                                                        <form class="d-inline-block" action="/Preparados">
+                                                            <input type="hidden" name="idPreparado"
+                                                                value="{{ $preparado->IdPreparado }}">
+                                                            <button class="btn btn-sm" data-bs-toggle="modal"
+                                                                data-bs-target="#ModalEliminar"><span
+                                                                    class="material-icons">visibility</span></button>
+                                                        </form>
+                                                    </td>
+                                                    <td class="bg-opacity-75 d-flex justify-content-center">
+                                                        <button class="btn btn-default btn-sm" data-bs-toggle="modal"
+                                                            data-bs-target="#ModalOpciones{{ $preparado->IdPreparado }}"><i
+                                                                class="fa fa-bars"></i>
+                                                        </button>
+                                                        @include('Preparados.ModalOpciones')
+                                                        @include('Preparados.ModalEliminarPreparado')
+                                                        @include('Preparados.ModalEditar')
+                                                        @include('Preparados.ModalEnviar')
+                                                    </td>
+                                                </tr>
+                                            </a>
                                         @endforeach
                                     @endif
                                 </tbody>
@@ -97,36 +83,6 @@
                 </div>
 
                 <div class="col-6">
-                    @if ($idPreparado)
-                        <form class="d-flex align-items-center justify-content-start pb-4 gap-2"
-                            action="/AgregarArticuloDePreparados/{{ $idPreparado }}" method="POST">
-                            @csrf
-                            <div class="input-group" style="max-width: 300px">
-                                <input class=" form-control" list="articulos" name="codigo" id="codigo"
-                                    placeholder="Buscar articulo" autocomplete="off"
-                                    onkeypress="return event.keyCode != 13;" required>
-                            </div>
-                            <datalist id="articulos">
-                                @foreach ($articulos as $articulo)
-                                    <option class="prom{{ $articulo->CodArticulo }}" value="{{ $articulo->CodArticulo }}"">
-                                        {{ $articulo->NomArticulo }}
-                                    </option>
-                                @endforeach
-                            </datalist>
-                            <div class="input-group" style="max-width: 300px">
-                                <input type="number" name="cantidad" min="1" class="form-control"
-                                    placeholder="Cantidad" required>
-                            </div>
-                            <button type="submit" class="btn btn-dark-outline" data-bs-toggle="modal"
-                                data-bs-target="#ModalAgregar">
-                                <span class="material-icons">add_circle_outline</span>
-                            </button>
-                        </form>
-                    @else
-                        <div class="col-12 pb-4">
-                            <p class="fw-bold">Selecciona un preparado para agregar articulos</p>
-                        </div>
-                    @endif
                     <div style="height: 70vh">
                         <div class="content-table content-table-full card p-3" style="border-radius: 20px">
                             <h5 class="pb-1" style="text-align: center">Detalle de Preparado</h5>
@@ -135,8 +91,10 @@
                                     <tr>
                                         <th class="rounded-start">Codigo</th>
                                         <th>Nombre</th>
-                                        <th>Cantidad de preparado</th>
-                                        <th>Cantidad formula</th>
+                                        <th>Lista de precio</th>
+                                        <th>Cantidad</th>
+                                        <th>Formula</th>
+                                        <th>Importe</th>
                                         <th class="rounded-end"></th>
                                     </tr>
                                 </thead>
@@ -154,8 +112,19 @@
                                         <tr>
                                             <td>{{ $detalle->CodArticulo }}</td>
                                             <td>{{ $detalle->NomArticulo }}</td>
+                                            <td>
+                                                <select name="IdListaPrecio" id="IdListaPrecio" class="form-select">
+                                                    @foreach ($listaPrecios as $lista)
+                                                        <option value="{{ $lista->IdListaPrecio }}"
+                                                            {{ $lista->IdListaPrecio == $detalle->IDLISTAPRECIO ? 'selected' : '' }}>
+                                                            {{ $lista->NomListaPrecio }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
                                             <td>{{ $detalle->CantidadPaquete }}</td>
                                             <td>{{ number_format($detalle->CantidadFormula, 3, '.', '.') }}</td>
+                                            <td>${{ number_format($detalle->PrecioArticulo * $detalle->CantidadFormula, 2, '.', '.') }}
+                                            </td>
                                             <td>
                                                 <form class="d-inline-block"
                                                     action="/EliminarArticuloDePreparados/{{ $detalle->IdDatPreparado }}"
@@ -169,12 +138,41 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td> </td>
+                                        <td> </td>
+                                        <td> </td>
+                                        <td colspan="2"><b>Costo preparado:</b></td>
+                                        <td>${{ $total == 0 ? '0.00' : number_format($total, 2, '.', '.') }}</td>
+                                        <td> </td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
+            <form id="form-update" action="/EditarListaPreciosPreparados/{{ $idPreparado }}" method="POST">
+                @csrf
+                <input type="hidden" name="IdListaPrecio" value="5">
+            </form>
         </div>
+        @include('Preparados.ModalAgregarPreparado')
+        @include('Preparados.ModalAgregarDetalle')
     </div>
+
+    <script>
+        document.addEventListener('change', e => {
+            if (e.target.matches('.form-select')) {
+                document.querySelectorAll('.form-select').forEach(element => {
+                    element.value = e.target.value;
+                });
+                let form = document.getElementById('form-update');
+                form.IdListaPrecio.value = e.target.value;
+                form.submit();
+            }
+        })
+    </script>
 
 @endsection
