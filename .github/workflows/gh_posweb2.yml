@@ -2,7 +2,7 @@ name: Posweb2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "gh-production" ]
   #pull_request:
     #branches: [ "main" ]
 
