@@ -26,6 +26,7 @@ jobs:
       run: php artisan route:cache
     - name: Limpiar cache view
       run: php artisan view:cache
+    -name: prueba de deploy
     #- name: Copy .env
       #run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     #- name: Install Dependencies
