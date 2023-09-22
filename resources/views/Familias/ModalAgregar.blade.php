@@ -11,7 +11,8 @@
                     @csrf
                     <div class="mb-3">
                         <label for="" class="form-label">Familia</label>
-                        <input type="text" id="NomFamilia" name="NomFamilia" class="form-control" onkeyup="mayusculas(this)" required>
+                        <input type="text" id="NomFamilia" name="NomFamilia" class="form-control"
+                            onkeyup="mayusculas(this)" required placeholder="Escribe el nombre de la familia">
                     </div>
             </div>
             <div class="modal-footer">

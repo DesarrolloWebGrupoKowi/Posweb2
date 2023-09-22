@@ -1,52 +1,41 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Reporte de Adeudos')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container mb-3">
-        <h2 class="titulo card">Adeudos Por Empleado</h2>
-    </div>
-    <div class="container mb-3">
-        <form action="/AdeudosEmpleado">
-            <div class="row">
-                <div class="col-auto">
-                    <input class="form-control shadow" type="number" name="numNomina" placeholder="Nómina"
-                        value="{{ $numNomina }}" required>
-                </div>
-                <div class="col-auto">
-                    <button class="btn card shadow">
-                        <span class="material-icons">search</span>
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="container">
-        <div class="mb-3">
-            <div class="row d-flex justify-content-center">
-                @if ($adeudo->count() == 0 && !empty($numNomina))
-                    <div class="col-auto bg-danger text-white shadow">
-                        <h5>
-                            <i class="fa fa-exclamation-triangle"></i> No se Encontro el Empleado <i
-                                class="fa fa-exclamation-triangle"></i>
-                        </h5>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
+            @include('components.title', ['titulo' => 'Adeudos Por Empleado'])
+            <form action="/AdeudosEmpleado">
+                <label class="fw-bold text-secondary pb-1">Escribe el numero de nómina</label>
+                <div class="input-group" style="max-width: 300px">
+                    <input class="form-control" type="number" name="numNomina" placeholder="Nómina" value="{{ $numNomina }}"
+                        required autofocus>
+                    <div class="input-group-append">
+                        <button class="input-group-text"><span class="material-icons">search</span></button>
                     </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <div class="mb-2 d-flex align-items-center gap-2">
+                @if ($adeudo->count() == 0 && !empty($numNomina))
+                    <h5>
+                        <i class="fa fa-exclamation-triangle"></i> No se Encontro el Empleado <i
+                            class="fa fa-exclamation-triangle"></i>
+                    </h5>
                 @endif
                 @foreach ($adeudo as $aEmpleado)
-                    <div class="col-auto">
-                        <h5 class="bg-dark text-white"><i class="fa fa-id-card"></i> {{ $aEmpleado->NumNomina }}</h5>
-                    </div>
-                    <div class="col-auto">
-                        <h5 class="bg-dark text-white">{{ $aEmpleado->Nombre }} {{ $aEmpleado->Apellidos }}</h5>
-                    </div>
+                    <h5 style="font-size: 1rem;"><i class="fa fa-id-card pe-1"></i> {{ $aEmpleado->NumNomina }}</h5>
+                    <h5 style="font-size: 1rem;">{{ $aEmpleado->Nombre }} {{ $aEmpleado->Apellidos }}</h5>
                 @endforeach
             </div>
-        </div>
-        <div class="table-responsive card">
-            <table class="table table-responsive table-striped">
-                <thead class="table-dark">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <th>Tienda</th>
+                        <th class="rounded-start">Tienda</th>
                         <th>Fecha Venta</th>
-                        <th>Adeudo</th>
+                        <th class="rounded-end">Adeudo</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,4 +65,5 @@
             </table>
         </div>
     </div>
+
 @endsection

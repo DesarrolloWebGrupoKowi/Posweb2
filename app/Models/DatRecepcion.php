@@ -15,7 +15,8 @@ class DatRecepcion extends Model
     public $timestamps = false;
     protected $primaryKey = 'IdDatRecepcion';
 
-    public function Recepcion(){
+    public function Recepcion()
+    {
         return $this->hasOne(CapRecepcion::class, 'IdCapRecepcion', 'IdCapRecepcion');
     }
 }

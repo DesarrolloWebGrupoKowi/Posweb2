@@ -1,0 +1,40 @@
+.menu-item {
+    transition: all .3s ease;
+    text-decoration: none;
+}
+
+.menu-item:hover {
+    transform: scale(1.05);
+}
+
+.icon {
+    display: block;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #f3f4f6;
+}
+
+.icon i {
+    display: inline-block;
+}
+
+.bg-blue {
+    background-color: #00c0ef !important;
+}
+
+.bg-green {
+    background-color: #00a65a !important;
+}
+
+.bg-orange {
+    background-color: #f39c12 !important;
+}
+
+.bg-red {
+    background-color: #d9534f !important;
+}

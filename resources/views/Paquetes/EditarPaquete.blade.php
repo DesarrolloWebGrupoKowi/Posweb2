@@ -1,87 +1,99 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Editar Paquete')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="d-flex justify-content-center">
-        <div class="col-auto">
-            <h2 class="card shadow p-1">{{ $nomPaquete }}</h2>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', [
+                'titulo' => $nomPaquete,
+                'options' => [['name' => 'Paquetes', 'value' => '/VerPaquetes']],
+            ])
+            <div>
+                <a href="/VerPaquetes" class="btn btn-sm btn-dark" title="Agregar Usuario">
+                    <i class="fa fa-eye"></i> Ver paquetes
+                </a>
+            </div>
         </div>
-    </div>
-    <div class="container mb-3">
-        @include('Alertas.Alertas')
-    </div>
-    <div class="container mb-3">
-        <div class="row">
-            <div class="container">
-                <form id="formPaquete" action="/EditarPaqueteExistente/{{ $idPaquete }}" method="POST">
-                    @csrf
-                    <div id="contenedorPaquete" class="container">
 
-                    </div>
-                    <input type="hidden" id="importePaquete" name="importePaquete" value="{{ $importePaquete }}">
-                </form>
-            </div>
-            <div class="col-auto">
-                <input class="form-control" type="text" name="codArticulo" id="codArticulo" placeholder="Código">
-            </div>
-            <div class="col-auto">
-                <h4 class="nomArticulo mt-0"></h4>
-                <h4 hidden class="nomArticuloValid"></h4>
-            </div>
+        <div>
+            @include('Alertas.Alertas')
         </div>
-    </div>
-    <div class="container">
-        <table id="tblArticulos" class="table table-responsive table-striped shadow">
-            <thead class="table-dark">
-                <tr>
-                    <th>Código</th>
-                    <th>Articulo</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Importe</th>
-                    <th>Eliminar</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($paquete as $paqDetalle)
-                    <tr style="vertical-align: middle">
-                        <td>{{ $paqDetalle->CodArticulo }}</td>
-                        <td>{{ $paqDetalle->NomArticulo }} - ${{ number_format($paqDetalle->PrecioLista, 2) }}</td>
-                        <td>
-                            <input class="form-control form-control-sm" type="number" name="cantArticulo[]"
-                                id="cantArticulo" value="{{ number_format($paqDetalle->CantArticulo, 2) }}" required>
-                        </td>
-                        <td>
-                            <input class="form-control form-control-sm" type="number" name="precioArticulo[]"
-                                id="precioArticulo" value="{{ number_format($paqDetalle->PrecioArticulo, 2) }}" required>
-                        </td>
-                        <td>${{ $paqDetalle->ImporteArticulo }}</td>
-                        <td>
-                            <button class="btn btnEliminarArticulo">
-                                <span style="color: red" class="material-icons">delete_forever</span>
-                            </button>
-                        </td>
+
+        <div class="mt-4 content-table content-table-full card p-4" style="border-radius: 20px">
+            <div class="row mb-4">
+                <div class="container">
+                    <form id="formPaquete" action="/EditarPaqueteExistente/{{ $idPaquete }}" method="POST">
+                        @csrf
+                        <div id="contenedorPaquete" class="container">
+
+                        </div>
+                        <input type="hidden" id="importePaquete" name="importePaquete" value="{{ $importePaquete }}">
+                    </form>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label fw-bold text-secondary">Codigo de articulo</label>
+                    <input class="form-control" type="text" name="codArticulo" id="codArticulo"
+                        placeholder="Código del articulo" autofocus>
+                </div>
+                <div class="col-auto d-flex align-items-end">
+                    <h4 class="nomArticulo"></h4>
+                    <h4 hidden class="nomArticuloValid"></h4>
+                </div>
+            </div>
+            <table id="tblArticulos">
+                <thead class="table-head">
+                    <tr>
+                        <th class="rounded-start">Código</th>
+                        <th>Articulo</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Importe</th>
+                        <th class="rounded-end">Eliminar</th>
                     </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th>Costo del Paquete : </th>
-                <th><span class="totalPaquete">${{ number_format($importePaquete, 2) }}</span></th>
-                <th></th>
-            </tfoot>
-        </table>
-    </div>
-    <div class="container">
-        <div class="d-flex justify-content-center">
-            <div class="col-auto">
-                <button id="btnConfirmar" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarGuardar">
-                    <i class="fa fa-save"></i> Guardar
-                </button>
+                </thead>
+                <tbody>
+                    @foreach ($paquete as $paqDetalle)
+                        <tr style="vertical-align: middle">
+                            <td>{{ $paqDetalle->CodArticulo }}</td>
+                            <td>{{ $paqDetalle->NomArticulo }} - ${{ number_format($paqDetalle->PrecioLista, 2) }}</td>
+                            <td>
+                                <input class="form-control form-control-sm" type="number" name="cantArticulo[]"
+                                    id="cantArticulo" value="{{ number_format($paqDetalle->CantArticulo, 2) }}" required>
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm" type="number" name="precioArticulo[]"
+                                    id="precioArticulo" value="{{ number_format($paqDetalle->PrecioArticulo, 2) }}"
+                                    required>
+                            </td>
+                            <td>${{ $paqDetalle->ImporteArticulo }}</td>
+                            <td>
+                                <button class="btn btnEliminarArticulo">
+                                    <span style="color: red" class="material-icons">delete_forever</span>
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>Costo del Paquete : </th>
+                    <th><span class="totalPaquete">${{ number_format($importePaquete, 2) }}</span></th>
+                    <th></th>
+                </tfoot>
+            </table>
+            <div class="d-flex justify-content-end">
+                <div class="col-auto">
+                    <button id="btnConfirmar" class="btn btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#ModalConfirmarGuardar">
+                        <i class="fa fa-save"></i> Guardar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+
     @include('Paquetes.ModalConfirmarGuardar')
 
     <script>

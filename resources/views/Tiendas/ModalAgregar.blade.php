@@ -88,7 +88,6 @@
     .Crear {
         float: right;
     }
-
 </style>
 <div class="modal fade" id="ModalAgregar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -97,8 +96,8 @@
                 <h5 class="modal-title" id="exampleModalLabel">Agregar Tienda</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form action="/CrearTienda" method="POST" class="form">
+            <div class="modal-body px-4">
+                <form action="/CrearTienda" method="POST">
                     @csrf
                     <!---Barra de progreso-->
                     <div class="progressbar">
@@ -113,22 +112,23 @@
                         <div class="progress-step" data-title="Servicio"></div>
                     </div>
                     <!---Pasos-->
-                    <div class="container">
+                    <div class="">
                         <div class="form-step form-step-active">
                             <div>
                                 <label for="" class="form-label">Nombre de Tienda</label>
-                                <input type="text" id="NomTienda" name="NomTienda" class="form-control" tabindex="1"
-                                    onkeyup="mayusculas(this)" required>
+                                <input type="text" id="NomTienda" name="NomTienda" class="form-control"
+                                    tabindex="1" onkeyup="mayusculas(this)" required
+                                    placeholder="Escribe el nombre de la tienda">
                             </div>
                             <div>
                                 <label for="" class="form-label">Correo</label>
                                 <input type="email" id="Correo" name="Correo" class="form-control" tabindex="2"
-                                    required>
+                                    required placeholder="Escribe el correo">
                             </div>
                             <div>
                                 <label for="" class="form-label">RFC</label>
                                 <input type="text" id="RFC" name="RFC" class="form-control" tabindex="2"
-                                    onkeyup="mayusculas(this)" required>
+                                    onkeyup="mayusculas(this)" required placeholder="Escribe el RFC">
                             </div>
                             <div class="mb-3">
                                 <a class="btn btn-default siguienteBtn"><span
@@ -138,18 +138,19 @@
                         <div class="form-step">
                             <div>
                                 <label for="" class="form-label">Dirección</label>
-                                <input type="text" id="Direccion" name="Direccion" class="form-control" tabindex="2"
-                                    onkeyup="mayusculas(this)" required>
+                                <input type="text" id="Direccion" name="Direccion" class="form-control"
+                                    tabindex="2" onkeyup="mayusculas(this)" required
+                                    placeholder="Escribe la dirección">
                             </div>
                             <div>
                                 <label for="" class="form-label">Colonia</label>
                                 <input type="text" id="Colonia" name="Colonia" class="form-control" tabindex="2"
-                                    onkeyup="mayusculas(this)" required>
+                                    onkeyup="mayusculas(this)" required placeholder="Escribe la colonia">
                             </div>
                             <div>
                                 <label for="" class="form-label">Telefono</label>
                                 <input type="text" id="Telefono" name="Telefono" class="form-control" tabindex="2"
-                                    required>
+                                    required placeholder="Escribe el numero de telefono">
                             </div>
                             <div>
                                 <a class="btn atrasBtn"><span class="material-icons">arrow_back</span></a>
@@ -160,7 +161,7 @@
                             <div>
                                 <label for="" class="form-label">Lista de Precios</label>
                                 <input type="text" id="IdListaPrecios" name="IdListaPrecios" class="form-control"
-                                    tabindex="2" required>
+                                    tabindex="2" required placeholder="Escribe la lista de precios">
                             </div>
                             <div>
                                 <label for="" class="form-label">Tienda Activa Local</label>
@@ -185,7 +186,7 @@
                             <div>
                                 <label for="" class="form-label">Centro de Costo</label>
                                 <input type="text" id="CentroCosto" name="CentroCosto" class="form-control"
-                                    tabindex="2" required>
+                                    tabindex="2" required placeholder="Escribe el centro de costo">
                             </div>
                             <div>
                                 <label for="" class="form-label">Ciudad</label>
@@ -211,28 +212,31 @@
                         <div class="form-step">
                             <div>
                                 <label for="" class="form-label">Almacen</label>
-                                <input type="text" id="Almacen" name="Almacen" class="form-control" tabindex="2"
-                                    onkeyup="mayusculas(this)" required>
+                                <input type="text" id="Almacen" name="Almacen" class="form-control"
+                                    tabindex="2" onkeyup="mayusculas(this)" required
+                                    placeholder="Escribe el almacen">
                             </div>
                             <div>
                                 <label for="" class="form-label">Organización Nombre</label>
                                 <input type="text" id="Organization_Name" name="Organization_Name"
-                                    class="form-control" tabindex="2" onkeyup="mayusculas(this)" required>
+                                    class="form-control" tabindex="2" onkeyup="mayusculas(this)" required
+                                    placeholder="Escribe el nombre de la organización">
                             </div>
                             <div>
                                 <label for="" class="form-label">Subinventario</label>
                                 <input type="text" id="Subinventory_Code" name="Subinventory_Code"
-                                    class="form-control" tabindex="2" onkeyup="mayusculas(this)" required>
+                                    class="form-control" tabindex="2" onkeyup="mayusculas(this)" required
+                                    placeholder="Sub inventario">
                             </div>
                             <div>
                                 <label for="" class="form-label">Tipo de Orden</label>
-                                <input type="text" id="Order_Type_Cloud" name="Order_Type_Cloud" class="form-control"
-                                    tabindex="2" onkeyup="mayusculas(this)" required>
+                                <input type="text" id="Order_Type_Cloud" name="Order_Type_Cloud"
+                                    class="form-control" tabindex="2" onkeyup="mayusculas(this)" required
+                                    placeholder="Escribe el tipo de orden">
                             </div>
                             <div>
                                 <a class="btn atrasBtn"><span class="material-icons">arrow_back</span></a>
-                                <a class="btn siguienteBtn"><span
-                                        class="material-icons">arrow_forward</span></a>
+                                <a class="btn siguienteBtn"><span class="material-icons">arrow_forward</span></a>
                             </div>
                         </div>
                         <div class="form-step">
@@ -245,13 +249,13 @@
                             </div>
                             <div>
                                 <label for="" class="form-label">Costo a Domicilio</label>
-                                <input type="number" id="CostoaDomicilio" name="CostoaDomicilio" class="form-control"
-                                    tabindex="2">
+                                <input type="number" id="CostoaDomicilio" name="CostoaDomicilio"
+                                    class="form-control" tabindex="2" placeholder="Escribe el costo a domicilio">
                             </div>
                             <div>
                                 <label for="" class="form-label">Comentario</label>
-                                <input type="text" id="Comentario" name="Comentario" class="form-control" tabindex="2"
-                                    onkeyup="mayusculas(this)">
+                                <input type="text" id="Comentario" name="Comentario" class="form-control"
+                                    tabindex="2" onkeyup="mayusculas(this)" placeholder="Comentario">
                             </div>
                             <div>
                                 <a class="btn btn-default my-1 atrasBtn"><span
@@ -261,7 +265,6 @@
                                 </button>
                                 <!--<a href="#" class="btn siguienteBtn">Finalizar</a>-->
                             </div>
-
                         </div>
                     </div>
             </div>

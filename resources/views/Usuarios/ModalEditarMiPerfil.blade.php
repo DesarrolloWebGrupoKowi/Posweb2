@@ -1,6 +1,5 @@
 <!-- Modal Editar Mi Pefil-->
-<div class="modal fade" id="ModalEditarMiPerfil" tabindex="-1" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+<div class="modal fade" id="ModalEditarMiPerfil" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,18 +7,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="card cuchi">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="">Correo</label>
-                            <input type="text" class="form-control" name="" id="" placeholder="e-mail" value="{{ Auth::user()->Correo }}" required>
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label for="">Correo</label>
+                    <input type="text" class="form-control" name="" id="" placeholder="e-mail"
+                        value="{{ Auth::user()->Correo }}" required>
                 </div>
             </div>
             <div class="modal-footer d-flex justify-content-center">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
-                        class="fa fa-times-circle"></i>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fa fa-times-circle"></i>
                     Cerrar</button>
                 <button class="btn btn-warning"><i class="fa fa-save"></i> Guardar</button>
                 </form>

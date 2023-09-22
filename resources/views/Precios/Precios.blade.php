@@ -1,9 +1,12 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Módulo de Precios')
+@section('dashboardWidth', 'width-95')
 <link rel="stylesheet" href="{{ asset('css/stylePrecios.css') }}">
 @section('contenido')
-    <div class="container-fluid">
-        <h2 class="titulo">Módulo de Precios</h2>
+    <div class="container-fluid pt-4 width-95">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Módulo de Precios'])
+        </div>
         <div>
             @include('Alertas.Alertas')
         </div>
@@ -30,49 +33,53 @@
                         </select>
                     </div>
                     <div class="col-auto">
-                        <button class="btn"><span class="material-icons">search</span></button>
+                        <button class="btn btn-dark-outline"><span class="material-icons">search</span></button>
                     </div>
                 </div>
             </form>
         </div>
-        <div>
-            <div class="row mb-1 ms-4">
-                @if (!empty($idListaPrecio))
-                    <div class="col-auto d-flex justify-content-end">
-                        <div class="input-group input-group-sm shadow">
-                            <span class="input-group-text shadow">
-                                <input checked class="form-check-input mt-0" type="radio" name="radioFiltro"
-                                    id="codigo">
-                            </span>
-                            <span class="input-group-text card shadow">Código</span>
-                            <span class="input-group-text shadow">
-                                <input class="form-check-input mt-0" type="radio" name="radioFiltro" id="nombre">
-                            </span>
-                            <span class="input-group-text card shadow">Nombre</span>
-                            <input type="text" class="form-control shadow" name="filtro" id="filtro"
-                                placeholder="Buscar articulo...">
-                        </div>
-                    </div>
-                @endif
-            </div>
-        </div>
+
         <form id="formActualizarPrecios" action="/ActualizarPrecios" method="POST">
             <input type="hidden" name="idListaPrecioHidden" value="{{ $idListaPrecio }}">
             @csrf
-            <div class="col-6 card shadow mb-3" style="float: left; height: 70%;">
-                <div class="table-responsive">
-                    <table id="tblPrecios" class="table table-responsive table-sm table-striped">
-                        <thead class="table-dark">
+            <div class="col-6" style="float: left;">
+                <div class="content-table content-table-full card p-4" style="border-radius: 20px; height: 70%;">
+                    <div>
+                        <div class="row mb-2">
+                            @if (!empty($idListaPrecio))
+                                <div class="col-auto d-flex justify-content-end">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">
+                                            <input checked class="form-check-input mt-0" type="radio" name="radioFiltro"
+                                                id="codigo">
+                                        </span>
+                                        <span class="input-group-text card">Código</span>
+                                        <span class="input-group-text">
+                                            <input class="form-check-input mt-0" type="radio" name="radioFiltro"
+                                                id="nombre">
+                                        </span>
+                                        <span class="input-group-text card">Nombre</span>
+                                        <input type="text" class="form-control" name="filtro" id="filtro"
+                                            placeholder="Buscar articulo...">
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <table id="tblPrecios">
+                        <thead class="table-head">
                             <tr>
-                                <th>Codigo</th>
+                                <th class="rounded-start">Codigo</th>
                                 <th style="width: 45%">Nombre</th>
                                 <th>Precio</th>
                                 <th>Precio Final</th>
                                 @if (empty($idListaPrecio))
-                                    <th>Todos</th>
+                                    <th class="rounded-end">Todos</th>
                                 @else
-                                    <th>Todos <input class="form-check-input" type="checkbox" name="allPrecios"
-                                            id="allPrecios" onclick="seleccionarTodo()"></th>
+                                    <th class="d-flex align-items-center gap-2 rounded-end">Todos <input
+                                            class="form-check-input" type="checkbox" name="allPrecios" id="allPrecios"
+                                            onclick="seleccionarTodo()">
+                                    </th>
                                 @endif
                             </tr>
                         </thead>
@@ -98,7 +105,7 @@
                                                 name="precios[{{ $precio->CodArticulo }}]"
                                                 value="{{ $precio->PrecioArticulo }}">
                                         </td>
-                                        <td>
+                                        <td class="d-flex align-items-center gap-2">
                                             <input class="form-check-input" type="checkbox" id="codigosCheck"
                                                 value="{{ $precio->CodArticulo }}">
                                         </td>
@@ -117,11 +124,12 @@
                     </div>
                     <label class="input-group-text" for="">Actualizar Por Porcentaje O Cantidad</label>
                 </div>
-                <div id="divMovimientos" class="card" style="display: none;">
-                    <table class="table table-sm">
-                        <thead class="table-dark">
+                <div id="divMovimientos" class="content-table content-table-full card p-4"
+                    style="display: none; border-radius: 20px">
+                    <table class="w-100">
+                        <thead class="table-head">
                             <tr>
-                                <th>Seleccione Movimiento</th>
+                                <th class="rounded-start rounded-end">Seleccione Movimiento</th>
                             </tr>
                         </thead>
                     </table>
@@ -193,7 +201,7 @@
     </div>
     <script src="{{ asset('js/scriptPrecios.js') }}"></script>
     <script>
-        document.getElementById('formActualizarPrecios').addEventListener('submit', function (){
+        document.getElementById('formActualizarPrecios').addEventListener('submit', function() {
             document.getElementById('btnActualizar').hidden = true;
             document.getElementById('btnActualizandoPrecios').hidden = false;
         })

@@ -1,80 +1,75 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Paquetes')
-<style>
-    td {
-        font-size: 16px;
-    }
-</style>
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="d-flex justify-content-center mb-2">
-        <div class="col-auto">
-            <h3 class="card shadow p-1">Catálogo de Paquetes</h3>
-        </div>
-    </div>
-    <div class="container mb-3">
-        @include('Alertas.Alertas')
-    </div>
-    <div class="container mb-3">
-        <div class="row">
-            <div class="container">
-                <form id="formPaquete" action="/GuardarPaquete" method="POST">
-                    @csrf
-                    <div class="d-flex justify-content-center mb-3">
-                        <div class="col-8">
-                            <input class="form-control" type="text" name="nomPaquete" id="nomPaquete"
-                                placeholder="Nombre de Paquete" required>
-                        </div>
-                    </div>
-                    <div id="contenedorPaquete" class="container">
-
-                    </div>
-                    <input type="hidden" id="importePaquete" name="importePaquete">
-                </form>
-            </div>
-            <div class="col-auto">
-                <input class="form-control" type="text" name="codArticulo" id="codArticulo" placeholder="Código">
-            </div>
-            <div class="col-auto">
-                <h4 class="nomArticulo mt-0"></h4>
-                <h4 hidden class="nomArticuloValid"></h4>
-            </div>
-            <div class="input-group flex-nowrap col d-flex justify-content-end">
-                <span class="input-group-text bg-white">Ver Paquetes</span>
-                <a href="/VerPaquetes" class="btn card shadow">
-                    <span class="material-icons">library_books</span>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', [
+                'titulo' => 'Catálogo de Paquetes',
+                'options' => [['name' => 'Paquetes', 'value' => '/VerPaquetes']],
+            ])
+            <div>
+                <a href="/VerPaquetes" class="btn btn-sm btn-dark" title="Agregar Usuario">
+                    <i class="fa fa-eye"></i> Ver paquetes
                 </a>
             </div>
         </div>
-    </div>
-    <div class="container">
-        <table id="tblArticulos" class="table table-responsive table-striped shadow">
-            <thead class="table-dark">
-                <tr>
-                    <th>Código</th>
-                    <th>Articulo</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Importe</th>
-                    <th>Eliminar</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-            <tfoot>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th>Costo del Paquete : </th>
-                <th><span class="totalPaquete"></span></th>
-                <th></th>
-            </tfoot>
-        </table>
-    </div>
-    <div class="container">
-        <div class="d-flex justify-content-center">
-            <div class="col-auto">
-                <button hidden id="btnGenerarObject" class="btn btn-warning">
-                    <i class="fa fa-save"></i> Generar Paquete
-                </button>
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
+
+        <div class="content-table content-table-full card p-4 mt-4" style="border-radius: 20px">
+            <div class="d-flex align-items-center justify-content-between pb-2 gap-4">
+                <form class="input-group"style="max-width: 600px" id="formPaquete" action="/GuardarPaquete" method="POST">
+                    @csrf
+                    <label class="form-label fw-bold text-secondary">Nombre del paquete</label>
+                    <div class="input-group">
+                        <input class="form-control" type="text" name="nomPaquete" id="nomPaquete"
+                            placeholder="Nombre de Paquete" required>
+                    </div>
+                    <div id="contenedorPaquete" class="container">
+                    </div>
+                    <input type="hidden" id="importePaquete" name="importePaquete">
+                </form>
+                <div>
+                    <label class="form-label fw-bold text-secondary">Codigo de articulo</label>
+                    <input class="form-control" type="text" name="codArticulo" id="codArticulo" placeholder="Código">
+                </div>
+            </div>
+
+            <div class="text-center pb-4">
+                <h4 class="nomArticulo mt-0"></h4>
+                <h4 hidden class="nomArticuloValid"></h4>
+            </div>
+
+            <table id="tblArticulos">
+                <thead class="table-head">
+                    <tr>
+                        <th class="rounded-start">Código</th>
+                        <th>Articulo</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Importe</th>
+                        <th class="rounded-end">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>Costo del Paquete : </th>
+                    <th><span class="totalPaquete"></span></th>
+                    <th></th>
+                </tfoot>
+            </table>
+            <div>
+                <div class="d-flex justify-content-end">
+                    <button hidden id="btnGenerarObject" class="btn btn-warning">
+                        <i class="fa fa-save"></i> Generar Paquete
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -204,8 +199,7 @@
 
                         if ($cantidad != '' && $precio != '') {
                             document.getElementById('formPaquete').submit();
-                        }
-                        else{
+                        } else {
                             $('#ModalCantidadPrecioCero').modal('show');
                         }
                     });

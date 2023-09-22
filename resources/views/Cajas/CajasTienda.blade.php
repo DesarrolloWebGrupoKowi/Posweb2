@@ -1,60 +1,64 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Cajas Por Tienda')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="d-flex justify-content-center">
-        <h2 class="col-auto card shadow p-1">Cajas Por Tienda</h2>
-    </div>
-    <div class="container mb-3">
-        <form id="formCajaTienda" action="/CajasTienda" method="GET">
-            <div class="row">
-                <div class="col-auto">
-                    <select class="form-select shadow" name="idTienda" id="idTienda">
-                        <option value="">Seleccione Tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $tienda->IdTienda == $idTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
+
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Cajas Por Tienda'])
+            @if (!empty($idTienda))
+                <div>
+                    <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal"
+                        data-bs-target="#ModalAgregarCajaTienda">
+                        <i class="fa fa-plus-circle pe-1"></i> Agregar caja a tienda
+                    </button>
                 </div>
-                @if (!empty($idTienda))
-                    <div class="col d-flex justify-content-end">
-                        <button type="button" class="btn card shadow" data-bs-toggle="modal"
-                            data-bs-target="#ModalAgregarCajaTienda">
-                            <span class="material-icons">add_circle</span>
-                        </button>
-                    </div>
-                @endif
+            @endif
+        </div>
+
+        <form class="d-flex align-items-center justify-content-end pb-4" id="formCajaTienda" action="/CajasTienda"
+            method="GET">
+            <div class="input-group" style="max-width: 350px">
+                <select class="form-select shadow" name="idTienda" id="idTienda">
+                    <option value="">Seleccione Tienda</option>
+                    @foreach ($tiendas as $tienda)
+                        <option {!! $tienda->IdTienda == $idTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
         </form>
-    </div>
-    <div class="container">
-        <table class="table table-responsive table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>Tienda</th>
-                    <th>Caja(s)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if ($cajasTienda->count() == 0 && !empty($idTienda))
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <th colspan="2">No Hay Cajas!</th>
+                        <th class="rounded-start">Tienda</th>
+                        <th class="rounded-end">Caja(s)</th>
                     </tr>
-                @elseif($cajasTienda->count() == 0 && empty($idTienda))
-                    <tr>
-                        <th colspan="2">Seleccione Tienda!</th>
-                    </tr>
-                @else
-                    @foreach ($cajasTienda as $cajaTienda)
+                </thead>
+                <tbody>
+                    @if ($cajasTienda->count() == 0 && !empty($idTienda))
                         <tr>
-                            <td>{{ $cajaTienda->NomTienda }}</td>
-                            <td>{{ $cajaTienda->IdCaja }}</td>
+                            <th colspan="2">No Hay Cajas!</th>
                         </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
+                    @elseif($cajasTienda->count() == 0 && empty($idTienda))
+                        <tr>
+                            <th colspan="2">Seleccione Tienda!</th>
+                        </tr>
+                    @else
+                        @foreach ($cajasTienda as $cajaTienda)
+                            <tr>
+                                <td>{{ $cajaTienda->NomTienda }}</td>
+                                <td>{{ $cajaTienda->IdCaja }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
     </div>
+
     @include('Cajas.ModalAgregarCajaTienda')
 
     <script>

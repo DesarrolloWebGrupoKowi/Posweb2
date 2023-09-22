@@ -8,8 +8,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-responsive table-striped">
-                    <thead class="table-dark">
+                <table>
+                    <thead>
                         <tr>
                             <th>Articulo</th>
                             <th>Cantidad</th>
