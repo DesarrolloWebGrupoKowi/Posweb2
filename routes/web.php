@@ -780,6 +780,3 @@ Route::get('/promesas', 'App\Http\Controllers\PruebasController@promesas');
 
 //SubirArchivo
 Route::post('/SubirArchivo', 'App\Http\Controllers\PruebasController@SubirArchivo');
-
-//SubirArchivo
-Route::post('/testRunner', '');
