@@ -28,7 +28,7 @@ jobs:
   gh-desarrollo:
     runs-on:
       - self-hosted
-      - label-1
+      - gh-desarrollo
     steps:
     - uses: actions/checkout@v3
     - name: Install Dependencies
