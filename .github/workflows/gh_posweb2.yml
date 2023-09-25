@@ -2,10 +2,10 @@ name: Posweb2
 
 on:
   push:
-    branches: [ "gh-production" ]
+    branches: ["gh-production"]
   #pull_request:
-    #branches: [ "main" ]
-    # workflow_dispatch:
+  #branches: [ "main" ]
+  # workflow_dispatch:
 
 jobs:
   gh-ke-planta:
@@ -13,35 +13,34 @@ jobs:
       - self-hosted
       - gh-ke-planta
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-    - name: Limpiar cache
-      run: php artisan cache:clear
-    - name: Limpiar cache config
-      run: php artisan config:cache
-    - name: Limpiar cache route
-      run: php artisan route:cache
-    - name: Limpiar cache view
-      run: php artisan view:cache
-      
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
+
   gh-desarrollo:
     runs-on:
       - self-hosted
       - gh-desarrollo
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-    - name: Limpiar cache
-      run: php artisan cache:clear
-    - name: Limpiar cache config
-      run: php artisan config:cache
-    - name: Limpiar cache route
-      run: php artisan route:cache
-    - name: Limpiar cache view
-      run: php artisan view:cache
-
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh-d-ke-talamante:
     runs-on:
