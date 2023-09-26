@@ -3,9 +3,6 @@ name: Posweb2
 on:
   push:
     branches: ["gh-production"]
-  #pull_request:
-  #branches: [ "main" ]
-  # workflow_dispatch:
 
 jobs:
   gh-ke-planta:
