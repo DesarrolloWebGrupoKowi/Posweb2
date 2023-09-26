@@ -6,9 +6,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="table-respoonsive">
-                    <table class="table table-responsive table-striped table-sm">
-                        <thead class="table-dark">
+                <div>
+                    <table>
+                        <thead>
                             <th>Tipo de Pago</th>
                             <th>Pago</th>
                             <th>Por Pagar</th>

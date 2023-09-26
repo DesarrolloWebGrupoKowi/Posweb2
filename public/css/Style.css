@@ -38,6 +38,10 @@ body {
     color: red;
 }
 
+.send {
+    color: green;
+}
+
 .editar {
     color: orange;
 }
@@ -61,6 +65,12 @@ body {
 .back {
     color: white;
 }
+
+button[disabled] span,
+button[disabled] i{
+    opacity: 0.4;
+}
+
 
 table tr:hover {
     border: 2px rgba(252, 162, 26, 255);

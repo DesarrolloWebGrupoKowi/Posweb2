@@ -1,46 +1,65 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Menu Tipo Usuario')
+@section('dashboardWidth', 'width-95')
+<style>
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #797979 #f1f2f300;
+    }
+
+    .over {
+        overflow: hidden;
+        border-radius: 20px;
+    }
+</style>
 @section('contenido')
-    @if (empty($TipoUsuarioFind))
-        <h2 class="titulo my-2">Asignación de Menús</h2>
-    @else
-        <h2 class="titulo my-2">Asignación de Menús Para {{ $TipoUsuarioFind->NomTipoUsuario }}</h2>
-    @endif
-    <div class="container-fluid my-3">
-        <div>
-            @include('Alertas.Alertas')
-        </div>
+    <div class="container-fluid pt-4 width-95">
         <form id="formChange" action="/DatMenuTipoUsuario">
-            <div class="row">
-                <div class="col-2">
-                    <select class="form-select ms-4" name="IdTipoUsuario" id="IdTipoUsuario" onchange="MenuTipoUsuario()">
-                        <option value="0">Seleccione</option>
-                        @foreach ($tipoUsuarios as $tipoUsuario)
-                            <option {!! $filtroIdTipoUsuario == $tipoUsuario->IdTipoUsuario ? 'selected' : '' !!} value="{{ $tipoUsuario->IdTipoUsuario }}">
-                                {{ $tipoUsuario->NomTipoUsuario }}</option>
-                        @endforeach
-                    </select>
+
+            <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-5">
+                @if (empty($TipoUsuarioFind))
+                    @include('components.title', ['titulo' => 'Asignación de Menús'])
+                @else
+                    @include('components.title', [
+                        'titulo' => 'Asignación de Menús Para ' . $TipoUsuarioFind->NomTipoUsuario,
+                    ])
+                @endif
+                <div class="d-flex align-items-center justify-content-end">
+                    <div class="form-group" style="min-width: 300px">
+                        <label class="fw-bold text-secondary">Tipo de usuario</label>
+                        <select class="form-select " name="IdTipoUsuario" id="IdTipoUsuario" onchange="MenuTipoUsuario()">
+                            <option value="0">Seleccione</option>
+                            @foreach ($tipoUsuarios as $tipoUsuario)
+                                <option {!! $filtroIdTipoUsuario == $tipoUsuario->IdTipoUsuario ? 'selected' : '' !!} value="{{ $tipoUsuario->IdTipoUsuario }}">
+                                    {{ $tipoUsuario->NomTipoUsuario }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
+
+            <div>
+                @include('Alertas.Alertas')
+            </div>
+
             <div class="row">
+
                 <div class="col-6">
-                    <div class="row">
-                        <div class="col-11">
-                            <button class="btn btn-sm btnRemove alinearDerecha" onclick="remove()">
-                                <i class="fa fa-close"></i> Remover
-                            </button>
-                        </div>
+                    <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+                        <h5>Menús Agregados</h5>
+                        <button class="btn btn-sm btn-dark" onclick="remove()">
+                            <i class="fa fa-plus-circle pe-1"></i> Remover
+                        </button>
                     </div>
-                    <div style="height: 70vh" class="container cuchi table-responsive">
-                        <div>
-                            <h5 style="text-align: center">Menús Agregados</h5>
-                        </div>
-                        <div class="table table-responsive table-sm">
-                            <table class="table table-responsive table-sm table-striped">
-                                <thead>
+
+                    <div class="over">
+                        <div class="content-table content-table-full card p-4 table-responsive"
+                            style="border-radius: 20px; height: 70vh">
+                            <table>
+                                <thead class="table-head">
                                     <tr>
-                                        <th>Menús ({{ count($menuTipoUsuarios) }})</th>
-                                        <th>Seleccionar</th>
+                                        <th class="rounded-start">Menús ({{ count($menuTipoUsuarios) }})</th>
+                                        <th class="rounded-end">Seleccionar</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -58,8 +77,9 @@
                                         @foreach ($menuTipoUsuarios as $menuTipoUsuario)
                                             <tr>
                                                 <td>{{ $menuTipoUsuario->cmpNomMenu }}</td>
-                                                <td><input class="form-check-input" type="checkbox" name="chkRemoverMenu[]"
-                                                        id="chkRemoverMenu[]" value="{{ $menuTipoUsuario->cmpIdMenu }}">
+                                                <td><input class="d-block form-check-input" type="checkbox"
+                                                        name="chkRemoverMenu[]" id="chkRemoverMenu[]"
+                                                        value="{{ $menuTipoUsuario->cmpIdMenu }}">
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -69,27 +89,23 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="row">
-                        <div class="col-4">
 
-                        </div>
-                        <div class="col-11">
-                            <!--<button class="btn btn-sm btn-outline-success alinearDerecha me-4" onclick="agregar()">Agregar Menú</button>-->
-                            <button class="btn btn-sm btnAgregar alinearDerecha" onclick="agregar()"><i
-                                    class="fa fa-plus"></i> Agregar</button>
-                        </div>
+
+                <div class="col-6">
+                    <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+                        <h5>Agregar Menús</h5>
+                        <button class="btn btn-sm btn-dark" onclick="agregar()">
+                            <i class="fa fa-plus-circle pe-1"></i> Agregar
+                        </button>
                     </div>
-                    <div style="height: 70vh" class="container cuchi table-responsive">
-                        <div>
-                            <h5 style="text-align: center">Agregar Menús</h5>
-                        </div>
-                        <div class="table-sm table-responsive">
-                            <table class="table table-sm table-responsive table-striped">
-                                <thead>
+                    <div class="over">
+                        <div class="content-table content-table-full card p-4 table-responsive"
+                            style="border-radius: 20px; height: 70vh">
+                            <table>
+                                <thead class="table-head">
                                     <tr>
-                                        <th>Menús ({{ count($menus) }})</th>
-                                        <th>Seleccionar</th>
+                                        <th class="rounded-start">Menús ({{ count($menus) }})</th>
+                                        <th class="rounded-end">Seleccionar</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -106,8 +122,11 @@
                                         @foreach ($menus as $menu)
                                             <tr>
                                                 <td>{{ $menu->NomMenu }}</td>
-                                                <td><input class="form-check-input" type="checkbox" name="chkAgregarMenu[]"
-                                                        id="chkAgregarMenu[]" value="{{ $menu->IdMenu }}"></td>
+                                                <td>
+                                                    <input class="d-block form-check-input" type="checkbox"
+                                                        name="chkAgregarMenu[]" id="chkAgregarMenu[]"
+                                                        value="{{ $menu->IdMenu }}">
+                                                </td>
                                             </tr>
                                         @endforeach
                                     @endif
@@ -116,7 +135,8 @@
                         </div>
                     </div>
                 </div>
+
             </div>
+        </form>
     </div>
-    </form>
 @endsection

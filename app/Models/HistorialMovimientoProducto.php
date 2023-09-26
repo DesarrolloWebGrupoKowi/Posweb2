@@ -12,5 +12,5 @@ class HistorialMovimientoProducto extends Model
     protected $table = 'DatHistorialMovimientos';
     protected $fillable = ['IdTienda', 'CodArticulo', 'CantArticulo', 'FechaMovimiento', 'Referencia', 'IdMovimiento', 'IdUsuario'];
     public $timestamps = false;
-    protected $primaryKey = 'IdDatHistorialMovimientos'; 
+    protected $primaryKey = 'IdDatHistorialMovimientos';
 }

@@ -1,6 +1,6 @@
 <!-- Modal Editar Articulo-->
-<div class="modal fade" id="ModalEditar-{{ $familia->IdFamilia }}" tabindex="-1"
-    aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="ModalEditar-{{ $familia->IdFamilia }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <form action="/#" method="POST">
                     @csrf
-                    
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">

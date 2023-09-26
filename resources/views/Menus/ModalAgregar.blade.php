@@ -11,27 +11,31 @@
                     @csrf
                     <div class="mb-3">
                         <label for="" class="form-label">Nombre de Menú</label>
-                        <input type="text" id="NomMenu" name="NomMenu" class="form-control" onkeyup="mayusculas(this)" required>
+                        <input type="text" id="NomMenu" name="NomMenu" class="form-control"
+                            onkeyup="mayusculas(this)" required placeholder="Escribe el nombre del menu">
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Menú</label>
                         <select name="IdTipoMenu" id="IdTipoMenu" class="form-select">
-                            @foreach($tipoMenus as $tipoMenu)
-                                <option value="{{$tipoMenu->IdTipoMenu}}">{{$tipoMenu->NomTipoMenu}}</option>
+                            @foreach ($tipoMenus as $tipoMenu)
+                                <option value="{{ $tipoMenu->IdTipoMenu }}">{{ $tipoMenu->NomTipoMenu }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Link</label>
-                        <input class="form-control" type="text" name="Link" id="Link" placeholder="/CatMenuPosweb" required>
+                        <input class="form-control" type="text" name="Link" id="Link"
+                            placeholder="/CatMenuPosweb" required>
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Icono</label>
-                        <input class="form-control" type="text" name="Icono" id="Icono" placeholder="fa fa-icons" required>
+                        <input class="form-control" type="text" name="Icono" id="Icono"
+                            placeholder="fa fa-icons" required>
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label">Background Color</label>
-                        <input class="form-control" type="text" name="BgColor" id="BgColor" placeholder="bg-orange" required>
+                        <input class="form-control" type="text" name="BgColor" id="BgColor" placeholder="bg-orange"
+                            required>
                     </div>
             </div>
             <div class="modal-footer">

@@ -8,23 +8,23 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="Icons/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
     <title>Empleado</title>
 </head>
 
-<body>
+<body class="bg-transparent">
     <div class="container">
         @include('Alertas.Alertas')
     </div>
-    <hr>
     @if (!empty($frecuenteSocio))
-        <div class="d-flex justify-content-center">
-            <table style="font-size: 17px" class="table table-responsive table-striped">
-                <thead class="table-dark">
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <th>Cliente</th>
+                        <th class="rounded-start">Cliente</th>
                         <th>Folio</th>
                         <th>Nombre</th>
-                        <th><i class="fa fa-check"></i></th>
+                        <th class="rounded-end"><i class="fa fa-check"></i></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,16 +58,16 @@
                 </div>
             @endif
         </div>
-        <div class="table-responsive">
-            <table style="font-size: 17px" class="table table-responsive table-striped">
-                <thead class="table-dark">
+        <div class="content-table content-table-full card border-0" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <th>Nómina</th>
+                        <th class="rounded-start">Nómina</th>
                         <th>Nombre</th>
                         <th>Apellidos</th>
                         <th>Límite</th>
                         <th>Crédito Disponible</th>
-                        <th><i class="fa fa-check"></i></th>
+                        <th class="rounded-end"><i class="fa fa-check"></i></th>
                     </tr>
                 </thead>
                 <tbody>

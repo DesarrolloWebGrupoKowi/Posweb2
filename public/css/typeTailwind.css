@@ -1,0 +1,248 @@
+/* Cambiando los estilos de los scroll */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #797979 #f1f2f300;
+}
+
+*::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+*::-webkit-scrollbar:vertical {
+    width: 10px;
+}
+
+*::-webkit-scrollbar-button:increment,
+*::-webkit-scrollbar-button {
+    display: none;
+}
+
+*::-webkit-scrollbar:horizontal {
+    height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #797979;
+    border-radius: 20px;
+    border: 2px solid #f1f2f3;
+}
+
+*::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+
+body {
+    background-color: #f1f5f9;
+}
+
+/* Anchos generales para todas las paginas */
+.width-95 {
+    max-width: 95%;
+}
+
+.width-general {
+    max-width: 1440px;
+}
+
+/* Titulos */
+h2 {
+    color: #374151;
+    font-size: 24px;
+}
+
+/* Botones */
+.btn {
+    transition: all .3s ease;
+}
+
+.btn-check:focus+.btn,
+.btn:focus {
+    outline: 0;
+    box-shadow: none;
+}
+
+.btn-warning {
+    background: #1e293b;
+    color: #fff;
+    border: 1px solid #1e293b;
+}
+
+.btn-warning:hover {
+    background: #38465e;
+    color: #fff;
+    border: 1px solid #1e293b;
+}
+
+.btn-dark {
+    background: #1e293b;
+    color: #fff;
+    line-height: 1.8rem;
+    border: 1px solid #1e293b;
+}
+
+.btn-dark-outline {
+    display: inline-flex;
+    background: white;
+    border: 1px solid #1e293b;
+    color: #1e293b;
+    line-height: 1.8rem;
+}
+
+.btn-excel {
+    background: #059669;
+    color: white;
+    border-color: #059669;
+    transition: all .3s ease;
+}
+
+.btn-excel:hover {
+    color: white;
+    transform: scale(1.02);
+}
+
+.material-icons {
+    color: #1e293b;
+}
+
+.eliminar {
+    color: red;
+}
+
+.send {
+    color: #059669;
+}
+
+.editar {
+    color: orange;
+}
+
+button[disabled] span,
+button[disabled] i {
+    opacity: 0.4;
+}
+
+/* Tablas */
+.table-head {
+    background: #1e293b;
+    color: white;
+}
+
+.content-table {
+    overflow-x: auto;
+}
+
+.content-table tr {
+    line-height: 2.5rem;
+}
+
+.content-table th,
+.content-table td {
+    padding-left: 16px;
+    padding-right: 16px;
+    white-space: nowrap;
+    vertical-align: text-top;
+}
+
+.content-table td {
+    color: #4f5464;
+}
+
+tbody tr {
+    transition: all .1s ease;
+}
+
+tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.table-active {
+    background-color: #cbd5e1;
+}
+
+/* Paginacion */
+.pagination li {
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+}
+
+.pagination li .page-link {
+    border-radius: 0.25rem;
+    border: none;
+    min-width: 2.25rem;
+    text-align: center;
+    color: #4f5464;
+}
+
+.pagination li.active .page-link,
+.pagination li .page-link:hover {
+    background-color: #1e293b;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Modales */
+.fade {
+    margin-top: 3.7rem;
+    background-color: #f1f5f988;
+    backdrop-filter: blur(2px) brightness(0.73) contrast(215%);
+}
+
+.modal-dialog .modal-content {
+    border: 1px solid #1e293b;
+    margin-top: 2rem;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #1e293b;
+    color: white;
+    border: none;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.modal-footer {
+    border: none;
+    padding-top: 0;
+}
+
+.modal-body label {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* Tablas en modales*/
+.modal-body table {
+    width: 100%;
+}
+
+.modal-body thead {
+    padding: 0;
+    color: #1e293b;
+}
+
+.modal-body thead th {
+    padding: 0 8px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.modal-body {
+    overflow-x: auto;
+}
+
+.modal-body tr {
+    line-height: 2rem;
+}
+
+.modal-body th,
+.modal-body td {
+    padding-left: 16px;
+    white-space: nowrap;
+    vertical-align: text-top;
+}
+
+.modal-body td {
+    font-size: 14px;
+    color: #4f5464;
+}

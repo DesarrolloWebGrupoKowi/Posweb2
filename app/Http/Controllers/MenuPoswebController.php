@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\TipoMenu;
 use App\Models\Menu;
-use Illuminate\Support\Facades\DB;
-use App\Models\TipoUsuario;
 use App\Models\MenuTipoUsuario;
+use App\Models\TipoMenu;
+use App\Models\TipoUsuario;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class Condition
 {
@@ -16,34 +16,36 @@ class Condition
 
 class MenuPoswebController extends Controller
 {
-    public function CatMenuPosWeb(Request $request){
+    public function CatMenuPosWeb(Request $request)
+    {
         $tipoMenus = TipoMenu::where('Status', 0)
-                                ->get();
+            ->get();
 
-        $filtroMenu = $request->txtFiltroMenu; 
-                        
+        $filtroMenu = $request->txtFiltroMenu;
+
         $menusPosweb = DB::table('CatMenus as a')
-                            ->leftJoin('CatTipoMenu as b', 'b.IdTipoMenu', 'a.IdTipoMenu')
-                            ->select(
-                                'a.IdMenu as cmpIdMenu',
-                                'a.NomMenu as cmpNomMenu',
-                                'a.IdTipoMenu as cmpIdTipoMenu',
-                                'a.Link as cmpLink',
-                                'a.Icono as cmpIcono',
-                                'a.BgColor as cmpBgColor',
-                                'a.Status as cmpStatus',
-                                'b.IdTipoMenu as ctmIdTipoMenu',
-                                'b.NomTipoMenu as ctmNomTipoMenu',
-                                'b.Status as ctmStatus'
-                                )
-                            ->where('a.NomMenu', 'like', '%'.$filtroMenu.'%')
-                            ->paginate(15)
-                            ->withQueryString();
+            ->leftJoin('CatTipoMenu as b', 'b.IdTipoMenu', 'a.IdTipoMenu')
+            ->select(
+                'a.IdMenu as cmpIdMenu',
+                'a.NomMenu as cmpNomMenu',
+                'a.IdTipoMenu as cmpIdTipoMenu',
+                'a.Link as cmpLink',
+                'a.Icono as cmpIcono',
+                'a.BgColor as cmpBgColor',
+                'a.Status as cmpStatus',
+                'b.IdTipoMenu as ctmIdTipoMenu',
+                'b.NomTipoMenu as ctmNomTipoMenu',
+                'b.Status as ctmStatus'
+            )
+            ->where('a.NomMenu', 'like', '%' . $filtroMenu . '%')
+            ->paginate(10)
+            ->withQueryString();
         //return $menusPosweb;
-        return view('Menus.CatMenuPosweb', compact('tipoMenus','menusPosweb', 'filtroMenu'));
+        return view('Menus.CatMenuPosweb', compact('tipoMenus', 'menusPosweb', 'filtroMenu'));
     }
 
-    public function CrearMenuPosweb(Request $request){
+    public function CrearMenuPosweb(Request $request)
+    {
         $nomMenu = $request->get('NomMenu');
         $idTipoMenu = $request->get('IdTipoMenu');
         $link = $request->get('Link');
@@ -51,17 +53,18 @@ class MenuPoswebController extends Controller
         $bgColor = $request->get('BgColor');
 
         $MenuPosweb = new Menu();
-        $MenuPosweb -> NomMenu = $nomMenu;
-        $MenuPosweb -> IdTipoMenu = $idTipoMenu;
-        $MenuPosweb -> Link = $link;
-        $MenuPosweb -> Status = 0;
-        $MenuPosweb -> Icono = $icono;
-        $MenuPosweb -> BgColor = $bgColor;
+        $MenuPosweb->NomMenu = $nomMenu;
+        $MenuPosweb->IdTipoMenu = $idTipoMenu;
+        $MenuPosweb->Link = $link;
+        $MenuPosweb->Status = 0;
+        $MenuPosweb->Icono = $icono;
+        $MenuPosweb->BgColor = $bgColor;
         $MenuPosweb->save();
-        return redirect('CatMenuPosweb')->with('msjAdd','Menu Posweb Creado Correctamente!!');
+        return redirect('CatMenuPosweb')->with('msjAdd', 'Menu Posweb Creado Correctamente!!');
     }
 
-    public function EditarMenu(Request $request, $id){
+    public function EditarMenu(Request $request, $id)
+    {
 
         Menu::where('IdMenu', $id)
             ->update([
@@ -69,36 +72,37 @@ class MenuPoswebController extends Controller
                 'IdTipoMenu' => $request->get('IdTipoMenu'),
                 'Link' => $request->get('Link'),
                 'Icono' => $request->get('Icono'),
-                'BgColor' => $request->get('BgColor')
+                'BgColor' => $request->get('BgColor'),
             ]);
 
-            $menuPosweb = Menu::find($id);
-            
-            return back()->with('msjupdate', $menuPosweb->NomMenu.' Editado Correctamente!');
+        $menuPosweb = Menu::find($id);
+
+        return back()->with('msjupdate', $menuPosweb->NomMenu . ' Editado Correctamente!');
     }
 
-    public function OrdenarMenus(Request $request){
+    public function OrdenarMenus(Request $request)
+    {
         $tiposUsuario = TipoUsuario::where('Status', 0)
             ->get();
 
-        $idTipoUsuario = $request->idTipoUsuario;
+        $idTipoUsuario = $request->idTipoUsuario ? $request->idTipoUsuario : 0;
 
         $tipoMenus = DB::table('CatMenus as a')
-                    ->leftJoin('CatTipoMenu as b', 'b.IdTipoMenu', 'a.IdTipoMenu')
-                    ->leftJoin('DatMenuTipoUsuario as c', 'c.IdMenu', 'a.IdMenu')
-                    ->select('b.IdTipoMenu')
-                    ->where('c.IdTipoUsuario', $idTipoUsuario)
-                    ->distinct('b.IdTipoMenu')
-                    ->get();
+            ->leftJoin('CatTipoMenu as b', 'b.IdTipoMenu', 'a.IdTipoMenu')
+            ->leftJoin('DatMenuTipoUsuario as c', 'c.IdMenu', 'a.IdMenu')
+            ->select('b.IdTipoMenu')
+            ->where('c.IdTipoUsuario', $idTipoUsuario)
+            ->distinct('b.IdTipoMenu')
+            ->get();
 
-        /*Instanciar clase condition para hacer la validacion 
+        /*Instanciar clase condition para hacer la validacion
         cuando el Tipo de usuario no tiene Menus asignados*/
         $condition[] = new Condition;
-        $condition[0] -> IdTipoMenu = "0";
+        $condition[0]->IdTipoMenu = "0";
 
         //return $condition;
 
-        $tipoMenus = count($tipoMenus) == 0 ? $condition : $tipoMenus; 
+        $tipoMenus = count($tipoMenus) == 0 ? $condition : $tipoMenus;
 
         foreach ($tipoMenus as $key => $tipoMenuItem) {
             $tipoMenu[$key] = $tipoMenuItem->IdTipoMenu;
@@ -106,19 +110,18 @@ class MenuPoswebController extends Controller
 
         //return $tipoMenu;
 
-        $menus = TipoMenu::with(['Ordenar' => function ($query) use($idTipoUsuario) {
+        $menus = TipoMenu::with(['Ordenar' => function ($query) use ($idTipoUsuario) {
             $query->where('IdTipoUsuario', $idTipoUsuario)
                 ->orderBy('Posicion');
         }])
-            ->whereIn('IdTipoMenu', $tipoMenu)    
+            ->whereIn('IdTipoMenu', $tipoMenu)
             ->get();
-
-        //return $menus;
 
         return view('Menus.OrdenarMenus', compact('tiposUsuario', 'idTipoUsuario', 'menus'));
     }
 
-    public function EditarPosicionMenu(Request $request){
+    public function EditarPosicionMenu(Request $request)
+    {
         $idTipoUsuario = $request->idTipoUsuario;
         $posicion = $request->posicion;
 
@@ -126,7 +129,7 @@ class MenuPoswebController extends Controller
             MenuTipoUsuario::where('IdTipoUsuario', $idTipoUsuario)
                 ->where('IdMenu', $key)
                 ->update([
-                    'Posicion' => $posicionMenu
+                    'Posicion' => $posicionMenu,
                 ]);
         }
 

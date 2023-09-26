@@ -9,31 +9,32 @@
     <link rel="stylesheet" href="Icons/font-awesome.min.css">
     <title>Consultar Articulo</title>
 </head>
+
 <body>
     <div class="container">
         @if ($articulos->count() == 0)
-        <h6 style="text-align: center" class="card-header bg-danger text-white"><i
-                class="fa fa-exclamation-triangle"></i> No se Encontro el Articulo</h6>
+            <h6 style="text-align: center" class="card-header bg-danger text-white"><i
+                    class="fa fa-exclamation-triangle"></i> No se Encontro el Articulo</h6>
         @else
-        <div class="row d-flex justify-content-center">
-            @foreach ($articulos as $articulo)
-            <div class="col-6">
-                <h6 class="card-header bg-success text-white d-flex justify-content-center">
-                    {{ $articulo->NomArticulo }} | {{ $articulo->CodArticulo }} | {{$articulo->CodEtiqueta }}
-                </h6>
-                <table class="table table-striped table-responsive table-sm">
-                    <tbody>
-                        @foreach ($articulo->PrecioArticulo as $precioArticulo)
-                        <tr>
-                            <td>{{ $precioArticulo->NomListaPrecio }}</td>
-                            <th>$ {{ number_format($precioArticulo->PivotPrecio->PrecioArticulo, 2) }}</th>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="row d-flex justify-content-center">
+                @foreach ($articulos as $articulo)
+                    <div class="col-6" style="border-radius: 10px">
+                        <h6 class="card-header text-white d-flex justify-content-center" style="background: #334155">
+                            {{ $articulo->CodArticulo }} - {{ $articulo->NomArticulo }} - {{ $articulo->CodEtiqueta }}
+                        </h6>
+                        <table class="table table-striped table-responsive table-sm">
+                            <tbody>
+                                @foreach ($articulo->PrecioArticulo as $precioArticulo)
+                                    <tr>
+                                        <td>{{ $precioArticulo->NomListaPrecio }}</td>
+                                        <th>$ {{ number_format($precioArticulo->PivotPrecio->PrecioArticulo, 2) }}</th>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endforeach
             </div>
-            @endforeach
-        </div>
         @endif
     </div>
     <script src="bootstrap/js/bootstrap.bundle.min.js"></script>

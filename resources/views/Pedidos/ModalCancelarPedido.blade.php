@@ -1,6 +1,6 @@
 <div class="modal fade" id="ModalCancelar{{ $pedido->IdPedido}}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title" id="exampleModalToggleLabel2">¿Seguro Desea Cancelar el Pedido del Cliente?</h6>

@@ -1,37 +1,30 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Articulos Por Tipo de Merma')
-<style>
-    i {
-        cursor: pointer;
-    }
-</style>
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="d-flex justify-content-center mb-3">
-        <div class="col-auto">
-            <h2 class="card shadow p-1">Articulos por Tipo de Merma</h2>
-        </div>
-    </div>
-    <div class="container mb-3">
-        @include('Alertas.Alertas')
-    </div>
-    <div class="container mb-3">
-        <form id="formTipoMermaArticulo" action="/TiposMermaArticulo" method="GET">
-            <div class="row d-flex justify-content-center">
-                <div class="col-auto">
-                    <select class="form-select shadow" name="idTipoMerma" id="idTipoMerma">
-                        <option value="">Seleccione Tipo de Merma</option>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Articulos por Tipo de Merma'])
+            <form class="d-flex align-items-center justify-content-end" id="formTipoMermaArticulo" action="/TiposMermaArticulo"
+                method="GET">
+                <div class="form-group" style="min-width: 300px">
+                    <label class="fw-bold text-secondary">Tipo de merma</label>
+                    <select class="form-select" name="idTipoMerma" id="idTipoMerma">
+                        <option value="">Seleccione tipo de merma</option>
                         @foreach ($tiposMerma as $tipoMerma)
                             <option {!! $idTipoMerma == $tipoMerma->IdTipoMerma ? 'selected' : '' !!} value="{{ $tipoMerma->IdTipoMerma }}">
                                 {{ $tipoMerma->NomTipoMerma }}</option>
                         @endforeach
                     </select>
                 </div>
-            </div>
-        </form>
-    </div>
-    @if (!empty($idTipoMerma))
-        <div class="container mb-3">
-            <form action="/AgregarArticuloMerma/{{ $idTipoMerma }}" method="POST">
+            </form>
+        </div>
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
+        @if (!empty($idTipoMerma))
+            <form class="mb-2" action="/AgregarArticuloMerma/{{ $idTipoMerma }}" method="POST">
                 @csrf
                 <div class="row">
                     <div class="col-auto">
@@ -44,49 +37,49 @@
                         </datalist>
                     </div>
                     <div class="col-auto">
-                        <button class="btn card shadow">
+                        <button class="btn card">
                             <span class="material-icons">add_circle</span>
                         </button>
                     </div>
-                    <div class="col d-flex justify-content-end me-4">
-                        <h4>Articulos disponibles: ({{ $tiposMermaArticulo->count() }})</h4>
+                    <div class="col d-flex justify-content-end align-items-end">
+                        <h4 style="font-size: 18px">Articulos disponibles: ({{ $tiposMermaArticulo->count() }})</h4>
                     </div>
                 </div>
             </form>
-        </div>
-        <div style="height: 70vh;" class="container table-responsive">
-            <table class="table table-striped table-responsive shadow">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Tipo Merma</th>
-                        <th>Código</th>
-                        <th>Articulo</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody style="vertical-align: middle">
-                    @if ($tiposMermaArticulo->count() == 0)
+            <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+                <table>
+                    <thead class="table-head">
                         <tr>
-                            <td colspan="4">No hay articulos para este tipo de merma!</td>
+                            <th class="rounded-start">Tipo Merma</th>
+                            <th>Código</th>
+                            <th>Articulo</th>
+                            <th class="rounded-end">Acciones</th>
                         </tr>
-                    @else
-                        @foreach ($tiposMermaArticulo as $tipoMermaArticulo)
+                    </thead>
+                    <tbody style="vertical-align: middle">
+                        @if ($tiposMermaArticulo->count() == 0)
                             <tr>
-                                <td>{{ $tipoMermaArticulo->NomTipoMerma }}</td>
-                                <td>{{ $tipoMermaArticulo->CodArticulo }}</td>
-                                <td>{{ $tipoMermaArticulo->NomArticulo }}</td>
-                                <td>
-                                    <i style="color: red; font-size: 22px" class="fa fa-trash-o" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEliminarArticuloTipoMerma{{ $tipoMermaArticulo->CodArticulo }}"></i>
-                                </td>
-                                @include('TiposMerma.ModalEliminarArticuloTipoMerma')
+                                <td colspan="4">No hay articulos para este tipo de merma!</td>
                             </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
-    @endif
+                        @else
+                            @foreach ($tiposMermaArticulo as $tipoMermaArticulo)
+                                <tr>
+                                    <td>{{ $tipoMermaArticulo->NomTipoMerma }}</td>
+                                    <td>{{ $tipoMermaArticulo->CodArticulo }}</td>
+                                    <td>{{ $tipoMermaArticulo->NomArticulo }}</td>
+                                    <td>
+                                        <i style="color: red; font-size: 22px" class="fa fa-trash-o" data-bs-toggle="modal"
+                                            data-bs-target="#ModalEliminarArticuloTipoMerma{{ $tipoMermaArticulo->CodArticulo }}"></i>
+                                    </td>
+                                    @include('TiposMerma.ModalEliminarArticuloTipoMerma')
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
 
     <script>
         document.getElementById('idTipoMerma').addEventListener('change', (e) => {

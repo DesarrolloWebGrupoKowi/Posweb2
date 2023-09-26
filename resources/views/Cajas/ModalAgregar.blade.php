@@ -10,7 +10,8 @@
                 <form action="/CrearCaja" method="GET">
                     <div class="mb-3">
                         <label for="" class="form-label">Número de Caja</label>
-                        <input type="number" id="NumCaja" name="NumCaja" class="form-control" tabindex="1" required>
+                        <input type="number" id="NumCaja" name="NumCaja" class="form-control" tabindex="1" required
+                            placeholder="Escribe el numero de caja">
                     </div>
             </div>
             <div class="modal-footer">

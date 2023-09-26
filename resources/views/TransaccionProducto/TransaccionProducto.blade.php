@@ -1,18 +1,19 @@
-@extends('plantillaBase.masterblade')
+@extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Transacción de Producto')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container mb-3">
-        <div class="d-flex justify-content-center">
-            <h2 class="card shadow p-1">Transacción de Producto</h2>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Transacción de Producto'])
         </div>
-    </div>
-    <div class="container mb-3">
-        @include('Alertas.Alertas')
-    </div>
-    <div class="container">
+
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
         <div class="row d-flex justify-content-center">
             <div class="col-auto">
-                <div class="input-group mb-3 shadow">
+                <div class="input-group mb-3">
                     <span class="input-group-text">Origen</span>
                     <span class="input-group-text bg-white">{{ $nomTienda }}</span>
                 </div>
@@ -24,9 +25,10 @@
                         <div class="input-group mb-3">
                             <span class="input-group-text">Destino</span>
                             @if ($tiendas->count() == 0)
-                                <span class="input-group-text bg-danger text-white">No Hay Tiendas Destino Agregadas</span>
+                                <span class="input-group-text bg-danger text-white">No Hay Tiendas Destino
+                                    Agregadas</span>
                             @else
-                                <select class="form-select shadow" name="idTiendaDestino" id="idTiendaDestino">
+                                <select class="form-select" name="idTiendaDestino" id="idTiendaDestino">
                                     @foreach ($tiendas as $tienda)
                                         <option value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}</option>
                                     @endforeach
@@ -37,52 +39,56 @@
                 </form>
             </div>
         </div>
-    </div>
-    @if ($tiendas->count() > 0)
-        <div class="container">
-            <div class="row">
-                <div class="col-auto">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Código Articulo</span>
-                        <input class="form-control" id="codArticulo" name="codArticulo" type="text" placeholder="Escribe">
-                        <span id="nomArticulo" class="input-group-text bg-white">...</span>
+        @if ($tiendas->count() > 0)
+            <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="col-auto">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Código Articulo</span>
+                            <input class="form-control" id="codArticulo" name="codArticulo" type="text"
+                                placeholder="Escribe">
+                            <span id="nomArticulo" class="input-group-text bg-white">...</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <button id="btnAgregar" hidden class="btn btn-warning shadow">
+                            <i class="fa fa-check"></i> Agregar
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex justify-content-end me-3">
+                            <h4>Articulos: (<span id="countArticulos">0</span>)</h4>
+                        </div>
                     </div>
                 </div>
-                <div class="col-auto">
-                    <button id="btnAgregar" hidden class="btn btn-warning shadow">
-                        <i class="fa fa-check"></i> Agregar
-                    </button>
+                <table id="tblTransaccion">
+                    <thead class="table-head">
+                        <tr>
+                            <th class="rounded-start">Código</th>
+                            <th>Articulo</th>
+                            <th>Cantidad</th>
+                            <th class="rounded-end">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <input type="hidden" id="tiendaSeleccionada" name="tiendaSeleccionada">
+            <div class="container">
+                <div class="d-flex justify-content-end">
+                    <div class="col-auto">
+                        <button hidden type="button" id="btnTransaccionarProducto" class="btn btn-warning shadow">
+                            <i class="fa fa-save"></i> Transaccionar Producto
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-end me-3">
-                <h4>Articulos: (<span id="countArticulos">0</span>)</h4>
-            </div>
-            <table id="tblTransaccion" class="table table-responsive table-striped shadow">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Código</th>
-                        <th>Articulo</th>
-                        <th>Cantidad</th>
-                        <th>Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <input type="hidden" id="tiendaSeleccionada" name="tiendaSeleccionada">
-        <div class="container">
-            <div class="d-flex justify-content-center">
-                <div class="col-auto">
-                    <button hidden type="button" id="btnTransaccionarProducto" class="btn btn-warning shadow">
-                        <i class="fa fa-save"></i> Transaccionar Producto
-                    </button>
-                </div>
-            </div>
-        </div>
-        @include('TransaccionProducto.ModalConfirmarTransaccion')
-        @include('TransaccionProducto.ModalSinCantidadArticulos')
-        @include('TransaccionProducto.ModalArticuloRepetido')
-    @endif
+            @include('TransaccionProducto.ModalConfirmarTransaccion')
+            @include('TransaccionProducto.ModalSinCantidadArticulos')
+            @include('TransaccionProducto.ModalArticuloRepetido')
+        @endif
+    </div>
 
     <script>
         document.getElementById('codArticulo').addEventListener('input', function(e) {
@@ -92,10 +98,12 @@
                     if (respuesta == ' - ') {
                         document.querySelector('#nomArticulo').innerHTML = '<i class="fa fa-clock-o"></i>';
                         document.getElementById('btnAgregar').hidden = true;
-                    }if(respuesta == 1){
+                    }
+                    if (respuesta == 1) {
                         document.querySelector('#nomArticulo').innerHTML = 'Articulo Sin Inventario!';
                         document.getElementById('btnAgregar').hidden = true;
-                    } if(respuesta != 1 && respuesta != ' - ') {
+                    }
+                    if (respuesta != 1 && respuesta != ' - ') {
                         document.querySelector('#nomArticulo').innerHTML = respuesta;
                         document.getElementById('btnAgregar').hidden = false;
                     }
@@ -105,26 +113,27 @@
         document.getElementById('btnAgregar').addEventListener('click', (e) => {
             var contCodigosRepetidos = 0;
             $('#tblTransaccion tr:has(td)').map(function(i, v) {
-                    var $fila = $('td', this);
-                    $codArticulo = $fila.eq(0).text();
-                    
-                    document.getElementById('codArticulo').value == $codArticulo ? contCodigosRepetidos = contCodigosRepetidos + 1 : '';
+                var $fila = $('td', this);
+                $codArticulo = $fila.eq(0).text();
+
+                document.getElementById('codArticulo').value == $codArticulo ? contCodigosRepetidos =
+                    contCodigosRepetidos + 1 : '';
             });
 
-            if(contCodigosRepetidos > 0){
+            if (contCodigosRepetidos > 0) {
                 $('#ModalArticuloRpetido').modal('show');
-            }
-            else{
+            } else {
                 document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
-                '<td>' + document.getElementById('codArticulo').value + '</td>' +
-                '<td>' + document.querySelector('#nomArticulo').textContent + '</td>' +
-                '<td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>' +
-                '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
-                '</tr>';
+                    '<td>' + document.getElementById('codArticulo').value + '</td>' +
+                    '<td>' + document.querySelector('#nomArticulo').textContent + '</td>' +
+                    '<td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>' +
+                    '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
+                    '</tr>';
                 codArticulo.value = '';
                 document.querySelector('#nomArticulo').innerHTML = '...';
                 document.getElementById('btnAgregar').hidden = true;
-                document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion').rows
+                document.getElementById('countArticulos').textContent = document.getElementById('tblTransaccion')
+                    .rows
                     .length - 1;
                 if (document.getElementById('tblTransaccion').rows.length > 1) {
                     document.getElementById('btnTransaccionarProducto').hidden = false;
@@ -154,7 +163,7 @@
 
                 var cArticulo = document.getElementById('contenedorTransaccion').appendChild(document
                     .createElement('input'));
-                cArticulo.name = 'CodArticulo['+ $td.eq(0).text() +']';
+                cArticulo.name = 'CodArticulo[' + $td.eq(0).text() + ']';
                 cArticulo.setAttribute("hidden", "true");
                 cArticulo.value = $td.eq(2).find('input[type="number"]').val();
 
@@ -176,13 +185,13 @@
                 'show');
         })
 
-        document.getElementById('tiendaSeleccionada').value = document.getElementById('idTiendaDestino').options[document.getElementById('idTiendaDestino').selectedIndex].text;
+        document.getElementById('tiendaSeleccionada').value = document.getElementById('idTiendaDestino').options[document
+            .getElementById('idTiendaDestino').selectedIndex].text;
         document.getElementById('destino').textContent = document.getElementById('tiendaSeleccionada').value;
         document.getElementById('idTiendaDestino').addEventListener('change', (e) => {
-            document.getElementById('tiendaSeleccionada').value = document.getElementById('idTiendaDestino').options[document.getElementById('idTiendaDestino').selectedIndex].text;
+            document.getElementById('tiendaSeleccionada').value = document.getElementById('idTiendaDestino')
+                .options[document.getElementById('idTiendaDestino').selectedIndex].text;
             document.getElementById('destino').textContent = document.getElementById('tiendaSeleccionada').value;
         })
-
-        
     </script>
 @endsection

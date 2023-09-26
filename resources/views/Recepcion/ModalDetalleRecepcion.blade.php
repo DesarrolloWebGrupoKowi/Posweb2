@@ -8,8 +8,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-sm table-striped table-responsive">
-                    <thead class="table-dark">
+                <table>
+                    <thead>
                         <tr>
                             <th>Código</th>
                             <th>Articulo</th>
@@ -28,7 +28,8 @@
                                 <td>{{ $dRecepcion->CodArticulo }}</td>
                                 <td>{{ $dRecepcion->NomArticulo }}</td>
                                 <td>{{ number_format($dRecepcion->CantEnviada, 2) }}</td>
-                                <td style="color: {!! $dRecepcion->CantRecepcionada == 0 ? 'red; font-weight:bold;' : '' !!}">{{ number_format($dRecepcion->CantRecepcionada, 2) }}</td>
+                                <td style="color: {!! $dRecepcion->CantRecepcionada == 0 ? 'red; font-weight:bold;' : '' !!}">
+                                    {{ number_format($dRecepcion->CantRecepcionada, 2) }}</td>
                                 <th style="color: {!! $dRecepcion->IdStatusRecepcion != 2 ? 'red; font-weight:bold;' : '' !!}">{{ $dRecepcion->NomStatusRecepcion }}</th>
                             </tr>
                             @php

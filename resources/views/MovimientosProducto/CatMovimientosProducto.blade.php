@@ -1,42 +1,39 @@
-@extends('plantillaBase.masterblade')
-@section('title','Catálogo de Movimientos de Producto')
+@extends('PlantillaBase.masterbladeNewStyle')
+@section('title', 'Catálogo de Movimientos de Producto')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="d-flex justify-content-center">
-        <div class="col-auto">
-            <h2 class="card shadow p-1">
-                Catálogo de Movimientos de Producto
-            </h2>
-        </div>
-    </div>
-    <div class="container mb-3">
-        <div class="row d-flex justify-content-end">
-            <div class="col-auto">
-                <button class="btn card shadow" data-bs-toggle="modal" data-bs-target="#ModalAgregarMovimiento">
-                    <span class="material-icons">add_circle</span>
+    <div class="container-fluid pt-4 width-general">
+        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
+            @include('components.title', ['titulo' => 'Catálogo de Movimientos de Producto'])
+            <div>
+                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar movimiento"
+                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarMovimiento">
+                    <i class="fa fa-plus-circle pe-1"></i> Agregar movimiento
                 </button>
             </div>
         </div>
-    </div>
-    <div class="container">
-        @include('Alertas.Alertas')
-    </div>
-    <div class="container">
-        <table class="table table-striped table-responsive shadow">
-            <thead class="table-dark">
-                <tr>
-                    <th>Id</th>
-                    <th>Movimiento</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($movimientosProducto as $mProducto)
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <table>
+                <thead class="table-head">
                     <tr>
-                        <td>{{ $mProducto->IdMovimiento }}</td>
-                        <td>{{ $mProducto->NomMovimiento }}</td>
+                        <th class="rounded-start">Id</th>
+                        <th class="rounded-end">Movimiento</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach ($movimientosProducto as $mProducto)
+                        <tr>
+                            <td>{{ $mProducto->IdMovimiento }}</td>
+                            <td>{{ $mProducto->NomMovimiento }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
     @include('MovimientosProducto.ModalAgregarMovimiento')
 @endsection
