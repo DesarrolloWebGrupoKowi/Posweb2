@@ -15,7 +15,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="" class="form-label mb-0">Cantidad</label>
-                        <input type="number" name="cantidad" min="0" class="form-control"
+                        <input type="number" name="cantidad" min="0" step=".1" class="form-control"
                             placeholder="Cantidad">
                     </div>
                 </div>

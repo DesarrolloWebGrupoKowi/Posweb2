@@ -555,6 +555,9 @@ Route::group(['middleware' => 'auth'], function () {
     //CatTablas
     Route::get('/CatTablas', 'App\Http\Controllers\TablasUpdateController@CatTablas');
 
+    //AgregarTablas
+    Route::post('/AgregarTablas', 'App\Http\Controllers\TablasUpdateController@AgregarTablas');
+
     //AgregarTablasActualizablesTienda
     Route::get('/AgregarTablasActualizablesTienda/{idTienda}', 'App\Http\Controllers\TablasUpdateController@AgregarTablasActualizablesTienda');
 

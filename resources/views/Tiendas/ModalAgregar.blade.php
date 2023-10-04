@@ -260,10 +260,10 @@
                             <div>
                                 <a class="btn btn-default my-1 atrasBtn"><span
                                         class="material-icons">arrow_back</span></a>
-                                <button class="btn btn-warning my-2 Crear">
+                                <button class="btn btn-warning my-2 Crear" type="submit">
                                     <i class="fa fa-save"></i> Crear Tienda
                                 </button>
-                                <!--<a href="#" class="btn siguienteBtn">Finalizar</a>-->
+                                <a href="#" class="btn siguienteBtn">Finalizar</a>
                             </div>
                         </div>
                     </div>
