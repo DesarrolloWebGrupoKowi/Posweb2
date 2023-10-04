@@ -21,7 +21,7 @@
         <div class="row" style="padding: 20px;">
             <div class="card">
                 <div class="container-float" style="text-align: center">
-                    <h4 class="card-title">Ingrese Credenciales</h4>
+                    <h4 class="card-title">Ingrese Usuario</h4>
                     <p class="card-category">
                         {{ ucfirst(\Carbon\Carbon::now()->locale('es')->isoFormat('dddd D \d\e MMMM \d\e\l Y')) }}
                     </p>
