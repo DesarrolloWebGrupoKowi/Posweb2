@@ -42,12 +42,12 @@ class PreparadosController extends Controller
         $people = array(
             2 => array(
                 'name' => 'John',
-                'fav_color' => 'green'
+                'fav_color' => 'green',
             ),
             5 => array(
                 'name' => 'Samuel',
-                'fav_color' => 'blue'
-            )
+                'fav_color' => 'blue',
+            ),
         );
 
         $total = 0;
@@ -98,7 +98,7 @@ class PreparadosController extends Controller
     public function EditarListaPreciosPreparados($idPreparado, Request $request)
     {
         DatPreparados::where('IdPreparado', $idPreparado)->update([
-            'IDLISTAPRECIO' => $request->IdListaPrecio
+            'IDLISTAPRECIO' => $request->IdListaPrecio,
         ]);
         return back();
     }
@@ -129,7 +129,7 @@ class PreparadosController extends Controller
 
     public function AgregarArticulo($idPreparado, Request $request)
     {
-        $idListaPrecio =  DatPreparados::where('IdPreparado', $idPreparado)->value('IDLISTAPRECIO');
+        $idListaPrecio = DatPreparados::where('IdPreparado', $idPreparado)->value('IDLISTAPRECIO');
 
         $idArticulo = Articulo::where('CodArticulo', $request->codigo)->value('IdArticulo');
 
@@ -140,7 +140,7 @@ class PreparadosController extends Controller
         $preparado->IdArticulo = $idArticulo;
         $preparado->CantidadPaquete = $request->cantidad;
         $preparado->CantidadFormula = $cantidad ? $request->cantidad / $cantidad : null;
-        $preparado->IDLISTAPRECIO  = $idListaPrecio ? $idListaPrecio : 4;
+        $preparado->IDLISTAPRECIO = $idListaPrecio ? $idListaPrecio : 4;
         $preparado->save();
 
         return back();

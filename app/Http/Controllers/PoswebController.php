@@ -56,9 +56,15 @@ class PoswebController extends Controller
             ->where('NumNomina', $numNomina)
             ->first();
 
-        $frecuenteSocio = FrecuenteSocio::with('TipoCliente')
-            ->where('FolioViejo', $numNomina)
-            ->first();
+        exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
+
+        if ($codigo === 1) {
+            $frecuenteSocio = null;
+        } else {
+            $frecuenteSocio = FrecuenteSocio::with('TipoCliente')
+                ->where('FolioViejo', $numNomina)
+                ->first();
+        }
 
         if (!empty($cliente)) {
 
@@ -1199,10 +1205,10 @@ class PoswebController extends Controller
                     if (count($paquetesConPreparado) != 0) {
                         // Obtenemos la cantidad ya vendida
                         $paquetesConPreparado[0]->IdPreparado;
-                        $cantidadTotal =  DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                        $cantidadTotal = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
                             ->value('CantidadEnvio');
 
-                        $cantidadVendida =  DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                        $cantidadVendida = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
                             ->value('CantidadVendida');
 
                         if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) < 0) {
@@ -1749,7 +1755,7 @@ class PoswebController extends Controller
                     ->where('DatCortesTienda.StatusVenta', 0)
                     ->whereDate('FechaVenta', $fecha)
                     ->whereNull('DatCortesTienda.IdSolicitudFactura');
-            }
+            },
         ])
             ->where('IdTienda', $idTienda)
             ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
