@@ -52,7 +52,8 @@
                                                     class="{{ $preparado->IdPreparado == $idPreparado ? 'table-active' : '' }}">
                                                     <td>{{ $preparado->Nombre }}</td>
                                                     <td>{{ $preparado->Cantidad }}</td>
-                                                    <td>${{ $preparado->Total == 0 ? '0.00' : $preparado->Total }}</td>
+                                                    <td>${{ $preparado->Total == 0 ? '0.00' : number_format($preparado->Total, 2) }}
+                                                    </td>
                                                     <td class="text-center">
                                                         <form class="d-inline-block" action="/Preparados">
                                                             <input type="hidden" name="idPreparado"
