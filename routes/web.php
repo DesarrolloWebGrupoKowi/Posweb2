@@ -623,6 +623,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/CancelarTicket/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@CancelarTicket');
 
     //+============================================================================================================================================+//
+    //ReporteSolicitudCancelacion
+    Route::get('/ReporteSolicitudCancelacion', 'App\Http\Controllers\ReporteCancelacionTicketsController@SolicitudesCancelacion');
+
+    //+============================================================================================================================================+//
     //CorreosTienda
     Route::get('/CorreosTienda', 'App\Http\Controllers\CorreosTiendaController@CorreosTienda');
 
