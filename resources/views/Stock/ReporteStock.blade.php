@@ -9,7 +9,7 @@
                 <div class="d-flex align-items-center justify-content-end">
                     <div class="input-group" style="min-width: 300px">
                         <input type="text" class="form-control" name="codArticulo" id="codArticulo" placeholder="Buscar"
-                            value="{{ $codArticulo }}" required>
+                            value="{{ $codArticulo }}" autofocus>
                         <div class="input-group-append">
                             <button class="input-group-text">
                                 <span class="material-icons">search</span>

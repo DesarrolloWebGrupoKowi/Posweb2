@@ -4,7 +4,7 @@
 @section('contenido')
     <div class="container-fluid pt-4 width-general">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Transacción de Producto'])
+            @include('components.title', ['titulo' => 'Transacción de Producto aqui'])
         </div>
 
         <div>

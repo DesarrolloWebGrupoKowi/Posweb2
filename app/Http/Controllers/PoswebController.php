@@ -2702,7 +2702,7 @@ class PoswebController extends Controller
                     'IdDatVentaTmp' => $idDatVentaTmp,
                     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
                     'IdArticulo' => $articulo->IdArticulo,
-                    'CantArticulo' => $articuloPaquete->CantArticulo,
+                    'CantArticulo' => number_format($articuloPaquete->CantArticulo, 2),
                     'PrecioLista' => number_format($articuloPaquete->PrecioArticulo, 2),
                     'PrecioVenta' => number_format($articuloPaquete->PrecioArticulo, 2),
                     'IdListaPrecio' => empty($numNomina) ? $articuloPaquete->IdListaPrecio : 4,

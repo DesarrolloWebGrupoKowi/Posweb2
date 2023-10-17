@@ -9,7 +9,7 @@
                 <div class="row ms-3">
                     <div class="col-auto">
                         <input class="form-control" list="articulos" name="codArticulo" id="codArticulo"
-                            placeholder="Nombre del producto" autocomplete="off" required>
+                            placeholder="Nombre del producto" autocomplete="off" required autofocus>
                         <datalist id="articulos">
                             @foreach ($articulos as $articulo)
                                 <option value="{{ $articulo->CodArticulo }}">
@@ -19,7 +19,7 @@
                         </datalist>
                     </div>
                     <div class="col-auto">
-                        <input class="form-control" type="number" name="cantArticulo" placeholder="Cantidad" step="any"
+                        <input class="form-control" type="number" name="cantArticulo" placeholder="Cantidad" step="any" min="0.01"
                             required>
                     </div>
                     <div class="col-auto">

@@ -10,13 +10,15 @@ use App\Models\Tienda;
 use App\Models\TransaccionTienda;
 use App\Models\InventarioTienda;
 use App\Models\CapRecepcion;
+use App\Models\DatCorteInvTmp;
 use App\Models\DatRecepcion;
 use App\Models\MovimientoProducto;
 use App\Models\HistorialMovimientoProducto;
 
 class TransaccionProductoController extends Controller
 {
-    public function TransaccionProducto(Request $request){
+    public function TransaccionProducto(Request $request)
+    {
         try {
             DB::beginTransaction();
 
@@ -31,7 +33,6 @@ class TransaccionProductoController extends Controller
             $tiendas = Tienda::where('Status', 0)
                 ->whereIn('IdTienda', $destinosTienda)
                 ->get();
-
         } catch (\Throwable $th) {
             DB::rollback();
             return 'Error Controlado: ' . $th->getMessage();
@@ -41,7 +42,8 @@ class TransaccionProductoController extends Controller
         return view('TransaccionProducto.TransaccionProducto', compact('nomTienda', 'tiendas'));
     }
 
-    public function BuscarArticuloTransaccion(Request $request){
+    public function BuscarArticuloTransaccion(Request $request)
+    {
         $codArticulo = $request->codArticulo;
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
@@ -60,20 +62,21 @@ class TransaccionProductoController extends Controller
             ->where('a.Status', 0)
             ->value('b.StockArticulo');
 
-        if(empty($nomArticulo)){
+        if (empty($nomArticulo)) {
             return ' - ';
         }
-        if($stockArticulo <= 0){
+        if ($stockArticulo <= 0) {
             return 1;
         }
 
         return $nomArticulo . ' - ' . $stockArticulo;
     }
 
-    public function GuardarTransaccion(Request $request){
+    public function GuardarTransaccion(Request $request)
+    {
         $idTiendaDestino = $request->idTiendaDestino;
         $codsArticulo = $request->CodArticulo;
-        
+
         try {
             $almacen = Tienda::where('IdTienda', $idTiendaDestino)
                 ->value('Almacen');
@@ -86,7 +89,7 @@ class TransaccionProductoController extends Controller
 
             $nomOrigenTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->value('NomTienda');
-        
+
             DB::beginTransaction();
             DB::connection('server')->beginTransaction();
 
@@ -118,20 +121,36 @@ class TransaccionProductoController extends Controller
                 ]);
 
                 $stockArticulo = InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('CodArticulo', ''.$keyCodArticulo.'')
+                    ->where('CodArticulo', '' . $keyCodArticulo . '')
                     ->value('StockArticulo');
 
-                if($stockArticulo < $cantArticulo){
+                if ($stockArticulo < $cantArticulo) {
                     DB::rollback();
                     DB::connection('server')->rollback();
                     return back()->with('msjdelete', 'No Puede Enviar Más Cantidad del Stock Disponible!');
                 }
 
                 InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('CodArticulo', ''.$keyCodArticulo.'')
+                    ->where('CodArticulo', '' . $keyCodArticulo . '')
                     ->update([
                         'StockArticulo' => $stockArticulo - $cantArticulo
                     ]);
+
+                $batch = DatCorteInvTmp::select(DB::raw('Max(CAST(Batch AS int)) as batch'))
+                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->value('batch');
+
+
+                DatCorteInvTmp::insert([
+                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                    'IdCaja' => 1,
+                    'Codigo' => $keyCodArticulo,
+                    'Cantidad' => -$cantArticulo,
+                    'Fecha_Creacion' => date('d-m-Y H:i:s'),
+                    'Batch' => $batch,
+                    'StatusProcesado' => 0,
+                    'IdMovimiento' => 2
+                ]);
             }
 
             try {
@@ -139,16 +158,14 @@ class TransaccionProductoController extends Controller
                 $asunto = 'Se Ha Realizado Una Nueva Transferencia de Producto';
                 $mensaje = 'Envia: ' . $nomOrigenTienda . '. Recibe: ' . $nomDestinoTienda . '. Id de Recepción: ' . $capRecepcion->IdCapRecepcion;
 
-                $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; ". $correoDestinoTienda ."', '".$asunto."', '".$mensaje."'";
+                $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; " . $correoDestinoTienda . "', '" . $asunto . "', '" . $mensaje . "'";
                 DB::statement($enviarCorreo);
             } catch (\Throwable $th) {
-                
             }
-                
+
             DB::commit();
             DB::connection('server')->commit();
             return back()->with('msjAdd', 'Transferencia Exitosa!');
-
         } catch (\Throwable $th) {
             DB::rollback();
             DB::connection('server')->rollback();

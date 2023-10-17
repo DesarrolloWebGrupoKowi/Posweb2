@@ -27,7 +27,10 @@ class ListaCodEtiquetaController extends Controller
                 ->orderBy('IdListaPrecio');
         }])
             ->where('Status', 0)
-            ->where('NomArticulo', 'like', '%' . $txtFiltro . '%')
+            ->where(function ($query) use ($txtFiltro) {
+                $query->where('NomArticulo', 'like', '%' . $txtFiltro . '%');
+                $query->orWhere('CodArticulo', 'like', '%' . $txtFiltro . '%');
+            })
             ->orderBy('CodArticulo')
             ->paginate(10);
 
