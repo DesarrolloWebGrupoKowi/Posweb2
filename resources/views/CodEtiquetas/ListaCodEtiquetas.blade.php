@@ -22,7 +22,7 @@
         <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/ListaCodEtiquetas" method="GET">
             <div class="input-group" style="max-width: 300px">
                 <input type="text" class="form-control" name="txtFiltro" placeholder="Nombre del Articulo"
-                    value="{{ $txtFiltro }}" required>
+                    value="{{ $txtFiltro }}" required autofocus>
                 <div class="input-group-append">
                     <button class="input-group-text"><span class="material-icons">search</span></button>
                 </div>

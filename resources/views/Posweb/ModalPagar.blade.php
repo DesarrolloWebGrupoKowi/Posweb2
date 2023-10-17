@@ -13,12 +13,11 @@
                         <h2>${{ $totalPreventa }}</h2>
                     </div>
                 </div>
-                <div class="content-table content-table-full mb-4"
-                    style="display: {!! $banderaMultiPago > 0 ? 'block' : 'none' !!};">
+                <div class="content-table content-table-full mb-4" style="display: {!! $banderaMultiPago > 0 ? 'block' : 'none' !!};">
                     <table>
                         <thead class="table-head text-white">
                             <tr>
-                                <th  class="rounded-start">Tipo Pago</th>
+                                <th class="rounded-start">Tipo Pago</th>
                                 <th>Pagado</th>
                                 <th class="rounded-end">Por Pagar</th>
                             </tr>
@@ -48,7 +47,9 @@
                                     @foreach ($tipoPago->TiposPago as $tPago)
                                         <option {!! $tPago->IdTipoPago == 7 && $monederoEmpleado == 0 ? 'disabled' : '' !!} {!! $tPago->IdTipoPago == 7 && empty($cliente->NumNomina) && empty($frecuenteSocio) ? 'disabled' : '' !!} {!! $tPago->IdTipoPago == 2 && empty($cliente->NumNomina) ? 'disabled' : '' !!}
                                             {!! $tPago->IdTipoPago == 2 && $creditoDisponible == 0 ? 'disabled' : '' !!} {!! $tPago->IdTipoPago == 3 && !empty($cliente->NumNomina) ? 'disabled' : '' !!}
-                                            value="{{ $tPago->IdTipoPago }}">{{ $tPago->NomTipoPago }}</option>
+                                            {{ gettype(array_search($tPago->NomTipoPago, array_column(json_decode(json_encode($datTipoPago), true), 'NomTipoPago'))) == 'integer' ? 'disabled' : '' }}
+                                            value="{{ $tPago->IdTipoPago }}">
+                                            {{ $tPago->NomTipoPago }}</option>
                                     @endforeach
                                 @endforeach
                             @endif
@@ -77,7 +78,7 @@
                             <input {!! $tiposPago->count() == 0 ? 'disabled' : '' !!} {!! $preventa->count() == 0 ? 'disabled' : '' !!} type="number" step="any"
                                 class="form-control" name="txtPago" id="txtPago" placeholder="$" autocomplete="off"
                                 required oninvalid="this.setCustomValidity('Ingrese Monto a Pagar')"
-                                oninput="this.setCustomValidity('')">
+                                oninput="this.setCustomValidity('')" min="0">
                         </div>
                     </div>
                     <input hidden id="hacerSubmit" type="submit" />

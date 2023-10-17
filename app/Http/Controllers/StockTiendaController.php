@@ -14,7 +14,8 @@ use App\Models\CorreoTienda;
 
 class StockTiendaController extends Controller
 {
-    public function ReporteStock(Request $request){
+    public function ReporteStock(Request $request)
+    {
         $codArticulo = $request->codArticulo;
         $radioBuscar = $request->radioBuscar;
 
@@ -26,12 +27,17 @@ class StockTiendaController extends Controller
         $stocks = DB::table('DatInventario as a')
             ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
             ->where('a.IdTienda', $idTienda)
-            ->where('a.CodArticulo', 'like', '%'.$codArticulo.'%')
+            ->where(function ($query) use (
+                $codArticulo
+            ) {
+                $query->where('a.CodArticulo', 'like', '%' . $codArticulo . '%');
+                $query->orWhere('b.NomArticulo', 'like', '%' . $codArticulo . '%');
+            })
             ->orderBy('a.CodArticulo')
             ->get();
 
         $totalStock = InventarioTienda::where('IdTienda', $idTienda)
-            ->where('CodArticulo', 'like', '%'.$codArticulo.'%')
+            ->where('CodArticulo', 'like', '%' . $codArticulo . '%')
             ->sum('StockArticulo');
 
         $articulosBajoInventario = DB::table('DatInventario as a')
@@ -41,7 +47,7 @@ class StockTiendaController extends Controller
             ->where('a.StockArticulo', '<=', 5)
             ->get();
 
-        /*//Enviar Correo alerta bajo stock no usada por el momento 
+        /*//Enviar Correo alerta bajo stock no usada por el momento
         if($articulosBajoInventario->count() > 0){
             try {
                 $correoTienda = CorreoTienda::where('IdTienda', $idTienda)
@@ -64,11 +70,11 @@ class StockTiendaController extends Controller
 
                 Mail::to($correos)
                     ->send(new BajoStockMail($subject, $articulosBajoInventario));
-                    
+
             } catch (\Throwable $th) {
             }
         }*/
-            
+
         //return $articulosBajoInventario;
 
         return view('Stock.ReporteStock', compact('tienda', 'stocks', 'codArticulo', 'totalStock'));
