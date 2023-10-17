@@ -49,7 +49,7 @@ class CancelacionTicketsController extends Controller
             ->whereNull('IdUsuarioAprobacion')
             ->get();
 
-        //return $solicitudesCancelacion;
+//        return $solicitudesCancelacion;
 
         return view('CancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion'));
     }
@@ -57,6 +57,7 @@ class CancelacionTicketsController extends Controller
     public function CancelarTicket(Request $request, $idEncabezado)
     {
         try {
+           
             DB::beginTransaction();
 
             $motivoCancelacion = $request->motivoCancelacion;

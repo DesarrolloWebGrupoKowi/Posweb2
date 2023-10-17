@@ -43,7 +43,6 @@ class TablasUpdateController extends Controller
     public function CatTablas(Request $request)
     {
         $tablas = Tabla::all();
-
         return view('TablasUpdate.Tablas', compact('tablas'));
     }
 
