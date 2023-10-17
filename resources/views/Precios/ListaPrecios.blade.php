@@ -9,7 +9,7 @@
                 <form class="d-flex align-items-center justify-content-end gap-4" action="/DetallePrecios" method="get">
                     <div class="input-group" style="max-width: 300px">
                         <input class="form-control" type="text" name="txtFiltro" id="txtFiltro"
-                            placeholder="Escribre el nombre de la ciudad" value="{{ $txtFiltro }}">
+                            placeholder="Escribre el nombre de la ciudad" value="{{ $txtFiltro }}" autofocus>
                         <div class="input-group-append">
                             <button class="input-group-text"><span class="material-icons">search</span></button>
                         </div>

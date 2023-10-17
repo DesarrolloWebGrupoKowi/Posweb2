@@ -24,7 +24,7 @@
                     <div class="mb-3">
                         <label for="" class="form-label mb-0">Cantidad</label>
                         <input type="number" name="cantidad" min="0" class="form-control"
-                            placeholder="Cantidad">
+                            placeholder="Cantidad" step=".01">
                     </div>
                     {{-- <div class="mb-3">
                         <label for="" class="form-label mb-0">Lista de precios</label>

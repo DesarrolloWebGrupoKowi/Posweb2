@@ -23,7 +23,8 @@
                         <th>Iva</th>
                         <th>Detalle</th>
                         <th>Solicitud Factura</th>
-                        <th class="rounded-end">Status Venta</th>
+                        <th>Status Venta</th>
+                        <th class="rounded-end">En linea</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,6 +59,13 @@
                             <td style="color: red;">
                                 @if ($ticket->StatusVenta == 1)
                                     <i style="font-size: 20px" class="fa fa-ban"></i>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($ticket->Subir == 1)
+                                    <i style="color: green; font-size: 20px" class="fa fa-check-circle-o"></i>
+                                @else
+                                    <i style="color: red; font-size: 20px" class="fa fa-times-circle-o"></i>
                                 @endif
                             </td>
                         </tr>

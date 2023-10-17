@@ -91,7 +91,9 @@
         </div>
     </nav>
     <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
-    @yield('contenido')
+    <div class="mb-4">
+        @yield('contenido')
+    </div>
 
     <script src="{{ asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>

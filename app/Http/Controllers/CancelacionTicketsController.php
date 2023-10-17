@@ -110,7 +110,7 @@ class CancelacionTicketsController extends Controller
             Mail::to($correos)
                 ->send(new CancelacionTicketMail($solicitudCancelacion));
 
-            return 'menito';
+            //return 'menito';
 
             DatEncabezado::where('IdEncabezado', $idEncabezado)
                 ->update([
