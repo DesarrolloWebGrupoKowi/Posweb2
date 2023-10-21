@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Mail\CancelacionTicketMail;
 use App\Models\Articulo;
+use App\Models\Caja;
 use App\Models\CorteTienda;
 use App\Models\CreditoEmpleado;
+use App\Models\DatCaja;
 use App\Models\DatDetalle;
 use App\Models\DatEncabezado;
 use App\Models\HistorialMovimientoProducto;
@@ -217,58 +219,64 @@ class CancelacionTicketsController extends Controller
 
     public function SolicitarCancelacion($idEncabezado, Request $request)
     {
-        try {
-            DB::connection('server')->getPDO(); // revisar conexion al server ?
+        // try {
+        //     DB::connection('server')->getPDO(); // revisar conexion al server ?
 
+        //     DB::beginTransaction();
+        //     DB::connection('server')->beginTransaction();
+
+        //     SolicitudCancelacionTicket::insert([
+        //         'FechaSolicitud' => date('d-m-Y H:i:s'),
+        //         'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+        //         'IdEncabezado' => $idEncabezado,
+        //         'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+        //         'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
+        //         'Status' => 0,
+        //     ]);
+
+        //     DB::connection('server')->table('SolicitudCancelacionTicket')
+        //         ->insert([
+        //             'FechaSolicitud' => date('d-m-Y H:i:s'),
+        //             'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+        //             'IdEncabezado' => $idEncabezado,
+        //             'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+        //             'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
+        //             'Status' => 0,
+        //         ]);
+
+        // } catch (\Throwable $th) {
+        //     DB::rollback();
+        //     DB::connection('server')->rollback();
+
+
+
+        //     DB::commit();
+        //     return redirect('SolicitudCancelacionTicket')->with('msjAdd', 'Solicitud de cancelación de ticket, guardada!');
+        // }
+
+        $idCaja = DatCaja::where('Activa', 0)
+            ->where('Status', 0)
+            ->value('IdCaja');
+
+        try {
             DB::beginTransaction();
-            DB::connection('server')->beginTransaction();
 
             SolicitudCancelacionTicket::insert([
                 'FechaSolicitud' => date('d-m-Y H:i:s'),
                 'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                'IdCaja' => $idCaja,
                 'IdEncabezado' => $idEncabezado,
                 'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
                 'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
                 'Status' => 0,
+                'subir' => 0,
             ]);
-
-            DB::connection('server')->table('SolicitudCancelacionTicket')
-                ->insert([
-                    'FechaSolicitud' => date('d-m-Y H:i:s'),
-                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
-                    'IdEncabezado' => $idEncabezado,
-                    'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
-                    'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
-                    'Status' => 0,
-                ]);
-
         } catch (\Throwable $th) {
             DB::rollback();
-            DB::connection('server')->rollback();
-
-            try {
-                DB::beginTransaction();
-
-                SolicitudCancelacionTicket::insert([
-                    'FechaSolicitud' => date('d-m-Y H:i:s'),
-                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
-                    'IdEncabezado' => $idEncabezado,
-                    'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
-                    'MotivoCancelacion' => mb_strtoupper($request->motivoCancelacion, 'UTF-8'),
-                    'Status' => 0,
-                ]);
-
-            } catch (\Throwable $th) {
-                DB::rollback();
-                return back()->with('msjdelete', 'Error: ' . $th->getMessage());
-            }
-
-            DB::commit();
-            return redirect('SolicitudCancelacionTicket')->with('msjAdd', 'Solicitud de cancelación de ticket, guardada!');
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         DB::commit();
-        DB::connection('server')->commit();
 
         return back()->with('msjAdd', 'La solicitud de cancelación de tickete, se realizó correctamente');
     }
