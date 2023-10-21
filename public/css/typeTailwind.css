@@ -159,6 +159,13 @@ tbody tr:hover {
     background-color: #cbd5e1;
 }
 
+.puntitos {
+    max-width: 350px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 /* Paginacion */
 .pagination li {
     margin-left: 0.25rem;

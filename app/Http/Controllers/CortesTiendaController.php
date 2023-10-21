@@ -86,7 +86,8 @@ class CortesTiendaController extends Controller
                             ->where('DatCortesTienda.StatusVenta', 0)
                             ->whereDate('FechaVenta', $fecha1)
                             ->whereNull('DatCortesTienda.IdSolicitudFactura');
-                    }])
+                    }
+                ])
                     ->where('IdTienda', $idTienda)
                     ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
                     ->distinct('Bill_To')
@@ -293,7 +294,8 @@ class CortesTiendaController extends Controller
                     'Factura' => function ($query) use ($idCaja) {
                         $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
                             ->where('DatCortesTienda.IdDatCaja', $idCaja);
-                    }])
+                    }
+                ])
                     ->where('IdTienda', $idTienda)
                     ->whereDate('FechaSolicitud', $fecha1)
                     ->get();
@@ -302,10 +304,30 @@ class CortesTiendaController extends Controller
             $numCaja = DatCaja::where('IdDatCajas', $idCaja)
                 ->value('IdCaja');
 
-            return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'cajasTienda',
-                'idReporte', 'opcionesReporte', 'cortesTienda', 'facturas', 'totalMonederoQuincenal', 'totalMonederoSemanal',
-                'creditoQuincenal', 'creditoSemanal', 'totalTarjetaDebito', 'totalTarjetaCredito', 'totalTransferencia', 'totalFactura',
-                'totalEfectivo', 'nomTienda', 'idCaja', 'numCaja'));
+
+            return view('CortesTienda.VerCortesTienda', compact(
+                'tiendas',
+                'idTienda',
+                'fecha1',
+                'fecha2',
+                'cajasTienda',
+                'idReporte',
+                'opcionesReporte',
+                'cortesTienda',
+                'facturas',
+                'totalMonederoQuincenal',
+                'totalMonederoSemanal',
+                'creditoQuincenal',
+                'creditoSemanal',
+                'totalTarjetaDebito',
+                'totalTarjetaCredito',
+                'totalTransferencia',
+                'totalFactura',
+                'totalEfectivo',
+                'nomTienda',
+                'idCaja',
+                'numCaja'
+            ));
         }
         //Concentrado de ventas por rango de fechas
         if ($idReporte == 2) {
@@ -384,8 +406,22 @@ class CortesTiendaController extends Controller
             $numCaja = DatCaja::where('IdDatCajas', $idCaja)
                 ->value('IdCaja');
 
-            return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte',
-                'opcionesReporte', 'concentrado', 'totalPeso', 'totalImporte', 'totalIva', 'nomTienda', 'cajasTienda', 'idCaja', 'numCaja'));
+            return view('CortesTienda.VerCortesTienda', compact(
+                'tiendas',
+                'idTienda',
+                'fecha1',
+                'fecha2',
+                'idReporte',
+                'opcionesReporte',
+                'concentrado',
+                'totalPeso',
+                'totalImporte',
+                'totalIva',
+                'nomTienda',
+                'cajasTienda',
+                'idCaja',
+                'numCaja'
+            ));
         }
         //Venta por ticket diario
         if ($idReporte == 3) {
@@ -417,7 +453,6 @@ class CortesTiendaController extends Controller
                         ->where('IdDatCaja', $caja->IdDatCajas)
                         ->sum('Iva');
                 }
-
             } else {
                 $tickets = DatEncabezado::with(['detalle' => function ($detalle) {
                     $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
@@ -448,8 +483,21 @@ class CortesTiendaController extends Controller
 
             //return $tickets;
 
-            return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte',
-                'tickets', 'total', 'totalIva', 'nomTienda', 'cajasTienda', 'idCaja', 'numCaja'));
+            return view('CortesTienda.VerCortesTienda', compact(
+                'tiendas',
+                'idTienda',
+                'fecha1',
+                'fecha2',
+                'idReporte',
+                'opcionesReporte',
+                'tickets',
+                'total',
+                'totalIva',
+                'nomTienda',
+                'cajasTienda',
+                'idCaja',
+                'numCaja'
+            ));
         }
         //Tickets cancelados por rango de fechas
         if ($idReporte == 4) {
@@ -474,7 +522,6 @@ class CortesTiendaController extends Controller
                     ->whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "' ")
                     ->where('StatusVenta', 1)
                     ->sum('Iva');
-
             } else {
                 $ticketsCancelados = DatEncabezado::with(['detalle' => function ($detalle) {
                     $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
@@ -499,15 +546,27 @@ class CortesTiendaController extends Controller
                     ->where('StatusVenta', 1)
                     ->where('IdDatCaja', $idCaja)
                     ->sum('Iva');
-
             }
             //return $ticketsCancelados;
 
             $numCaja = DatCaja::where('IdDatCajas', $idCaja)
                 ->value('IdCaja');
 
-            return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte',
-                'ticketsCancelados', 'total', 'totalIva', 'nomTienda', 'cajasTienda', 'idCaja', 'numCaja'));
+            return view('CortesTienda.VerCortesTienda', compact(
+                'tiendas',
+                'idTienda',
+                'fecha1',
+                'fecha2',
+                'idReporte',
+                'opcionesReporte',
+                'ticketsCancelados',
+                'total',
+                'totalIva',
+                'nomTienda',
+                'cajasTienda',
+                'idCaja',
+                'numCaja'
+            ));
         }
 
         return view('CortesTienda.VerCortesTienda', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'idReporte', 'opcionesReporte', 'cajasTienda', 'idCaja'));
@@ -680,13 +739,14 @@ class CortesTiendaController extends Controller
                 ->whereIn('Bill_To', $billsTo)
                 ->get();
 
-            //return $cortesTienda;
+            // return $cortesTienda;
 
             $facturas = SolicitudFactura::with([
                 'Factura' => function ($query) use ($idDatCaja) {
                     $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
                         ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
-                }])
+                }
+            ])
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaSolicitud', $fecha)
                 ->get();
