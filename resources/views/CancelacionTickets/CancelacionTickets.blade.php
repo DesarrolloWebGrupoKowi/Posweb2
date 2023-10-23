@@ -60,7 +60,7 @@
                                             data-bs-target="#ModalDetalleTicket{{ $solicitud->IdEncabezado }}"></i>
                                         @include('CancelacionTickets.ModalDetalleTicket')
                                     </td>
-                                    <td>{{ $solicitud->MotivoCancelacion }}</td>
+                                    <td class="puntitos">{{ $solicitud->MotivoCancelacion }}</td>
                                     <td>
                                         <i style="font-size: 22px; color:rgb(18,167,18); cursor: pointer;"
                                             class="fa fa-check-square-o" data-bs-toggle="modal"

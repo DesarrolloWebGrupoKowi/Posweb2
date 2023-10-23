@@ -271,6 +271,7 @@ class CancelacionTicketsController extends Controller
                     'SolicitudAprobada' => 1,
                     'FechaAprobacion' => date('d-m-Y H:i:s'),
                     'IdUsuarioAprobacion' => Auth::user()->IdUsuario,
+                    'descargar' => 0,
                 ]);
 
             // enviar correo de aprobacion de solicitud de cancelacion de ticket

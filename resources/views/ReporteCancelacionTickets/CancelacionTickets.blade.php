@@ -17,7 +17,6 @@
 
         </div>
         <div class="content-table content-table-full card p-4" style="border-radius: 20px">
-            <p class="d-none">{{ $sum = 0 }}</p>
             <table>
                 <thead class="table-head">
                     <tr>
@@ -27,6 +26,7 @@
                         <th>Ticket</th>
                         <th>Importe</th>
                         <th>Detalle</th>
+                        <th>Status</th>
                         <th class="rounded-end">Motivo</th>
                     </tr>
                 </thead>
@@ -44,7 +44,7 @@
                                 <tr>
                                     <td>{{ $solicitud->Tienda->NomTienda }}</td>
                                     <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
-                                    <th colspan="6">
+                                    <th colspan="7">
                                         No ha subido la venta <i class="fa fa-exclamation-circle"></i>
                                     </th>
                                 </tr>
@@ -61,8 +61,20 @@
                                             data-bs-target="#ModalDetalleTicket{{ $solicitud->IdEncabezado }}"></i>
                                         @include('CancelacionTickets.ModalDetalleTicket')
                                     </td>
-                                    <td>{{ $solicitud->MotivoCancelacion }}</td>
-                                    <p class="d-none">{{ $sum += $solicitud->Encabezado->ImporteVenta }}</p>
+                                    <td>
+                                        @if ($solicitud->SolicitudAprobada == '0')
+                                            <i style="font-size: 22px; color:rgb(18,167,18); cursor: pointer;"
+                                                class="fa fa-check-square-o"></i> Aprovada
+                                        @elseif ($solicitud->SolicitudAprobada == 1)
+                                            <i style="font-size: 22px; color:rgb(255, 81, 0);"
+                                                class="fa fa-times-circle-o"></i>
+                                            Rechazada
+                                        @else
+                                            <i style="font-size: 22px; color:rgb(255, 127, 63); cursor: pointer;"
+                                                class="fa fa-refresh" aria-hidden="true"></i> Pendiente
+                                        @endif
+                                    </td>
+                                    <td class="puntitos">{{ $solicitud->MotivoCancelacion }}</td>
                                 </tr>
                             @endif
                         @endforeach
@@ -74,9 +86,7 @@
                         <td></td>
                         <th></th>
                         <th></th>
-                        @if ($sum)
-                            <th>${{ number_format($sum, 2) }}</th>
-                        @endif
+                        <th>${{ number_format($total, 2) }}</th>
                         <th></th>
                     </tr>
                 </tfoot>
