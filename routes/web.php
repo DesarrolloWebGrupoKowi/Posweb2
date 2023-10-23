@@ -622,6 +622,12 @@ Route::group(['middleware' => 'auth'], function () {
     //CancelarTicket
     Route::post('/CancelarTicket/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@CancelarTicket');
 
+    //CancelarTicket
+    Route::post('/CancelarTicket/Cancelar/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@CancelarCancelarTicket');
+
+    //HistorialCancelacionTickets
+    Route::get('/HistorialCancelacionTickets', 'App\Http\Controllers\CancelacionTicketsController@HistorialCancelacionTickets');
+
     //+============================================================================================================================================+//
     //ReporteSolicitudCancelacion
     Route::get('/ReporteSolicitudCancelacion', 'App\Http\Controllers\ReporteCancelacionTicketsController@SolicitudesCancelacion');
@@ -765,7 +771,6 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //update(Actualiza el sistema con los ultimos cambios de git)
     Route::get('/Update', 'App\Http\Controllers\ConfigSystemController@Index')->name('Update.index');
-
 }); //->Termina Middleware Auth
 
 // pagina de error 404

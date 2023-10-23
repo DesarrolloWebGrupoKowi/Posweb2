@@ -173,6 +173,7 @@
     <script>
         const chkArticulos = document.querySelectorAll('#chkArticulo');
         const chkTodos = document.getElementById('chkTodos');
+        const myForm = document.getElementById('myform');
 
         chkTodos.addEventListener('click', (e) => {
             if (chkTodos.checked == true) {
@@ -185,6 +186,11 @@
                 });
             }
         });
+
+        myForm.addEventListener('submit', (e) => {
+            const button = document.getElementById('button-submit');
+            button.disabled = true;
+        })
 
         document.addEventListener('change', (e) => {
             if (e.target.matches('.data-cant')) {
@@ -199,7 +205,7 @@
                     let myid = item.id;
 
                     // Aqui obtenemos el factor a multiplicar del paquete
-                    let cantidadOriginal = {{ $cantidadPreparado }};
+                    let cantidadOriginal = {{ $cantidadPreparado ? $cantidadPreparado : 0 }};
                     let beforeValue = document.getElementsByClassName(myid)[0].textContent;
 
                     let factor = beforeValue / cantidadOriginal;

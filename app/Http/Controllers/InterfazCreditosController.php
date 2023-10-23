@@ -251,7 +251,7 @@ class InterfazCreditosController extends Controller
             if($idTipoNomina == 0 && !empty($numNomina)){
                 // interfazar creditos de la DB VENTAWEB_NEW
                 DB::statement(
-                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS
+                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS_NEW
                     select a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, 
                     SUM(a.ImporteCredito), f.IdTicket, ". $idHistorialCredito ." 
                     from DatCreditos as a 
@@ -266,6 +266,7 @@ class InterfazCreditosController extends Controller
                     and CAST(a.FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'
                     group by a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, f.IdTicket"
                 );
+
 
                 CreditoEmpleado::whereRaw("CAST(FechaVenta as date) between '". $fecha1 ."' and '". $fecha2 ."'")
                     ->where('NumNomina', $numNomina)
@@ -330,7 +331,7 @@ class InterfazCreditosController extends Controller
             }if(!empty($idTipoNomina) && $numNomina == 0){
                 // interfazar creditos de la DB VENTAWEB_NEW para un tipo de nomina
                 DB::statement(
-                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS
+                    "insert into SPARH..D2000.KW_INTERFASE_VENTAS_NEW
                     select a.NumNomina, a.FechaVenta, a.IdEncabezado, a.IdTienda, b.NomTienda, d.NomCiudad, 
                     SUM(a.ImporteCredito), f.IdTicket, ". $idHistorialCredito ." 
                     from DatCreditos as a 

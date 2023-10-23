@@ -1,13 +1,13 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Módulo de solicitud de cancelación')
+@section('title', 'Historial de solicitud de cancelación')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid pt-4 width-general">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Módulo de solicitud de cancelación'])
+            @include('components.title', ['titulo' => 'Historial de solicitud de cancelación'])
             <div>
-                <a href="/HistorialCancelacionTickets" class="btn btn-sm btn-dark">
-                    <i class="fa fa-history"></i> Historial de solicitudes
+                <a href="/CancelacionTickets" class="btn btn-sm btn-dark">
+                    <i class="fa fa-history"></i> Solicitud de tickets
                 </a>
             </div>
         </div>
@@ -24,9 +24,9 @@
                         <th>Ticket</th>
                         <th>Importe</th>
                         <th>Detalle</th>
-                        <th>Motivo</th>
-                        <th>Aprobar</th>
-                        <th class="rounded-end">Cancelar</th>
+                        <th>Status</th>
+                        <th class="rounded-end">Motivo</th>
+                        {{-- <th>Status</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -60,17 +60,21 @@
                                             data-bs-target="#ModalDetalleTicket{{ $solicitud->IdEncabezado }}"></i>
                                         @include('CancelacionTickets.ModalDetalleTicket')
                                     </td>
-                                    <td>{{ $solicitud->MotivoCancelacion }}</td>
                                     <td>
-                                        <i style="font-size: 22px; color:rgb(18,167,18); cursor: pointer;"
-                                            class="fa fa-check-square-o" data-bs-toggle="modal"
-                                            data-bs-target="#ModalConfirmarCancelacion{{ $solicitud->IdEncabezado }}"></i>
+                                        @if ($solicitud->SolicitudAprobada == '0')
+                                            <i style="font-size: 22px; color:rgb(18,167,18); cursor: pointer;"
+                                                class="fa fa-check-square-o"></i> Aprovada
+                                        @endif
+                                        @if ($solicitud->SolicitudAprobada == 1)
+                                            <i style="font-size: 22px; color:rgb(255, 81, 0);"
+                                                class="fa fa-times-circle-o"></i>
+                                            Rechazada
+                                        @endif
                                     </td>
-                                    <td>
-                                        <i style="font-size: 22px; color:rgb(255, 81, 0); cursor: pointer;"
-                                            class="fa fa-times-circle-o" data-bs-toggle="modal"
-                                            data-bs-target="#ModalCancelarCancelacion{{ $solicitud->IdEncabezado }}"></i>
-
+                                    <td class="puntitos">
+                                        {{-- <p style="overflow: hidden;"> --}}
+                                        {{ $solicitud->MotivoCancelacion }}
+                                        {{-- </p> --}}
                                     </td>
                                     @include('CancelacionTickets.ModalConfirmarCancelacion')
                                     @include('CancelacionTickets.ModalCancelarCancelacion')
@@ -81,5 +85,8 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    <div class="mt-5 d-flex justify-content-center">
+        {!! $solicitudesCancelacion->links() !!}
     </div>
 @endsection

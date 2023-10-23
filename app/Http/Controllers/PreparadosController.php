@@ -6,6 +6,7 @@ use App\Models\Articulo;
 use App\Models\CatPreparado;
 use App\Models\DatPreparados;
 use App\Models\ListaPrecio;
+use App\Models\Precio;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -97,6 +98,18 @@ class PreparadosController extends Controller
 
     public function EditarListaPreciosPreparados($idPreparado, Request $request)
     {
+        $preparados = DatPreparados::where('IdPreparado', $idPreparado)->get();
+
+        foreach ($preparados as $preparado) {
+            $codArticulo = Articulo::where('IdArticulo', $preparado->IdArticulo)->value('CodArticulo');
+            $precio = Precio::where('CodArticulo', $codArticulo)
+                ->where('IdListaPrecio', $request->IdListaPrecio)
+                ->first();
+            if (!$precio || $precio->PrecioArticulo == 0) {
+                return back()->with('msjdelete', 'Error: El articulo con el código ' . $codArticulo . ' no cuenta con precio en esa lista de precios');
+            }
+        }
+
         DatPreparados::where('IdPreparado', $idPreparado)->update([
             'IDLISTAPRECIO' => $request->IdListaPrecio,
         ]);
@@ -130,8 +143,16 @@ class PreparadosController extends Controller
     public function AgregarArticulo($idPreparado, Request $request)
     {
         $idListaPrecio = DatPreparados::where('IdPreparado', $idPreparado)->value('IDLISTAPRECIO');
-
         $idArticulo = Articulo::where('CodArticulo', $request->codigo)->value('IdArticulo');
+
+        // Validamos que el preparado tenga lista de precio
+        $articulo = Precio::where('CodArticulo', $request->codigo)
+            ->where('IdListaPrecio', $idListaPrecio ? $idListaPrecio : 4)
+            ->first();
+
+        if (!$articulo || $articulo->PrecioArticulo == 0) {
+            return back()->with('msjdelete', 'Error: El articulo que desea agregar no cuenta con precio');;
+        }
 
         $cantidad = CatPreparado::where('IdPreparado', $idPreparado)->value('Cantidad');
 
