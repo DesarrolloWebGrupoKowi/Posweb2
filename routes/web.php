@@ -483,6 +483,12 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //Reporte de Stock
     Route::get('/ReporteStock', 'App\Http\Controllers\StockTiendaController@ReporteStock');
+    //Reporte de Stock
+    Route::get('/ReporteStockAdmin', 'App\Http\Controllers\StockTiendaController@ReporteStockAdmin');
+    //Reporte de Stock
+    Route::get('/UpdateStockViewAdmin', 'App\Http\Controllers\StockTiendaController@UpdateStockViewAdmin');
+    //Reporte de Stock
+    Route::post('/UpdateStockAdmin/{id}', 'App\Http\Controllers\StockTiendaController@UpdateStockAdmin');
 
     //+============================================================================================================================================+//
     //CatBancos
