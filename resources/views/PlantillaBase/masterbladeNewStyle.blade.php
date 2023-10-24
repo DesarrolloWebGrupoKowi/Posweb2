@@ -22,7 +22,8 @@
 
 <body>
 
-    <nav class="navbar navbar-expand navbar-dark" style="background: #1e293b">
+    <nav class="navbar navbar-expand navbar-dark"
+        style="background: #1e293b; position: fixed; width: 100%; z-index: 999;">
         <div class="container-fluid @yield('dashboardWidth')">
             <a id="imgLogo" class="navbar-brand" href="/"><img
                     src="https://www.kowi.com.mx/wp-content/uploads/elementor/thumbs/01_LOGO_KOWI-pdb6yay1990vudjiiivqobds1rhtcw2u1qinecxwpy.png"
@@ -91,7 +92,7 @@
         </div>
     </nav>
     <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
-    <div class="mb-4">
+    <div class="mb-4" style="padding-top: 64px">
         @yield('contenido')
     </div>
 
