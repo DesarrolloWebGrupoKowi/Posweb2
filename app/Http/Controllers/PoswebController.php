@@ -1204,11 +1204,12 @@ class PoswebController extends Controller
                     // Buscamos que los paquetes tengan id de prepadado
                     if (count($paquetesConPreparado) != 0) {
                         // Obtenemos la cantidad ya vendida
-                        $paquetesConPreparado[0]->IdPreparado;
                         $cantidadTotal = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                             ->value('CantidadEnvio');
 
                         $cantidadVendida = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                             ->value('CantidadVendida');
 
                         if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) < 0) {
@@ -1225,6 +1226,7 @@ class PoswebController extends Controller
 
                         // Sumamos la cantidad vendida, mas la nueva cantidad que se esta vendiendo
                         DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
                             ->update([
                                 'CantidadVendida' => !$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad,
                             ]);

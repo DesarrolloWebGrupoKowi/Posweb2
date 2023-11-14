@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Articulo;
 use App\Models\CatPreparado;
+use App\Models\DatInventario;
 use App\Models\DatPreparados;
 use App\Models\ListaPrecio;
 use App\Models\Precio;
@@ -122,6 +123,11 @@ class PreparadosController extends Controller
             'IdCatStatusPreparado' => 2,
         ]);
 
+        // return DatPreparados::leftjoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo')
+        //     ->where('IdPreparado', $idPreparado)->get();
+
+        // return CatPreparado::where('IdPreparado', $idPreparado)->first();
+
         return redirect()->route('Preparados.index');
     }
 
@@ -145,13 +151,19 @@ class PreparadosController extends Controller
         $idListaPrecio = DatPreparados::where('IdPreparado', $idPreparado)->value('IDLISTAPRECIO');
         $idArticulo = Articulo::where('CodArticulo', $request->codigo)->value('IdArticulo');
 
-        // Validamos que el preparado tenga lista de precio
+        // Validamos que el articulo tenga lista de precio
         $articulo = Precio::where('CodArticulo', $request->codigo)
             ->where('IdListaPrecio', $idListaPrecio ? $idListaPrecio : 4)
             ->first();
 
         if (!$articulo || $articulo->PrecioArticulo == 0) {
-            return back()->with('msjdelete', 'Error: El articulo que desea agregar no cuenta con precio');;
+            return back()->with('msjdelete', 'Error: El articulo que desea agregar no cuenta con precio');
+        }
+
+        // Validamos que el articulo tenga stock
+        $stock = DatInventario::where('CodArticulo', $request->codigo)->first();
+        if ($stock == null || $stock->StockArticulo < $request->cantidad) {
+            return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');;
         }
 
         $cantidad = CatPreparado::where('IdPreparado', $idPreparado)->value('Cantidad');

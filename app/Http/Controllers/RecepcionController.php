@@ -97,6 +97,7 @@ class RecepcionController extends Controller
                 ->leftJoin('DatRecepcion as b', 'b.IdCapRecepcion', 'a.IdCapRecepcion')
                 ->where('a.Almacen', $tienda->Almacen)
                 ->whereNull('a.FechaRecepcion')
+                ->whereNull('a.IdPreparado')
                 ->where('a.IdStatusRecepcion', 1)
                 ->where('b.CodArticulo', $filtroArticulo)
                 ->get();
