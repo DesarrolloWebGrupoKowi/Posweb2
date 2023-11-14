@@ -101,6 +101,8 @@
 
     @yield('scriptTiendas')
     <script src="{{ asset('js/tiendasScript.js') }}"></script>
+
+    <script src="{{ asset('js/pagination.js') }}"></script>
 </body>
 
 </html>
