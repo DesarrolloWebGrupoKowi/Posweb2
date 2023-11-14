@@ -184,7 +184,7 @@ class StockTiendaController extends Controller
                             'Fecha_Creacion' => date('d-m-Y H:i:s'),
                             'Batch' => $batch + 1,
                             'StatusProcesado' => 0,
-                            'IdMovimiento' => 12,
+                            'IdMovimiento' => 15,
                         ]);
 
                         HistorialMovimientoProducto::insert([
@@ -193,7 +193,7 @@ class StockTiendaController extends Controller
                             'CantArticulo' => $ajuste,
                             'FechaMovimiento' => date('d-m-Y H:i:s'),
                             'Referencia' => 'Ajuste de inventario',
-                            'IdMovimiento' => 12,
+                            'IdMovimiento' => 15,
                             'IdUsuario' => Auth::user()->IdUsuario,
                         ]);
 

@@ -205,7 +205,7 @@
                                 <th class="rounded-end">Status</th>
                             </tr>
                         </thead>
-                        <tbody class="cuchi">
+                        <tbody>
                             @php
                                 $sumCantArticulo = 0;
                                 $sumImporte = 0;
@@ -309,8 +309,8 @@
             @endforeach
             <!--TERMINA CLIENTES DE TIENDA (SIN SOLICITUD DE FACTURA)-->
             <!--SOLICITUDES DE FACTURA-->
-            <div class="container mb-3">
-                @foreach ($facturas as $factura)
+            @foreach ($facturas as $factura)
+                <div class="content-table content-table-full card p-4 mb-4" style="border-radius: 20px">
                     <div class="d-flex justify-content-left">
                         @if (empty($factura->Bill_To) && empty($factura->IdClienteCloud))
                             <h6 class="p-1 bg-danger text-white rounded-3"><i class="fa fa-exclamation-triangle"></i>
@@ -319,18 +319,34 @@
                                 -
                                 {{ $factura->NomCliente }} <i class="fa fa-exclamation-triangle"></i></h6>
                         @else
-                            <h6 class="p-1 bg-dark text-white rounded-3">{{ $factura->NomCliente }}</h6>
+                            <h6 class="ps-4 p-1 rounded-3">{{ $factura->NomCliente }}</h6>
                         @endif
+                        @foreach ($factura->PedidoOracle as $pedidoOracle)
+                            @if (empty($pedidoOracle->Source_Transaction_Identifier))
+                                <h6 class="text-danger p-1">SIN PEDIDO</h6>
+                            @else
+                                <h6 class="text-{{ $pedidoOracle->STATUS == 'ERROR' ? 'danger' : 'success' }} ps-1">
+                                    {{ substr_replace($pedidoOracle->Source_Transaction_Identifier, '_', 3, 0) }}
+                                </h6>
+                                @if ($pedidoOracle->STATUS == 'ERROR')
+                                    <h6 class="ps-1 text-white rounded-3">
+                                        <i style="color: red" class="fa fa-exclamation-circle ps-1"></i>
+                                    </h6>
+                                @endif
+                            @endif
+                        @endforeach
                     </div>
-                    <table class="table table-responsive table-striped table-sm">
-                        <thead class="table-dark">
+                    <table>
+                        <thead class="table-head">
                             <tr>
-                                <th>Código</th>
+                                <th class="rounded-start">Código</th>
                                 <th>Articulo</th>
                                 <th>Cantidad</th>
                                 <th>Precio</th>
                                 <th>Iva</th>
                                 <th>Importe</th>
+                                <th>Pedido</th>
+                                <th class="rounded-end">Status</th>
                             </tr>
                         </thead>
                         <tbody class="cuchi">
@@ -352,6 +368,31 @@
                                     <td style="width: 15vh">
                                         {{ number_format($detalleFactura->PivotDetalle->ImporteArticulo, 2) }}
                                     </td>
+                                    @if (empty($detalleFactura->Source_Transaction_Identifier))
+                                        <th style="color: red">SIN PEDIDO</th>
+                                    @else
+                                        <th style="color: {{ $detalleFactura->STATUS == 'ERROR' ? 'red' : 'blue' }}">
+                                            {{ substr_replace($detalleFactura->Source_Transaction_Identifier, '_', 3, 0) }}
+                                        </th>
+                                    @endif
+                                    @if (
+                                        (empty($detalleFactura->STATUS) || $detalleFactura->STATUS == 'NULL') &&
+                                            empty($detalleFactura->MENSAJE_ERROR) &&
+                                            empty($detalleFactura->Batch_Name))
+                                        <th style="color: red">SIN PROCESAR</th>
+                                    @endif
+                                    @if ($detalleFactura->STATUS == 'ERROR')
+                                        <th style="cursor: pointer" data-bs-toggle="modal"
+                                            data-bs-target="#mensajeError{{ $detalleFactura->IdCortesTienda }}">
+                                            <i style="color: red; cursor: pointer; font-size: 18px"
+                                                class="fa fa-exclamation-circle">
+                                            </i> VER ERROR
+                                            @include('CortesTienda.ModalMensajeErrorOracle')
+                                        </th>
+                                    @endif
+                                    @if ($detalleFactura->STATUS == 'PROCESADO' || $detalleFactura->STATUS == 'EN PROCESO')
+                                        <th>{{ $detalleFactura->STATUS }}</th>
+                                    @endif
                                 </tr>
                                 @php
                                     $sumCantArticulo = $sumCantArticulo + $detalleFactura->PivotDetalle->CantArticulo;
@@ -360,7 +401,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <table class="table">
+                    <table>
                         <tr>
                             <th style="width: 10vh"></th>
                             <th style="width: 60vh; text-align:center">
@@ -376,8 +417,8 @@
                             </th>
                         </tr>
                     </table>
-                @endforeach
-            </div>
+                </div>
+            @endforeach
             <!--TERMINA SOLICITUDES DE FACTURA-->
             <!--SUMATORIAS FINALES-->
             {{-- <div class="container mb-3">
@@ -462,6 +503,7 @@
                         <tr>
                             <th class="rounded-start">Código</th>
                             <th>Nombre</th>
+                            <th>Familia</th>
                             <th>Peso</th>
                             <th>Precio</th>
                             <th>Iva</th>
@@ -478,6 +520,7 @@
                                 <tr>
                                     <td>{{ $tConcentrado->CodArticulo }}</td>
                                     <td>{{ $tConcentrado->NomArticulo }}</td>
+                                    <td>{{ $tConcentrado->NomFamilia }}</td>
                                     <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
                                     <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
                                     <td>{{ number_format($tConcentrado->Iva, 2) }}</td>
@@ -488,6 +531,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
+                            <th></th>
                             <th></th>
                             <th style="text-align: center">Totales :</th>
                             <th>{{ number_format($totalPeso, 3) }}</th>
