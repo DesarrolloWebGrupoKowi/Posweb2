@@ -182,6 +182,7 @@ class CortesTiendaController extends Controller
                     ->where('IdDatCaja', $idCaja)
                     ->pluck('Bill_To');
 
+                // TODO: CORTE GENERAL
                 $cortesTienda = ClienteCloudTienda::with([
                     'PedidoOracle' => function ($oraclePedido) use ($fecha1, $idTienda) {
                         $oraclePedido->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
@@ -290,9 +291,24 @@ class CortesTiendaController extends Controller
                     ->where('IdDatCaja', $idCaja)
                     ->sum('ImporteArticulo');
 
+                // TODO: CLIENTES FACTURAS
                 $facturas = SolicitudFactura::with([
+                    'PedidoOracle' => function ($oraclePedido) use ($fecha1, $idTienda) {
+                        $oraclePedido
+                            ->select(
+                                'DatCortesTienda.IdSolicitudFactura',
+                                'DatCortesTienda.Bill_To',
+                                'DatCortesTienda.Source_Transaction_Identifier',
+                                'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS'
+                            )
+                            ->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                            ->whereDate('FechaVenta', $fecha1)
+                            ->where('IdTienda', $idTienda)
+                            ->distinct('DatCortesTienda.Source_Transaction_Identifier');
+                    },
                     'Factura' => function ($query) use ($idCaja) {
-                        $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+                        $query->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                            ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
                             ->where('DatCortesTienda.IdDatCaja', $idCaja);
                     }
                 ])
@@ -368,13 +384,14 @@ class CortesTiendaController extends Controller
                 $concentrado = DB::table('DatEncabezado as a')
                     ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                     ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
-                    ->select(DB::raw('c.CodArticulo, c.NomArticulo, SUM(b.CantArticulo) as Peso,
+                    ->leftJoin('CatFamilias as d', 'c.IdFamilia', 'd.IdFamilia')
+                    ->select(DB::raw('c.CodArticulo, c.NomArticulo, d.NomFamilia, SUM(b.CantArticulo) as Peso,
                             b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe'))
                     ->where('a.IdTienda', $idTienda)
                     ->where('a.StatusVenta', 0)
                     ->where('a.IdDatCaja', $idCaja)
                     ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                    ->groupBy('c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo')
+                    ->groupBy('c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'd.NomFamilia')
                     ->orderBy('c.CodArticulo')
                     ->get();
 

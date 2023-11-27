@@ -14,6 +14,7 @@ use App\Models\DatMonederoElectronico;
 use App\Models\HistorialMovimientoProducto;
 use App\Models\InventarioTienda;
 use App\Models\SolicitudCancelacionTicket;
+use App\Models\Tienda;
 use App\Models\VentaCreditoEmpleado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,37 @@ class CancelacionTicketsController extends Controller
 {
     public function CancelacionTickets(Request $request)
     {
+        $usuarioTienda = Auth::user()->usuarioTienda;
+
+        if (!$usuarioTienda) {
+            return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
+        }
+
+        if ($usuarioTienda->Todas == 0) {
+            $tiendas = Tienda::where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendas = Tienda::where('Status', 0)
+                ->where('IdTienda', $usuarioTienda->IdTienda)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+                ->where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+
+        $idTienda = $request->idTienda;
+
+        $ids = [];
+        foreach ($tiendas as $tienda) {
+            array_push($ids, $tienda->IdTienda);
+        }
+
         $solicitudesCancelacion = SolicitudCancelacionTicket::with([
             'Tienda' => function ($query) {
                 $query->select('IdTienda', 'NomTienda');
@@ -61,6 +93,8 @@ class CancelacionTicketsController extends Controller
                     );
             },
         ])
+            ->whereIn('IdTienda', $ids)
+            ->where('IdTienda', 'LIKE', $idTienda)
             ->whereNull('SolicitudAprobada')
             ->whereNull('FechaAprobacion')
             ->whereNull('IdUsuarioAprobacion')
@@ -68,7 +102,7 @@ class CancelacionTicketsController extends Controller
 
         //        return $solicitudesCancelacion;
 
-        return view('CancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion'));
+        return view('CancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion', 'tiendas', 'idTienda'));
     }
 
     public function CancelarTicket(Request $request, $idEncabezado)
@@ -271,6 +305,7 @@ class CancelacionTicketsController extends Controller
                     'SolicitudAprobada' => 1,
                     'FechaAprobacion' => date('d-m-Y H:i:s'),
                     'IdUsuarioAprobacion' => Auth::user()->IdUsuario,
+                    'descargar' => 0,
                 ]);
 
             // enviar correo de aprobacion de solicitud de cancelacion de ticket
@@ -389,6 +424,37 @@ class CancelacionTicketsController extends Controller
 
     public function HistorialCancelacionTickets(Request $request)
     {
+        $usuarioTienda = Auth::user()->usuarioTienda;
+
+        if ($usuarioTienda->doesntExist()) {
+            return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
+        }
+
+        if ($usuarioTienda->Todas == 0) {
+            $tiendas = Tienda::where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendas = Tienda::where('Status', 0)
+                ->where('IdTienda', $usuarioTienda->IdTienda)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+                ->where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+
+        $idTienda = $request->idTienda;
+
+        $ids = [];
+        foreach ($tiendas as $tienda) {
+            array_push($ids, $tienda->IdTienda);
+        }
+
         $solicitudesCancelacion = SolicitudCancelacionTicket::with([
             'Tienda' => function ($query) {
                 $query->select('IdTienda', 'NomTienda');
@@ -426,12 +492,14 @@ class CancelacionTicketsController extends Controller
                     );
             },
         ])
+            ->whereIn('IdTienda', $ids)
+            ->where('IdTienda', 'LIKE', $idTienda)
             ->whereNotNull('SolicitudAprobada')
             ->orderBy('FechaSolicitud', 'DESC')
             ->paginate(10);
 
         //        return $solicitudesCancelacion;
 
-        return view('CancelacionTickets.HistorialCancelacionTickets', compact('solicitudesCancelacion'));
+        return view('CancelacionTickets.HistorialCancelacionTickets', compact('solicitudesCancelacion', 'tiendas', 'idTienda'));
     }
 }

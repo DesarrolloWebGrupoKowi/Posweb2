@@ -61,13 +61,32 @@ class ReporteCancelacionTicketsController extends Controller
             },
         ])
             ->whereDate('FechaSolicitud', $fecha)
-            ->whereNull('SolicitudAprobada')
-            ->whereNull('FechaAprobacion')
-            ->whereNull('IdUsuarioAprobacion')
+            // ->whereNull('SolicitudAprobada')
+            // ->whereNull('FechaAprobacion')
+            // ->whereNull('IdUsuarioAprobacion')
             ->get();
 
-        // return $solicitudesCancelacion;
+        $importes = SolicitudCancelacionTicket::select('IdEncabezado')
+            ->with([
+                'Encabezado' => function ($query) {
+                    $query->leftJoin('DatCajas', 'DatCajas.IdDatCajas', 'DatEncabezado.IdDatCaja')
+                        ->leftJoin('CatCajas', 'CatCajas.IdCaja', 'DatCajas.IdCaja')
+                        ->select(
+                            'DatEncabezado.IdEncabezado',
+                            'DatEncabezado.ImporteVenta'
+                        );
+                }
+            ])
+            ->whereDate('FechaSolicitud', $fecha)
+            ->where('SolicitudAprobada', '0')
+            ->groupBy('IdEncabezado')
+            ->get();
 
-        return view('ReporteCancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion', 'fecha'));
+        $total = 0;
+        foreach ($importes as $importe) {
+            $total += $importe->encabezado->ImporteVenta;
+        }
+
+        return view('ReporteCancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion', 'total', 'fecha'));
     }
 }

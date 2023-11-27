@@ -11,6 +11,26 @@
                 </a>
             </div>
         </div>
+
+        <form class="d-flex align-items-center justify-content-end flex-wrap pb-2 gap-2" action="/CancelacionTickets"
+            method="GET">
+            <input type="hidden" class="idPagination" value="&idTienda={{ $idTienda }}">
+            <div class="col-auto">
+                <select class="form-select" name="idTienda" id="idTienda">
+                    <option value="">Seleccione Tienda</option>
+                    @foreach ($tiendas as $tienda)
+                        <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn card">
+                    <span class="material-icons">search</span>
+                </button>
+            </div>
+        </form>
+
         <div>
             @include('Alertas.Alertas')
         </div>
@@ -60,7 +80,7 @@
                                             data-bs-target="#ModalDetalleTicket{{ $solicitud->IdEncabezado }}"></i>
                                         @include('CancelacionTickets.ModalDetalleTicket')
                                     </td>
-                                    <td>{{ $solicitud->MotivoCancelacion }}</td>
+                                    <td class="puntitos">{{ $solicitud->MotivoCancelacion }}</td>
                                     <td>
                                         <i style="font-size: 22px; color:rgb(18,167,18); cursor: pointer;"
                                             class="fa fa-check-square-o" data-bs-toggle="modal"

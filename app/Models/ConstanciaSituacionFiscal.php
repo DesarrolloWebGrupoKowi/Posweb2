@@ -11,5 +11,5 @@ class ConstanciaSituacionFiscal extends Model
     protected $table = 'ConstanciaSituacionFiscal';
     protected $fillable = ['Constancia1','NomConstancia','Constancia2','Constancia3', 'Constancia4', 'Constancia5', 'Constancia6', 'Constancia7', 'Constancia8', 'Constancia9', 'Constancia10'];
     public $timestamps = false;
-    protected $primaryKey = 'IdSolicitudFactura';
+    // protected $primaryKey = 'IdSolicitudFactura';
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Articulo;
 use App\Models\CapRecepcionLocal;
 use App\Models\CatPreparado;
 use App\Models\DatAsignacionPreparados;
@@ -9,6 +10,7 @@ use App\Models\DatCaja;
 use App\Models\DatPreparados;
 use App\Models\DatRecepcionLocal;
 use App\Models\HistorialMovimientoProductoLocal;
+use App\Models\InventarioTienda;
 use App\Models\Tienda;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -43,7 +45,7 @@ class AsignarPreparadosController extends Controller
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '=', 2)
                 ->whereDate('CatPreparado.Fecha', $fecha)
-            // ->orWhere('IdCatStatusPreparado', 3)
+                // ->orWhere('IdCatStatusPreparado', 3)
                 ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado', 'CatPreparado.preparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
@@ -61,7 +63,7 @@ class AsignarPreparadosController extends Controller
                 ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.preparado')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '=', 2)
-            // ->orWhere('IdCatStatusPreparado', 3)
+                // ->orWhere('IdCatStatusPreparado', 3)
                 ->groupBy('CatPreparado.IdPreparado', 'CatPreparado.Nombre', 'CatPreparado.Fecha', 'CatPreparado.Cantidad', 'CatPreparado.IdCatStatusPreparado', 'CatPreparado.preparado')
                 ->orderBy('CatPreparado.Fecha', 'DESC')
                 ->paginate(10);
@@ -83,11 +85,41 @@ class AsignarPreparadosController extends Controller
 
     public function FinalizarPreparado($idPreparado)
     {
-        CatPreparado::where('IdPreparado', $idPreparado)->update([
-            'IdCatStatusPreparado' => 3,
-        ]);
+        // CatPreparado::where('IdPreparado', $idPreparado)->first();
+        try {
+            DB::beginTransaction();
 
-        return back();
+            $detalle = DatPreparados::where('IdPreparado', $idPreparado)->get();
+            foreach ($detalle as $item) {
+                $stock = InventarioTienda::leftjoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatInventario.CodArticulo')
+                    ->where('CatArticulos.IdArticulo', $item->IdArticulo)
+                    ->value('StockArticulo');
+
+                // IdArticulo
+
+                if ($stock - $item->CantidadPaquete < 0) {
+                    $articulo = Articulo::where('IdArticulo', $item->IdArticulo)->first();
+                    DB::rollBack();
+                    return back()->with('msjdelete', 'Inventario insuficiente para el articulo: ' . $articulo->NomArticulo);
+                }
+
+                // InventarioTienda::leftjoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatInventario.CodArticulo')
+                //     ->where('CatArticulos.IdArticulo', $item->IdArticulo)
+                //     ->update([
+                //         'StockArticulo' => $stock - $item->CantidadPaquete,
+                //     ]);
+            }
+
+            CatPreparado::where('IdPreparado', $idPreparado)->update([
+                'IdCatStatusPreparado' => 3,
+            ]);
+
+            DB::commit();
+            return back();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('msjdelete', 'Ha ocuarrido un error, intente de nuevo');
+        }
     }
 
     // La asignacion de tienda, se hace de tienda a tienda
