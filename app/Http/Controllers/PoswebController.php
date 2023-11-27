@@ -1834,7 +1834,7 @@ class PoswebController extends Controller
             ->whereNotNull('IdSolicitudFactura')
             ->sum('ImporteArticulo');
 
-        $facturas = SolicitudFactura::with(['Factura' => function ($query) {
+        $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) {
             $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
         }])
             ->where('IdTienda', $idTienda)

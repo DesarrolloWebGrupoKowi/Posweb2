@@ -42,7 +42,14 @@ class SolicitudFactura extends Model
         'UsoCFDI'
     ];
     public $timestamps = false;
-    protected $primaryKey = 'IdSolicitudFactura';
+    // protected $primaryKey = 'IdSolicitudFactura';
+
+    public function FacturaLocal(){
+        return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
+                    ->select('CatArticulos.CodArticulo','CatArticulos.NomArticulo')
+                    ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
+                    ->as('PivotDetalle');
+    }
 
     public function Factura()
     {

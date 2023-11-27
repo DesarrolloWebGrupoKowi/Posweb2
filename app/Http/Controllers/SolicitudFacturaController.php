@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Caja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use App\Models\UsoCFDI;
 use App\Models\TipoPago;
 use App\Models\NotificacionClienteCloud;
 use App\Models\ConstanciaSituacionFiscal;
+use App\Models\DatCaja;
 
 class SolicitudFacturaController extends Controller
 {
@@ -216,6 +218,7 @@ class SolicitudFacturaController extends Controller
             ->distinct('IdTipoPago')
             ->get();
 
+        $idCaja = DatCaja::where('Activa', 0)->where('Status', 0)->value('IdCaja');
 
         //SOLICITUDES CON UN SOLO METODO DE PAGO EN CLIENTE EXISTENTE
         if ($auxTiposPago->count() == 1) {
@@ -224,10 +227,44 @@ class SolicitudFacturaController extends Controller
 
                 $editarInfo = $request->chkEdit;
 
-                $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
-                    ->max('Id') + 1;
+                // $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
+                //     ->max('Id') + 1;              // $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
 
-                $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+                foreach ($auxTiposPago as $key => $auxTipoPago) {
+                    $tipoPago = $auxTipoPago->IdTipoPago;
+                }
+
+                DB::table('SolicitudFactura')
+                    ->insert([
+                        // 'IdSolicitudFactura' => $idSolicitudFactura,
+                        'FechaSolicitud' => date('d-m-Y H:i:s'),
+                        'IdEncabezado' => $ticket->IdEncabezado,
+                        'IdTienda' => $idTienda,
+                        'IdTipoPago' => $tipoPago,
+                        'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
+                        'TipoPersona' => $tipoPersona,
+                        'RFC' => strtoupper($request->rfcCliente),
+                        'NomCliente' => $cliente->NomCliente,
+                        'Calle' => strtoupper($request->calle),
+                        'NumExt' => strtoupper($request->numExt),
+                        'NumInt' => strtoupper($request->numInt),
+                        'Colonia' => strtoupper($request->colonia),
+                        'Ciudad' => strtoupper($request->ciudad),
+                        'Municipio' => strtoupper($request->municipio),
+                        'Estado' => strtoupper($request->estado),
+                        'Pais' => 'MEXICO',
+                        'CodigoPostal' => $request->codigoPostal,
+                        'Email' => strtolower($request->email),
+                        'Telefono' => $request->telefono,
+                        'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                        'IdUsuarioCliente' => null,
+                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                        'UsoCFDI' => strtoupper($request->cfdi),
+                        'Editar' => empty($editarInfo) ? null : 1,
+                        'IdCaja' => $idCaja
+                    ]);
+
+                $idSolicitudFactura = SolicitudFactura::orderBy('id', 'desc')->value('IdSolicitudFactura');
 
                 if (!empty($editarInfo)) {
                     NotificacionClienteCloud::insert([
@@ -280,39 +317,6 @@ class SolicitudFacturaController extends Controller
 
                     //return $constanciaEncoded;
                 }
-
-                foreach ($auxTiposPago as $key => $auxTipoPago) {
-                    $tipoPago = $auxTipoPago->IdTipoPago;
-                }
-
-                DB::table('SolicitudFactura')
-                    ->insert([
-                        'IdSolicitudFactura' => $idSolicitudFactura,
-                        'FechaSolicitud' => date('d-m-Y H:i:s'),
-                        'IdEncabezado' => $ticket->IdEncabezado,
-                        'IdTienda' => $idTienda,
-                        'IdTipoPago' => $tipoPago,
-                        'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
-                        'TipoPersona' => $tipoPersona,
-                        'RFC' => strtoupper($request->rfcCliente),
-                        'NomCliente' => $cliente->NomCliente,
-                        'Calle' => strtoupper($request->calle),
-                        'NumExt' => strtoupper($request->numExt),
-                        'NumInt' => strtoupper($request->numInt),
-                        'Colonia' => strtoupper($request->colonia),
-                        'Ciudad' => strtoupper($request->ciudad),
-                        'Municipio' => strtoupper($request->municipio),
-                        'Estado' => strtoupper($request->estado),
-                        'Pais' => 'MEXICO',
-                        'CodigoPostal' => $request->codigoPostal,
-                        'Email' => strtolower($request->email),
-                        'Telefono' => $request->telefono,
-                        'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
-                        'IdUsuarioCliente' => null,
-                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
-                        'UsoCFDI' => strtoupper($request->cfdi),
-                        'Editar' => empty($editarInfo) ? null : 1
-                    ]);
 
                 $pagosFactura = CorteTienda::where('IdEncabezado', $ticket->IdEncabezado)
                     ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -371,10 +375,41 @@ class SolicitudFacturaController extends Controller
                 }
 
                 foreach ($pagosParaFacturar as $key => $pagoParaFactura) {
-                    $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
-                        ->max('Id') + 1;
+                    // $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
+                    //     ->max('Id') + 1;
 
-                    $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+                    // $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+
+                    SolicitudFactura::insert([
+                        // 'IdSolicitudFactura' => $idSolicitudFactura,
+                        'FechaSolicitud' => date('d-m-Y H:i:s'),
+                        'IdEncabezado' => $ticket->IdEncabezado,
+                        'IdTienda' => $idTienda,
+                        'IdTipoPago' => $tiposPagoFactura[$key],
+                        'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
+                        'TipoPersona' => $tipoPersona,
+                        'RFC' => strtoupper($request->rfcCliente),
+                        'NomCliente' => $cliente->NomCliente,
+                        'Calle' => strtoupper($request->calle),
+                        'NumExt' => strtoupper($request->numExt),
+                        'NumInt' => strtoupper($request->numInt),
+                        'Colonia' => strtoupper($request->colonia),
+                        'Ciudad' => strtoupper($request->ciudad),
+                        'Municipio' => strtoupper($request->municipio),
+                        'Estado' => strtoupper($request->estado),
+                        'Pais' => 'MEXICO',
+                        'CodigoPostal' => $request->codigoPostal,
+                        'Email' => strtolower($request->email),
+                        'Telefono' => $request->telefono,
+                        'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                        'IdUsuarioCliente' => null,
+                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                        'UsoCFDI' => strtoupper($request->cfdi),
+                        'Editar' => empty($editarInfo) ? null : 1,
+                        'IdCaja' => $idCaja
+                    ]);
+
+                    $idSolicitudFactura = SolicitudFactura::orderBy('id', 'desc')->value('IdSolicitudFactura');
 
                     if (!empty($editarInfo)) {
                         NotificacionClienteCloud::insert([
@@ -413,33 +448,7 @@ class SolicitudFacturaController extends Controller
                         }
                     }
 
-                    SolicitudFactura::insert([
-                        'IdSolicitudFactura' => $idSolicitudFactura,
-                        'FechaSolicitud' => date('d-m-Y H:i:s'),
-                        'IdEncabezado' => $ticket->IdEncabezado,
-                        'IdTienda' => $idTienda,
-                        'IdTipoPago' => $tiposPagoFactura[$key],
-                        'IdClienteCloud' => empty($editarInfo) && empty($pdf) ? $cliente->IdClienteCloud : null,
-                        'TipoPersona' => $tipoPersona,
-                        'RFC' => strtoupper($request->rfcCliente),
-                        'NomCliente' => $cliente->NomCliente,
-                        'Calle' => strtoupper($request->calle),
-                        'NumExt' => strtoupper($request->numExt),
-                        'NumInt' => strtoupper($request->numInt),
-                        'Colonia' => strtoupper($request->colonia),
-                        'Ciudad' => strtoupper($request->ciudad),
-                        'Municipio' => strtoupper($request->municipio),
-                        'Estado' => strtoupper($request->estado),
-                        'Pais' => 'MEXICO',
-                        'CodigoPostal' => $request->codigoPostal,
-                        'Email' => strtolower($request->email),
-                        'Telefono' => $request->telefono,
-                        'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
-                        'IdUsuarioCliente' => null,
-                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
-                        'UsoCFDI' => strtoupper($request->cfdi),
-                        'Editar' => empty($editarInfo) ? null : 1
-                    ]);
+
 
                     foreach ($pagoParaFactura->CortePago as $key => $pagoIdCorte) {
                         CorteTienda::where('IdCortesTienda', $pagoIdCorte->IdCortesTienda)
@@ -485,15 +494,52 @@ class SolicitudFacturaController extends Controller
             ->distinct('IdTipoPago')
             ->get();
 
+        $idCaja = DatCaja::where('Activa', 0)->where('Status', 0)->value('IdCaja');
+
         //SOLICITUDES CON UN SOLO METODO DE PAGO EN CLIENTE NUEVO
         if ($auxTiposPago->count() == 1) {
             try {
                 DB::beginTransaction();
 
-                $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
-                    ->max('Id') + 1;
+                // $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
+                //     ->max('Id') + 1;
 
-                $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+                // $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
+
+                foreach ($auxTiposPago as $key => $auxTipoPago) {
+                    $tipoPago = $auxTipoPago->IdTipoPago;
+                }
+
+                SolicitudFactura::insert([
+                    // 'IdSolicitudFactura' => $idSolicitudFactura,
+                    'FechaSolicitud' => date('d-m-Y H:i:s'),
+                    'IdEncabezado' => $idEncabezado,
+                    'IdTienda' => $idTienda,
+                    'IdTipoPago' => $tipoPago,
+                    'IdClienteCloud' => null,
+                    'TipoPersona' => $request->tipoPersona,
+                    'RFC' => strtoupper($request->rfcCliente),
+                    'NomCliente' => strtoupper($request->nomCliente),
+                    'Calle' => strtoupper($request->calle),
+                    'NumExt' => strtoupper($request->numExt),
+                    'NumInt' => strtoupper($request->numInt),
+                    'Colonia' => strtoupper($request->colonia),
+                    'Ciudad' => strtoupper($request->ciudad),
+                    'Municipio' => strtoupper($request->municipio),
+                    'Estado' => strtoupper($request->estado),
+                    'Pais' => 'MEXICO',
+                    'CodigoPostal' => $request->codigoPostal,
+                    'Email' => strtolower($request->correo),
+                    'Telefono' => $request->telefono,
+                    'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
+                    'IdUsuarioCliente' => null,
+                    'Bill_To' => null,
+                    'UsoCFDI' => strtoupper($request->cfdi),
+                    'Editar' => 0,
+                    'IdCaja' => $idCaja
+                ]);
+
+                $idSolicitudFactura = SolicitudFactura::orderBy('id', 'desc')->value('IdSolicitudFactura');
 
                 $pdf = $request->file('cSituacionFiscal');
 
@@ -523,38 +569,6 @@ class SolicitudFacturaController extends Controller
                             ]);
                     }
                 }
-
-                foreach ($auxTiposPago as $key => $auxTipoPago) {
-                    $tipoPago = $auxTipoPago->IdTipoPago;
-                }
-
-                SolicitudFactura::insert([
-                    'IdSolicitudFactura' => $idSolicitudFactura,
-                    'FechaSolicitud' => date('d-m-Y H:i:s'),
-                    'IdEncabezado' => $idEncabezado,
-                    'IdTienda' => $idTienda,
-                    'IdTipoPago' => $tipoPago,
-                    'IdClienteCloud' => null,
-                    'TipoPersona' => $request->tipoPersona,
-                    'RFC' => strtoupper($request->rfcCliente),
-                    'NomCliente' => strtoupper($request->nomCliente),
-                    'Calle' => strtoupper($request->calle),
-                    'NumExt' => strtoupper($request->numExt),
-                    'NumInt' => strtoupper($request->numInt),
-                    'Colonia' => strtoupper($request->colonia),
-                    'Ciudad' => strtoupper($request->ciudad),
-                    'Municipio' => strtoupper($request->municipio),
-                    'Estado' => strtoupper($request->estado),
-                    'Pais' => 'MEXICO',
-                    'CodigoPostal' => $request->codigoPostal,
-                    'Email' => strtolower($request->correo),
-                    'Telefono' => $request->telefono,
-                    'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
-                    'IdUsuarioCliente' => null,
-                    'Bill_To' => null,
-                    'UsoCFDI' => strtoupper($request->cfdi),
-                    'Editar' => 0
-                ]);
 
                 NotificacionClienteCloud::insert([
                     'IdTienda' => $idTienda,
@@ -618,28 +632,13 @@ class SolicitudFacturaController extends Controller
                 }
 
                 foreach ($pagosParaFacturar as $key => $pagoParaFactura) {
-                    $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
-                        ->max('Id') + 1;
+                    // $incrementa = SolicitudFactura::where('IdTienda', $idTienda)
+                    //     ->max('Id') + 1;
 
-                    $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
-
-                    if (!empty($pdf)) {
-                        ConstanciaSituacionFiscal::insert([
-                            'IdSolicitudFactura' => $idSolicitudFactura,
-                            'NomConstancia' => $nomArchivo
-                        ]);
-
-                        for ($i = 0; $i < count($constancia); $i++) {
-                            $campoConstancia = 'Constancia' . ($i + 1);
-                            ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
-                                ->update([
-                                    $campoConstancia => $constancia[$i]
-                                ]);
-                        }
-                    }
+                    // $idSolicitudFactura = $incrementa . $ticket->IdEncabezado;
 
                     SolicitudFactura::insert([
-                        'IdSolicitudFactura' => $idSolicitudFactura,
+                        // 'IdSolicitudFactura' => $idSolicitudFactura,
                         'FechaSolicitud' => date('d-m-Y H:i:s'),
                         'IdEncabezado' => $idEncabezado,
                         'IdTienda' => $idTienda,
@@ -663,8 +662,26 @@ class SolicitudFacturaController extends Controller
                         'IdUsuarioCliente' => null,
                         'Bill_To' => null,
                         'UsoCFDI' => strtoupper($request->cfdi),
-                        'Editar' => 0
+                        'Editar' => 0,
+                        'IdCaja' => $idCaja
                     ]);
+
+                    $idSolicitudFactura = SolicitudFactura::orderBy('id', 'desc')->value('IdSolicitudFactura');
+
+                    if (!empty($pdf)) {
+                        ConstanciaSituacionFiscal::insert([
+                            'IdSolicitudFactura' => $idSolicitudFactura,
+                            'NomConstancia' => $nomArchivo
+                        ]);
+
+                        for ($i = 0; $i < count($constancia); $i++) {
+                            $campoConstancia = 'Constancia' . ($i + 1);
+                            ConstanciaSituacionFiscal::where('IdSolicitudFactura', $idSolicitudFactura)
+                                ->update([
+                                    $campoConstancia => $constancia[$i]
+                                ]);
+                        }
+                    }
 
                     foreach ($pagoParaFactura->CortePago as $key => $pagoIdCorte) {
                         CorteTienda::where('IdCortesTienda', $pagoIdCorte->IdCortesTienda)

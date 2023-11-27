@@ -251,7 +251,7 @@
                             $sumCantArticulo = 0;
                             $sumImporte = 0;
                         @endphp
-                        @foreach ($factura->Factura as $detalleFactura)
+                        @foreach ($factura->FacturaLocal as $detalleFactura)
                             <tr>
                                 <td style="width: 10vh">{{ $detalleFactura->CodArticulo }}</td>
                                 <td style="width: 60vh">{{ $detalleFactura->NomArticulo }}</td>

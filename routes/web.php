@@ -790,6 +790,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/DetalleAsignados', 'App\Http\Controllers\AsignacionPreparadosController@Asignados')->name('Asignados.index');
 
     //+============================================================================================================================================+//
+    //ActualizacionPrecios
+    Route::get('/ActualizacionPrecios', 'App\Http\Controllers\ActualizacionPreciosController@index');
+
+    //+============================================================================================================================================+//
     //update(Actualiza el sistema con los ultimos cambios de git)
     Route::get('/Update', 'App\Http\Controllers\ConfigSystemController@Index')->name('Update.index');
 }); //->Termina Middleware Auth
