@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Articulo;
+use App\Models\Caja;
 use App\Models\CatPreparado;
+use App\Models\DatCaja;
 use App\Models\DatInventario;
 use App\Models\DatPreparados;
 use App\Models\ListaPrecio;
@@ -64,6 +66,7 @@ class PreparadosController extends Controller
 
     public function AgregarPreparados(Request $request)
     {
+        $idcaja = DatCaja::where('Status', 0)->value('IdCaja');
 
         if (!Auth::user()->usuarioTienda->IdTienda) {
             return back()->with('msjdelete', 'Error: Este usuario no puede crear una preparado');
@@ -74,6 +77,7 @@ class PreparadosController extends Controller
         $preparado->Cantidad = $request->cantidad;
         $preparado->IdUsuario = Auth::user()->IdUsuario;
         $preparado->IdTienda = Auth::user()->usuarioTienda->IdTienda;
+        $preparado->IdCaja= $idcaja;
         $preparado->Fecha = Carbon::now()->format('Y-d-m');
         $preparado->IdCatStatusPreparado = 1;
         $preparado->save();
