@@ -8,6 +8,7 @@ use App\Models\CatPreparado;
 use App\Models\DatCaja;
 use App\Models\DatInventario;
 use App\Models\DatPreparados;
+use App\Models\InventarioTienda;
 use App\Models\ListaPrecio;
 use App\Models\Precio;
 use Carbon\Carbon;
@@ -77,7 +78,7 @@ class PreparadosController extends Controller
         $preparado->Cantidad = $request->cantidad;
         $preparado->IdUsuario = Auth::user()->IdUsuario;
         $preparado->IdTienda = Auth::user()->usuarioTienda->IdTienda;
-        $preparado->IdCaja= $idcaja;
+        $preparado->IdCaja = $idcaja;
         $preparado->Fecha = Carbon::now()->format('Y-d-m');
         $preparado->IdCatStatusPreparado = 1;
         $preparado->save();
@@ -165,7 +166,7 @@ class PreparadosController extends Controller
         }
 
         // Validamos que el articulo tenga stock
-        $stock = DatInventario::where('CodArticulo', $request->codigo)->first();
+        $stock = InventarioTienda::where('CodArticulo', $request->codigo)->first();
         if ($stock == null || $stock->StockArticulo < $request->cantidad) {
             return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');;
         }
