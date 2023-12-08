@@ -261,7 +261,9 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'Editar' => empty($editarInfo) ? null : 1,
-                        'IdCaja' => $idCaja
+                        'IdCaja' => $idCaja,
+                        'Status' => 0,
+                        'Bajar' => 1
                     ]);
 
                 $idSolicitudFactura = SolicitudFactura::orderBy('id', 'desc')->value('IdSolicitudFactura');
@@ -406,7 +408,9 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'Editar' => empty($editarInfo) ? null : 1,
-                        'IdCaja' => $idCaja
+                        'IdCaja' => $idCaja,
+                        'Status' => 0,
+                        'Bajar' => 1
                     ]);
 
                     $idSolicitudFactura = SolicitudFactura::orderBy('id', 'desc')->value('IdSolicitudFactura');
@@ -536,7 +540,9 @@ class SolicitudFacturaController extends Controller
                     'Bill_To' => null,
                     'UsoCFDI' => strtoupper($request->cfdi),
                     'Editar' => 0,
-                    'IdCaja' => $idCaja
+                    'IdCaja' => $idCaja,
+                    'Status' => 0,
+                    'Bajar' => 1
                 ]);
 
                 $idSolicitudFactura = SolicitudFactura::orderBy('id', 'desc')->value('IdSolicitudFactura');
@@ -663,7 +669,9 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'Editar' => 0,
-                        'IdCaja' => $idCaja
+                        'IdCaja' => $idCaja,
+                        'Status' => 0,
+                        'Bajar' => 1
                     ]);
 
                     $idSolicitudFactura = SolicitudFactura::orderBy('id', 'desc')->value('IdSolicitudFactura');

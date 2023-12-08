@@ -327,6 +327,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/SolicitudesFactura/Relacionar/{id}/{billTo}', 'App\Http\Controllers\SolicitudesFacturaController@Relacionar');
     //SolicitudFactura
     Route::get('/SolicitudesFactura/Finalizar/{id}', 'App\Http\Controllers\SolicitudesFacturaController@Finalizar');
+    //SolicitudesFactura
+    Route::post('/SolicitudesFactura/Cancelar/{id}', 'App\Http\Controllers\SolicitudesFacturaController@Cancelar');
 
     //+============================================================================================================================================+//
     //SolicitudFactura del lado del cajero

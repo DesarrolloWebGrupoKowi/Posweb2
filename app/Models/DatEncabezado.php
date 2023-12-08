@@ -22,32 +22,32 @@ class DatEncabezado extends Model
     protected $fillable = [
         'IdEncabezado',
         'IdTienda',
-        'IdDatCaja', 
-        'IdTicket', 
-        'FechaVenta', 
-        'IdUsuario', 
-        'SubTotal', 
-        'Iva', 
-        'MonederoDescuento', 
-        'Promocion', 
-        'ImporteVenta', 
-        'MonederoGenerado', 
-        'StatusVenta', 
+        'IdDatCaja',
+        'IdTicket',
+        'FechaVenta',
+        'IdUsuario',
+        'SubTotal',
+        'Iva',
+        'MonederoDescuento',
+        'Promocion',
+        'ImporteVenta',
+        'MonederoGenerado',
+        'StatusVenta',
         'IdUsuarioCancelacion',
-        'MotivoCancel', 
-        'FechaCancelacion', 
-        'StatusRed', 
-        'FechaCreacion', 
-        'SolicitudFE', 
-        'IdMetodoPago', 
-        'IdUsoCFDI', 
-        'IdFormaPago', 
+        'MotivoCancel',
+        'FechaCancelacion',
+        'StatusRed',
+        'FechaCreacion',
+        'SolicitudFE',
+        'IdMetodoPago',
+        'IdUsoCFDI',
+        'IdFormaPago',
         'FolioCupon',
         'NumNomina',
         'IdTipoCliente'
     ];
 
-    protected $primaryKey = 'IdEncabezado';
+    // protected $primaryKey = 'IdEncabezado';
     public $timestamps = false;
 
     public function detalle(){
