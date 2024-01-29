@@ -44,11 +44,12 @@ class SolicitudFactura extends Model
     public $timestamps = false;
     // protected $primaryKey = 'IdSolicitudFactura';
 
-    public function FacturaLocal(){
+    public function FacturaLocal()
+    {
         return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
-                    ->select('CatArticulos.CodArticulo','CatArticulos.NomArticulo')
-                    ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
-                    ->as('PivotDetalle');
+            ->select('CatArticulos.CodArticulo', 'CatArticulos.NomArticulo')
+            ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
+            ->as('PivotDetalle');
     }
 
     public function Factura()
@@ -61,9 +62,9 @@ class SolicitudFactura extends Model
                     DB::raw("DatCortesTienda.IdListaPrecio"),
                     DB::raw("DatCortesTienda.IdTipoPago"),
                     DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
-                    DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS as STATUS"),
-                    DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.MENSAJE_ERROR as MENSAJE_ERROR"),
-                    DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name as Batch_Name"),
+                    DB::raw("XXH2.STATUS as STATUS"),
+                    DB::raw("XXH2.MENSAJE_ERROR as MENSAJE_ERROR"),
+                    DB::raw("XXH2.Batch_Name as Batch_Name"),
                 ]
             )
             ->where('DatCortesTienda.StatusVenta', 0)
