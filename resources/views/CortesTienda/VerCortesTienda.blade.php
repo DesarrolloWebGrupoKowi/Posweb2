@@ -504,6 +504,7 @@
                             <th class="rounded-start">Código</th>
                             <th>Nombre</th>
                             <th>Familia</th>
+                            <th>Grupo</th>
                             <th>Peso</th>
                             <th>Precio</th>
                             <th>Iva</th>
@@ -521,6 +522,7 @@
                                     <td>{{ $tConcentrado->CodArticulo }}</td>
                                     <td>{{ $tConcentrado->NomArticulo }}</td>
                                     <td>{{ $tConcentrado->NomFamilia }}</td>
+                                    <td>{{ $tConcentrado->NomGrupo }}</td>
                                     <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
                                     <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
                                     <td>{{ number_format($tConcentrado->Iva, 2) }}</td>

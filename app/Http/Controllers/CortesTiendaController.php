@@ -384,13 +384,14 @@ class CortesTiendaController extends Controller
                     ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                     ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
                     ->leftJoin('CatFamilias as d', 'c.IdFamilia', 'd.IdFamilia')
-                    ->select(DB::raw('c.CodArticulo, c.NomArticulo, d.NomFamilia, SUM(b.CantArticulo) as Peso,
+                    ->leftJoin('CatGrupos as e', 'c.IdGrupo', 'e.IdGrupo')
+                    ->select(DB::raw('c.CodArticulo, c.NomArticulo, d.NomFamilia, e.NomGrupo, SUM(b.CantArticulo) as Peso,
                             b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe'))
                     ->where('a.IdTienda', $idTienda)
                     ->where('a.StatusVenta', 0)
                     ->where('a.IdDatCaja', $idCaja)
                     ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                    ->groupBy('c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'd.NomFamilia')
+                    ->groupBy('c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'd.NomFamilia', 'e.NomGrupo')
                     ->orderBy('c.CodArticulo')
                     ->get();
 
