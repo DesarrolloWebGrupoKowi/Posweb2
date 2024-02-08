@@ -44,11 +44,12 @@ class SolicitudFactura extends Model
     public $timestamps = false;
     // protected $primaryKey = 'IdSolicitudFactura';
 
-    public function FacturaLocal(){
+    public function FacturaLocal()
+    {
         return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
-                    ->select('CatArticulos.CodArticulo','CatArticulos.NomArticulo')
-                    ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
-                    ->as('PivotDetalle');
+            ->select('CatArticulos.CodArticulo', 'CatArticulos.NomArticulo')
+            ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
+            ->as('PivotDetalle');
     }
 
     public function Factura()
@@ -56,36 +57,17 @@ class SolicitudFactura extends Model
         return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
             ->select(
                 [
-                    // 'CatArticulos.CodArticulo',
-                    // 'CatArticulos.NomArticulo',
                     DB::raw("CatArticulos.CodArticulo"),
                     DB::raw("CatArticulos.NomArticulo"),
                     DB::raw("DatCortesTienda.IdListaPrecio"),
                     DB::raw("DatCortesTienda.IdTipoPago"),
                     DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
-                    // DB::raw("sum(DatCortesTienda.CantArticulo) as CantArticulo"),
-                    // DB::raw("DatCortesTienda.PrecioArticulo as PrecioArticulo"),
-                    // DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
-                    // DB::raw("sum(DatCortesTienda.IvaArticulo) as IvaArticulo"),
-                    // DB::raw("sum(DatCortesTienda.ImporteArticulo) as ImporteArticulo"),
-                    DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS as STATUS"),
-                    DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.MENSAJE_ERROR as MENSAJE_ERROR"),
-                    DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name as Batch_Name"),
+                    DB::raw("XXH2.STATUS as STATUS"),
+                    DB::raw("XXH2.MENSAJE_ERROR as MENSAJE_ERROR"),
+                    DB::raw("XXH2.Batch_Name as Batch_Name"),
                 ]
             )
-            // ->groupBy(
-            //     'DatCortesTienda.Bill_To',
-            //     'DatCortesTienda.IdTipoPago',
-            //     'DatCortesTienda.IdListaPrecio',
-            //     'DatCortesTienda.IdArticulo',
-            //     'DatCortesTienda.PrecioArticulo',
-            //     'CatArticulos.NomArticulo',
-            //     'CatArticulos.CodArticulo',
-            //     'DatCortesTienda.Source_Transaction_Identifier',
-            //     'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS',
-            //     'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.MENSAJE_ERROR',
-            //     'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name'
-            // )
+            ->where('DatCortesTienda.StatusVenta', 0)
             ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
             ->as('PivotDetalle');
     }

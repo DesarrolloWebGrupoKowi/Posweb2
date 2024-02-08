@@ -1042,9 +1042,21 @@ class PoswebController extends Controller
 
                 $totalVenta = number_format($totalVentaSinFormat, 2); // format a la venta (2)
 
+                // TODO:: Tickets
+                $fechaActual = date("Y-m-d");
+                $mycaja = DatCaja::select('IdTicket', 'FechaVenta')
+                    ->where('IdTienda', $idTienda)
+                    ->where('Activa', 0)
+                    ->where('Status', 0)
+                    ->first();
+
                 $idTicket = DatEncabezado::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', date('d-m-Y'))
                     ->max('IdTicket') + 1;
+
+                if ($fechaActual == $mycaja->FechaVenta && $idTicket < $mycaja->IdTicket) {
+                    $idTicket = $mycaja->IdTicket + 1;
+                }
 
                 $caja = DB::table('DatCajas as a')
                     ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
@@ -1126,9 +1138,10 @@ class PoswebController extends Controller
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
                 }
 
+                // TODO:: DatEncabezado
                 DB::table('DatEncabezado')
                     ->insert([
-                        'IdEncabezado' => 0,
+                        'IdEncabezado' => -1,
                         'IdTienda' => $idTienda,
                         'IdDatCaja' => $caja->IdDatCajas,
                         'IdTicket' => $idTicket,
@@ -1154,7 +1167,8 @@ class PoswebController extends Controller
                 $idDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
                     ->max('IdDatEncabezado');
 
-                $idEncabezado = $idTienda . $caja->NumCaja . $idDatEncabezado;
+                $idEncabezado = DatEncabezado::where('IdDatEncabezado', $idDatEncabezado)
+                    ->value('IdEncabezado');
 
                 DatEncabezado::where('IdTienda', $idTienda)
                     ->where('IdDatEncabezado', $idDatEncabezado)
@@ -1395,7 +1409,7 @@ class PoswebController extends Controller
                     }
 
                     // imprimir ticket
-                    DB::select("exec SP_GENERAR_TICKET_CORTE " . $idEncabezado . ", " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
+                    DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                     DB::commit();
 
                     return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
@@ -1708,7 +1722,7 @@ class PoswebController extends Controller
                 }
 
                 // imprimir ticket venta
-                DB::select("exec SP_GENERAR_TICKET_CORTE " . $idEncabezado . ", " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
+                DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                 DB::commit();
 
                 return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
@@ -2490,7 +2504,7 @@ class PoswebController extends Controller
             ->where('StatusVenta', 0)
             ->sum('Iva');
 
-        //return $tickets;
+        // return $tickets;
 
         return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'total', 'totalIva'));
     }

@@ -74,16 +74,16 @@ class ClienteCloudTienda extends Model
                 DB::raw("sum(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo"),
                 DB::raw("sum(DatCortesTienda.IvaArticulo) as IvaArticulo"),
                 DB::raw("sum(DatCortesTienda.ImporteArticulo) as ImporteArticulo"),
-                DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS as STATUS"),
-                DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.MENSAJE_ERROR as MENSAJE_ERROR"),
-                DB::raw("CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name as Batch_Name"),
+                DB::raw("XXH2.STATUS as STATUS"),
+                DB::raw("XXH2.MENSAJE_ERROR as MENSAJE_ERROR"),
+                DB::raw("XXH2.Batch_Name as Batch_Name"),
             ])
             ->groupBy(
                 'DatCortesTienda.Bill_To', 'DatCortesTienda.IdTipoPago',
                 'DatCortesTienda.IdListaPrecio', 'DatCortesTienda.IdArticulo',
                 'DatCortesTienda.PrecioArticulo', 'CatArticulos.NomArticulo',
-                'CatArticulos.CodArticulo', 'DatCortesTienda.Source_Transaction_Identifier', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS',
-                'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.MENSAJE_ERROR', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name'
+                'CatArticulos.CodArticulo', 'DatCortesTienda.Source_Transaction_Identifier', 'XXH2.STATUS',
+                'XXH2.MENSAJE_ERROR', 'XXH2.Batch_Name'
             );
     }
 

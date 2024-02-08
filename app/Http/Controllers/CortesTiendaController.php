@@ -185,19 +185,19 @@ class CortesTiendaController extends Controller
                 // TODO: CORTE GENERAL
                 $cortesTienda = ClienteCloudTienda::with([
                     'PedidoOracle' => function ($oraclePedido) use ($fecha1, $idTienda) {
-                        $oraclePedido->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                        $oraclePedido->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH', 'XXH.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->whereDate('FechaVenta', $fecha1)
                             ->where('IdTienda', $idTienda)
                             ->select(
                                 'DatCortesTienda.Bill_To',
                                 'DatCortesTienda.Source_Transaction_Identifier',
-                                'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS'
+                                'XXH.STATUS'
                             )
                             ->distinct('DatCortesTienda.Source_Transaction_Identifier');
                     },
                     'Customer',
                     'CorteTiendaOracle' => function ($query) use ($idTienda, $fecha1, $idCaja) {
-                        $query->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                        $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->where('DatCortesTienda.IdTienda', $idTienda)
                             ->where('DatCortesTienda.StatusVenta', 0)
                             ->where('DatCortesTienda.IdDatCaja', $idCaja)
@@ -210,8 +210,6 @@ class CortesTiendaController extends Controller
                     ->where('IdTienda', $idTienda)
                     ->whereIn('Bill_To', $billsTo)
                     ->get();
-
-                // return $cortesTienda;
 
                 $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
                     ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
@@ -299,20 +297,21 @@ class CortesTiendaController extends Controller
                                 'DatCortesTienda.IdSolicitudFactura',
                                 'DatCortesTienda.Bill_To',
                                 'DatCortesTienda.Source_Transaction_Identifier',
-                                'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS'
+                                'XXH.STATUS'
                             )
-                            ->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                            ->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH', 'XXH.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->whereDate('FechaVenta', $fecha1)
                             ->where('IdTienda', $idTienda)
                             ->distinct('DatCortesTienda.Source_Transaction_Identifier');
                     },
                     'Factura' => function ($query) use ($idCaja) {
-                        $query->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                        $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
                             ->where('DatCortesTienda.IdDatCaja', $idCaja);
                     }
                 ])
                     ->where('IdTienda', $idTienda)
+                    ->where('Status', 0)
                     ->whereDate('FechaSolicitud', $fecha1)
                     ->get();
             }
@@ -385,13 +384,14 @@ class CortesTiendaController extends Controller
                     ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                     ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
                     ->leftJoin('CatFamilias as d', 'c.IdFamilia', 'd.IdFamilia')
-                    ->select(DB::raw('c.CodArticulo, c.NomArticulo, d.NomFamilia, SUM(b.CantArticulo) as Peso,
+                    ->leftJoin('CatGrupos as e', 'c.IdGrupo', 'e.IdGrupo')
+                    ->select(DB::raw('c.CodArticulo, c.NomArticulo, d.NomFamilia, e.NomGrupo, SUM(b.CantArticulo) as Peso,
                             b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe'))
                     ->where('a.IdTienda', $idTienda)
                     ->where('a.StatusVenta', 0)
                     ->where('a.IdDatCaja', $idCaja)
                     ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                    ->groupBy('c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'd.NomFamilia')
+                    ->groupBy('c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'd.NomFamilia', 'e.NomGrupo')
                     ->orderBy('c.CodArticulo')
                     ->get();
 
@@ -730,19 +730,19 @@ class CortesTiendaController extends Controller
 
             $cortesTienda = ClienteCloudTienda::with([
                 'PedidoOracle' => function ($oraclePedido) use ($fecha, $idTienda) {
-                    $oraclePedido->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                    $oraclePedido->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH', 'XXH.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                         ->whereDate('FechaVenta', $fecha)
                         ->where('IdTienda', $idTienda)
                         ->select(
                             'DatCortesTienda.Bill_To',
                             'DatCortesTienda.Source_Transaction_Identifier',
-                            'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.STATUS'
+                            'XXH.STATUS'
                         )
                         ->distinct('DatCortesTienda.Source_Transaction_Identifier');
                 },
                 'Customer',
                 'CorteTiendaOracle' => function ($query) use ($idTienda, $fecha, $idDatCaja) {
-                    $query->leftJoin('CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS', 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                    $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                         ->where('DatCortesTienda.IdTienda', $idTienda)
                         ->where('DatCortesTienda.StatusVenta', 0)
                         ->where('DatCortesTienda.IdDatCaja', $idDatCaja)

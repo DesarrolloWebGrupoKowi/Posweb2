@@ -47,7 +47,7 @@
                 </thead>
                 <tbody>
                     @if (count($solicitudes) <= 0)
-                        <td colspan="6">No Hay Ninguna Plaza!</td>
+                        <td colspan="6">No Hay Ninguna Solicitud De Factura!</td>
                     @else
                         @foreach ($solicitudes as $solicitud)
                             <tr>
@@ -59,11 +59,14 @@
                                 <td>{{ $solicitud->Ciudad }}</td>
                                 <td> {{ $solicitud->Editar ? 'Actualizar' : 'Nuevo' }} </td>
                                 <td>
-                                    <a href="/SolicitudesFactura/{{ $solicitud->Id }}">
+                                    <a href="/SolicitudesFactura/{{ $solicitud->Id }}" class="text-decoration-none">
                                         <span class="material-icons">edit</span>
                                     </a>
+                                    <i class="material-icons eliminar" data-bs-toggle="modal"
+                                        data-bs-target="#ModalCancelarSolicitud{{ $solicitud->Id }}">delete_forever</i>
                                 </td>
                             </tr>
+                            @include('SolicitudesFactura.ModalCancelarSolicitud')
                         @endforeach
                     @endif
                 </tbody>

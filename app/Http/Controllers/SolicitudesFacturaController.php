@@ -58,6 +58,7 @@ class SolicitudesFacturaController extends Controller
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->leftJoin('CatTipoPago', 'CatTipoPago.IdTipoPago', 'SolicitudFactura.IdTipoPago')
             ->where('NomCliente', 'LIKE', '%' . $searchQuery . '%')
+            ->where('SolicitudFactura.Status', '0')
             ->whereNotNull('Editar')
             ->whereIn('SolicitudFactura.IdTienda', $ids)
             ->where('SolicitudFactura.IdTienda', 'LIKE', $idTienda)
@@ -109,5 +110,14 @@ class SolicitudesFacturaController extends Controller
         ]);
 
         return redirect('SolicitudesFactura')->with('msjAdd', 'Solicitud de factura finalizada correctamente');
+    }
+
+    public function Cancelar($id, Request $request)
+    {
+        SolicitudFactura::where('Id', $id)->update([
+            'Status' => 1,
+        ]);
+
+        return redirect('SolicitudesFactura')->with('msjAdd', 'Solicitud de factura cancelada correctamente');
     }
 }
