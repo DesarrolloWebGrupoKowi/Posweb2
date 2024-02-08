@@ -55,7 +55,7 @@ class DatEncabezado extends Model
     }
 
     public function TipoPago(){
-        return $this->belongsToMany(TipoPago::class, DatTipoPago::class, 'IdEncabezado', 'IdTipoPago')
+        return $this->belongsToMany(TipoPago::class, DatTipoPago::class, 'IdEncabezado', 'IdTipoPago', 'IdEncabezado')
                     ->withPivot('Pago', 'Restante')
                     ->as('PivotPago');
     }
