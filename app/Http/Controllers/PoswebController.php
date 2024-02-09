@@ -1050,7 +1050,7 @@ class PoswebController extends Controller
                     ->where('Status', 0)
                     ->first();
 
-                $idTicket = DatEncabezado::where('IdTienda', 3)
+                $idTicket = DatEncabezado::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', date('d-m-Y'))
                     ->max('IdTicket') + 1;
 
@@ -1141,7 +1141,7 @@ class PoswebController extends Controller
                 // TODO:: DatEncabezado
                 DB::table('DatEncabezado')
                     ->insert([
-                        'IdEncabezado' => 0,
+                        'IdEncabezado' => -1,
                         'IdTienda' => $idTienda,
                         'IdDatCaja' => $caja->IdDatCajas,
                         'IdTicket' => $idTicket,
@@ -2504,7 +2504,7 @@ class PoswebController extends Controller
             ->where('StatusVenta', 0)
             ->sum('Iva');
 
-        //return $tickets;
+        // return $tickets;
 
         return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'total', 'totalIva'));
     }
