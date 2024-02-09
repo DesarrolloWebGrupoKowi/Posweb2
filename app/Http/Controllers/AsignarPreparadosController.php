@@ -103,11 +103,11 @@ class AsignarPreparadosController extends Controller
                     return back()->with('msjdelete', 'Inventario insuficiente para el articulo: ' . $articulo->NomArticulo);
                 }
 
-                // InventarioTienda::leftjoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatInventario.CodArticulo')
-                //     ->where('CatArticulos.IdArticulo', $item->IdArticulo)
-                //     ->update([
-                //         'StockArticulo' => $stock - $item->CantidadPaquete,
-                //     ]);
+                InventarioTienda::leftjoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatInventario.CodArticulo')
+                    ->where('CatArticulos.IdArticulo', $item->IdArticulo)
+                    ->update([
+                        'StockArticulo' => $stock - $item->CantidadPaquete,
+                    ]);
             }
 
             CatPreparado::where('IdPreparado', $idPreparado)->update([
@@ -215,7 +215,7 @@ class AsignarPreparadosController extends Controller
                     'CantArticulo' => -$cantidadEnviada * $articulo->CantidadFormula,
                     'FechaMovimiento' => date('d-m-Y H:i:s'),
                     'Referencia' => $nomOrigenTienda,
-                    'IdMovimiento' => 2,
+                    'IdMovimiento' => 15,
                     'IdUsuario' => Auth::user()->IdUsuario,
                 ]);
 
