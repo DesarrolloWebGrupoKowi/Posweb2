@@ -193,15 +193,17 @@ class CancelacionTicketsController extends Controller
                     'StatusVenta' => 1,
                 ]);
 
+            if (VentaCreditoEmpleado::where('IdEncabezado', $idEncabezado)->exists()) {
+                // cancelar el credito del empleado del concentrado de creditos (DatConcenVenta) **
+                VentaCreditoEmpleado::where('IdEncabezado', $idEncabezado)
+                    ->delete();
+            }
+
             if (CreditoEmpleado::where('IdEncabezado', $idEncabezado)->exists()) {
                 CreditoEmpleado::where('IdEncabezado', $idEncabezado)
                     ->update([
                         'StatusVenta' => 1,
                     ]);
-
-                // cancelar el credito del empleado del concentrado de creditos (DatConcenVenta) **
-                VentaCreditoEmpleado::where('IdEncabezado', $idEncabezado)
-                    ->delete();
 
                 // revisar si la venta genero monedero electronico, para cancelarlo **
                 $monederoGenerado = DatMonederoElectronico::where('IdEncabezado', $idEncabezado)
