@@ -2470,7 +2470,7 @@ class PoswebController extends Controller
         $impresora->pulse();
         $impresora->close();
 
-        return redirect()->route('ReimprimirTicket', compact('idTicket', 'fechaVenta'))->with('msjAdd', 'Se Imprimio el Ticket: ' . $idTicket);
+        return redirect()->back()->with('msjAdd', 'Se Imprimio el Ticket: ' . $idTicket);
     }
 
     public function VentaTicketDiario(Request $request)
