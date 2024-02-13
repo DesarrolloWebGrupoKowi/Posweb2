@@ -76,18 +76,22 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <form action="/ImprimirTicket">
-                                    <input class="form-control" type="hidden" name="txtFecha" id="txtFecha"
-                                        value="{{ $ticket->FechaVenta }}" required>
-                                    <input style="text-align: center" class="form-control" type="hidden" id="txtIdTicket"
-                                        name="txtIdTicket" placeholder="Ticket" size="4"
-                                        value="{{ $ticket->IdTicket }}" required>
-                                    <div>
-                                        <button class="btn">
-                                            <span class="material-icons">print</span>
-                                        </button>
+                                @if (Carbon\Carbon::parse($ticket->FechaVenta)->format('d/m/Y') == Carbon\Carbon::parse(now())->format('d/m/Y'))
+                                    <div class="d-flex">
+                                        <form action="/ImprimirTicket">
+                                            <input class="form-control" type="hidden" name="txtFecha" id="txtFecha"
+                                                value="{{ $ticket->FechaVenta }}" required>
+                                            <input style="text-align: center" class="form-control" type="hidden"
+                                                id="txtIdTicket" name="txtIdTicket" placeholder="Ticket" size="4"
+                                                value="{{ $ticket->IdTicket }}" required>
+                                            <div>
+                                                <button class="btn">
+                                                    <span class="material-icons">print</span>
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
-                                </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
