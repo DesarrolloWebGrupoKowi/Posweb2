@@ -1484,8 +1484,11 @@ class PoswebController extends Controller
                     return redirect('Pos')->with('Pos', 'La Tienda No Tiene Caja Activa, Comuniquese con Sistemas!');
                 }
 
-                $idEncabezado = DatEncabezado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->max('IdEncabezado');
+                $IdDatEncabezado = DatEncabezado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->max('IdDatEncabezado');
+
+                $idEncabezado = DatEncabezado::where('IdDatEncabezado', $IdDatEncabezado)
+                    ->value('IdEncabezado');
 
                 // $idEncabezado = Auth::user()->usuarioTienda->IdTienda . $caja->NumCaja . $idDatEncabezado;
 
