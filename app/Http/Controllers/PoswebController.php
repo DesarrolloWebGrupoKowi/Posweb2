@@ -839,9 +839,10 @@ class PoswebController extends Controller
                         ->where('d.IdTienda', $idTienda)
                         ->where('c.IdListaPrecio', '<>', 4)
                         ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pesoFijo)
-                        ->toSql();
+                        ->first();
+                        // ->toSql();
 
-                    return $articulo;
+                    // return $articulo;
                 } else {
                     $articulo = DB::table('CatArticulos as a')
                         ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
