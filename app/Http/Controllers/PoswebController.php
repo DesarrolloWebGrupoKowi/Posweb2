@@ -1888,6 +1888,7 @@ class PoswebController extends Controller
 
         $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) {
             $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
+            $query->where('DatEncabezado.StatusVenta', 0);
         }])
             ->where('IdTienda', $idTienda)
             ->whereDate('FechaSolicitud', $fecha)
