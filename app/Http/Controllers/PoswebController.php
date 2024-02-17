@@ -715,13 +715,23 @@ class PoswebController extends Controller
         if ($inicio == '200') {
             is_null($cantidad) ? $peso = $peso : $peso = $cantidad;
 
+            $nombreArticulos = Articulo::where('CodEtiqueta', $codEtiqueta)->value('NomArticulo');
+
             if (empty($numNomina) || $peso > $empySoc->PesoMaximo) {
-                $listaPrecioTienda = DB::table('CatListasPrecio as a')
-                    ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
-                    ->where('b.IdTienda', $idTienda)
-                    ->where('a.IdListaPrecio', '<>', 4)
-                    ->whereRaw('? between a.PesoMinimo and a.PesoMaximo', $peso)
-                    ->first();
+                if ($peso >= 10 && $peso <= 20 && ((strpos($nombreArticulos, 'RECORTE') !== false) && strpos($nombreArticulos, '90/10') !== false || strpos($nombreArticulos, 'CERDO') !== false)) {
+                    $listaPrecioTienda = DB::table('CatListasPrecio as a')
+                        ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
+                        ->where('b.IdTienda', $idTienda)
+                        ->where('a.IdListaPrecio', 2)
+                        ->first();
+                } else {
+                    $listaPrecioTienda = DB::table('CatListasPrecio as a')
+                        ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
+                        ->where('b.IdTienda', $idTienda)
+                        ->where('a.IdListaPrecio', '<>', 4)
+                        ->whereRaw('? between a.PesoMinimo and a.PesoMaximo', $peso)
+                        ->first();
+                }
             } else {
                 $listaPrecioTienda = DB::table('CatListasPrecio as a')
                     ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
@@ -739,28 +749,52 @@ class PoswebController extends Controller
             }
 
             if (empty($numNomina) || $peso > $empySoc->PesoMaximo) {
-                $articulo = DB::table('CatArticulos as a')
-                    ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
-                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
-                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select(
-                        'a.IdArticulo',
-                        'a.CodArticulo',
-                        'a.NomArticulo',
-                        'a.Peso',
-                        'a.Iva',
-                        'a.Status',
-                        'b.PrecioArticulo',
-                        'c.IdListaPrecio',
-                        'c.NomListaPrecio',
-                        'c.PorcentajeIva',
-                        'b.IdDatPrecios'
-                    )
-                    ->where('a.CodEtiqueta', $codEtiqueta)
-                    ->where('d.IdTienda', $idTienda)
-                    ->where('c.IdListaPrecio', '<>', 4)
-                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso)
-                    ->first();
+                if ($peso >= 10 && $peso <= 20 && ((strpos($nombreArticulos, 'RECORTE') !== false) && strpos($nombreArticulos, '90/10') !== false || strpos($nombreArticulos, 'CERDO') !== false)) {
+                    $articulo = DB::table('CatArticulos as a')
+                        ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                        ->select(
+                            'a.IdArticulo',
+                            'a.CodArticulo',
+                            'a.NomArticulo',
+                            'a.Peso',
+                            'a.Iva',
+                            'a.Status',
+                            'b.PrecioArticulo',
+                            'c.IdListaPrecio',
+                            'c.NomListaPrecio',
+                            'c.PorcentajeIva',
+                            'b.IdDatPrecios'
+                        )
+                        ->where('a.CodEtiqueta', $codEtiqueta)
+                        ->where('d.IdTienda', $idTienda)
+                        ->where('c.IdListaPrecio', 2)
+                        ->first();
+                } else {
+                    $articulo = DB::table('CatArticulos as a')
+                        ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                        ->select(
+                            'a.IdArticulo',
+                            'a.CodArticulo',
+                            'a.NomArticulo',
+                            'a.Peso',
+                            'a.Iva',
+                            'a.Status',
+                            'b.PrecioArticulo',
+                            'c.IdListaPrecio',
+                            'c.NomListaPrecio',
+                            'c.PorcentajeIva',
+                            'b.IdDatPrecios'
+                        )
+                        ->where('a.CodEtiqueta', $codEtiqueta)
+                        ->where('d.IdTienda', $idTienda)
+                        ->where('c.IdListaPrecio', '<>', 4)
+                        ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso)
+                        ->first();
+                }
             } else {
                 $articulo = DB::table('CatArticulos as a')
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
@@ -840,7 +874,7 @@ class PoswebController extends Controller
                         ->where('c.IdListaPrecio', '<>', 4)
                         ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pesoFijo)
                         ->first();
-                        // ->toSql();
+                    // ->toSql();
 
                     // return $articulo;
                 } else {
