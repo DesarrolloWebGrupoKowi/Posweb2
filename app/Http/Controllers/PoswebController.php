@@ -1888,6 +1888,7 @@ class PoswebController extends Controller
 
         $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) {
             $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
+            $query->where('DatEncabezado.StatusVenta', 0);
         }])
             ->where('IdTienda', $idTienda)
             ->whereDate('FechaSolicitud', $fecha)
@@ -2349,6 +2350,16 @@ class PoswebController extends Controller
         $idTicket = $request->txtIdTicket;
 
         $fechaVenta = $request->txtFecha;
+
+        if (!$idTicket && !$fechaVenta) {
+            $ultimaVenta = DatEncabezado::select('IdTicket', 'FechaVenta')
+                ->orderBy('IdDatEncabezado', 'desc')
+                ->first();
+
+            $idTicket = $ultimaVenta->IdTicket;
+
+            $fechaVenta = $ultimaVenta->FechaVenta;
+        }
 
         $tienda = DB::table('CatTiendas as a')
             ->leftJoin('CatCiudades as b', 'b.IdCiudad', 'a.IdCiudad')

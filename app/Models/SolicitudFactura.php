@@ -48,6 +48,7 @@ class SolicitudFactura extends Model
     {
         return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
             ->select('CatArticulos.CodArticulo', 'CatArticulos.NomArticulo')
+            ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'DatCortesTienda.IdEncabezado')
             ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
             ->as('PivotDetalle');
     }

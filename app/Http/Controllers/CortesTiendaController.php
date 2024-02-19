@@ -760,11 +760,13 @@ class CortesTiendaController extends Controller
 
             $facturas = SolicitudFactura::with([
                 'Factura' => function ($query) use ($idDatCaja) {
-                    $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+                    $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                        ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
                         ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
                 }
             ])
                 ->where('IdTienda', $idTienda)
+                ->where('Status', 0)
                 ->whereDate('FechaSolicitud', $fecha)
                 ->get();
 
