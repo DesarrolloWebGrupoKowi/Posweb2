@@ -613,6 +613,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/EliminarPaquete/{idPaquete}', 'App\Http\Controllers\PaquetesController@EliminarPaquete');
 
     //+============================================================================================================================================+//
+    //CatPaquetes - Locales
+    Route::get('/Paquetes', 'App\Http\Controllers\PaquetesController@PaquetesLocal');
+    //Dar de baja un paquete
+    Route::get('/ActivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@ActivarPaquetesLocal');
+    //Dar de baja un paquete
+    Route::get('/DesactivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@DesactivarPaquetesLocal');
+
+    //+============================================================================================================================================+//
     //TransaccionProducto
     Route::get('/TransaccionProducto', 'App\Http\Controllers\TransaccionProductoController@TransaccionProducto');
 

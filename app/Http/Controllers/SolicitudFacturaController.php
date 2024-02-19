@@ -65,7 +65,7 @@ class SolicitudFacturaController extends Controller
                 DB::raw('sum(a.ImporteArticulo) as ImporteArticulo'),
                 DB::raw('a.IdSolicitudFactura')
             ])
-            ->where('a.IdEncabezado', empty($ticket->IdEncabezado) ? 0 : $ticket->IdEncabezado)
+            ->where('a.IdEncabezado', empty($ticket->IdEncabezado) ? '0' : $ticket->IdEncabezado)
             ->where('a.IdTienda', $idTienda)
             ->groupBy('a.IdTipoPago', 'b.NomTipoPago', 'a.IdSolicitudFactura')
             ->get();
@@ -73,7 +73,7 @@ class SolicitudFacturaController extends Controller
         $tieneSolFe = DB::table('DatCortesTienda')
             ->select('IdSolicitudFactura')
             ->where('IdTienda', $idTienda)
-            ->where('IdEncabezado', empty($ticket->IdEncabezado) ? 0 : $ticket->IdEncabezado)
+            ->where('IdEncabezado', empty($ticket->IdEncabezado) ? '0' : $ticket->IdEncabezado)
             ->whereNull('IdSolicitudFactura')
             ->get();
 
@@ -82,7 +82,7 @@ class SolicitudFacturaController extends Controller
         $tiposPagoDistinct = DB::table('DatCortesTienda as a')
             ->leftJoin('CatTipoPago as b', 'b.IdTipoPago', 'a.IdTipoPago')
             ->select('a.IdTipoPago')
-            ->where('a.IdEncabezado', empty($ticket->IdEncabezado) ? 0 : $ticket->IdEncabezado)
+            ->where('a.IdEncabezado', empty($ticket->IdEncabezado) ? '0' : $ticket->IdEncabezado)
             ->where('a.IdTienda', $idTienda)
             ->distinct('a.IdTipoPago')
             ->get();

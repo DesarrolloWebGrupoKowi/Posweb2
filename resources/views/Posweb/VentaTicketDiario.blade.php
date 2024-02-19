@@ -13,6 +13,10 @@
             </form>
         </div>
 
+        <div>
+            @include('Alertas.Alertas')
+        </div>
+
         <div class="content-table content-table-full card p-4" style="border-radius: 20px">
             <table>
                 <thead class="table-head">
@@ -21,16 +25,17 @@
                         <th>Fecha</th>
                         <th>Importe</th>
                         <th>Iva</th>
-                        <th>Detalle</th>
-                        <th>Solicitud Factura</th>
-                        <th>Status Venta</th>
-                        <th class="rounded-end">En linea</th>
+                        <th class="text-center">Detalle</th>
+                        <th class="text-center">Solicitud Factura</th>
+                        <th class="text-center">Status Venta</th>
+                        <th class="text-center">En linea</th>
+                        <th class="text-center rounded-end"></th>
                     </tr>
                 </thead>
                 <tbody>
                     @if ($tickets->count() == 0)
                         <tr>
-                            <td colspan="7">No Hay Ventas</td>
+                            <td colspan="9">No Hay Ventas</td>
                         </tr>
                     @endif
                     @foreach ($tickets as $ticket)
@@ -40,15 +45,17 @@
                             <td>$ {{ number_format($ticket->ImporteVenta, 2) }}</td>
                             <td>{{ number_format($ticket->Iva, 2) }}</td>
                             <td>
-                                <i style="color: rgb(255, 145, 0); cursor: pointer; font-size: 20px"
-                                    class="fa fa-info-circle" data-bs-toggle="modal"
-                                    data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}"></i>
+                                <div class="text-center">
+                                    <i style="color: rgb(255, 145, 0); cursor: pointer; font-size: 20px"
+                                        class="fa fa-info-circle pe-2" data-bs-toggle="modal"
+                                        data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}"></i>
+                                    <i style="color: green; cursor: pointer; font-size: 20px" class="fa fa-usd"
+                                        data-bs-toggle="modal" data-bs-target="#ModalTipoPago{{ $ticket->IdTicket }}"></i>
+                                </div>
                                 @include('Posweb.ModalDetalleTicket')
-                                <i style="color: green; cursor: pointer; font-size: 20px" class="fa fa-usd"
-                                    data-bs-toggle="modal" data-bs-target="#ModalTipoPago{{ $ticket->IdTicket }}"></i>
                                 @include('Posweb.ModalTipoPago')
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if ($ticket->SolicitudFE == 0 && $ticket->SolicitudFE != null)
                                     <i style="font-size: 18px; cursor: pointer" class="fa fa-check-square"
                                         data-bs-toggle="modal"
@@ -56,16 +63,34 @@
                                     @include('Posweb.ModalSolicitudFe')
                                 @endif
                             </td>
-                            <td style="color: red;">
+                            <td class="text-center" style="color: red;">
                                 @if ($ticket->StatusVenta == 1)
                                     <i style="font-size: 20px" class="fa fa-ban"></i>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if ($ticket->Subir == 1)
                                     <i style="color: green; font-size: 20px" class="fa fa-check-circle-o"></i>
                                 @else
                                     <i style="color: red; font-size: 20px" class="fa fa-times-circle-o"></i>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if (Carbon\Carbon::parse($ticket->FechaVenta)->format('d/m/Y') == Carbon\Carbon::parse(now())->format('d/m/Y'))
+                                    <div class="d-flex">
+                                        <form action="/ImprimirTicket">
+                                            <input class="form-control" type="hidden" name="txtFecha" id="txtFecha"
+                                                value="{{ $ticket->FechaVenta }}" required>
+                                            <input style="text-align: center" class="form-control" type="hidden"
+                                                id="txtIdTicket" name="txtIdTicket" placeholder="Ticket" size="4"
+                                                value="{{ $ticket->IdTicket }}" required>
+                                            <div>
+                                                <button class="btn">
+                                                    <span class="material-icons">print</span>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 @endif
                             </td>
                         </tr>

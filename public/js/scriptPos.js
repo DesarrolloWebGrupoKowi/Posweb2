@@ -1,29 +1,29 @@
-$(function() {
-    $('#ModalPagar').on('shown.bs.modal', function(e) {
+$(function () {
+    $('#ModalPagar').on('shown.bs.modal', function (e) {
         $('#txtPago').focus();
     })
 });
 
-$(function() {
-    $('#ModalConsultar').on('shown.bs.modal', function(e) {
+$(function () {
+    $('#ModalConsultar').on('shown.bs.modal', function (e) {
         $('#filtroArticulo').focus();
     })
 });
 
-$(function() {
-    $('#ModalEmpleado').on('shown.bs.modal', function(e) {
+$(function () {
+    $('#ModalEmpleado').on('shown.bs.modal', function (e) {
         $('#numNomina').focus();
 
-        var delay = (function() {
+        var delay = (function () {
             var timer = 0;
-            return function(callback, ms) {
+            return function (callback, ms) {
                 clearTimeout(timer);
                 timer = setTimeout(callback, ms);
             };
         })();
 
-        $("#numNomina").on("input", function() {
-            delay(function() {
+        $("#numNomina").on("input", function () {
+            delay(function () {
                 if ($("#numNomina").val().length < 2) {
                     $("#numNomina").val("");
                 }
@@ -41,7 +41,7 @@ $(function() {
 const visibleCheckCliente = $("#chkCliente").is(":visible");
 if (visibleCheckCliente) {
     const chkCliente = document.getElementById('chkCliente');
-    chkCliente.addEventListener('click', function() {
+    chkCliente.addEventListener('click', function () {
         location.href = '/QuitarEmpleado';
     });
 }
@@ -56,12 +56,12 @@ if (visiblechkCancelarDescuento) {
 
 const btnPedidos = document.getElementById('btnPedidos');
 
-btnPedidos.addEventListener('click', function() {
+btnPedidos.addEventListener('click', function () {
     location.href = '/PedidosGuardados';
 });
 
 //Ocultar alerta pasados 4 segundos
-$("#alerta").fadeTo(5000, 1000).slideUp(1000, function() {
+$("#alerta").fadeTo(5000, 1000).slideUp(1000, function () {
     $("alerta").slideUp(1000);
 });
 
@@ -83,7 +83,7 @@ function teclas(e) {
     }
 }
 
-document.addEventListener('keypress', function(e) {
+document.addEventListener('keypress', function (e) {
     const esVisible = $("#ModalConsultar").is(":visible");
     const esVisibleModalFactura = $("#ModalFactura").is(":visible");
     if (!esVisible && !esVisibleModalFactura) {
@@ -95,8 +95,8 @@ document.addEventListener('keypress', function(e) {
 const formPago = document.getElementById('formPago');
 const txtPago = document.getElementById('txtPago');
 
-formPago.addEventListener('submit', function() {
-    setTimeout(function() {
+formPago.addEventListener('submit', function () {
+    setTimeout(function () {
         txtPago.disabled = true;
     }, 100)
 });
@@ -110,46 +110,51 @@ const stock = document.getElementById('stock');
 const btnSolicitudFactura = document.getElementById('btnSolicitudFactura');
 const solicitudesFactura = document.getElementById('solicitudesFactura');
 const adeudosEmpleado = document.getElementById('adeudosEmpleado');
+const paquetes = document.getElementById('paquetes');
 
-CorteTienda.addEventListener('click', function() {
+CorteTienda.addEventListener('click', function () {
     location.href = '/CorteDiario';
 });
 
-btnSolicitudFactura.addEventListener('click', function() {
+btnSolicitudFactura.addEventListener('click', function () {
     location.href = '/SolicitudFactura';
 });
 
-ReimprimirTicket.addEventListener('click', function() {
+ReimprimirTicket.addEventListener('click', function () {
     location.href = '/ReimprimirTicket';
 });
 
-ticketDiario.addEventListener('click', function() {
+ticketDiario.addEventListener('click', function () {
     location.href = '/VentaTicketDiario';
 });
 
-listadoCodEtiqueta.addEventListener('click', function() {
+listadoCodEtiqueta.addEventListener('click', function () {
     location.href = '/ListaCodEtiquetas';
 });
 
-concentradoVentas.addEventListener('click', function() {
+concentradoVentas.addEventListener('click', function () {
     location.href = '/ConcentradoVentas';
 });
 
-stock.addEventListener('click', function() {
+stock.addEventListener('click', function () {
     location.href = '/ReporteStock';
 });
 
-solicitudesFactura.addEventListener('click', function() {
+solicitudesFactura.addEventListener('click', function () {
     location.href = '/VerSolicitudesFactura';
 });
 
-adeudosEmpleado.addEventListener('click', function() {
+adeudosEmpleado.addEventListener('click', function () {
     location.href = '/AdeudosEmpleado';
+})
+
+paquetes.addEventListener('click', function () {
+    location.href = '/Paquetes';
 })
 
 const tipoPago = document.getElementById('tipoPago');
 const modalPagoTarjeta = document.getElementById('modalPagoTarjeta');
-tipoPago.addEventListener('change', function() {
+tipoPago.addEventListener('change', function () {
     const DivTarjeta = document.getElementById('DivTarjeta');
     const numTarjeta = document.getElementById('numTarjeta');
     const idBanco = document.getElementById('idBanco');
