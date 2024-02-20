@@ -976,12 +976,14 @@ class PoswebController extends Controller
                 $listaPrecio->whereIn('CatListasPrecio.IdListaPrecio', $idsListaPrecio);
             }])
                 ->where('CodArticulo', $filtroArticulo)
+                ->where('Status', 0)
                 ->get();
         } else {
             $articulos = Articulo::with(['PrecioArticulo' => function ($listaPrecio) use ($idsListaPrecio) {
                 $listaPrecio->whereIn('CatListasPrecio.IdListaPrecio', $idsListaPrecio);
             }])
                 ->where('NomArticulo', 'like', '%' . $filtroArticulo . '%')
+                ->where('Status', 0)
                 ->get();
         }
 
