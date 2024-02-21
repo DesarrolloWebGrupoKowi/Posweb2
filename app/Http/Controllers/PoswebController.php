@@ -36,6 +36,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Mike42\Escpos\EscposImage;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
@@ -1032,7 +1033,16 @@ class PoswebController extends Controller
 
     public function GuardarVenta(Request $request)
     {
+        Log::info('===============================================================================================================');
+        Log::info('');
+        Log::info('===========================================GUARDAR VENTA =======================================================');
+        Log::info('1037-->');
+        Log::info($request);
+
         $temporalPos = TemporalPos::first();
+
+        Log::info('-->Temporal post');
+        Log::info($temporalPos);
 
         $numNomina = $temporalPos->NumNomina;
 
@@ -1044,8 +1054,13 @@ class PoswebController extends Controller
         try {
             DB::beginTransaction();
 
+            Log::info('1052-->');
+            Log::info($multipago);
+
             if ($multipago->MultiPago == null) {
                 $idTipoPago = $request->tipoPago;
+                Log::info('-->');
+                Log::info('Tipo de pago: ' . $idTipoPago);
 
                 $idUsuario = Auth::user()->IdUsuario;
 
@@ -1094,6 +1109,9 @@ class PoswebController extends Controller
                 if ($fechaActual == $mycaja->FechaVenta && $idTicket < $mycaja->IdTicket) {
                     $idTicket = $mycaja->IdTicket + 1;
                 }
+
+                Log::info('-->');
+                Log::info('Tickets numero: ' . $idTicket);
 
                 $caja = DB::table('DatCajas as a')
                     ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
@@ -1175,6 +1193,9 @@ class PoswebController extends Controller
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
                 }
 
+                Log::info('-->');
+                Log::info('Guardando dat encabezado');
+
                 // TODO:: DatEncabezado
                 DB::table('DatEncabezado')
                     ->insert([
@@ -1207,6 +1228,9 @@ class PoswebController extends Controller
                 $idEncabezado = DatEncabezado::where('IdDatEncabezado', $idDatEncabezado)
                     ->value('IdEncabezado');
 
+                Log::info('-->');
+                Log::info('Encabezado: ' . $idEncabezado);
+
                 DatEncabezado::where('IdTienda', $idTienda)
                     ->where('IdDatEncabezado', $idDatEncabezado)
                     ->update([
@@ -1215,6 +1239,9 @@ class PoswebController extends Controller
 
                 $preventa = PreventaTmp::where('IdTienda', $idTienda)
                     ->get();
+
+                Log::info('-->');
+                Log::info('Guardando detalle de encabezado');
 
                 foreach ($preventa as $index => $detalle) {
                     DatDetalle::insert([
@@ -1235,55 +1262,6 @@ class PoswebController extends Controller
                     ]);
                 }
 
-                // Obtenemos los paquetes de la venta
-                $paquetesPreparados = PreventaTmp::select(
-                    'DatVentaTmp.IdPaquete',
-                    DB::raw('COUNT(DatVentaTmp.CantArticulo) as Cantidad')
-                )
-                    ->where('IdTienda', $idTienda)
-                    ->whereNotNull('DatVentaTmp.IdPaquete')
-                    ->groupBy('DatVentaTmp.IdPaquete', 'DatVentaTmp.IdArticulo')
-                    ->distinct()
-                    ->get();
-
-                // Iteramos la lista de paquetes
-                foreach ($paquetesPreparados as $pp) {
-                    $paquetesConPreparado = CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
-                        ->whereNotNull('CatPaquetes.IdPreparado')
-                        ->get();
-
-                    // Buscamos que los paquetes tengan id de prepadado
-                    if (count($paquetesConPreparado) != 0) {
-                        // Obtenemos la cantidad ya vendida
-                        $cantidadTotal = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                            ->value('CantidadEnvio');
-
-                        $cantidadVendida = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                            ->value('CantidadVendida');
-
-                        if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) < 0) {
-                            return redirect()->route('Pos')->with('Pos', 'Inventario insuficiente para el paquete de preparado!');
-                        }
-
-                        if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) == 0) {
-                            CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
-                                ->whereNotNull('CatPaquetes.IdPreparado')
-                                ->update([
-                                    'Status' => 1,
-                                ]);
-                        }
-
-                        // Sumamos la cantidad vendida, mas la nueva cantidad que se esta vendiendo
-                        DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                            ->update([
-                                'CantidadVendida' => !$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad,
-                            ]);
-                    }
-                }
-
                 $importeVenta = PreventaTmp::where('IdTienda', $idTienda)
                     ->select('ImporteArticulo')
                     ->sum('ImporteArticulo');
@@ -1299,8 +1277,68 @@ class PoswebController extends Controller
 
                 if ($pago > $importeVenta || $pago == $importeVenta) {
 
+                    Log::info('-->');
+                    Log::info('Paquetes de preparados');
+
+                    // Obtenemos los paquetes de la venta
+                    $paquetesPreparados = PreventaTmp::select(
+                        'DatVentaTmp.IdPaquete',
+                        DB::raw('COUNT(DatVentaTmp.CantArticulo) as Cantidad')
+                    )
+                        ->where('IdTienda', $idTienda)
+                        ->whereNotNull('DatVentaTmp.IdPaquete')
+                        ->groupBy('DatVentaTmp.IdPaquete', 'DatVentaTmp.IdArticulo')
+                        ->distinct()
+                        ->get();
+
+                    // Iteramos la lista de paquetes
+                    foreach ($paquetesPreparados as $pp) {
+                        $paquetesConPreparado = CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
+                            ->whereNotNull('CatPaquetes.IdPreparado')
+                            ->get();
+
+                        Log::info('-->');
+                        Log::info('Paquete preparado');
+                        Log::info($paquetesConPreparado);
+
+                        // Buscamos que los paquetes tengan id de prepadado
+                        if (count($paquetesConPreparado) != 0) {
+                            // Obtenemos la cantidad ya vendida
+                            $cantidadTotal = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                                ->value('CantidadEnvio');
+
+                            $cantidadVendida = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                                ->value('CantidadVendida');
+
+                            if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) < 0) {
+                                return redirect()->route('Pos')->with('Pos', 'Inventario insuficiente para el paquete de preparado!');
+                            }
+
+                            if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) == 0) {
+                                CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
+                                    ->whereNotNull('CatPaquetes.IdPreparado')
+                                    ->update([
+                                        'Status' => 1,
+                                    ]);
+                            }
+
+                            // Sumamos la cantidad vendida, mas la nueva cantidad que se esta vendiendo
+                            DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                                ->update([
+                                    'CantidadVendida' => !$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad,
+                                ]);
+                        }
+                    }
+
                     $restanteSinFormat = $pago - $importeVenta;
                     $restante = number_format($restanteSinFormat, 2);
+
+                    Log::info('-->');
+                    Log::info('Restante: ' . $restante);
+                    Log::info('Restante: ' . $pago);
 
                     DatTipoPago::insert([
                         'IdEncabezado' => $idEncabezado,
@@ -1431,6 +1469,9 @@ class PoswebController extends Controller
                         ]);
                     }
 
+                    Log::info('-->');
+                    Log::info('Se actualiza el encabezado para que se suba');
+
                     //subir venta
                     DatEncabezado::where('IdEncabezado', $idEncabezado)
                         ->update([
@@ -1448,6 +1489,12 @@ class PoswebController extends Controller
                     // imprimir ticket
                     DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                     DB::commit();
+
+                    Log::info('-->');
+                    Log::info('Se manda imprimir el ticket');
+                    Log::info('Encabezado: ' . $idEncabezado);
+                    Log::info('Restante: ' . $restante);
+                    Log::info('Pago: ' . $pago);
 
                     return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
                 }
@@ -1543,6 +1590,15 @@ class PoswebController extends Controller
 
                 empty($request->numTarjeta) ? $numTarjeta = 0 : $numTarjeta = $request->numTarjeta;
 
+                Log::info('1556-->');
+                Log::info('Enviando a calculo multiple');
+                Log::info('Encabezado: ' . $idEncabezado);
+                Log::info('Restante: ' . $restante);
+                Log::info('Pago: ' . $pago);
+                Log::info('idTipoPago: ' . $idTipoPago);
+                Log::info('Banco: ' . $idBanco);
+                Log::info('Numero de targeta: ' . $numTarjeta);
+
                 return redirect()->route('CalculoMultiPago', compact('idEncabezado', 'restante', 'pago', 'idTipoPago', 'idBanco', 'numTarjeta'));
             }
         } catch (\Throwable $th) {
@@ -1553,7 +1609,8 @@ class PoswebController extends Controller
 
     public function CalculoMultiPago(Request $request, $idEncabezado, $restante, $pago, $idTipoPago, $idBanco, $numTarjeta)
     {
-
+        Log::info('-->');
+        Log::info('Entro al multipago');
         try {
             DB::beginTransaction();
             if ($idTipoPago != 1) {
@@ -1624,6 +1681,59 @@ class PoswebController extends Controller
 
             if ($restante >= 0) {
                 $idTienda = Auth::user()->usuarioTienda->IdTienda;
+
+                // Obtenemos los paquetes de la venta
+                $paquetesPreparados = PreventaTmp::select(
+                    'DatVentaTmp.IdPaquete',
+                    DB::raw('COUNT(DatVentaTmp.CantArticulo) as Cantidad')
+                )
+                    ->where('IdTienda', $idTienda)
+                    ->whereNotNull('DatVentaTmp.IdPaquete')
+                    ->groupBy('DatVentaTmp.IdPaquete', 'DatVentaTmp.IdArticulo')
+                    ->distinct()
+                    ->get();
+
+                // Iteramos la lista de paquetes
+                foreach ($paquetesPreparados as $pp) {
+                    $paquetesConPreparado = CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
+                        ->whereNotNull('CatPaquetes.IdPreparado')
+                        ->get();
+
+                    Log::info('-->');
+                    Log::info('Paquete preparado');
+                    Log::info($paquetesConPreparado);
+
+                    // Buscamos que los paquetes tengan id de prepadado
+                    if (count($paquetesConPreparado) != 0) {
+                        // Obtenemos la cantidad ya vendida
+                        $cantidadTotal = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                            ->value('CantidadEnvio');
+
+                        $cantidadVendida = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                            ->value('CantidadVendida');
+
+                        if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) < 0) {
+                            return redirect()->route('Pos')->with('Pos', 'Inventario insuficiente para el paquete de preparado!');
+                        }
+
+                        if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) == 0) {
+                            CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
+                                ->whereNotNull('CatPaquetes.IdPreparado')
+                                ->update([
+                                    'Status' => 1,
+                                ]);
+                        }
+
+                        // Sumamos la cantidad vendida, mas la nueva cantidad que se esta vendiendo
+                        DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
+                            ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                            ->update([
+                                'CantidadVendida' => !$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad,
+                            ]);
+                    }
+                }
 
                 PreventaTmp::where('IdTienda', $idTienda)
                     ->delete();
@@ -1761,9 +1871,20 @@ class PoswebController extends Controller
                     DB::statement("exec Sp_Guardar_DatConcenVenta " . Auth::user()->usuarioTienda->IdTienda . ", '" . $idEncabezado . "', " . $temporalPos->NumNomina . ", '" . date('d-m-Y') . "', " . $pagoCredito . ", 1");
                 }
 
+                Log::info('-->');
+                Log::info('SP_GENERAR_TICKET_CORTE');
+                Log::info('Encabezado: ' . $idEncabezado);
+                Log::info('Tienda: ' . $idTienda);
+
                 // imprimir ticket venta
                 DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                 DB::commit();
+
+                Log::info('-->');
+                Log::info('Se manda imprimir el ticket');
+                Log::info('Encabezado: ' . $idEncabezado);
+                Log::info('Restante: ' . $restante);
+                Log::info('Pago: ' . $pago);
 
                 return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
             } else {
@@ -2173,6 +2294,9 @@ class PoswebController extends Controller
 
     public function ImprimirTicketVenta($idEncabezado, $restante, $pago)
     {
+        Log::info('-->');
+        Log::info('ImprimirTicketVenta');
+
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
         $tienda = DB::table('CatTiendas as a')
@@ -2191,6 +2315,9 @@ class PoswebController extends Controller
         $encabezado = DatEncabezado::where('IdEncabezado', $idEncabezado)
             ->where('IdTienda', $idTienda)
             ->first();
+
+        Log::info('-->');
+        Log::info($encabezado);
 
         $datTipoPago = DB::table('DatTipoPago as a')
             ->leftJoin('CatTipoPago as b', 'b.IdTipoPago', 'a.IdTipoPago')
