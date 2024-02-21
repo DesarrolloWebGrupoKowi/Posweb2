@@ -9,8 +9,8 @@
             <div class="modal-body">
                 <span class="bg-dark text-white rounded-2 p-1">{{ $merma->NomArticulo }} -
                     {{ number_format($merma->CantArticulo, 3) }}</span>
-                <table class="table table-striped table-responsive">
-                    <thead class="table-dark">
+                <table class="">
+                    <thead>
                         <tr>
                             <th>Lote</th>
                             <th>Caducidad</th>
@@ -42,8 +42,7 @@
                     <div class="d-flex justify-content-center">
                         <div class="col-auto">
                             <span class="bg-danger text-white rounded-2 p-1"><i class="fa fa-exclamation-circle"></i>
-                                <strong>Inventario Insuficiente</strong> <i
-                                    class="fa fa-exclamation-circle"></i></span>
+                                <strong>Inventario Insuficiente</strong> <i class="fa fa-exclamation-circle"></i></span>
                         </div>
                     </div>
                 @endif
