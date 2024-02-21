@@ -751,6 +751,11 @@ Route::group(['middleware' => 'auth'], function () {
     //GenerarCorteOraclePDF
     Route::get('/GenerarCorteOraclePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@GenerarCorteOraclePDF')->name('GenerarCorteOraclePDF');
 
+
+    //+============================================================================================================================================+//
+    //ReporteConcentradoDeArticulos
+    Route::get('/ReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeArticulos')->name('ReporteConcentradoDeArticulos');
+
     //+============================================================================================================================================+//
     //BloqueoEmpleados
     Route::get('/BloqueoEmpleados', 'App\Http\Controllers\BloqueoEmpleadosController@BloqueoEmpleados');
