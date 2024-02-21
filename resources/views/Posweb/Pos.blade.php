@@ -89,8 +89,8 @@
                     </button>
                 </div>
                 <div class="d-flex gap-2 mt-2">
-                    <button class="btnOpcion">
-                        <i class="fa fa-comments"></i> EVENTOS
+                    <button id="btnReimprimirUltimo" class="btnOpcion">
+                        <i class="fa fa-print" aria-hidden="true"></i> REIMPRIMIR
                     </button>
                     <button id="btnPedidos" class="position-relative shadow btnOpcion">
                         <i class="fa fa-cart-plus"></i> PEDIDOS
@@ -179,7 +179,7 @@
             <div id="pos" class="content-table card p-4 border"
                 style="border-radius: 20px; width: 100%; height: calc(100vh - 48px - 256px); overflow-y: scroll;">
                 <table>
-                    <thead class="table-head" >
+                    <thead class="table-head">
                         <tr>
                             <th class="rounded-start">Articulo</th>
                             <th>Cantidad</th>
