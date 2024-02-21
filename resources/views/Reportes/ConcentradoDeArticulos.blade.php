@@ -7,10 +7,20 @@
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Concentrado de Articulos'])
             <div>
-                <a href="/GenerarCorteOraclePDF/{{ $fecha1 }}/{{ $idTienda }}" target="_blank" type="button"
-                    class="btn card">
-                    <span class="material-icons">print</span>
-                </a>
+                <form action="/ExportReporteConcentradoDeArticulos" method="GET">
+                    <select class="d-none" name="idTienda">
+                        <option value="">Seleccione Tienda</option>
+                        @foreach ($tiendas as $tienda)
+                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                    <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                    <button type="submit" class="input-group-text text-decoration-none btn-excel">
+                        <i class="fa fa-file-excel-o pe-2"></i> Exportar
+                    </button>
+                </form>
             </div>
         </div>
 
