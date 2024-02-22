@@ -1605,6 +1605,10 @@ class PoswebController extends Controller
                 return redirect()->route('CalculoMultiPago', compact('idEncabezado', 'restante', 'pago', 'idTipoPago', 'idBanco', 'numTarjeta'));
             }
         } catch (\Throwable $th) {
+            Log::info('-->catch de guardar venta');
+            Log::info($th);
+            Log::info('-->Mensaje de error');
+            Log::info($th->getMessage());
             DB::rollback();
             return redirect('Pos')->with('Pos', 'Error: ' . $th->getMessage());
         }
@@ -1901,6 +1905,10 @@ class PoswebController extends Controller
                 return redirect()->route('Pos');
             }
         } catch (\Throwable $th) {
+            Log::info('-->catch de calculo multipago');
+            Log::info($th);
+            Log::info('-->Mensaje de error');
+            Log::info($th->getMessage());
             DB::rollback();
             return redirect()->route('Pos', 'Error: ' . $th->getMessage());
         }
@@ -2427,25 +2435,27 @@ class PoswebController extends Controller
                 if ($datMonedero > 0) {
                     $impresora->text("**GENERÓ $" . number_format($datMonedero, 2) . " EN MONEDERO ELECTRÓNICO**\n");
                     $impresora->text("Monedero Válido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
+                    $impresora->feed(1);
                 }
                 if ($monederoAcumulado > 0) {
                     $impresora->text("**MONEDERO ACUMULADO: $" . number_format($monederoAcumulado, 2) . "**");
+                    $impresora->feed(1);
                 }
             }
             // $impresora->feed(1);
             if ($firmaEmpleado->count() > 0) {
-                $impresora->feed(1);
                 $impresora->text("Firma del Empleado\n");
                 $impresora->feed(1);
                 $impresora->text("______________________________________\n");
                 $impresora->text("" . $empleado->NumNomina . "\n");
                 $impresora->text("" . $empleado->Nombre . " " . $empleado->Apellidos . "\n");
+                $impresora->feed(1);
             }
             // $impresora->feed(1);
             // $impresora->text("********************************\n");
             // $impresora->text("FOLIO CUPÓN: " . $idEncabezado . "\n");
             // $impresora->text("********************************\n");
-            $impresora->feed(1);
+            // $impresora->feed(1);
             $impresora->text("¡ALTA CALIDAD EN CARNE DE CERDO!\n");
             $impresora->text("WWW.KOWI.COM.MX\n");
             $impresora->text("¡GRACIAS POR SU COMPRA!\n");
@@ -2454,6 +2464,10 @@ class PoswebController extends Controller
             $impresora->pulse();
             $impresora->close();
         } catch (\Throwable $th) {
+            Log::info('-->catch de imprimir venta');
+            Log::info($th);
+            Log::info('-->Mensaje de error');
+            Log::info($th->getMessage());
             return redirect('Pos')->with('Cambio', $restante);
         }
 
@@ -2625,26 +2639,28 @@ class PoswebController extends Controller
             if ($datMonedero > 0) {
                 $impresora->text("**GENERÓ $" . number_format($datMonedero, 2) . " EN MONEDERO ELECTRÓNICO**\n");
                 $impresora->text("Monedero Válido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
+                $impresora->feed(1);
             }
             if ($monederoAcumulado > 0) {
                 $impresora->text("**MONEDERO ACUMULADO: $" . number_format($monederoAcumulado, 2) . "**");
+                $impresora->feed(1);
             }
         }
         // $impresora->feed(1);
         //$impresora->setJustification(Printer::JUSTIFY_CENTER);
         if ($firmaEmpleado->count() > 0) {
-            $impresora->feed(1);
             $impresora->text("Firma del Empleado\n");
             $impresora->feed(1);
             $impresora->text("______________________________________\n");
             $impresora->text("" . $empleado->NumNomina . "\n");
             $impresora->text("" . $empleado->Nombre . " " . $empleado->Apellidos . "\n");
+            $impresora->feed(1);
         }
         // $impresora->feed(1);
         // $impresora->text("********************************\n");
         // $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
         // $impresora->text("********************************\n");
-        $impresora->feed(1);
+        // $impresora->feed(1);
         $impresora->text("¡ALTA CALIDAD EN CARNE DE CERDO!\n");
         $impresora->text("WWW.KOWI.COM.MX\n");
         $impresora->text("¡GRACIAS POR SU COMPRA!\n");
