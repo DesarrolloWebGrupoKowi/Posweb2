@@ -1036,8 +1036,14 @@ class PoswebController extends Controller
         Log::info('===============================================================================================================');
         Log::info('');
         Log::info('===========================================GUARDAR VENTA =======================================================');
-        Log::info('1037-->');
+        Log::info('-->');
         Log::info($request);
+        Log::info('-->usuario');
+        Log::info(Auth::user());
+        Log::info('-----> id tienda: ');
+        Log::info(Auth::user()->usuarioTienda->IdTienda);
+        Log::info('preventa');
+        Log::info(PreventaTmp::get());
 
         $temporalPos = TemporalPos::first();
 
@@ -1056,6 +1062,10 @@ class PoswebController extends Controller
 
             Log::info('1052-->');
             Log::info($multipago);
+
+            if (!$multipago) {
+                return back()->withErrors('Intenta de nuevo!');
+            }
 
             if ($multipago->MultiPago == null) {
                 $idTipoPago = $request->tipoPago;
