@@ -5,8 +5,7 @@
     <div class="container-fluid pt-4 width-general">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
             @include('components.title', ['titulo' => 'Solicitud de Cancelación de Ticket'])
-            <form class="d-flex align-items-end justify-content-end gap-2" action="/SolicitudCancelacionTicket"
-                method="GET">
+            <form class="d-flex align-items-end justify-content-end gap-2" action="/SolicitudCancelacionTicket" method="GET">
                 <div class="form-group">
                     {{-- <div class="form-floating"> --}}
                     <label class="text-secondary fw-bold" for="idTicket">No Ticket</label>

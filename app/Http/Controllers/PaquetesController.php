@@ -11,15 +11,16 @@ use App\Models\Articulo;
 
 class PaquetesController extends Controller
 {
-    public function VerPaquetes(Request $request){
+    public function VerPaquetes(Request $request)
+    {
         $nomPaquete = $request->nomPaquete;
 
-        $paquetes = CatPaquete::with(['Usuario' => function($empleado){
+        $paquetes = CatPaquete::with(['Usuario' => function ($empleado) {
             $empleado->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina');
-        }, 'ArticulosPaquete' => function($articulos){
+        }, 'ArticulosPaquete' => function ($articulos) {
             $articulos->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatPaquetes.CodArticulo');
         }])
-            ->where('NomPaquete', 'like', '%'.$nomPaquete.'%')
+            ->where('NomPaquete', 'like', '%' . $nomPaquete . '%')
             ->where('Status', 0)
             ->get();
 
@@ -30,13 +31,39 @@ class PaquetesController extends Controller
 
         return view('Paquetes.VerPaquetes', compact('paquetes', 'nomPaquete', 'paquetesActivos'));
     }
-    public function CatPaquetes(Request $request){
+
+    public function PaquetesLocal(Request $request)
+    {
+        $txtFiltro = $request->txtFiltro;
+
+        $paquetes = CatPaquete::select('CatPaquetes.*')
+            ->with(['Usuario' => function ($empleado) {
+                $empleado->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina');
+            }, 'ArticulosPaquete' => function ($articulos) {
+                $articulos->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatPaquetes.CodArticulo');
+            }])
+            ->leftJoin('DatAsignacionPreparados as da', 'da.IdPreparado', 'CatPaquetes.IdPreparado')
+            ->where('da.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            ->WhereNotNull('da.IdPreparado')
+            ->orWhereNull('CatPaquetes.IdPreparado')
+            ->where('NomPaquete', 'like', '%' . $txtFiltro . '%')
+            ->paginate(10)->withQueryString();
+
+        $paquetesActivos = CatPaquete::where('Status', 0)
+            ->count();
+
+        return view('Paquetes.VerPaquetesLocal', compact('paquetes', 'txtFiltro', 'paquetesActivos'));
+    }
+
+    public function CatPaquetes(Request $request)
+    {
         $nomPaquete = $request->nomPaquete;
 
         return view('Paquetes.CatPaquetes', compact('nomPaquete'));
     }
 
-    public function BuscarCodArticuloPaquqete(Request $request){
+    public function BuscarCodArticuloPaquqete(Request $request)
+    {
         $codArticulo = $request->codArticulo;
 
         $articulo =  DB::table('CatArticulos as a')
@@ -45,12 +72,13 @@ class PaquetesController extends Controller
             ->where('a.CodArticulo', $codArticulo)
             ->first();
 
-        $pArticulo = empty($articulo) ? '' : $articulo->NomArticulo . ' - $'.$articulo->PrecioArticulo; 
+        $pArticulo = empty($articulo) ? '' : $articulo->NomArticulo . ' - $' . $articulo->PrecioArticulo;
 
         return $pArticulo;
     }
 
-    public function GuardarPaquete(Request $request){
+    public function GuardarPaquete(Request $request)
+    {
         $nomPaquete = $request->nomPaquete;
         $importePaquete = $request->importePaquete;
 
@@ -74,7 +102,7 @@ class PaquetesController extends Controller
                 $datPaquete->IdPaquete = $catPaquete->IdPaquete;
                 $datPaquete->IdListaPrecio = 1;
                 $datPaquete->CodArticulo = $codArticulo;
-                $datPaquete->CantArticulo = $cantsArticulo[$key]; 
+                $datPaquete->CantArticulo = $cantsArticulo[$key];
                 $datPaquete->PrecioArticulo = $preciosArticulo[$key];
                 $datPaquete->ImporteArticulo = ($cantsArticulo[$key] * $preciosArticulo[$key]);
                 $datPaquete->save();
@@ -82,15 +110,15 @@ class PaquetesController extends Controller
 
             DB::commit();
 
-            return back()->with('msjAdd', 'Se Agrego el Paquete: '.$catPaquete->NomPaquete);
-
+            return back()->with('msjAdd', 'Se Agrego el Paquete: ' . $catPaquete->NomPaquete);
         } catch (\Throwable $th) {
-            return back()->with('msjdelete', 'Error : '. $th->getMessage());
+            return back()->with('msjdelete', 'Error : ' . $th->getMessage());
             DB::rollback();
         }
     }
 
-    public function EditarPaquete(Request $request, $idPaquete){
+    public function EditarPaquete(Request $request, $idPaquete)
+    {
         try {
             DB::beginTransaction();
 
@@ -105,8 +133,8 @@ class PaquetesController extends Controller
                 ->whereNull('FechaEliminacion')
                 ->get();
 
-            if($paquete->count() == 0){
-                return back()->with('msjdelete', 'No Existe el Paquete con el Id: '. $idPaquete);
+            if ($paquete->count() == 0) {
+                return back()->with('msjdelete', 'No Existe el Paquete con el Id: ' . $idPaquete);
             }
 
             $nomPaquete = CatPaquete::where('IdPaquete', $idPaquete)
@@ -122,7 +150,7 @@ class PaquetesController extends Controller
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();
-            return back()->with('msjdelete', 'Error: ' .$th->getMessage());
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         //return $paquete;
@@ -130,8 +158,8 @@ class PaquetesController extends Controller
         return view('Paquetes.EditarPaquete', compact('paquete', 'nomPaquete', 'importePaquete', 'idPaquete'));
     }
 
-    
-    public function EditarPaqueteExistente(Request $request, $idPaquete){
+    public function EditarPaqueteExistente(Request $request, $idPaquete)
+    {
         $importePaquete = $request->importePaquete;
 
         $codsArticulo = $request->CodArticulo;
@@ -159,28 +187,28 @@ class PaquetesController extends Controller
             $catPaquete->IdUsuario = Auth::user()->IdUsuario;
             $catPaquete->Status = 0;
             $catPaquete->save();
-    
+
             foreach ($codsArticulo as $key => $codArticulo) {
                 $datPaquete = new DatPaquete();
                 $datPaquete->IdPaquete = $catPaquete->IdPaquete;
                 $datPaquete->IdListaPrecio = 1;
                 $datPaquete->CodArticulo = $codArticulo;
-                $datPaquete->CantArticulo = $cantsArticulo[$key]; 
+                $datPaquete->CantArticulo = $cantsArticulo[$key];
                 $datPaquete->PrecioArticulo = $preciosArticulo[$key];
                 $datPaquete->ImporteArticulo = ($cantsArticulo[$key] * $preciosArticulo[$key]);
                 $datPaquete->save();
             }
 
             DB::commit();
-            return redirect('VerPaquetes')->with('msjAdd', 'Se Edito: ' .$nomPaquete);
-
+            return redirect('VerPaquetes')->with('msjAdd', 'Se Edito: ' . $nomPaquete);
         } catch (\Throwable $th) {
             DB::rollback();
-            return back()->with('msjdelete', 'Error: ' .$th->getMessage());
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
     }
 
-    public function EliminarPaquete($idPaquete){
+    public function EliminarPaquete($idPaquete)
+    {
         try {
             $nomPaquete = CatPaquete::where('IdPaquete', $idPaquete)
                 ->value('NomPaquete');
@@ -192,12 +220,56 @@ class PaquetesController extends Controller
                     'IdUsuario' => Auth::user()->IdUsuario,
                     'Status' => 1
                 ]);
-                DB::commit();
+            DB::commit();
 
-            return back()->with('msjdelete', 'Se Elimino: ' .$nomPaquete);
+            return back()->with('msjdelete', 'Se Elimino: ' . $nomPaquete);
         } catch (\Throwable $th) {
             DB::rollback();
-            return back()->with('msjdelete', 'Error: ' .$th->getMessage());
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+    }
+
+    public function ActivarPaquetesLocal($idPaquete)
+    {
+        try {
+            $nomPaquete = CatPaquete::where('IdPaquete', $idPaquete)
+                ->value('NomPaquete');
+
+            DB::beginTransaction();
+            CatPaquete::where('IdPaquete', $idPaquete)
+                ->update([
+                    'FechaEliminacion' => null,
+                    'IdUsuario' => Auth::user()->IdUsuario,
+                    'Status' => 0
+                ]);
+            DB::commit();
+
+            return back()->with('msjAdd', 'Paquete activado correctamente: ' . $nomPaquete);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+    }
+
+    public function DesactivarPaquetesLocal($idPaquete)
+    {
+        try {
+            $nomPaquete = CatPaquete::where('IdPaquete', $idPaquete)
+                ->value('NomPaquete');
+
+            DB::beginTransaction();
+            CatPaquete::where('IdPaquete', $idPaquete)
+                ->update([
+                    'FechaEliminacion' => date('d-m-Y H:i:s'),
+                    'IdUsuario' => Auth::user()->IdUsuario,
+                    'Status' => 1
+                ]);
+            DB::commit();
+
+            return back()->with('msjdelete', 'Paquete desactivado correctamente: ' . $nomPaquete);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
     }
 }

@@ -304,6 +304,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/VentaPorTipoPago', 'App\Http\Controllers\VentaPorTipoPagoController@VentaPorTipoPago');
 
     //+============================================================================================================================================+//
+    //CatClientes
+    Route::get('/CatClientes', 'App\Http\Controllers\ClientesController@CatClientes');
+
+    //+============================================================================================================================================+//
     //CatClientesCloud
     Route::get('/CatClientesCloud', 'App\Http\Controllers\ClientesCloudController@CatClientesCloud');
 
@@ -313,8 +317,21 @@ Route::group(['middleware' => 'auth'], function () {
     //GuardarCustomerCloud
     Route::get('/GuardarCustomerCloud', 'App\Http\Controllers\ClientesCloudController@GuardarCustomerCloud');
 
+
     //+============================================================================================================================================+//
+    //SolicitudesFactura del lado de los administradores
+    Route::get('/SolicitudesFactura', 'App\Http\Controllers\SolicitudesFacturaController@VerSolicitudes');
     //SolicitudFactura
+    Route::get('/SolicitudesFactura/{id}', 'App\Http\Controllers\SolicitudesFacturaController@VerSolicitud');
+    //SolicitudFactura
+    Route::get('/SolicitudesFactura/Relacionar/{id}/{billTo}', 'App\Http\Controllers\SolicitudesFacturaController@Relacionar');
+    //SolicitudFactura
+    Route::get('/SolicitudesFactura/Finalizar/{id}', 'App\Http\Controllers\SolicitudesFacturaController@Finalizar');
+    //SolicitudesFactura
+    Route::post('/SolicitudesFactura/Cancelar/{id}', 'App\Http\Controllers\SolicitudesFacturaController@Cancelar');
+
+    //+============================================================================================================================================+//
+    //SolicitudFactura del lado del cajero
     Route::get('/SolicitudFactura', 'App\Http\Controllers\SolicitudFacturaController@SolicitudFactura');
 
     //VerSolicitudesFactura
@@ -483,6 +500,12 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //Reporte de Stock
     Route::get('/ReporteStock', 'App\Http\Controllers\StockTiendaController@ReporteStock');
+    //Reporte de Stock
+    Route::get('/ReporteStockAdmin', 'App\Http\Controllers\StockTiendaController@ReporteStockAdmin');
+    //Reporte de Stock
+    Route::get('/UpdateStockViewAdmin', 'App\Http\Controllers\StockTiendaController@UpdateStockViewAdmin');
+    //Reporte de Stock
+    Route::post('/UpdateStockAdmin/{id}', 'App\Http\Controllers\StockTiendaController@UpdateStockAdmin');
 
     //+============================================================================================================================================+//
     //CatBancos
@@ -590,6 +613,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/EliminarPaquete/{idPaquete}', 'App\Http\Controllers\PaquetesController@EliminarPaquete');
 
     //+============================================================================================================================================+//
+    //CatPaquetes - Locales
+    Route::get('/Paquetes', 'App\Http\Controllers\PaquetesController@PaquetesLocal');
+    //Dar de baja un paquete
+    Route::get('/ActivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@ActivarPaquetesLocal');
+    //Dar de baja un paquete
+    Route::get('/DesactivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@DesactivarPaquetesLocal');
+
+    //+============================================================================================================================================+//
     //TransaccionProducto
     Route::get('/TransaccionProducto', 'App\Http\Controllers\TransaccionProductoController@TransaccionProducto');
 
@@ -621,6 +652,16 @@ Route::group(['middleware' => 'auth'], function () {
 
     //CancelarTicket
     Route::post('/CancelarTicket/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@CancelarTicket');
+
+    //CancelarTicket
+    Route::post('/CancelarTicket/Cancelar/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@CancelarCancelarTicket');
+
+    //HistorialCancelacionTickets
+    Route::get('/HistorialCancelacionTickets', 'App\Http\Controllers\CancelacionTicketsController@HistorialCancelacionTickets');
+
+    //+============================================================================================================================================+//
+    //ReporteSolicitudCancelacion
+    Route::get('/ReporteSolicitudCancelacion', 'App\Http\Controllers\ReporteCancelacionTicketsController@SolicitudesCancelacion');
 
     //+============================================================================================================================================+//
     //CorreosTienda
@@ -710,6 +751,14 @@ Route::group(['middleware' => 'auth'], function () {
     //GenerarCorteOraclePDF
     Route::get('/GenerarCorteOraclePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@GenerarCorteOraclePDF')->name('GenerarCorteOraclePDF');
 
+
+    //+============================================================================================================================================+//
+    //ReporteConcentradoDeArticulos
+    Route::get('/ReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeArticulos')->name('ReporteConcentradoDeArticulos');
+
+    //ReporteConcentradoDeArticulos
+    Route::get('/ExportReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeArticulos')->name('ExportReporteConcentradoDeArticulos');
+
     //+============================================================================================================================================+//
     //BloqueoEmpleados
     Route::get('/BloqueoEmpleados', 'App\Http\Controllers\BloqueoEmpleadosController@BloqueoEmpleados');
@@ -759,9 +808,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/DetalleAsignados', 'App\Http\Controllers\AsignacionPreparadosController@Asignados')->name('Asignados.index');
 
     //+============================================================================================================================================+//
+    //ActualizacionPrecios
+    Route::get('/ActualizacionPrecios', 'App\Http\Controllers\ActualizacionPreciosController@index');
+
+    //+============================================================================================================================================+//
     //update(Actualiza el sistema con los ultimos cambios de git)
     Route::get('/Update', 'App\Http\Controllers\ConfigSystemController@Index')->name('Update.index');
-
 }); //->Termina Middleware Auth
 
 // pagina de error 404

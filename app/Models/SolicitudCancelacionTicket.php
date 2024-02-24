@@ -11,10 +11,10 @@ class SolicitudCancelacionTicket extends Model
     use HasFactory;
     protected $table = 'SolicitudCancelacionTicket';
     protected $fillable = [
-        'FechaSolicitud', 
-        'IdTienda', 
-        'IdEncabezado', 
-        'IdUsuarioSolicitud', 
+        'FechaSolicitud',
+        'IdTienda',
+        'IdEncabezado',
+        'IdUsuarioSolicitud',
         'MotivoCancelacion',
         'SolicitudAprobada',
         'FechaAprobacion',
@@ -22,7 +22,7 @@ class SolicitudCancelacionTicket extends Model
         'Status'
     ];
     public $timestamps = false;
-    protected $primaryKey = 'IdSolicitudCancelacion';
+    // protected $primaryKey = 'IdSolicitudCancelacion';
 
     public function Tienda(){
         return $this->hasOne(Tienda::class, 'IdTienda', 'IdTienda');

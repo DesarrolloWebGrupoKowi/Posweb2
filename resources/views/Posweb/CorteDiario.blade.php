@@ -231,7 +231,7 @@
 
         <!--SOLICITUDES DE FACTURA-->
         @foreach ($facturas as $factura)
-            <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <div class="content-table content-table-full card p-4 mb-4" style="border-radius: 20px">
                 <div class="d-flex justify-content-left">
                     <h6 class="p-1 bg-dark text-white rounded-3">{{ $factura->NomCliente }}</h6>
                 </div>
@@ -251,7 +251,7 @@
                             $sumCantArticulo = 0;
                             $sumImporte = 0;
                         @endphp
-                        @foreach ($factura->Factura as $detalleFactura)
+                        @foreach ($factura->FacturaLocal as $detalleFactura)
                             <tr>
                                 <td style="width: 10vh">{{ $detalleFactura->CodArticulo }}</td>
                                 <td style="width: 60vh">{{ $detalleFactura->NomArticulo }}</td>

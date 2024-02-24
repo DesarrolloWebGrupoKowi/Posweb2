@@ -6,6 +6,11 @@
     <div class="container-fluid pt-4 width-95">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Módulo de Precios'])
+            <div>
+                <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none btn-excel">
+                    <i class="fa fa-file-excel-o pe-2"></i> Exportar precios
+                </a>
+            </div>
         </div>
         <div>
             @include('Alertas.Alertas')

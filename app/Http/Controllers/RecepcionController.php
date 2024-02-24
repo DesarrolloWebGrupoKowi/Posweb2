@@ -38,8 +38,10 @@ class RecepcionController extends Controller
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
             ->where('CapRecepcion.Almacen', $tienda->Almacen)
             ->where('CapRecepcion.IdStatusRecepcion', 1)
-            ->whereNull('CapRecepcion.IdTiendaDestino')
-            ->orWhere('CapRecepcion.IdTiendaDestino', Auth::user()->usuarioTienda->IdTienda)
+            ->where(function ($query) {
+                $query->whereNull('CapRecepcion.IdTiendaDestino');
+                $query->orWhere('CapRecepcion.IdTiendaDestino', Auth::user()->usuarioTienda->IdTienda);
+            })
             ->get();
 
         $idRecepcion = $request->idRecepcion;
@@ -95,6 +97,7 @@ class RecepcionController extends Controller
                 ->leftJoin('DatRecepcion as b', 'b.IdCapRecepcion', 'a.IdCapRecepcion')
                 ->where('a.Almacen', $tienda->Almacen)
                 ->whereNull('a.FechaRecepcion')
+                ->whereNull('a.IdPreparado')
                 ->where('a.IdStatusRecepcion', 1)
                 ->where('b.CodArticulo', $filtroArticulo)
                 ->get();
@@ -360,7 +363,6 @@ class RecepcionController extends Controller
 
                     Mail::to($correos)
                         ->send(new RecepcionProductoMail($recepcion, $nomTienda));
-
                 } catch (\Throwable $th) {
                     DB::connection('server')->rollback();
                     DB::rollBack();

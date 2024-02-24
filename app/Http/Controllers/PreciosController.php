@@ -180,7 +180,9 @@ class PreciosController extends Controller
             ->groupBy('DatPrecios.CodArticulo', 'CatArticulos.NomArticulo')
             ->paginate(10)->withQueryString();
 
-        return view('Precios.ListaPrecios', compact('precios', 'txtFiltro'));
+            // return $precios;
+
+                    return view('Precios.ListaPrecios', compact('precios', 'txtFiltro'));
     }
 
     public function ExportExcel(Request $request)

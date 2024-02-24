@@ -164,8 +164,10 @@
                         <div class="col-2">
                             <label for="">Tipo de Persona</label>
                             <select class="form-select" name="tipoPersona" id="tipoPersona" required>
-                                <option value="0">FISICA</option>
-                                <option value="1">MORAL</option>
+                                <option value="PERSON">FISICA</option>
+                                <option value="ORGANIZATION">MORAL</option>
+                                {{-- <option value="PERSON">PERSON</option>
+                                <option value="ORGANIZATION">ORGANIZATION</option> --}}
                             </select>
                         </div>
                         <div class="col-4">
@@ -180,11 +182,13 @@
                         </div>
                         <div class="col-1">
                             <label for="">Número Ext</label>
-                            <input type="text" class="form-control" name="numExt" required placeholder="Escribe el númeor exterior">
+                            <input type="text" class="form-control" name="numExt" required
+                                placeholder="Escribe el númeor exterior">
                         </div>
                         <div class="col-1">
                             <label for="">Número Int</label>
-                            <input type="text" class="form-control" name="numInt" required placeholder="Escribe el número interior">
+                            <input type="text" class="form-control" name="numInt" required
+                                placeholder="Escribe el número interior">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -195,7 +199,8 @@
                         </div>
                         <div class="col-3">
                             <label for="">Ciudad</label>
-                            <input type="text" class="form-control" name="ciudad" required placeholder="Escribe el nombre de la ciudad">
+                            <input type="text" class="form-control" name="ciudad" required
+                                placeholder="Escribe el nombre de la ciudad">
                         </div>
                         <div class="col-3">
                             <label for="">Municipio</label>
@@ -204,17 +209,20 @@
                         </div>
                         <div class="col-3">
                             <label for="">Estado</label>
-                            <input type="text" class="form-control" name="estado" required placeholder="Escribe el nombre del estado">
+                            <input type="text" class="form-control" name="estado" required
+                                placeholder="Escribe el nombre del estado">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-3">
                             <label for="">Código Postal</label>
-                            <input type="text" class="form-control" name="codigoPostal" required placeholder="Escribe el código postal">
+                            <input type="text" class="form-control" name="codigoPostal" required
+                                placeholder="Escribe el código postal">
                         </div>
                         <div class="col-3">
                             <label for="">Correo</label>
-                            <input type="email" class="form-control" name="correo" required placeholder="Escribe el correo">
+                            <input type="email" class="form-control" name="correo" required
+                                placeholder="Escribe el correo">
                         </div>
                         <div class="col-3">
                             <label for="">Teléfono</label>

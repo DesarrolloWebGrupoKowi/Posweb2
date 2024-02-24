@@ -13,31 +13,32 @@ use App\Models\TransactionCloudInterface;
 
 class InterfazMermasController extends Controller
 {
-    public function InterfazMermas(Request $request){
+    public function InterfazMermas(Request $request)
+    {
         try {
             DB::beginTransaction();
 
             $usuarioTienda = Auth::user()->usuarioTienda;
 
-            if($usuarioTienda->doesntExist()){
+            if ($usuarioTienda->doesntExist()) {
                 return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
             }
 
-            if($usuarioTienda->Todas == 0){
+            if ($usuarioTienda->Todas == 0) {
                 $tiendas = Tienda::where('Status', 0)
-                ->get();
+                    ->get();
             }
 
-            if(!empty($usuarioTienda->IdTienda)){
+            if (!empty($usuarioTienda->IdTienda)) {
                 $tiendas = Tienda::where('Status', 0)
-                ->where('IdTienda', $usuarioTienda->IdTienda)
-                ->get();
+                    ->where('IdTienda', $usuarioTienda->IdTienda)
+                    ->get();
             }
-            
-            if(!empty($usuarioTienda->IdPlaza)){
+
+            if (!empty($usuarioTienda->IdPlaza)) {
                 $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
-                ->where('Status', 0)
-                ->get();
+                    ->where('Status', 0)
+                    ->get();
             }
 
             $idTienda = $request->idTienda;
@@ -50,7 +51,7 @@ class InterfazMermasController extends Controller
             $organization_Name = Tienda::where('IdTienda', $idTienda)
                 ->value('Organization_Name');
 
-            $mermas = CapMerma::with(['Lotes' => function ($lote) use ($almacen, $organization_Name){
+            $mermas = CapMerma::with(['Lotes' => function ($lote) use ($almacen, $organization_Name) {
                 $lote->leftJoin('server.CLOUD_TABLES.dbo.XXKW_ONHAND_TIENDAS', 'XXKW_ONHAND_TIENDAS.INVENTORY_ITEM_ID', 'XXKW_ITEMS.INVENTORY_ITEM_ID')
                     ->where('XXKW_ONHAND_TIENDAS.SUBINVENTORY_CODE', $almacen)
                     ->where('XXKW_ITEMS.ORGANIZATION_NAME', $organization_Name)
@@ -62,19 +63,44 @@ class InterfazMermasController extends Controller
                 ->leftJoin('CatCuentasMerma as c', 'c.IdTipoMerma', 'a.IdTipoMerma')
                 ->leftJoin('CatTiendas as d', 'd.IdTienda', 'a.IdTienda')
                 ->leftJoin('CatArticulos as e', 'e.CodArticulo', 'a.CodArticulo')
-                ->select('d.Almacen', 'a.CodArticulo', 'e.NomArticulo', DB::raw('sum(a.CantArticulo) as CantArticulo'), 'b.NomTipoMerma',
-                        'c.Libro', 'd.CentroCosto', 'c.Cuenta', 'c.SubCuenta', 'c.InterCosto', 'e.IdTipoArticulo', 'c.Futuro')
+                ->select(
+                    'd.Almacen',
+                    'a.CodArticulo',
+                    'e.NomArticulo',
+                    DB::raw('sum(a.CantArticulo) as CantArticulo'),
+                    'b.NomTipoMerma',
+                    'c.Libro',
+                    'd.CentroCosto',
+                    'c.Cuenta',
+                    'c.SubCuenta',
+                    'c.InterCosto',
+                    'e.IdTipoArticulo',
+                    'c.Futuro'
+                )
                 ->where('a.IdTienda', $idTienda)
-                ->whereRaw("CAST(a.FechaCaptura as date) between '". $fecha1 ."' and '". $fecha2 ."'")
-                ->groupBy('a.CodArticulo', 'b.NomTipoMerma', 'c.Libro', 'c.Cuenta', 'c.SubCuenta', 'c.InterCosto', 'c.Futuro',
-                        'd.Almacen','e.IdTipoArticulo', 'd.CentroCosto', 'e.NomArticulo')
+                ->whereRaw("CAST(a.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->groupBy(
+                    'a.CodArticulo',
+                    'b.NomTipoMerma',
+                    'c.Libro',
+                    'c.Cuenta',
+                    'c.SubCuenta',
+                    'c.InterCosto',
+                    'c.Futuro',
+                    'd.Almacen',
+                    'e.IdTipoArticulo',
+                    'd.CentroCosto',
+                    'e.NomArticulo'
+                )
                 ->whereNull('a.FechaInterfaz')
                 ->whereNull('a.IdUsuarioInterfaz')
                 ->get();
 
+            // if (Val_Kilos >= 10 and  ((instr(1, cstr(ValNomArt), "RECORTE") <> 0) and ((instr(1, cstr(ValNomArt), "90/10") <> 0) or (instr(1, cstr(ValNomArt), "CERDO") <> 0))))
+
             $lotesDisponibles = null;
             foreach ($mermas as $keyCapMerma => $merma) {
-                if($merma->Lotes->count() > 0){
+                if ($merma->Lotes->count() > 0) {
                     $totalLote = 0;
 
                     foreach ($merma->Lotes as $key => $mermaLote) {
@@ -82,22 +108,22 @@ class InterfazMermasController extends Controller
                     }
 
                     $RestanteMerma = $merma->CantArticulo;
-    
+
                     foreach ($merma->Lotes as $keyLoteMerma => $loteMerma) {
-                        if($totalLote >= $merma->CantArticulo){
+                        if ($totalLote >= $merma->CantArticulo) {
                             $auxLote = $loteMerma->TOTAL;
                             $auxCantMerma = $RestanteMerma;
-    
+
                             $RestanteMerma = $auxCantMerma - $loteMerma->TOTAL;
                             $consumo = ($auxCantMerma - $loteMerma->TOTAL) >= 0 ? $loteMerma->TOTAL : $auxCantMerma;
                             $restanteLote = $loteMerma->TOTAL - $consumo;
                             $lotesDisponibles = $lotesDisponibles + 1;
                         }
-                        if($RestanteMerma <= 0){
+                        if ($RestanteMerma <= 0) {
                             break;
                         }
                     }
-                }   
+                }
             }
 
             //return $lotesDisponibles;
@@ -112,7 +138,8 @@ class InterfazMermasController extends Controller
         return view('InterfazMermas.InterfazMermas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'mermas', 'lotesDisponibles'));
     }
 
-    public function InterfazarMermas($idTienda, $fecha1, $fecha2){
+    public function InterfazarMermas($idTienda, $fecha1, $fecha2)
+    {
         try {
             DB::connection('Cloud_Interface')->beginTransaction();
             DB::connection('server')->beginTransaction();
@@ -130,7 +157,7 @@ class InterfazMermasController extends Controller
             $centroCosto = Tienda::where('IdTienda', $idTienda)
                 ->value('CentroCosto');
 
-            $mermas = CapMerma::with(['Lotes' => function ($lote) use ($almacen, $organization_Name){
+            $mermas = CapMerma::with(['Lotes' => function ($lote) use ($almacen, $organization_Name) {
                 $lote->leftJoin('server.CLOUD_TABLES.dbo.XXKW_ONHAND_TIENDAS', 'XXKW_ONHAND_TIENDAS.INVENTORY_ITEM_ID', 'XXKW_ITEMS.INVENTORY_ITEM_ID')
                     ->where('XXKW_ONHAND_TIENDAS.SUBINVENTORY_CODE', $almacen)
                     ->where('XXKW_ITEMS.ORGANIZATION_NAME', $organization_Name)
@@ -142,19 +169,42 @@ class InterfazMermasController extends Controller
                 ->leftJoin('CatCuentasMerma as c', 'c.IdTipoMerma', 'a.IdTipoMerma')
                 ->leftJoin('CatTiendas as d', 'd.IdTienda', 'a.IdTienda')
                 ->leftJoin('CatArticulos as e', 'e.CodArticulo', 'a.CodArticulo')
-                ->select('d.Almacen', 'a.CodArticulo', 'e.NomArticulo', DB::raw('sum(a.CantArticulo) as CantArticulo'), 'b.NomTipoMerma',
-                        'c.Libro', 'd.CentroCosto', 'c.Cuenta', 'c.SubCuenta', 'c.InterCosto', 'e.IdTipoArticulo', 'c.Futuro')
+                ->select(
+                    'd.Almacen',
+                    'a.CodArticulo',
+                    'e.NomArticulo',
+                    DB::raw('sum(a.CantArticulo) as CantArticulo'),
+                    'b.NomTipoMerma',
+                    'c.Libro',
+                    'd.CentroCosto',
+                    'c.Cuenta',
+                    'c.SubCuenta',
+                    'c.InterCosto',
+                    'e.IdTipoArticulo',
+                    'c.Futuro'
+                )
                 ->where('a.IdTienda', $idTienda)
-                ->whereRaw("CAST(a.FechaCaptura as date) between '". $fecha1 ."' and '". $fecha2 ."'")
-                ->groupBy('a.CodArticulo', 'b.NomTipoMerma', 'c.Libro', 'c.Cuenta', 'c.SubCuenta', 'c.InterCosto', 'c.Futuro',
-                        'd.Almacen','e.IdTipoArticulo', 'd.CentroCosto', 'e.NomArticulo')
+                ->whereRaw("CAST(a.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->groupBy(
+                    'a.CodArticulo',
+                    'b.NomTipoMerma',
+                    'c.Libro',
+                    'c.Cuenta',
+                    'c.SubCuenta',
+                    'c.InterCosto',
+                    'c.Futuro',
+                    'd.Almacen',
+                    'e.IdTipoArticulo',
+                    'd.CentroCosto',
+                    'e.NomArticulo'
+                )
                 ->whereNull('a.FechaInterfaz')
                 ->whereNull('a.IdUsuarioInterfaz')
                 ->get();
 
             //return $mermas;
 
-            $source_Header_Id = DB::select('select next value for CLOUD_INTERFACE..SOURCE_HEADER_ID_SEQ as SOURCE_HEADER_ID_SEQ');
+            $source_Header_Id = DB::select("SELECT (SELECT * FROM OPENQUERY(SERVER, 'SELECT NEXT VALUE FOR CLOUD_INTERFACE..PRICE_ADJ_IDENTIFIER_SEQ')) as SOURCE_HEADER_ID_SEQ");
             foreach ($source_Header_Id as $key => $value) {
                 $s_Header_Id = $value->SOURCE_HEADER_ID_SEQ;
             }
@@ -163,7 +213,7 @@ class InterfazMermasController extends Controller
             $articulosInterfazados = [];
 
             foreach ($mermas as $keyCapMerma => $merma) {
-                if($merma->Lotes->count() > 0){
+                if ($merma->Lotes->count() > 0) {
                     $totalLote = 0;
                     foreach ($merma->Lotes as $key => $mermaLote) {
                         $totalLote = $totalLote + $mermaLote->TOTAL;
@@ -172,11 +222,11 @@ class InterfazMermasController extends Controller
                     $RestanteMerma = $merma->CantArticulo;
 
                     foreach ($merma->Lotes as $keyLoteMerma => $loteMerma) {
-                        if($totalLote >= $merma->CantArticulo){
+                        if ($totalLote >= $merma->CantArticulo) {
                             $sourceLineId = $sourceLineId + 1;
                             $auxLote = $loteMerma->TOTAL;
                             $auxCantMerma = $RestanteMerma;
-                            
+
                             $RestanteMerma = $auxCantMerma - $loteMerma->TOTAL;
                             $consumo = ($auxCantMerma - $loteMerma->TOTAL) >= 0 ? $loteMerma->TOTAL : $auxCantMerma;
                             $restanteLote = $loteMerma->TOTAL - $consumo;
@@ -196,7 +246,7 @@ class InterfazMermasController extends Controller
                                 'DST_SEGMENT2' => $centroCosto,
                                 'DST_SEGMENT3' => $merma->Cuenta,
                                 'DST_SEGMENT4' => $merma->SubCuenta,
-                                'DST_SEGMENT5'=> $merma->InterCosto,
+                                'DST_SEGMENT5' => $merma->InterCosto,
                                 'DST_SEGMENT6' => empty($merma->IdTipoArticulo) ? '00' : $merma->IdTipoArticulo,
                                 'DST_SEGMENT7' => $merma->Futuro,
                                 'LOT_NUMBER' => $loteMerma->LOT_NUMBER
@@ -206,17 +256,17 @@ class InterfazMermasController extends Controller
                             array_push($articulosInterfazados, $merma->CodArticulo);
                         }
 
-                        if($RestanteMerma <= 0){
+                        if ($RestanteMerma <= 0) {
                             break;
                         }
                     }
-                }   
+                }
             }
 
             //CUANDO LA MERMA YA SE INTERFAZO
-            if(!empty($articulosInterfazados)){
+            if (!empty($articulosInterfazados)) {
                 CapMerma::where('IdTienda', $idTienda)
-                    ->whereRaw("CAST(FechaCaptura as date) between '". $fecha1 ."' and '". $fecha2 ."'")
+                    ->whereRaw("CAST(FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                     ->whereNull('FechaInterfaz')
                     ->whereNull('IdUsuarioInterfaz')
                     ->whereIn('CodArticulo', array_unique($articulosInterfazados))
@@ -224,8 +274,7 @@ class InterfazMermasController extends Controller
                         'IdUsuarioInterfaz' => Auth::user()->IdUsuario,
                         'FechaInterfaz' => date('d-m-Y H:i:s')
                     ]);
-            }   
-
+            }
         } catch (\Throwable $th) {
             DB::connection('Cloud_Interface')->rollback();
             DB::connection('server')->rollback();

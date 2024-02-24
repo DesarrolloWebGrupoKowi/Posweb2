@@ -102,11 +102,11 @@
                                 <tbody>
                                     @if (!$idPreparado)
                                         <tr>
-                                            <td colspan="4">Selecciona un preparado</td>
+                                            <td colspan="7">Selecciona un preparado</td>
                                         </tr>
                                     @elseif (count($detallePreparado) == 0)
                                         <tr>
-                                            <td colspan="4">No ahi productos agregados al preparado</td>
+                                            <td colspan="7">No ahi productos agregados al preparado</td>
                                         </tr>
                                     @endif
                                     @foreach ($detallePreparado as $detalle)
@@ -122,7 +122,7 @@
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td>{{ $detalle->CantidadPaquete }}</td>
+                                            <td>{{ number_format($detalle->CantidadPaquete, 3, '.', '.') }}</td>
                                             <td>{{ number_format($detalle->CantidadFormula, 3, '.', '.') }}</td>
                                             <td>${{ number_format($detalle->PrecioArticulo * $detalle->CantidadFormula, 2, '.', '.') }}
                                             </td>

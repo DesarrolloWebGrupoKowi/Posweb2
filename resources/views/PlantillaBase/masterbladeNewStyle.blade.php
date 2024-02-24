@@ -22,7 +22,8 @@
 
 <body>
 
-    <nav class="navbar navbar-expand navbar-dark" style="background: #1e293b">
+    <nav class="navbar navbar-expand navbar-dark"
+        style="background: #1e293b; position: fixed; width: 100%; z-index: 999;">
         <div class="container-fluid @yield('dashboardWidth')">
             <a id="imgLogo" class="navbar-brand" href="/"><img
                     src="https://www.kowi.com.mx/wp-content/uploads/elementor/thumbs/01_LOGO_KOWI-pdb6yay1990vudjiiivqobds1rhtcw2u1qinecxwpy.png"
@@ -91,13 +92,17 @@
         </div>
     </nav>
     <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
-    @yield('contenido')
+    <div class="mb-4" style="padding-top: 64px">
+        @yield('contenido')
+    </div>
 
     <script src="{{ asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
 
     @yield('scriptTiendas')
     <script src="{{ asset('js/tiendasScript.js') }}"></script>
+
+    <script src="{{ asset('js/pagination.js') }}"></script>
 </body>
 
 </html>

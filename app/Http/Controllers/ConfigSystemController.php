@@ -8,9 +8,12 @@ class ConfigSystemController extends Controller
 {
     public function Index(Request $request)
     {
-        $comando = 'c:\windows\system32\cmd.exe /c C:\inetpub\wwwroot\posweb2\public\clone.bat';
+        exec("C:\\inetpub\\wwwroot\\Descarga_Catalogos.bat");
+        exec("C:\\inetpub\\wwwroot\\Descarga_CatClientes.bat");
+        exec("C:\\inetpub\\wwwroot\\Descarga_Monedero.bat");
+        exec("C:\\inetpub\\wwwroot\\Subir_Ventas.bat");
 
-        exec($comando, $salida, $codigoSalida);
+        // exec($comando, $salida, $codigoSalida);
 
         // dump("El código de salida fue: " . $codigoSalida);
         // dump("Ahora imprimiré las líneas de salida:");

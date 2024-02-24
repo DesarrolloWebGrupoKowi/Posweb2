@@ -4,12 +4,13 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Precios del Articulo: {{ $listaCodEtiqueta->NomArticulo }}</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Precios del Articulo: {{ $listaCodEtiqueta->NomArticulo }}
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-striped table-responsive">
-                    <thead class="table-dark">
+                <table class="">
+                    <thead>
                         <tr>
                             @foreach ($listaCodEtiqueta->PrecioArticulo as $listaPrecio)
                                 <th>{{ $listaPrecio->NomListaPrecio }}</th>
@@ -19,7 +20,8 @@
                     <tbody>
                         <tr>
                             @foreach ($listaCodEtiqueta->PrecioArticulo as $pArticulo)
-                                <td><i class="fa fa-usd"></i> {{ number_format($pArticulo->PivotPrecio->PrecioArticulo, 2) }}</td>
+                                <td><i class="fa fa-usd"></i>
+                                    {{ number_format($pArticulo->PivotPrecio->PrecioArticulo, 2) }}</td>
                             @endforeach
                         </tr>
                     </tbody>

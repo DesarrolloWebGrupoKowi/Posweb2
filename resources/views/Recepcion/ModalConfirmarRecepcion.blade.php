@@ -17,7 +17,7 @@
                 <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
                     <i class="fa fa-close"></i> Cerrar
                 </button>
-                <button type="submit" class="btn btn-sm btn-warning">
+                <button id="button-submit" type="submit" class="btn btn-sm btn-warning">
                     <i class="fa fa-save"></i> Recepcionar Producto
                 </button>
             </div>

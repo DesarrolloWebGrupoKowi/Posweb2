@@ -1,14 +1,15 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalDetalleTicket{{ $ticket->IdTicket}}" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+<div class="modal fade" data-bs-backdrop="static" id="ModalDetalleTicket{{ $ticket->IdTicket }}" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-info-circle"></i> Detalle Ticket : {{ $ticket->IdTicket }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-info-circle"></i> Detalle Ticket :
+                    {{ $ticket->IdTicket }}</h5>
             </div>
             <div class="modal-body">
-                <div class="table-respoonsive">
-                    <table class="table table-responsive table-striped table-sm">
-                        <thead class="table-dark">
+                <div>
+                    <table>
+                        <thead>
                             <tr>
                                 <th>Código</th>
                                 <th>Articulo</th>
@@ -23,17 +24,17 @@
                         <tbody>
                             <tr>
                                 @foreach ($ticket->detalle as $detalle)
-                                    <tr>
-                                        <td>{{ $detalle->CodArticulo }}</td>
-                                        <td>{{ $detalle->NomArticulo }}</td>
-                                        <td>{{ number_format($detalle->CantArticulo, 3) }}</td>
-                                        <td>{{ number_format($detalle->PrecioArticulo, 2)}}</td>
-                                        <td>{{ number_format($detalle->IvaArticulo, 2) }}</td>
-                                        <td>{{ number_format($detalle->ImporteArticulo, 2) }}</td>
-                                        <td>{{ $detalle->NomPaquete }}</td>
-                                        <td>{{ $detalle->Cliente }}</td>
-                                    </tr>
-                                @endforeach
+                            <tr>
+                                <td>{{ $detalle->CodArticulo }}</td>
+                                <td>{{ $detalle->NomArticulo }}</td>
+                                <td>{{ number_format($detalle->CantArticulo, 3) }}</td>
+                                <td>{{ number_format($detalle->PrecioArticulo, 2) }}</td>
+                                <td>{{ number_format($detalle->IvaArticulo, 2) }}</td>
+                                <td>{{ number_format($detalle->ImporteArticulo, 2) }}</td>
+                                <td>{{ $detalle->NomPaquete }}</td>
+                                <td>{{ $detalle->Cliente }}</td>
+                            </tr>
+                            @endforeach
                             </tr>
                         </tbody>
                     </table>
