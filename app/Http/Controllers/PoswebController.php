@@ -6,6 +6,7 @@ use App\Models\Articulo;
 use App\Models\Banco;
 use App\Models\BloqueoEmpleado;
 use App\Models\CatPaquete;
+use App\Models\Ciudad;
 use App\Models\ClienteCloudTienda;
 use App\Models\CorteTienda;
 use App\Models\DatAsignacionPreparadosLocal;
@@ -1036,35 +1037,41 @@ class PoswebController extends Controller
         Log::info('===============================================================================================================');
         Log::info('');
         Log::info('===========================================GUARDAR VENTA =======================================================');
-        Log::info('1037-->');
+        Log::info('-->');
         Log::info($request);
+        Log::info('-->usuario');
+        Log::info(Auth::user());
+        Log::info('-----> id tienda: ');
+        Log::info(Auth::user()->usuarioTienda->IdTienda);
+        Log::info('preventa');
+        Log::info(PreventaTmp::get());
 
         $temporalPos = TemporalPos::first();
 
         Log::info('-->Temporal post');
         Log::info($temporalPos);
 
-        $numNomina = $temporalPos->NumNomina;
-
-        $multipago = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-            ->select('MultiPago')
-            ->distinct()
-            ->first();
 
         try {
             DB::beginTransaction();
 
+            $numNomina = $temporalPos->NumNomina;
+            $multipago = PreventaTmp::value('MultiPago');
+            $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
+
             Log::info('1052-->');
             Log::info($multipago);
 
-            if ($multipago->MultiPago == null) {
+            // if (!$multipago) {
+            //     return back()->withErrors('Intenta de nuevo!');
+            // }
+
+            if ($multipago == null) {
                 $idTipoPago = $request->tipoPago;
                 Log::info('-->');
                 Log::info('Tipo de pago: ' . $idTipoPago);
 
                 $idUsuario = Auth::user()->IdUsuario;
-
-                $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
                 $preventaIdPedido = PreventaTmp::select('IdPedido')
                     ->distinct()
@@ -1562,7 +1569,7 @@ class PoswebController extends Controller
             } else {
                 $caja = DB::table('DatCajas as a')
                     ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('IdTienda', $idTienda)
                     ->where('a.Activa', 0)
                     ->where('a.Status', 0)
                     ->first();
@@ -1571,7 +1578,7 @@ class PoswebController extends Controller
                     return redirect('Pos')->with('Pos', 'La Tienda No Tiene Caja Activa, Comuniquese con Sistemas!');
                 }
 
-                $IdDatEncabezado = DatEncabezado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                $IdDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
                     ->max('IdDatEncabezado');
 
                 $idEncabezado = DatEncabezado::where('IdDatEncabezado', $IdDatEncabezado)
@@ -1916,7 +1923,8 @@ class PoswebController extends Controller
 
     public function CorteDiario(Request $request)
     {
-        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        // $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
 
         $tienda = Tienda::where('IdTienda', $idTienda)
             ->first();
@@ -2308,7 +2316,8 @@ class PoswebController extends Controller
         Log::info('-->');
         Log::info('ImprimirTicketVenta');
 
-        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        // $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
 
         $tienda = DB::table('CatTiendas as a')
             ->leftJoin('CatCiudades as b', 'b.IdCiudad', 'a.IdCiudad')
@@ -2492,7 +2501,8 @@ class PoswebController extends Controller
 
     public function ImprimirTicket(Request $request)
     {
-        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        // $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
 
         $idTicket = $request->txtIdTicket;
 
