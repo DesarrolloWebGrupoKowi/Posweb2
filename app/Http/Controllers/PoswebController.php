@@ -1272,9 +1272,11 @@ class PoswebController extends Controller
                     ]);
                 }
 
-                $importeVenta = PreventaTmp::where('IdTienda', $idTienda)
-                    ->select('ImporteArticulo')
+                $importeVenta = PreventaTmp::select('ImporteArticulo')
                     ->sum('ImporteArticulo');
+
+                // Formatear el valor con dos decimales
+                $importeVentaFormateado = number_format($importeVenta, 2);
 
                 //Si hay IdPedido en el detalle para marcarlo como vendido
                 if ($idPedidoDist != null) {
@@ -1285,7 +1287,12 @@ class PoswebController extends Controller
                         ]);
                 }
 
-                if ($pago > $importeVenta || $pago == $importeVenta) {
+                Log::info('Importes de venta y cantidad de pago');
+                Log::info('Pago: ' . $pago);
+                Log::info('Importe ventadasjip: ' . $importeVentaFormateado);
+                Log::info($pago > $importeVentaFormateado || $pago == $importeVentaFormateado);
+
+                if ($pago > $importeVentaFormateado || $pago == $importeVentaFormateado) {
 
                     Log::info('-->');
                     Log::info('El pago es completado sin multipago');
