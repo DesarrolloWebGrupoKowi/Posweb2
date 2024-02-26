@@ -7,7 +7,7 @@
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Ventas por tipo de Precio'])
             <div>
-                <form action="/ReportePorTipoDePrecio" method="GET">
+                <form action="/ExportReportePorTipoDePrecio" method="GET">
                     <input type="hidden" name="fecha" value="{{ empty($fecha) ? date('Y-m-d') : $fecha }}">
                     <button type="submit" class="input-group-text text-decoration-none btn-excel">
                         <i class="fa fa-file-excel-o pe-2"></i> Exportar
@@ -31,18 +31,15 @@
         </form>
 
         <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-        {{-- <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Ciudad</th>
-                        <th>Tienda</th>
-                        <th>Grupo</th>
-                        <th>Código</th>
-                        <th>Articulo</th>
-                        <th>Cantidad</th>
-                        <th>Importe</th>
-                        <th class="rounded-end">Precio</th>
+                        <th class="rounded-start">Tienda</th>
+                        <th>Tipo precio</th>
+                        <th class="text-center">Kilos</th>
+                        <th class="text-center">Importe</th>
+                        <th class="rounded-end text-center">Clientes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -53,20 +50,17 @@
                     @else
                         @foreach ($concentrado as $tConcentrado)
                             <tr>
-                                <td>{{ $tConcentrado->NomCiudad }}</td>
                                 <td>{{ $tConcentrado->NomTienda }}</td>
-                                <td>{{ $tConcentrado->NomGrupo }}</td>
-                                <td>{{ $tConcentrado->CodArticulo }}</td>
-                                <td>{{ $tConcentrado->NomArticulo }}</td>
-                                <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
-                                <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
-                                <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
+                                <td>{{ $tConcentrado->NomListaPrecio }}</td>
+                                <td class="text-end">{{ $tConcentrado->kilos }}</td>
+                                <td class="text-end">${{ number_format($tConcentrado->importe, 2) }}</td>
+                                <td class="text-end">{{ $tConcentrado->tickets }}</td>
                             </tr>
                         @endforeach
                     @endif
                 </tbody>
             </table>
-        </div> --}}
+        </div>
     </div>
 
 @endsection
