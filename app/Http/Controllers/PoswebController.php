@@ -6,6 +6,7 @@ use App\Models\Articulo;
 use App\Models\Banco;
 use App\Models\BloqueoEmpleado;
 use App\Models\CatPaquete;
+use App\Models\Ciudad;
 use App\Models\ClienteCloudTienda;
 use App\Models\CorteTienda;
 use App\Models\DatAsignacionPreparadosLocal;
@@ -1036,35 +1037,41 @@ class PoswebController extends Controller
         Log::info('===============================================================================================================');
         Log::info('');
         Log::info('===========================================GUARDAR VENTA =======================================================');
-        Log::info('1037-->');
+        Log::info('-->');
         Log::info($request);
+        Log::info('-->usuario');
+        Log::info(Auth::user());
+        Log::info('-----> id tienda: ');
+        Log::info(Auth::user()->usuarioTienda->IdTienda);
+        Log::info('preventa');
+        Log::info(PreventaTmp::get());
 
         $temporalPos = TemporalPos::first();
 
         Log::info('-->Temporal post');
         Log::info($temporalPos);
 
-        $numNomina = $temporalPos->NumNomina;
-
-        $multipago = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-            ->select('MultiPago')
-            ->distinct()
-            ->first();
 
         try {
             DB::beginTransaction();
 
+            $numNomina = $temporalPos->NumNomina;
+            $multipago = PreventaTmp::value('MultiPago');
+            $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
+
             Log::info('1052-->');
             Log::info($multipago);
 
-            if ($multipago->MultiPago == null) {
+            // if (!$multipago) {
+            //     return back()->withErrors('Intenta de nuevo!');
+            // }
+
+            if ($multipago == null) {
                 $idTipoPago = $request->tipoPago;
                 Log::info('-->');
                 Log::info('Tipo de pago: ' . $idTipoPago);
 
                 $idUsuario = Auth::user()->IdUsuario;
-
-                $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
                 $preventaIdPedido = PreventaTmp::select('IdPedido')
                     ->distinct()
@@ -1244,6 +1251,9 @@ class PoswebController extends Controller
                 Log::info('Guardando detalle de encabezado');
 
                 foreach ($preventa as $index => $detalle) {
+                    Log::info('----------');
+                    Log::info($detalle->IdArticulo);
+                    Log::info($detalle->CantArticulo);
                     DatDetalle::insert([
                         'IdEncabezado' => $idEncabezado,
                         'IdArticulo' => $detalle->IdArticulo,
@@ -1278,7 +1288,7 @@ class PoswebController extends Controller
                 if ($pago > $importeVenta || $pago == $importeVenta) {
 
                     Log::info('-->');
-                    Log::info('Paquetes de preparados');
+                    Log::info('El pago es completado sin multipago');
 
                     // Obtenemos los paquetes de la venta
                     $paquetesPreparados = PreventaTmp::select(
@@ -1338,7 +1348,7 @@ class PoswebController extends Controller
 
                     Log::info('-->');
                     Log::info('Restante: ' . $restante);
-                    Log::info('Restante: ' . $pago);
+                    Log::info('Pago: ' . $pago);
 
                     DatTipoPago::insert([
                         'IdEncabezado' => $idEncabezado,
@@ -1559,7 +1569,7 @@ class PoswebController extends Controller
             } else {
                 $caja = DB::table('DatCajas as a')
                     ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('IdTienda', $idTienda)
                     ->where('a.Activa', 0)
                     ->where('a.Status', 0)
                     ->first();
@@ -1568,7 +1578,7 @@ class PoswebController extends Controller
                     return redirect('Pos')->with('Pos', 'La Tienda No Tiene Caja Activa, Comuniquese con Sistemas!');
                 }
 
-                $IdDatEncabezado = DatEncabezado::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                $IdDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
                     ->max('IdDatEncabezado');
 
                 $idEncabezado = DatEncabezado::where('IdDatEncabezado', $IdDatEncabezado)
@@ -1602,6 +1612,10 @@ class PoswebController extends Controller
                 return redirect()->route('CalculoMultiPago', compact('idEncabezado', 'restante', 'pago', 'idTipoPago', 'idBanco', 'numTarjeta'));
             }
         } catch (\Throwable $th) {
+            Log::info('-->catch de guardar venta');
+            Log::info($th);
+            Log::info('-->Mensaje de error');
+            Log::info($th->getMessage());
             DB::rollback();
             return redirect('Pos')->with('Pos', 'Error: ' . $th->getMessage());
         }
@@ -1898,6 +1912,10 @@ class PoswebController extends Controller
                 return redirect()->route('Pos');
             }
         } catch (\Throwable $th) {
+            Log::info('-->catch de calculo multipago');
+            Log::info($th);
+            Log::info('-->Mensaje de error');
+            Log::info($th->getMessage());
             DB::rollback();
             return redirect()->route('Pos', 'Error: ' . $th->getMessage());
         }
@@ -1905,7 +1923,8 @@ class PoswebController extends Controller
 
     public function CorteDiario(Request $request)
     {
-        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        // $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
 
         $tienda = Tienda::where('IdTienda', $idTienda)
             ->first();
@@ -2297,7 +2316,8 @@ class PoswebController extends Controller
         Log::info('-->');
         Log::info('ImprimirTicketVenta');
 
-        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        // $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
 
         $tienda = DB::table('CatTiendas as a')
             ->leftJoin('CatCiudades as b', 'b.IdCiudad', 'a.IdCiudad')
@@ -2371,7 +2391,7 @@ class PoswebController extends Controller
             $impresora = new Printer($connector);
             $impresora->setJustification(Printer::JUSTIFY_CENTER);
             $impresora->bitImage($logoKowi);
-            $impresora->feed(1);
+
             $impresora->text("ALIMENTOS KOWI SA DE CV\n");
             $impresora->text("AKO971007558\n");
             $impresora->text("CARRETERA FEDERAL MEXICO-NOGALES KM 1788\n");
@@ -2384,6 +2404,7 @@ class PoswebController extends Controller
             $impresora->text("==========================================\n");
             $impresora->setJustification(Printer::JUSTIFY_LEFT);
             $impresora->text("FECHA: " . date('d/m/Y H:i:s', strtotime($encabezado->FechaVenta)) . "\n");
+            $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
             $impresora->text("TICKET: " . $encabezado->IdTicket . "\n");
             $impresora->text("ARTICULOS: " . $venta->count() . "\n");
             $impresora->text("CAJA: " . $caja->NumCaja . "\n");
@@ -2406,7 +2427,7 @@ class PoswebController extends Controller
                 $impresora->text(str_pad(substr($datDetalleVenta->NomArticulo, 0, 16), 16) . " " . str_pad(number_format($datDetalleVenta->CantArticulo, 3), 7) . " " . str_pad(number_format($datDetalleVenta->PrecioArticulo, 2), 7) . " " . number_format($datDetalleVenta->ImporteArticulo, 2) . "\n");
             }
             $impresora->text("==========================================\n");
-            $impresora->feed(1);
+            // $impresora->feed(1);
             $impresora->setJustification(Printer::JUSTIFY_RIGHT);
             $impresora->text("SUBTOTAL : " . str_pad(number_format($encabezado->SubTotal, 2), 9, " ", STR_PAD_LEFT) . "\n");
             $impresora->text("IVA : " . str_pad(number_format($encabezado->Iva, 2), 9, " ", STR_PAD_LEFT) . "\n");
@@ -2416,32 +2437,34 @@ class PoswebController extends Controller
             $impresora->text("CAMBIO : " . str_pad($restante, 9, " ", STR_PAD_LEFT) . "\n");
             $impresora->text("================\n");
             $impresora->text("TOTAL " . number_format($encabezado->ImporteVenta, 2) . "\n");
-            $impresora->text("================\n");
-            $impresora->feed(2);
+            // $impresora->text("================\n");
+            $impresora->feed(1);
             $impresora->setJustification(Printer::JUSTIFY_CENTER);
             if (!empty($empleado) || !empty($frecuenteSocio)) {
                 if ($datMonedero > 0) {
                     $impresora->text("**GENERÓ $" . number_format($datMonedero, 2) . " EN MONEDERO ELECTRÓNICO**\n");
                     $impresora->text("Monedero Válido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
+                    $impresora->feed(1);
                 }
                 if ($monederoAcumulado > 0) {
                     $impresora->text("**MONEDERO ACUMULADO: $" . number_format($monederoAcumulado, 2) . "**");
+                    $impresora->feed(1);
                 }
             }
-            $impresora->feed(1);
+            // $impresora->feed(1);
             if ($firmaEmpleado->count() > 0) {
-                $impresora->feed(1);
                 $impresora->text("Firma del Empleado\n");
                 $impresora->feed(1);
                 $impresora->text("______________________________________\n");
                 $impresora->text("" . $empleado->NumNomina . "\n");
                 $impresora->text("" . $empleado->Nombre . " " . $empleado->Apellidos . "\n");
+                $impresora->feed(1);
             }
-            $impresora->feed(2);
-            $impresora->text("********************************\n");
-            $impresora->text("FOLIO CUPÓN: " . $idEncabezado . "\n");
-            $impresora->text("********************************\n");
-            $impresora->feed(2);
+            // $impresora->feed(1);
+            // $impresora->text("********************************\n");
+            // $impresora->text("FOLIO CUPÓN: " . $idEncabezado . "\n");
+            // $impresora->text("********************************\n");
+            // $impresora->feed(1);
             $impresora->text("¡ALTA CALIDAD EN CARNE DE CERDO!\n");
             $impresora->text("WWW.KOWI.COM.MX\n");
             $impresora->text("¡GRACIAS POR SU COMPRA!\n");
@@ -2450,6 +2473,10 @@ class PoswebController extends Controller
             $impresora->pulse();
             $impresora->close();
         } catch (\Throwable $th) {
+            Log::info('-->catch de imprimir venta');
+            Log::info($th);
+            Log::info('-->Mensaje de error');
+            Log::info($th->getMessage());
             return redirect('Pos')->with('Cambio', $restante);
         }
 
@@ -2474,7 +2501,8 @@ class PoswebController extends Controller
 
     public function ImprimirTicket(Request $request)
     {
-        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        // $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
 
         $idTicket = $request->txtIdTicket;
 
@@ -2568,7 +2596,7 @@ class PoswebController extends Controller
         $impresora = new Printer($connector);
         $impresora->setJustification(Printer::JUSTIFY_CENTER);
         $impresora->bitImage($logoKowi);
-        $impresora->feed(1);
+        // $impresora->feed(1);
         $impresora->text("ALIMENTOS KOWI SA DE CV\n");
         $impresora->text("AKO971007558\n");
         $impresora->text("CARRETERA FEDERAL MEXICO-NOGALES KM 1788\n");
@@ -2581,6 +2609,7 @@ class PoswebController extends Controller
         $impresora->text("==========================================\n");
         $impresora->setJustification(Printer::JUSTIFY_LEFT);
         $impresora->text("FECHA: " . date('d/m/Y H:i:s', strtotime($encabezado->FechaVenta)) . "\n");
+        $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
         $impresora->text("TICKET: " . $encabezado->IdTicket . "\n");
         $impresora->text("ARTICULOS: " . $ticket->count() . "\n");
         $impresora->text("CAJA: " . $caja->NumCaja . "\n");
@@ -2603,7 +2632,7 @@ class PoswebController extends Controller
             $impresora->text(str_pad(substr($datDetalleVenta->NomArticulo, 0, 16), 16) . " " . str_pad(number_format($datDetalleVenta->CantArticulo, 3), 7) . " " . str_pad(number_format($datDetalleVenta->PrecioArticulo, 2), 7) . " " . number_format($datDetalleVenta->ImporteArticulo, 2) . "\n");
         }
         $impresora->text("==========================================\n");
-        $impresora->feed(1);
+        // $impresora->feed(1);
         $impresora->setJustification(Printer::JUSTIFY_RIGHT);
         $impresora->text("SUBTOTAL : " . str_pad(number_format($encabezado->SubTotal, 2), 9, " ", STR_PAD_LEFT) . "\n");
         $impresora->text("IVA : " . str_pad(number_format($encabezado->Iva, 2), 9, " ", STR_PAD_LEFT) . "\n");
@@ -2613,33 +2642,35 @@ class PoswebController extends Controller
         $impresora->text("CAMBIO : " . str_pad(number_format($cambio->Restante, 2), 9, " ", STR_PAD_LEFT) . "\n");
         $impresora->text("================\n");
         $impresora->text("TOTAL " . number_format($encabezado->ImporteVenta, 2) . "\n");
-        $impresora->text("================\n");
-        $impresora->feed(2);
+        // $impresora->text("================\n");
+        $impresora->feed(1);
         $impresora->setJustification(Printer::JUSTIFY_CENTER);
         if (!empty($empleado) || !empty($frecuenteSocio)) {
             if ($datMonedero > 0) {
                 $impresora->text("**GENERÓ $" . number_format($datMonedero, 2) . " EN MONEDERO ELECTRÓNICO**\n");
                 $impresora->text("Monedero Válido Hasta: " . date('d/m/Y', strtotime($vigenciaMonedero)) . "\n");
+                $impresora->feed(1);
             }
             if ($monederoAcumulado > 0) {
                 $impresora->text("**MONEDERO ACUMULADO: $" . number_format($monederoAcumulado, 2) . "**");
+                $impresora->feed(1);
             }
         }
-        $impresora->feed(1);
+        // $impresora->feed(1);
         //$impresora->setJustification(Printer::JUSTIFY_CENTER);
         if ($firmaEmpleado->count() > 0) {
-            $impresora->feed(1);
             $impresora->text("Firma del Empleado\n");
             $impresora->feed(1);
             $impresora->text("______________________________________\n");
             $impresora->text("" . $empleado->NumNomina . "\n");
             $impresora->text("" . $empleado->Nombre . " " . $empleado->Apellidos . "\n");
+            $impresora->feed(1);
         }
-        $impresora->feed(2);
-        $impresora->text("********************************\n");
-        $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
-        $impresora->text("********************************\n");
-        $impresora->feed(2);
+        // $impresora->feed(1);
+        // $impresora->text("********************************\n");
+        // $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
+        // $impresora->text("********************************\n");
+        // $impresora->feed(1);
         $impresora->text("¡ALTA CALIDAD EN CARNE DE CERDO!\n");
         $impresora->text("WWW.KOWI.COM.MX\n");
         $impresora->text("¡GRACIAS POR SU COMPRA!\n");
