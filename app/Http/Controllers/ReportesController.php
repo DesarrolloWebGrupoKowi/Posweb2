@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ConcentradoDeArticulosExport;
+use App\Exports\VentasPorTipoDePrecioExport;
+use App\Models\DatEncabezado;
 use App\Models\Tienda;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -90,5 +92,60 @@ class ReportesController extends Controller
             ->get();
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'concentradodeventas.xlsx';
         return Excel::download(new ConcentradoDeArticulosExport($concentrado), $name);
+    }
+
+    public function ReportePorTipoDePrecio(Request $request)
+    {
+        $fecha = !$request->fecha ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha;
+
+        $concentrado = DatEncabezado::leftJoin('DatDetalle as b', 'b.IdEncabezado', 'DatEncabezado.IdEncabezado')
+            ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+            ->leftJoin('CatTiendas as f', 'DatEncabezado.IdTienda', 'f.IdTienda')
+            ->select(DB::raw("f.NomTienda,
+                c.NomListaPrecio,
+                SUM(b.CantArticulo) as kilos,
+                SUM(b.ImporteArticulo) as importe,
+                count(DatEncabezado.IdEncabezado) as clientes,
+                (select count(ta.encabezado) from (
+                    select count(DISTINCT en.IdEncabezado) as encabezado from DatEncabezado as en
+                    left join DatDetalle as det on en.IdEncabezado = det.IdEncabezado
+                    where cast(en.FechaVenta as date) = '" . $fecha . "' and en.IdTienda = f.IdTienda and det.IdListaPrecio = c.IdListaPrecio
+                    group by en.IdEncabezado)  as ta ) as tickets"))
+            ->where('DatEncabezado.StatusVenta', 0)
+            ->whereNotNull('c.NomListaPrecio')
+            ->whereRaw("cast(DatEncabezado.FechaVenta as date) = '" . $fecha . "'")
+            ->groupBy('f.IdTienda', 'f.NomTienda', 'c.IdListaPrecio', 'c.NomListaPrecio')
+            ->orderBy('f.NomTienda', 'desc')
+            ->get();
+
+        return view('Reportes.PorTipoDePrecio', compact('fecha', 'concentrado'));
+    }
+
+    public function ExportReportePorTipoDePrecio(Request $request)
+    {
+        $fecha = !$request->fecha ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha;
+
+        $concentrado = DatEncabezado::leftJoin('DatDetalle as b', 'b.IdEncabezado', 'DatEncabezado.IdEncabezado')
+            ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+            ->leftJoin('CatTiendas as f', 'DatEncabezado.IdTienda', 'f.IdTienda')
+            ->select(DB::raw("f.NomTienda,
+                c.NomListaPrecio,
+                SUM(b.CantArticulo) as kilos,
+                SUM(b.ImporteArticulo) as importe,
+                count(DatEncabezado.IdEncabezado) as clientes,
+                (select count(ta.encabezado) from (
+                    select count(DISTINCT en.IdEncabezado) as encabezado from DatEncabezado as en
+                    left join DatDetalle as det on en.IdEncabezado = det.IdEncabezado
+                    where cast(en.FechaVenta as date) = '" . $fecha . "' and en.IdTienda = f.IdTienda and det.IdListaPrecio = c.IdListaPrecio
+                    group by en.IdEncabezado)  as ta ) as tickets"))
+            ->where('DatEncabezado.StatusVenta', 0)
+            ->whereNotNull('c.NomListaPrecio')
+            ->whereRaw("cast(DatEncabezado.FechaVenta as date) = '" . $fecha . "'")
+            ->groupBy('f.IdTienda', 'f.NomTienda', 'c.IdListaPrecio', 'c.NomListaPrecio')
+            ->orderBy('f.NomTienda', 'desc')
+            ->get();
+
+        $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'ventasportipodeprecio.xlsx';
+        return Excel::download(new VentasPorTipoDePrecioExport($concentrado), $name);
     }
 }
