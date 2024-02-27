@@ -96,7 +96,8 @@ class ReportesController extends Controller
 
     public function ReportePorTipoDePrecio(Request $request)
     {
-        $fecha = !$request->fecha ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha;
+        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
 
         $concentrado = DatEncabezado::leftJoin('DatDetalle as b', 'b.IdEncabezado', 'DatEncabezado.IdEncabezado')
             ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
@@ -109,21 +110,31 @@ class ReportesController extends Controller
                 (select count(ta.encabezado) from (
                     select count(DISTINCT en.IdEncabezado) as encabezado from DatEncabezado as en
                     left join DatDetalle as det on en.IdEncabezado = det.IdEncabezado
-                    where cast(en.FechaVenta as date) = '" . $fecha . "' and en.IdTienda = f.IdTienda and det.IdListaPrecio = c.IdListaPrecio
+                    where cast(en.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "' and en.IdTienda = f.IdTienda and det.IdListaPrecio = c.IdListaPrecio
                     group by en.IdEncabezado)  as ta ) as tickets"))
             ->where('DatEncabezado.StatusVenta', 0)
             ->whereNotNull('c.NomListaPrecio')
-            ->whereRaw("cast(DatEncabezado.FechaVenta as date) = '" . $fecha . "'")
+            ->whereRaw("cast(DatEncabezado.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->groupBy('f.IdTienda', 'f.NomTienda', 'c.IdListaPrecio', 'c.NomListaPrecio')
             ->orderBy('f.NomTienda', 'desc')
             ->get();
 
-        return view('Reportes.PorTipoDePrecio', compact('fecha', 'concentrado'));
+        $totales = ['DETALLE' => 0, 'MENUDEO' => 0, 'MINORISTA' => 0, 'EMPYSOC' => 0, 'TOTAL' => 0];
+        foreach ($concentrado as $item) {
+            if ($item->NomListaPrecio == 'DETALLE') $totales['DETALLE'] += $item->importe;
+            if ($item->NomListaPrecio == 'MENUDEO') $totales['MENUDEO'] += $item->importe;
+            if ($item->NomListaPrecio == 'MINORISTA') $totales['MINORISTA'] += $item->importe;
+            if ($item->NomListaPrecio == 'EMPYSOC') $totales['EMPYSOC'] += $item->importe;
+            $totales['TOTAL'] += $item->importe;
+        }
+
+        return view('Reportes.PorTipoDePrecio', compact('fecha1', 'fecha2', 'concentrado', 'totales'));
     }
 
     public function ExportReportePorTipoDePrecio(Request $request)
     {
-        $fecha = !$request->fecha ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha;
+        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
 
         $concentrado = DatEncabezado::leftJoin('DatDetalle as b', 'b.IdEncabezado', 'DatEncabezado.IdEncabezado')
             ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
@@ -136,16 +147,25 @@ class ReportesController extends Controller
                 (select count(ta.encabezado) from (
                     select count(DISTINCT en.IdEncabezado) as encabezado from DatEncabezado as en
                     left join DatDetalle as det on en.IdEncabezado = det.IdEncabezado
-                    where cast(en.FechaVenta as date) = '" . $fecha . "' and en.IdTienda = f.IdTienda and det.IdListaPrecio = c.IdListaPrecio
+                    where cast(en.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "' and en.IdTienda = f.IdTienda and det.IdListaPrecio = c.IdListaPrecio
                     group by en.IdEncabezado)  as ta ) as tickets"))
             ->where('DatEncabezado.StatusVenta', 0)
             ->whereNotNull('c.NomListaPrecio')
-            ->whereRaw("cast(DatEncabezado.FechaVenta as date) = '" . $fecha . "'")
+            ->whereRaw("cast(DatEncabezado.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->groupBy('f.IdTienda', 'f.NomTienda', 'c.IdListaPrecio', 'c.NomListaPrecio')
             ->orderBy('f.NomTienda', 'desc')
             ->get();
 
+        $totales = ['DETALLE' => 0, 'MENUDEO' => 0, 'MINORISTA' => 0, 'EMPYSOC' => 0, 'TOTAL' => 0];
+        foreach ($concentrado as $item) {
+            if ($item->NomListaPrecio == 'DETALLE') $totales['DETALLE'] += $item->importe;
+            if ($item->NomListaPrecio == 'MENUDEO') $totales['MENUDEO'] += $item->importe;
+            if ($item->NomListaPrecio == 'MINORISTA') $totales['MINORISTA'] += $item->importe;
+            if ($item->NomListaPrecio == 'EMPYSOC') $totales['EMPYSOC'] += $item->importe;
+            $totales['TOTAL'] += $item->importe;
+        }
+
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'ventasportipodeprecio.xlsx';
-        return Excel::download(new VentasPorTipoDePrecioExport($concentrado), $name);
+        return Excel::download(new VentasPorTipoDePrecioExport($concentrado, $totales), $name);
     }
 }
