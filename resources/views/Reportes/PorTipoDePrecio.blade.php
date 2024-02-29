@@ -37,39 +37,71 @@
 
         <div class="row">
             <div class="col-12 col-md-6 col-lg-3 pb-4">
-                <div class="card p-4 d-flex flex-row justify-content-between" style="border-radius: 20px;">
-                    <span class="text-secondary">DETALLE: </span>
-                    <b class="{{ number_format($totales['DETALLE'], 2) == 0 ? 'eliminar' : 'send' }}"
-                        style="font-size: 16px">
-                        ${{ number_format($totales['DETALLE'], 2) }}
-                    </b>
+                <div class="card p-4" style="border-radius: 20px;">
+                    <div class="d-flex flex-row justify-content-between">
+                        <span class="text-secondary">DETALLE: </span>
+                        <b class="{{ number_format($totales['DETALLE'], 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totales['DETALLE'], 2) }}
+                        </b>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <span class="text-secondary">CLIENTES: </span>
+                        <b class="{{ number_format($clientes['DETALLE'], 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px"> {{ $clientes['DETALLE'] }}
+                        </b>
+                    </div>
                 </div>
             </div>
             <div class="col-12 col-md-6 col-lg-3 pb-4">
-                <div class="card p-4 d-flex flex-row justify-content-between" style="border-radius: 20px;">
-                    <span class="text-secondary">MENUDEO: </span>
-                    <b class="{{ number_format($totales['MENUDEO'], 2) == 0 ? 'eliminar' : 'send' }}"
-                        style="font-size: 16px">
-                        ${{ number_format($totales['MENUDEO'], 2) }}
-                    </b>
+                <div class="card p-4" style="border-radius: 20px;">
+                    <div class="d-flex flex-row justify-content-between">
+                        <span class="text-secondary">MENUDEO: </span>
+                        <b class="{{ number_format($totales['MENUDEO'], 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totales['MENUDEO'], 2) }}
+                        </b>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <span class="text-secondary">CLIENTES: </span>
+                        <b class="{{ number_format($clientes['MENUDEO'], 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px"> {{ $clientes['MENUDEO'] }}
+                        </b>
+                    </div>
                 </div>
             </div>
             <div class="col-12 col-md-6 col-lg-3 pb-4">
-                <div class="card p-4 d-flex flex-row justify-content-between" style="border-radius: 20px;">
-                    <span class="text-secondary">MINORISTA: </span>
-                    <b class="{{ number_format($totales['MINORISTA'], 2) == 0 ? 'eliminar' : 'send' }}"
-                        style="font-size: 16px">
-                        ${{ number_format($totales['MINORISTA'], 2) }}
-                    </b>
+                <div class="card p-4" style="border-radius: 20px;">
+                    <div class="d-flex flex-row justify-content-between">
+                        <span class="text-secondary">MINORISTA: </span>
+                        <b class="{{ number_format($totales['MINORISTA'], 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totales['MINORISTA'], 2) }}
+                        </b>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <span class="text-secondary">CLIENTES: </span>
+                        <b class="{{ number_format($clientes['MINORISTA'], 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px"> {{ $clientes['MINORISTA'] }}
+                        </b>
+                    </div>
                 </div>
             </div>
             <div class="col-12 col-md-6 col-lg-3 pb-4">
-                <div class="card p-4 d-flex flex-row justify-content-between" style="border-radius: 20px;">
-                    <span class="text-secondary">EMPYSOC: </span>
-                    <b class="{{ number_format($totales['EMPYSOC'], 2) == 0 ? 'eliminar' : 'send' }}"
-                        style="font-size: 16px">
-                        ${{ number_format($totales['EMPYSOC'], 2) }}
-                    </b>
+                <div class="card p-4" style="border-radius: 20px;">
+                    <div class="d-flex flex-row justify-content-between">
+                        <span class="text-secondary">EMPYSOC: </span>
+                        <b class="{{ number_format($totales['EMPYSOC'], 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totales['EMPYSOC'], 2) }}
+                        </b>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <span class="text-secondary">CLIENTES: </span>
+                        <b class="{{ number_format($clientes['EMPYSOC'], 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px"> {{ $clientes['EMPYSOC'] }}
+                        </b>
+                    </div>
                 </div>
             </div>
         </div>
@@ -104,6 +136,7 @@
                         <tr>
                             <td colspan="3" class="text-end fw-bold">Total:</td>
                             <td class="text-end">${{ number_format($totales['TOTAL'], 2) }}</td>
+                            <td class="text-end">{{ $clientes['TOTAL'] }}</td>
                         </tr>
                     @endif
                 </tbody>
