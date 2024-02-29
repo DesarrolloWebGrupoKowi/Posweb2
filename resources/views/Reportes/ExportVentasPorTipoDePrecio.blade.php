@@ -37,27 +37,33 @@
         </tr>
         <tr>
             <td>Tipo de pago</td>
-            <td>Cantidad</td>
+            <td>Importes</td>
+            <td>Clientes</td>
         </tr>
         <tr>
             <td>DETALLE</td>
             <td style="text-align: right;">{{ number_format($totales['DETALLE'], 2) }}</td>
+            <td style="text-align: right;">{{ $clientes['DETALLE'] }}</td>
         </tr>
         <tr>
             <td>MENUDEO</td>
             <td style="text-align: right;">{{ number_format($totales['MENUDEO'], 2) }}</td>
+            <td style="text-align: right;">{{ $clientes['MENUDEO'] }}</td>
         </tr>
         <tr>
             <td>MINORISTA</td>
             <td style="text-align: right;">{{ number_format($totales['MINORISTA'], 2) }}</td>
+            <td style="text-align: right;">{{ $clientes['MINORISTA'] }}</td>
         </tr>
         <tr>
             <td>EMPYSOC</td>
             <td style="text-align: right;">{{ number_format($totales['EMPYSOC'], 2) }}</td>
+            <td style="text-align: right;">{{ $clientes['EMPYSOC'] }}</td>
         </tr>
         <tr>
             <td>Total</td>
             <td style="text-align: right;">{{ number_format($totales['TOTAL'], 2) }}</td>
+            <td style="text-align: right;">{{ $clientes['TOTAL'] }}</td>
         </tr>
     </tfoot>
 </table>

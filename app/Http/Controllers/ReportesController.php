@@ -120,15 +120,29 @@ class ReportesController extends Controller
             ->get();
 
         $totales = ['DETALLE' => 0, 'MENUDEO' => 0, 'MINORISTA' => 0, 'EMPYSOC' => 0, 'TOTAL' => 0];
+        $clientes = ['DETALLE' => 0, 'MENUDEO' => 0, 'MINORISTA' => 0, 'EMPYSOC' => 0, 'TOTAL' => 0];
         foreach ($concentrado as $item) {
-            if ($item->NomListaPrecio == 'DETALLE') $totales['DETALLE'] += $item->importe;
-            if ($item->NomListaPrecio == 'MENUDEO') $totales['MENUDEO'] += $item->importe;
-            if ($item->NomListaPrecio == 'MINORISTA') $totales['MINORISTA'] += $item->importe;
-            if ($item->NomListaPrecio == 'EMPYSOC') $totales['EMPYSOC'] += $item->importe;
+            if ($item->NomListaPrecio == 'DETALLE') {
+                $totales['DETALLE'] += $item->importe;
+                $clientes['DETALLE'] += $item->tickets;
+            }
+            if ($item->NomListaPrecio == 'MENUDEO') {
+                $totales['MENUDEO'] += $item->importe;
+                $clientes['MENUDEO'] += $item->tickets;
+            }
+            if ($item->NomListaPrecio == 'MINORISTA') {
+                $totales['MINORISTA'] += $item->importe;
+                $clientes['MINORISTA'] += $item->tickets;
+            }
+            if ($item->NomListaPrecio == 'EMPYSOC') {
+                $totales['EMPYSOC'] += $item->importe;
+                $clientes['EMPYSOC'] += $item->tickets;
+            }
             $totales['TOTAL'] += $item->importe;
+            $clientes['TOTAL'] += $item->tickets;
         }
 
-        return view('Reportes.PorTipoDePrecio', compact('fecha1', 'fecha2', 'concentrado', 'totales'));
+        return view('Reportes.PorTipoDePrecio', compact('fecha1', 'fecha2', 'concentrado', 'totales', 'clientes'));
     }
 
     public function ExportReportePorTipoDePrecio(Request $request)
@@ -157,15 +171,29 @@ class ReportesController extends Controller
             ->get();
 
         $totales = ['DETALLE' => 0, 'MENUDEO' => 0, 'MINORISTA' => 0, 'EMPYSOC' => 0, 'TOTAL' => 0];
+        $clientes = ['DETALLE' => 0, 'MENUDEO' => 0, 'MINORISTA' => 0, 'EMPYSOC' => 0, 'TOTAL' => 0];
         foreach ($concentrado as $item) {
-            if ($item->NomListaPrecio == 'DETALLE') $totales['DETALLE'] += $item->importe;
-            if ($item->NomListaPrecio == 'MENUDEO') $totales['MENUDEO'] += $item->importe;
-            if ($item->NomListaPrecio == 'MINORISTA') $totales['MINORISTA'] += $item->importe;
-            if ($item->NomListaPrecio == 'EMPYSOC') $totales['EMPYSOC'] += $item->importe;
+            if ($item->NomListaPrecio == 'DETALLE') {
+                $totales['DETALLE'] += $item->importe;
+                $clientes['DETALLE'] += $item->tickets;
+            }
+            if ($item->NomListaPrecio == 'MENUDEO') {
+                $totales['MENUDEO'] += $item->importe;
+                $clientes['MENUDEO'] += $item->tickets;
+            }
+            if ($item->NomListaPrecio == 'MINORISTA') {
+                $totales['MINORISTA'] += $item->importe;
+                $clientes['MINORISTA'] += $item->tickets;
+            }
+            if ($item->NomListaPrecio == 'EMPYSOC') {
+                $totales['EMPYSOC'] += $item->importe;
+                $clientes['EMPYSOC'] += $item->tickets;
+            }
             $totales['TOTAL'] += $item->importe;
+            $clientes['TOTAL'] += $item->tickets;
         }
 
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'ventasportipodeprecio.xlsx';
-        return Excel::download(new VentasPorTipoDePrecioExport($concentrado, $totales), $name);
+        return Excel::download(new VentasPorTipoDePrecioExport($concentrado, $totales, $clientes), $name);
     }
 }

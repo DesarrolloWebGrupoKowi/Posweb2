@@ -12,14 +12,16 @@ class VentasPorTipoDePrecioExport implements FromView
 {
     private $concentrado;
     private $totales;
-    public function __construct($concentrado, $totales)
+    private $clientes;
+    public function __construct($concentrado, $totales, $clientes)
     {
         $this->concentrado = $concentrado;
         $this->totales = $totales;
+        $this->clientes = $clientes;
     }
 
     public function view(): View
     {
-        return view('Reportes.ExportVentasPorTipoDePrecio', ['data' => $this->concentrado, 'totales' => $this->totales]);
+        return view('Reportes.ExportVentasPorTipoDePrecio', ['data' => $this->concentrado, 'totales' => $this->totales, 'clientes' => $this->clientes]);
     }
 }
