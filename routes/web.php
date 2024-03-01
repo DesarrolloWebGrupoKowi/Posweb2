@@ -765,6 +765,18 @@ Route::group(['middleware' => 'auth'], function () {
     //ReportePorTipoDePrecio
     Route::get('/ExportReportePorTipoDePrecio', 'App\Http\Controllers\ReportesController@ExportReportePorTipoDePrecio')->name('ExportReportePorTipoDePrecio');
 
+    //ReporteConcentradoPorCiudadYFamilia
+    Route::get('/ReporteConcentradoPorCiudadYFamilia', 'App\Http\Controllers\ReportesController@ReporteConcentradoPorCiudadYFamilia')->name('ReporteConcentradoPorCiudadYFamilia');
+
+    //ReporteConcentradoPorCiudadYFamilia
+    Route::get('/ExportReporteConcentradoPorCiudadYFamilia', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoPorCiudadYFamilia')->name('ExportReporteConcentradoPorCiudadYFamilia');
+
+    //ReporteGrupoYTipoPrecio
+    Route::get('/ReporteGrupoYTipoPrecio', 'App\Http\Controllers\ReportesController@ReporteGrupoYTipoPrecio')->name('ReporteGrupoYTipoPrecio');
+
+    //ReporteGrupoYTipoPrecio
+    Route::get('/ExportReporteGrupoYTipoPrecio', 'App\Http\Controllers\ReportesController@ExportReporteGrupoYTipoPrecio')->name('ExportReporteGrupoYTipoPrecio');
+
     //+============================================================================================================================================+//
     //BloqueoEmpleados
     Route::get('/BloqueoEmpleados', 'App\Http\Controllers\BloqueoEmpleadosController@BloqueoEmpleados');

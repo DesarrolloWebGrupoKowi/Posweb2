@@ -18,13 +18,16 @@ class DatEncPedido extends Model
     protected $fillable = ['IdPedido', 'IdTienda', 'Cliente', 'Telefono', 'FechaPedido', 'FechaRecoger', 'ImportePedido', 'IdUsuario', 'Status'];
     public $timestamps = false;
 
-    public function ArticuloDetalle(){
+    public function ArticuloDetalle()
+    {
         return $this->belongsToMany(Articulo::class, DatDetPedido::class, 'IdPedido', 'IdArticulo', 'IdPedido')
-                    ->withPivot('IdArticulo', 'CantArticulo', 'SubTotalArticulo', 'IvaArticulo', 'ImporteArticulo', 'PrecioArticulo')
-                    ->as('DetallePedido');
+            ->withPivot('IdArticulo', 'CantArticulo', 'SubTotalArticulo', 'IvaArticulo', 'ImporteArticulo', 'PrecioArticulo')
+            ->as('DetallePedido');
     }
 
-    public function Venta(){
-        return $this->belongsToMany(DatEncabezado::class, DatDetalle::class, 'IdPedido', 'IdEncabezado', 'IdPedido');
+    public function Venta()
+    {
+        return $this->hasOne(DatDetalle::class, 'IdPedido', 'IdPedido')
+            ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'DatDetalle.IdEncabezado');
     }
 }

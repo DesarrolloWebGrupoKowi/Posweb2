@@ -1,6 +1,6 @@
 <!-- Modal -->
-<div class="modal fade" id="ModalDatEncabezado{{ $pedido->IdPedido }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="ModalDatEncabezado{{ $pedido->IdPedido }}" data-bs-backdrop="static" data-bs-keyboard="false"
+    tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -17,14 +17,10 @@
                     </thead>
                     <tbody>
                         @if (!empty($pedido))
-                        @foreach ($pedido->Venta as $key => $encabezado)
-                        <tr>
-                            @if ($key == 0)
-                            <td>{{ strftime("%d %B %Y, %H:%M", strtotime($encabezado->FechaVenta)) }}</td>
-                            <td>{{ $encabezado->IdTicket }}</td>
-                            @endif
-                        </tr>
-                        @endforeach
+                            <tr>
+                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($pedido->Venta->FechaVenta)) }}</td>
+                                <td>{{ $pedido->Venta->IdTicket }}</td>
+                            </tr>
                         @endif
                     </tbody>
                 </table>
