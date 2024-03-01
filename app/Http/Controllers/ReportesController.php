@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ConcentradoDeArticulosExport;
 use App\Exports\ConcentradoPorCiudadYFamilia;
+use App\Exports\GrupoYTipoPrecio;
 use App\Exports\VentasPorTipoDePrecioExport;
 use App\Models\DatEncabezado;
 use App\Models\Tienda;
@@ -299,5 +300,56 @@ class ReportesController extends Controller
 
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'concentradoporciudadyfamilia.xlsx';
         return Excel::download(new ConcentradoPorCiudadYFamilia($concentrado, $totales, $kilos), $name);
+    }
+
+    public function ReporteGrupoYTipoPrecio(Request $request)
+    {
+        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+
+        $concentrado = DatEncabezado::leftJoin('DatDetalle as b', 'b.IdEncabezado', 'DatEncabezado.IdEncabezado')
+            ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+            ->leftJoin('CatTiendas as f', 'DatEncabezado.IdTienda', 'f.IdTienda')
+            ->leftJoin('CatArticulos as g', 'g.IdArticulo', 'b.IdArticulo')
+            ->leftJoin('CatGrupos as h', 'h.IdGrupo', 'g.IdGrupo')
+            ->select(DB::raw("f.NomTienda,
+                h.NomGrupo,
+                c.NomListaPrecio,
+                SUM(b.CantArticulo) as kilos,
+                SUM(b.ImporteArticulo) as importe"))
+            ->where('DatEncabezado.StatusVenta', 0)
+            ->whereNotNull('c.NomListaPrecio')
+            ->whereRaw("cast(DatEncabezado.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->groupBy('f.NomTienda', 'h.NomGrupo', 'c.NomListaPrecio')
+            ->orderBy('f.NomTienda', 'desc')
+            ->get();
+
+        return view('Reportes.ReporteGrupoYTipoPrecio', compact('fecha1', 'fecha2', 'concentrado'));
+    }
+
+    public function ExportReporteGrupoYTipoPrecio(Request $request)
+    {
+        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+
+        $concentrado = DatEncabezado::leftJoin('DatDetalle as b', 'b.IdEncabezado', 'DatEncabezado.IdEncabezado')
+            ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+            ->leftJoin('CatTiendas as f', 'DatEncabezado.IdTienda', 'f.IdTienda')
+            ->leftJoin('CatArticulos as g', 'g.IdArticulo', 'b.IdArticulo')
+            ->leftJoin('CatGrupos as h', 'h.IdGrupo', 'g.IdGrupo')
+            ->select(DB::raw("f.NomTienda,
+                h.NomGrupo,
+                c.NomListaPrecio,
+                SUM(b.CantArticulo) as kilos,
+                SUM(b.ImporteArticulo) as importe"))
+            ->where('DatEncabezado.StatusVenta', 0)
+            ->whereNotNull('c.NomListaPrecio')
+            ->whereRaw("cast(DatEncabezado.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->groupBy('f.NomTienda', 'h.NomGrupo', 'c.NomListaPrecio')
+            ->orderBy('f.NomTienda', 'desc')
+            ->get();
+
+        $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'concentradoporgrupoytipodeprecio.xlsx';
+        return Excel::download(new GrupoYTipoPrecio($concentrado), $name);
     }
 }
