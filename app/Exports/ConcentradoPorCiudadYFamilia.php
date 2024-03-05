@@ -8,20 +8,20 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromView;
 
-class VentasPorTipoDePrecioExport implements FromView
+class ConcentradoPorCiudadYFamilia implements FromView
 {
     private $concentrado;
     private $totales;
-    private $clientes;
-    public function __construct($concentrado, $totales, $clientes)
+    private $kilos;
+    public function __construct($concentrado, $totales, $kilos)
     {
         $this->concentrado = $concentrado;
         $this->totales = $totales;
-        $this->clientes = $clientes;
+        $this->kilos = $kilos;
     }
 
     public function view(): View
     {
-        return view('Reportes.ExportVentasPorTipoDePrecio', ['data' => $this->concentrado, 'totales' => $this->totales, 'clientes' => $this->clientes]);
+        return view('Reportes.ExportConcentradoPorCiudadYFamilia', ['data' => $this->concentrado, 'totales' => $this->totales, 'kilos' => $this->kilos]);
     }
 }
