@@ -5,9 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="Icons/font-awesome.min.css">
+    {{-- <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="Icons/font-awesome.min.css"> --}}
     <title>Consultar Articulo</title>
+    <style>
+        * {
+            font-family: sans-serif;
+        }
+
+        h6 {
+            font-size: 20px;
+            padding: 4px;
+            margin: 0;
+            color: white;
+        }
+
+        .bg-danger {
+            color: red;
+        }
+
+        table {
+            margin-bottom: 8px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        tr {
+            line-height: 18px;
+        }
+
+        tr:hover {
+            background: #33415521;
+        }
+    </style>
 </head>
 
 <body>
