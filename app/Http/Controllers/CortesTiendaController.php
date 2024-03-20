@@ -188,6 +188,7 @@ class CortesTiendaController extends Controller
                         $oraclePedido->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH', 'XXH.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->whereDate('FechaVenta', $fecha1)
                             ->where('IdTienda', $idTienda)
+                            ->where('StatusVenta', 0)
                             ->select(
                                 'DatCortesTienda.Bill_To',
                                 'DatCortesTienda.Source_Transaction_Identifier',

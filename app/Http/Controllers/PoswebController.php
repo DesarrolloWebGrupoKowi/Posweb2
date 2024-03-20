@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Articulo;
 use App\Models\Banco;
 use App\Models\BloqueoEmpleado;
+use App\Models\CatFrecuentesSocios;
 use App\Models\CatPaquete;
 use App\Models\Ciudad;
 use App\Models\ClienteCloudTienda;
@@ -58,15 +59,15 @@ class PoswebController extends Controller
             ->where('NumNomina', $numNomina)
             ->first();
 
-        exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
+        // exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
 
-        if ($codigo === 1) {
-            $frecuenteSocio = null;
-        } else {
-            $frecuenteSocio = FrecuenteSocio::with('TipoCliente')
-                ->where('FolioViejo', $numNomina)
-                ->first();
-        }
+        // if ($codigo === 1) {
+        //     $frecuenteSocio = null;
+        // } else {
+        // }
+        $frecuenteSocio = CatFrecuentesSocios::with('TipoCliente')
+            ->where('FolioViejo', $numNomina)
+            ->first();
 
         if (!empty($cliente)) {
 
@@ -308,7 +309,7 @@ class PoswebController extends Controller
                 ->where('NumNomina', $numNomina)
                 ->first();
 
-            $frecuenteSocio = FrecuenteSocio::with('TipoCliente')
+            $frecuenteSocio = CatFrecuentesSocios::with('TipoCliente')
                 ->where('FolioViejo', $numNomina)
                 ->first();
 
@@ -1084,22 +1085,23 @@ class PoswebController extends Controller
                 $pago = $request->txtPago;
 
                 // Aqui obtenemos la preventa
-                $detalle = PreventaTmp::where('IdTienda', $idTienda)
-                    ->get();
+                $detalle = PreventaTmp::get();
 
-                $subTotal = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('SubTotalArticulo');
+                $subTotal = PreventaTmp::sum('SubTotalArticulo');
 
                 $subTotalVenta = number_format($subTotal, 2);
 
-                $iva = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('IvaArticulo');
+                $iva = PreventaTmp::sum('IvaArticulo');
                 $ivaVenta = number_format($iva, 2);
 
-                $totalVentaSinFormat = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('ImporteArticulo') - $temporalPos->MonederoDescuento;
+                $totalVentaSinFormat = PreventaTmp::sum('ImporteArticulo') - $temporalPos->MonederoDescuento;
 
-                $totalVenta = number_format($totalVentaSinFormat, 2); // format a la venta (2)
+                Log::info('Total de venta sin formato');
+                Log::info($totalVentaSinFormat);
+
+                $totalVenta = round($totalVentaSinFormat, 2); // format a la venta (2)
+                Log::info('Total de venta:');
+                Log::info($totalVenta);
 
                 // TODO:: Tickets
                 $fechaActual = date("Y-m-d");
@@ -1197,6 +1199,7 @@ class PoswebController extends Controller
                 }
 
                 if ($idTipoPago != 1 && $pago > $totalVenta) {
+                    return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1):' . $pago . '   :' . $totalVenta);
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
                 }
 
