@@ -1099,7 +1099,7 @@ class PoswebController extends Controller
                 Log::info('Total de venta sin formato');
                 Log::info($totalVentaSinFormat);
 
-                $totalVenta = number_format($totalVentaSinFormat, 2); // format a la venta (2)
+                $totalVenta = round($totalVentaSinFormat, 2); // format a la venta (2)
                 Log::info('Total de venta:');
                 Log::info($totalVenta);
 
@@ -1199,6 +1199,7 @@ class PoswebController extends Controller
                 }
 
                 if ($idTipoPago != 1 && $pago > $totalVenta) {
+                    return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1):' . $pago . '   :' . $totalVenta);
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
                 }
 
