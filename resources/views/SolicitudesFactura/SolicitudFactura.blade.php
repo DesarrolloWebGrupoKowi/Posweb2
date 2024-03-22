@@ -143,7 +143,8 @@
                 <table>
                     <thead class="table-head">
                         <tr>
-                            <th class="rounded-start">NomCliente</th>
+                            <th class="rounded-start">Sitio</th>
+                            <th>NomCliente</th>
                             <th>IdClienteCloud</th>
                             <th>RFC</th>
                             <th>Ship_To</th>
@@ -159,6 +160,7 @@
                         @else
                             @foreach ($clientes as $cliente)
                                 <tr>
+                                    <td>{{ $cliente->Sitio }}</td>
                                     <td>{{ $cliente->NomCliente }}</td>
                                     <td>{{ $cliente->IdClienteCloud }}</td>
                                     <td>{{ $cliente->RFC }}</td>
