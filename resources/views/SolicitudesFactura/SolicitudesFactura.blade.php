@@ -37,10 +37,26 @@
                     <tr>
                         <th class="rounded-start">Id</th>
                         <th>Tienda</th>
-                        <th>RFC</th>
+                        <th>Descripcion</th>
+                        <th>Cliente</th>
                         <th>Nombre</th>
-                        <th>TipoPersona</th>
+                        <th>RFC</th>
+                        <th>Calle</th>
+                        <th>NumExt</th>
+                        <th>NumInt</th>
+                        <th>C.P.</th>
+                        <th>Colonia</th>
                         <th>Ciudad</th>
+                        <th>Municipio</th>
+                        <th>Estado</th>
+                        <th>Pais</th>
+                        <th>Telefono</th>
+                        <th>Correo Electronico</th>
+                        <th>Correo Electronico CLOUD</th>
+                        <th>Metodo de pago</th>
+                        <th>Banco</th>
+                        <th>Cuenta</th>
+                        {{-- <th>Ciudad</th> --}}
                         <th>Status</th>
                         <th class="rounded-end">Acciones</th>
                     </tr>
@@ -51,12 +67,27 @@
                     @else
                         @foreach ($solicitudes as $solicitud)
                             <tr>
-                                <td>{{ $solicitud->Id }}</td>
+                                <td>{{ $solicitud->IdSolicitudFactura }}</td>
                                 <td>{{ $solicitud->NomTienda }}</td>
-                                <td>{{ $solicitud->RFC }}</td>
-                                <td>{{ $solicitud->NomCliente }}</td>
+                                <td></td>
                                 <td>{{ $solicitud->TipoPersona }}</td>
+                                <td>{{ $solicitud->NomCliente }}</td>
+                                <td>{{ $solicitud->RFC }}</td>
+                                <td>{{ $solicitud->Calle }}</td>
+                                <td>{{ $solicitud->NumExt }}</td>
+                                <td>{{ $solicitud->NumInt }}</td>
+                                <td>{{ $solicitud->CodigoPostal }}</td>
+                                <td>{{ $solicitud->Colonia }}</td>
                                 <td>{{ $solicitud->Ciudad }}</td>
+                                <td>{{ $solicitud->Municipio }}</td>
+                                <td>{{ $solicitud->Estado }}</td>
+                                <td>{{ $solicitud->Pais }}</td>
+                                <td>{{ $solicitud->Telefono }}</td>
+                                <td>{{ $solicitud->Email }}</td>
+                                <td></td>
+                                <td>{{ $solicitud->NomTipoPago }}</td>
+                                <td>{{ $solicitud->NomBanco }}</td>
+                                <td>{{ $solicitud->NumTarjeta }}</td>
                                 <td> {{ $solicitud->Editar ? 'Actualizar' : 'Nuevo' }} </td>
                                 <td>
                                     <a href="/SolicitudesFactura/{{ $solicitud->Id }}" class="text-decoration-none">

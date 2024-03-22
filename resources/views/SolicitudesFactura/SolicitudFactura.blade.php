@@ -116,6 +116,14 @@
                     <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Tipo De Pago </label>
                     <input type="text" class="form-control" value="{{ $solicitud->NomTipoPago }}" disabled>
                 </div>
+                <div class="col-md-3 ">
+                    <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Banco </label>
+                    <input type="text" class="form-control" value="{{ $solicitud->NomBanco }}" disabled>
+                </div>
+                <div class="col-md-3 ">
+                    <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Numero Tarjeta </label>
+                    <input type="text" class="form-control" value="{{ $solicitud->NumTarjeta }}" disabled>
+                </div>
                 <div class="col-md-3">
                     <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Cliente Cloud </label>
                     <input type="text" class="form-control"
