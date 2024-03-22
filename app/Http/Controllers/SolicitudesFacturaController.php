@@ -90,8 +90,7 @@ class SolicitudesFacturaController extends Controller
             'Bill_To' => $cliente->Bill_To,
             'IdClienteCloud' => $cliente->IdClienteCloud,
             'IdUsuarioCliente' => Auth::user()->IdUsuario,
-            'Fecha_Cliente' => date('d-m-Y H:i:s'),
-            'Descargar' => 0
+            'Fecha_Cliente' => date('d-m-Y H:i:s')
         ]);
 
         $idSolid = SolicitudFactura::where('Id', $id)->value('IdSolicitudFactura');
