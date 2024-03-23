@@ -6,6 +6,7 @@ use App\Exports\ConcentradoDeArticulosExport;
 use App\Exports\ConcentradoPorCiudadYFamilia;
 use App\Exports\GrupoYTipoPrecio;
 use App\Exports\VentasPorTipoDePrecioExport;
+use App\Models\CapMerma;
 use App\Models\DatEncabezado;
 use App\Models\Tienda;
 use Carbon\Carbon;
@@ -351,5 +352,51 @@ class ReportesController extends Controller
 
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'concentradoporgrupoytipodeprecio.xlsx';
         return Excel::download(new GrupoYTipoPrecio($concentrado), $name);
+    }
+
+    public function ReporteMermasAdmin(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+
+        if ($usuarioTienda->Todas == 0) {
+            $tiendas = Tienda::where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendas = Tienda::where('Status', 0)
+                ->where('IdTienda', $usuarioTienda->IdTienda)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+                ->where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+
+        $concentrado = CapMerma::select(
+            'CapMermas.CodArticulo',
+            'ca.NomArticulo',
+            'CapMermas.FechaCaptura',
+            'tm.NomTipoMerma',
+            'CapMermas.CantArticulo',
+            'CapMermas.FechaInterfaz'
+        )
+            ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
+            ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('CapMermas.IdTienda', $idTienda);
+            })
+            ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->orderBy('CapMermas.FechaCaptura', 'desc')
+            ->paginate(10);
+
+        return view('Reportes.ConcentradoDeMermas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
     }
 }

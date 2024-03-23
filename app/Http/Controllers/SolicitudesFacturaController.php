@@ -54,9 +54,11 @@ class SolicitudesFacturaController extends Controller
             array_push($ids, $tienda->IdTienda);
         }
 
-        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'CatTipoPago.NomTipoPago')
+        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'CatTipoPago.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->leftJoin('CatTipoPago', 'CatTipoPago.IdTipoPago', 'SolicitudFactura.IdTipoPago')
+            ->leftJoin('DatTipoPago as dt', 'dt.IdEncabezado', 'SolicitudFactura.IdEncabezado')
+            ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('NomCliente', 'LIKE', '%' . $searchQuery . '%')
             ->where('SolicitudFactura.Status', '0')
             ->whereNotNull('Editar')
@@ -69,9 +71,11 @@ class SolicitudesFacturaController extends Controller
 
     public function VerSolicitud($id, Request $request)
     {
-        $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'CatTipoPago.NomTipoPago')
+        $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'CatTipoPago.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->leftJoin('CatTipoPago', 'CatTipoPago.IdTipoPago', 'SolicitudFactura.IdTipoPago')
+            ->leftJoin('DatTipoPago as dt', 'dt.IdEncabezado', 'SolicitudFactura.IdEncabezado')
+            ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('Id', $id)
             ->whereNotNull('Editar')
             ->first();
@@ -90,8 +94,7 @@ class SolicitudesFacturaController extends Controller
             'Bill_To' => $cliente->Bill_To,
             'IdClienteCloud' => $cliente->IdClienteCloud,
             'IdUsuarioCliente' => Auth::user()->IdUsuario,
-            'Fecha_Cliente' => date('d-m-Y H:i:s'),
-            'Descargar' => 0
+            'Fecha_Cliente' => date('d-m-Y H:i:s')
         ]);
 
         $idSolid = SolicitudFactura::where('Id', $id)->value('IdSolicitudFactura');
