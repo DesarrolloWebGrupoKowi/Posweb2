@@ -63,7 +63,7 @@
                 </thead>
                 <tbody>
                     @if (count($solicitudes) <= 0)
-                        <td colspan="6">No Hay Ninguna Solicitud De Factura!</td>
+                        <td colspan="23">No Hay Ninguna Solicitud De Factura!</td>
                     @else
                         @foreach ($solicitudes as $solicitud)
                             <tr>

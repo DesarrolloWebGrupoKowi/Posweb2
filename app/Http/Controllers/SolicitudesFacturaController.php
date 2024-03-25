@@ -54,10 +54,10 @@ class SolicitudesFacturaController extends Controller
             array_push($ids, $tienda->IdTienda);
         }
 
-        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'CatTipoPago.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
+        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
-            ->leftJoin('CatTipoPago', 'CatTipoPago.IdTipoPago', 'SolicitudFactura.IdTipoPago')
-            ->leftJoin('DatTipoPago as dt', 'dt.IdEncabezado', 'SolicitudFactura.IdEncabezado')
+            ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
+            ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('NomCliente', 'LIKE', '%' . $searchQuery . '%')
             ->where('SolicitudFactura.Status', '0')
@@ -71,10 +71,11 @@ class SolicitudesFacturaController extends Controller
 
     public function VerSolicitud($id, Request $request)
     {
-        $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'CatTipoPago.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
+        $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
+            ->with('ConstanciaSituacionFiscal')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
-            ->leftJoin('CatTipoPago', 'CatTipoPago.IdTipoPago', 'SolicitudFactura.IdTipoPago')
-            ->leftJoin('DatTipoPago as dt', 'dt.IdEncabezado', 'SolicitudFactura.IdEncabezado')
+            ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
+            ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('Id', $id)
             ->whereNotNull('Editar')

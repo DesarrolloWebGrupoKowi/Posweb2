@@ -13,14 +13,20 @@
                     ],
                 ],
             ])
-            @if ($solicitud->Bill_To != null)
-                <div class="">
+            <div class="">
+                @if ($solicitud['ConstanciaSituacionFiscal'] != null)
+                    <a href="{{ '/VerConstanciaCliente/' . $solicitud->IdSolicitudFactura }}" type="button"
+                        class="btn btn-sm btn-dark" target="_blank" title="Finalizar solicitud">
+                        <i class="fa fa-book"></i> Ver constancia
+                    </a>
+                @endif
+                @if ($solicitud->Bill_To != null)
                     <a href="{{ '/SolicitudesFactura/Finalizar/' . $solicitud->Id }}" type="button"
                         class="btn btn-sm btn-dark" title="Finalizar solicitud">
                         <i class="fa fa-check" aria-hidden="true"></i> Finalizar solicitud
                     </a>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
 
         <div>
