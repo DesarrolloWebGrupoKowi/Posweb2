@@ -701,6 +701,7 @@ class PoswebController extends Controller
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
         $cantidad = $request->txtCantidad;
+        $recorte = $request->recorte;
         $codigo = $request->txtCodigo;
 
         //Extraer codigo de etiqueta
@@ -713,6 +714,8 @@ class PoswebController extends Controller
         $empySoc = ListaPrecio::where('IdListaPrecio', 4)
             ->first();
 
+        // Obtenemos el articulo
+        $articuloCod = Articulo::where('CodEtiqueta', $codEtiqueta)->first();
         //return $empySoc;
 
         if ($inicio == '200') {
@@ -896,6 +899,10 @@ class PoswebController extends Controller
             $peso = $pesoFijo;
         }
 
+        // Verificamos que el producto tenga precio de recorte
+        if ($recorte == 1 && ($articuloCod->PrecioRecorte == 0 || $articuloCod->PrecioRecorte == null)) {
+            return redirect()->route('Pos')->with('Pos', 'El producto no tiene precio de recorte: ' . $codigo);
+        }
         //Si el peso de la etiqueta es igual a 0
         if ($peso == 0) {
             return redirect()->route('Pos')->with('Pos', 'La Etiqueta No Trae Peso: ' . $codigo);
@@ -942,10 +949,20 @@ class PoswebController extends Controller
         $idDatVentaTmp = PreventaTmp::where('IdTienda', $idTienda)
             ->max('IdDatVentaTmp') + 1;
 
-        $subTotal = $articulo->PrecioArticulo * $peso;
-        $subTotalArticulo = number_format($subTotal, 2);
-        $importe = $subTotal + $ivaArticulo;
-        $importeArticulo = number_format($importe, 2);
+        if ($recorte == 1) {
+            $subTotal = $articuloCod->PrecioRecorte * $peso;
+            $subTotalArticulo = number_format($subTotal, 2);
+            $precioLista = number_format($articuloCod->PrecioRecorte, 2);
+            $precioVenta = number_format($articuloCod->PrecioRecorte, 2);
+            $importeArticulo = number_format($articuloCod->PrecioRecorte, 2);
+        } else {
+            $subTotal = $articulo->PrecioArticulo * $peso;
+            $subTotalArticulo = number_format($subTotal, 2);
+            $importe = $subTotal + $ivaArticulo;
+            $precioLista = $articulo->PrecioArticulo;
+            $precioVenta = $articulo->PrecioArticulo;
+            $importeArticulo = number_format($importe, 2);
+        }
 
         DB::table('DatVentaTmp')
             ->insert([
@@ -953,8 +970,8 @@ class PoswebController extends Controller
                 'IdTienda' => $idTienda,
                 'IdArticulo' => $articulo->IdArticulo,
                 'CantArticulo' => $peso,
-                'PrecioLista' => $articulo->PrecioArticulo,
-                'PrecioVenta' => $articulo->PrecioArticulo,
+                'PrecioLista' => $precioLista,
+                'PrecioVenta' => $precioVenta,
                 'IdListaPrecio' => $articulo->IdListaPrecio,
                 'IvaArticulo' => $ivaArticulo,
                 'SubTotalArticulo' => $subTotalArticulo,

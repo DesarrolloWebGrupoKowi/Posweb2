@@ -11,6 +11,12 @@
     <link rel="stylesheet" href="Icons/font-awesome.min.css">
     <link rel="stylesheet" href="css/stylePosTailwind.css">
     <title>:: Punto de Venta ::</title>
+    <style>
+        input[type="checkbox"] {
+            width: 2em;
+            height: 2em;
+        }
+    </style>
 </head>
 
 <body>
@@ -161,6 +167,12 @@
                             <input {!! $banderaMultiPago > 0 ? 'disabled' : '' !!} class="form-control txtPos" type="number"
                                 name="txtCantidad" id="txtCantidad" placeholder="Peso" min="0.001"
                                 step="any" autocomplete="off">
+                        </div>
+                        <div class="col-6 d-flex align-items-center gap-2">
+                            <input class="form-check-input" type="checkbox" value="1" id="recorte" name="recorte">
+                            <label class="form-check-label txtPos text-muted" for="recorte">
+                              Recorte
+                            </label>
                         </div>
                     </div>
                     <div class="row">
