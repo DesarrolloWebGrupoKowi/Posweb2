@@ -178,7 +178,6 @@ class SolicitudFacturaController extends Controller
 
     public function GuardarSolicitudFactura(Request $request)
     {
-        // return $request->all();
         $request->validate([
             'calle' => 'required',
             'numExt' => 'required',
@@ -190,6 +189,10 @@ class SolicitudFacturaController extends Controller
             'email' => 'required | email',
             'cfdi' => 'required'
         ]);
+
+        if(!empty($request->chkEdit) && empty($request->file('cSituacionFiscal'))){
+            return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.' );
+        }
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
@@ -292,7 +295,9 @@ class SolicitudFacturaController extends Controller
 
                 $pdf = $request->file('cSituacionFiscal');
                 if (!empty($pdf)) {
-                    $nomArchivo = $pdf->getClientOriginalName();
+                    $array = explode('.', $pdf->getClientOriginalName());
+                    $ext = end($array);
+                    $nomArchivo = strtoupper($request->rfcCliente) . '.' . $ext;
 
                     $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
 
