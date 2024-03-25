@@ -310,6 +310,7 @@
             <!--TERMINA CLIENTES DE TIENDA (SIN SOLICITUD DE FACTURA)-->
             <!--SOLICITUDES DE FACTURA-->
             @foreach ($facturas as $factura)
+                @if(count($factura->Factura)!==0)
                 <div class="content-table content-table-full card p-4 mb-4" style="border-radius: 20px">
                     <div class="d-flex justify-content-left">
                         @if (empty($factura->Bill_To) && empty($factura->IdClienteCloud))
@@ -418,6 +419,7 @@
                         </tr>
                     </table>
                 </div>
+                @endif
             @endforeach
             <!--TERMINA SOLICITUDES DE FACTURA-->
             <!--SUMATORIAS FINALES-->
