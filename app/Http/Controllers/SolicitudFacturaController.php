@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
+use App\Models\CatMetodoPago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -117,6 +118,9 @@ class SolicitudFacturaController extends Controller
         $usosCFDI = UsoCFDI::where('Status', 0)
             ->get();
 
+        $metodosPago = CatMetodoPago::where('Status', 0)
+            ->get();
+
         if ($correo == 'NoTieneCorreo') {
             $cliente = DB::table('CatClientes as a')
                 ->leftJoin('CatClienteEmail as b', 'b.IdClienteCloud', 'a.IdClienteCloud')
@@ -173,7 +177,7 @@ class SolicitudFacturaController extends Controller
 
         //return $tiposPagoTicket;
 
-        return view('SolicitudFactura.VerificarSolicitudFactura', compact('rfcCliente', 'bill_To', 'cliente', 'ticket', 'tiposPagoTicket', 'nomCliente', 'banderaMultiPagoFact', 'usosCFDI'));
+        return view('SolicitudFactura.VerificarSolicitudFactura', compact('rfcCliente', 'bill_To', 'cliente', 'ticket', 'tiposPagoTicket', 'nomCliente', 'banderaMultiPagoFact', 'usosCFDI', 'metodosPago'));
     }
 
     public function GuardarSolicitudFactura(Request $request)
@@ -263,6 +267,7 @@ class SolicitudFacturaController extends Controller
                         'IdUsuarioCliente' => null,
                         'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
+                        'MetodoPago' => strtoupper($request->metodopag),
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
