@@ -24,9 +24,9 @@
                     <td>{{ $item->NomGrupo }}</td>
                     <td>{{ $item->CodArticulo }}</td>
                     <td>{{ $item->NomArticulo }}</td>
-                    <td>{{ number_format($item->Peso, 3) }}</td>
-                    <td>{{ number_format($item->Importe, 2) }}</td>
-                    <td>{{ number_format($item->PrecioArticulo, 2) }}</td>
+                    <td>{{ $item->Peso }}</td>
+                    <td>{{ $item->Importe }}</td>
+                    <td>{{ $item->PrecioArticulo }}</td>
                 </tr>
             @endforeach
         @endif

@@ -28,8 +28,8 @@
                     <td>{{ $item->NomTienda }}</td>
                     <td>{{ $item->NomGrupo }}</td>
                     <td>{{ $item->NomListaPrecio }}</td>
-                    <td style="text-align: right;">{{ number_format($item->kilos, 2) }}</td>
-                    <td style="text-align: right;">{{ number_format($item->importe, 2) }}</td>
+                    <td style="text-align: right;">{{ $item->kilos }}</td>
+                    <td style="text-align: right;">{{ $item->importe }}</td>
                     @php
                         $kilos += $item->kilos;
                         $importes += $item->importe;
@@ -40,8 +40,8 @@
                 <td></td>
                 <td></td>
                 <td class="text-end fw-bold">Total:</td>
-                <td class="text-end">{{ number_format($kilos, 2) }}</td>
-                <td class="text-end">${{ number_format($importes, 2) }}</td>
+                <td class="text-end">{{ $kilos }}</td>
+                <td class="text-end">${{ $importes }}</td>
             </tr>
         @endif
     </tbody>
