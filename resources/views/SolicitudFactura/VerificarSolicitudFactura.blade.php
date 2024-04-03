@@ -218,6 +218,16 @@
                         </select>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-4">
+                        <label for="">Método de pago</label>
+                        <select class="form-select" name="metodopag" id="metodopag" required>
+                            @foreach ($metodosPago as $metodopago)
+                                <option value="{{ $metodopago->MetPago }}">{{ $metodopago->Descripcion }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="row d-flex justify-content-center mb-3 mt-3">
                 <div class="col-2">
