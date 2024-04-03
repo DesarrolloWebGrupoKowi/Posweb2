@@ -25,11 +25,11 @@ class RecepcionController extends Controller
 {
     public function RecepcionProducto(Request $request)
     {
-        exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
+        // exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
 
-        if ($codigo === 1) {
-            return redirect('RecepcionLocalSinInternet');
-        }
+        // if ($codigo === 1) {
+        //     return redirect('RecepcionLocalSinInternet');
+        // }
 
         $tienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
             ->first();
@@ -51,21 +51,20 @@ class RecepcionController extends Controller
 
         empty($idRecepcion) ? $idRecepcion = 0 : $idRecepcion = $idRecepcion;
 
-        $detalleRecepcion = DB::connection('server')
-            ->select(
-                "select c.PackingList, d.NomTienda as TiendaOrigen, c.Almacen, a.*, b.NomArticulo" .
-                    " from DatRecepcion as a" .
-                    " left join CatArticulos as b on b.CodArticulo=a.CodArticulo" .
-                    " left join CapRecepcion as c on c.IdCapRecepcion=a.IdCapRecepcion" .
-                    ' left join CatTiendas as d on d.IdTienda = c.IdTiendaOrigen' .
-                    " where a.IdCapRecepcion = " . $idRecepcion . "" .
-                    " and a.IdStatusRecepcion = 1" .
-                    " union all" .
-                    " select Referencia, '', '" . $tienda->Almacen . "', 0, 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo" .
-                    " from CapRecepcionManualTmp as a" .
-                    " left join CatArticulos as b on b.CodArticulo=a.CodArticulo" .
-                    " where a.IdTienda = '" . $tienda->IdTienda . "' "
-            );
+        $detalleRecepcion = DB::select(
+            "select c.PackingList, d.NomTienda as TiendaOrigen, c.Almacen, a.*, b.NomArticulo" .
+                " from DatRecepcion as a" .
+                " left join CatArticulos as b on b.CodArticulo=a.CodArticulo" .
+                " left join CapRecepcion as c on c.IdCapRecepcion=a.IdCapRecepcion" .
+                ' left join CatTiendas as d on d.IdTienda = c.IdTiendaOrigen' .
+                " where a.IdCapRecepcion = " . $idRecepcion . "" .
+                " and a.IdStatusRecepcion = 1" .
+                " union all" .
+                " select Referencia, '', '" . $tienda->Almacen . "', 0, 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo" .
+                " from CapRecepcionManualTmp as a" .
+                " left join CatArticulos as b on b.CodArticulo=a.CodArticulo" .
+                " where a.IdTienda = '" . $tienda->IdTienda . "' "
+        );
 
         $totalRecepcion = DatRecepcion::where('IdCapRecepcion', $idRecepcion)
             ->where('IdStatusRecepcion', 1)
@@ -93,7 +92,7 @@ class RecepcionController extends Controller
         $articuloPendiente = 1;
 
         if ($radioBuscar == 'codigo') {
-            $dRecepcion = DB::connection('server')->table('CapRecepcion as a')
+            $dRecepcion = DB::table('CapRecepcion as a')
                 ->leftJoin('DatRecepcion as b', 'b.IdCapRecepcion', 'a.IdCapRecepcion')
                 ->where('a.Almacen', $tienda->Almacen)
                 ->whereNull('a.FechaRecepcion')
@@ -152,7 +151,7 @@ class RecepcionController extends Controller
             }
         }
 
-        $articulosManual = DB::connection('server')->table('CapRecepcionManualTmp as a')
+        $articulosManual = DB::table('CapRecepcionManualTmp as a')
             ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
             ->where('a.IdTienda', $idTienda)
             ->get();
@@ -179,7 +178,7 @@ class RecepcionController extends Controller
         }
 
         try {
-            DB::connection('server')->beginTransaction();
+            // DB::connection('server')->beginTransaction();
             DB::beginTransaction();
 
             if ($request->cantidad) {
@@ -236,11 +235,11 @@ class RecepcionController extends Controller
                                 'StockArticulo' => $cRecepcionada,
                             ]);
 
-                            DB::connection('server')->table('DatInventario')->insert([
-                                'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
-                                'CodArticulo' => $key,
-                                'StockArticulo' => $cRecepcionada,
-                            ]);
+                            // DB::table('DatInventario')->insert([
+                            //     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                            //     'CodArticulo' => $key,
+                            //     'StockArticulo' => $cRecepcionada,
+                            // ]);
                         } else {
                             InventarioTienda::where('CodArticulo', '' . $key . '')
                                 ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -248,11 +247,11 @@ class RecepcionController extends Controller
                                     'StockArticulo' => $inventario->StockArticulo + $cRecepcionada,
                                 ]);
 
-                            DB::connection('server')->table('DatInventario')->where('CodArticulo', '' . $key . '')
-                                ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                                ->update([
-                                    'StockArticulo' => $inventario->StockArticulo + $cRecepcionada,
-                                ]);
+                            // DB::table('DatInventario')->where('CodArticulo', '' . $key . '')
+                            //     ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                            //     ->update([
+                            //         'StockArticulo' => $inventario->StockArticulo + $cRecepcionada,
+                            //     ]);
                         }
 
                         HistorialMovimientoProducto::insert([
@@ -273,14 +272,20 @@ class RecepcionController extends Controller
                 //Obetener tienda
                 $almacen = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)->value('Almacen');
 
+                $idCapRecepcion = DB::table('CapRecepcion')
+                    ->max('IdCapRecepcion') + 1;
+
                 //Obtener caja
                 $idCaja = DatCaja::where('Status', 0)
                     ->where('Activa', 0)
                     ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->value('IdCaja');
 
+                $idRecepcion = Auth::user()->usuarioTienda->IdTienda . $idCaja . $idCapRecepcion;
+
                 //Insert a CapRecepcion y DatRecepcion cuando el idRecepcion==0
                 CapRecepcion::insert([
+                    'IdRecepcionLocal' => $idRecepcion,
                     'FechaRecepcion' => date('d-m-Y H:i:s'),
                     'FechaLlegada' => date('d-m-Y H:i:s'),
                     'PackingList' => 'RECEPCION MANUAL',
@@ -304,6 +309,7 @@ class RecepcionController extends Controller
                             $Linea = $Linea + 1;
                             DatRecepcion::insert([
                                 'IdCapRecepcion' => $idCapRecepcionReturned,
+                                'IdRecepcionLocal' => $idRecepcion,
                                 'CodArticulo' => $codArticulo,
                                 'CantEnviada' => $cantRecepcion,
                                 'CantRecepcionada' => $cantRecepcion,
@@ -323,13 +329,20 @@ class RecepcionController extends Controller
                 ->count();
 
             if ($faltantesPorRecepcionar == 0) {
+                //Obtener caja
+                $idCaja = DatCaja::where('Status', 0)
+                    ->where('Activa', 0)
+                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->value('IdCaja');
+
                 CapRecepcion::where('IdCapRecepcion', $idRecepcion)
                     ->update([
                         'IdStatusRecepcion' => 2,
                         'FechaRecepcion' => date('d-m-Y H:i:s'),
                         'IdUsuario' => Auth::user()->IdUsuario,
                         'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
-                        'Subir' => 1,
+                        'IdCaja' => $idCaja,
+                        'Subir' => 0,
                     ]);
             }
 
@@ -346,7 +359,7 @@ class RecepcionController extends Controller
                         'sistemas@kowi.com.mx',
                     ];
 
-                    array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
+                    // array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
 
                     $correos = array_filter($correos);
 
@@ -361,21 +374,21 @@ class RecepcionController extends Controller
                     $nomTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                         ->value('NomTienda');
 
-                    Mail::to($correos)
-                        ->send(new RecepcionProductoMail($recepcion, $nomTienda));
+                    // Mail::to($correos)
+                    //     ->send(new RecepcionProductoMail($recepcion, $nomTienda));
                 } catch (\Throwable $th) {
-                    DB::connection('server')->rollback();
+                    // DB::connection('server')->rollback();
                     DB::rollBack();
                     return back()->with('msjdelete', 'Error:' . $th->getMessage());
                 }
             }
 
-            DB::connection('server')->commit();
+            // DB::connection('server')->commit();
             DB::commit();
 
             return redirect('RecepcionProducto')->with('msjAdd', 'Productos Recepcionados Correctamente!');
         } catch (\Throwable $th) {
-            DB::connection('server')->rollback();
+            // DB::connection('server')->rollback();
             DB::rollBack();
             return redirect('RecepcionProducto')->with('msjdelete', 'Error' . $th->getMessage());
         }
@@ -386,7 +399,7 @@ class RecepcionController extends Controller
         $motivoCancelacion = $request->motivoCancelacion;
 
         try {
-            DB::connection('server')->beginTransaction();
+            DB::beginTransaction();
 
             CapRecepcion::where('IdCapRecepcion', $idRecepcion)
                 ->update([
@@ -401,9 +414,9 @@ class RecepcionController extends Controller
                     'IdStatusRecepcion' => 3,
                 ]);
 
-            DB::connection('server')->commit();
+            DB::commit();
         } catch (\Throwable $th) {
-            DB::connection('server')->rollback();
+            DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
@@ -447,11 +460,11 @@ class RecepcionController extends Controller
 
     public function RecepcionLocalSinInternet(Request $request)
     {
-        exec("ping -n 1 google.com", $salida, $codigo);
+        // exec("ping -n 1 google.com", $salida, $codigo);
 
-        if ($codigo === 0) {
-            return redirect('RecepcionProducto');
-        }
+        // if ($codigo === 0) {
+        //     return redirect('RecepcionProducto');
+        // }
 
         $articulos = Articulo::where('Status', 0)
             ->get();

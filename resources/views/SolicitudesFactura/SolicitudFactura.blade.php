@@ -13,14 +13,20 @@
                     ],
                 ],
             ])
-            @if ($solicitud->Bill_To != null)
-                <div class="">
+            <div class="">
+                @if ($solicitud['ConstanciaSituacionFiscal'] != null)
+                    <a href="{{ '/VerConstanciaCliente/' . $solicitud->IdSolicitudFactura }}" type="button"
+                        class="btn btn-sm btn-dark" target="_blank" title="Finalizar solicitud">
+                        <i class="fa fa-book"></i> Ver constancia
+                    </a>
+                @endif
+                @if ($solicitud->Bill_To != null)
                     <a href="{{ '/SolicitudesFactura/Finalizar/' . $solicitud->Id }}" type="button"
                         class="btn btn-sm btn-dark" title="Finalizar solicitud">
                         <i class="fa fa-check" aria-hidden="true"></i> Finalizar solicitud
                     </a>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
 
         <div>
@@ -116,6 +122,14 @@
                     <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Tipo De Pago </label>
                     <input type="text" class="form-control" value="{{ $solicitud->NomTipoPago }}" disabled>
                 </div>
+                <div class="col-md-3 ">
+                    <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Banco </label>
+                    <input type="text" class="form-control" value="{{ $solicitud->NomBanco }}" disabled>
+                </div>
+                <div class="col-md-3 ">
+                    <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Numero Tarjeta </label>
+                    <input type="text" class="form-control" value="{{ $solicitud->NumTarjeta }}" disabled>
+                </div>
                 <div class="col-md-3">
                     <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Cliente Cloud </label>
                     <input type="text" class="form-control"
@@ -143,7 +157,8 @@
                 <table>
                     <thead class="table-head">
                         <tr>
-                            <th class="rounded-start">NomCliente</th>
+                            <th class="rounded-start">Sitio</th>
+                            <th>NomCliente</th>
                             <th>IdClienteCloud</th>
                             <th>RFC</th>
                             <th>Ship_To</th>
@@ -159,6 +174,7 @@
                         @else
                             @foreach ($clientes as $cliente)
                                 <tr>
+                                    <td>{{ $cliente->Sitio }}</td>
                                     <td>{{ $cliente->NomCliente }}</td>
                                     <td>{{ $cliente->IdClienteCloud }}</td>
                                     <td>{{ $cliente->RFC }}</td>
