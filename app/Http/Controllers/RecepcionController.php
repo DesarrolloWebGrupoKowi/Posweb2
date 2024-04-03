@@ -359,7 +359,7 @@ class RecepcionController extends Controller
                         'sistemas@kowi.com.mx',
                     ];
 
-                    array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
+                    // array_push($correos, $correoTienda->GerenteCorreo, $correoTienda->Supervisor, $correoTienda->AlmacenistaCorreo);
 
                     $correos = array_filter($correos);
 
@@ -374,8 +374,8 @@ class RecepcionController extends Controller
                     $nomTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                         ->value('NomTienda');
 
-                    Mail::to($correos)
-                        ->send(new RecepcionProductoMail($recepcion, $nomTienda));
+                    // Mail::to($correos)
+                    //     ->send(new RecepcionProductoMail($recepcion, $nomTienda));
                 } catch (\Throwable $th) {
                     // DB::connection('server')->rollback();
                     DB::rollBack();
