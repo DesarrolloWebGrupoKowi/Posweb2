@@ -39,6 +39,16 @@
                     <label class="form-label fw-bold m-0 text-secondary">Id</label>
                     <input type="text" class="form-control" value="{{ $solicitud->IdSolicitudFactura }}" disabled>
                 </div>
+                <div class="col-md-3">
+                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Cliente Cloud </label>
+                    <input type="text" class="form-control"
+                        value="{{ $solicitud->IdClienteCloud ? $solicitud->IdClienteCloud : 'Sin dato' }}" disabled>
+                </div>
+                <div class="col-md-3">
+                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Usuario Cliente </label>
+                    <input type="text" class="form-control"
+                        value="{{ $solicitud->IdUsuarioCliente ? $solicitud->IdUsuarioCliente : 'Sin dato' }}" disabled>
+                </div>
                 <div class="col-md-3 ">
                     <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Fecha</label>
                     <input type="text" class="form-control" value="{{ $solicitud->FechaSolicitud }}" disabled>
@@ -131,14 +141,9 @@
                     <input type="text" class="form-control" value="{{ $solicitud->NumTarjeta }}" disabled>
                 </div>
                 <div class="col-md-3">
-                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Cliente Cloud </label>
+                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Bill To </label>
                     <input type="text" class="form-control"
-                        value="{{ $solicitud->IdClienteCloud ? $solicitud->IdClienteCloud : 'Sin dato' }}" disabled>
-                </div>
-                <div class="col-md-3">
-                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Usuario Cliente </label>
-                    <input type="text" class="form-control"
-                        value="{{ $solicitud->IdUsuarioCliente ? $solicitud->IdUsuarioCliente : 'Sin dato' }}" disabled>
+                        value="{{ $solicitud->Bill_To ? $solicitud->Bill_To : 'Sin dato' }}" disabled>
                 </div>
                 <div class="col-md-3">
                     <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Uso CFDI </label>
@@ -146,9 +151,9 @@
                         value="{{ $solicitud->UsoCFDI ? $solicitud->UsoCFDI : 'Sin dato' }}" disabled>
                 </div>
                 <div class="col-md-3">
-                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Bill To </label>
+                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Metódo Pago </label>
                     <input type="text" class="form-control"
-                        value="{{ $solicitud->Bill_To ? $solicitud->Bill_To : 'Sin dato' }}" disabled>
+                        value="{{ $solicitud->MetodoPago ? $solicitud->MetodoPago : 'Sin dato' }}" disabled>
                 </div>
             </div>
 
