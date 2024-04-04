@@ -952,9 +952,10 @@ class PoswebController extends Controller
         if ($recorte == 1) {
             $subTotal = $articuloCod->PrecioRecorte * $peso;
             $subTotalArticulo = number_format($subTotal, 2);
+            $importe = $subTotal + $ivaArticulo;
             $precioLista = number_format($articuloCod->PrecioRecorte, 2);
             $precioVenta = number_format($articuloCod->PrecioRecorte, 2);
-            $importeArticulo = number_format($articuloCod->PrecioRecorte, 2);
+            $importeArticulo = number_format($importe, 2);
         } else {
             $subTotal = $articulo->PrecioArticulo * $peso;
             $subTotalArticulo = number_format($subTotal, 2);
