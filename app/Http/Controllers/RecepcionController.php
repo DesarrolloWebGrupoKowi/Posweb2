@@ -295,6 +295,7 @@ class RecepcionController extends Controller
                     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
                     'IdCaja' => $idCaja,
                     'StatusInventario' => 1,
+                    'idtiporecepcion' => 11,
                 ]);
 
                 //Id Insertado
