@@ -33,7 +33,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if ($stocks->count() == 0)
+                    @if (coutn($stocks) == 0)
                         <tr>
                             <td colspan="3">No se Encontraron Coincidencias!</td>
                         </tr>
