@@ -184,9 +184,25 @@ class StockTiendaController extends Controller
                 ->get();
         }
 
-        $stocks = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
+        $stocksPos  = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $idTienda)
+            ->where('DatInventario.StockArticulo', '>', 0)
+            ->orderBy('b.NomArticulo')
             ->get();
+
+        $stocksLess = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
+            ->where('IdTienda', $idTienda)
+            ->where('DatInventario.StockArticulo', '<=', 0)
+            ->orderBy('b.NomArticulo')
+            ->get();
+
+        $stocks = [];
+        foreach ($stocksPos as $item) {
+            array_push($stocks, $item);
+        }
+        foreach ($stocksLess as $item) {
+            array_push($stocks, $item);
+        }
 
         return view('Stock.UpdateStockAdmin', compact('tiendas', 'idTienda', 'stocks'));
     }

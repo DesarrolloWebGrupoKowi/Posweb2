@@ -57,7 +57,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if ($stocks->count() == 0)
+                        @if (count($stocks) == 0)
                             <tr>
                                 <td colspan="4">No se Encontraron Coincidencias!</td>
                             </tr>
@@ -81,7 +81,7 @@
                 </table>
             </div>
             <div class="d-flex justify-content-end">
-                @if ($stocks->count() != 0)
+                @if (count($stocks) != 0)
                     <button class="mt-4 mb-4 btn btn-dark" type="submit">Guardar</button>
                 @endif
             </div>
