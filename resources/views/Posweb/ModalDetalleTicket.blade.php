@@ -23,25 +23,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                @foreach ($ticket->detalle as $detalle)
-                            <tr>
-                                <td>{{ $detalle->CodArticulo }}</td>
-                                <td>{{ $detalle->NomArticulo }}</td>
-                                <td>{{ number_format($detalle->CantArticulo, 3) }}</td>
-                                <td>{{ number_format($detalle->PrecioArticulo, 2) }}</td>
-                                <td>{{ number_format($detalle->IvaArticulo, 2) }}</td>
-                                <td>{{ number_format($detalle->ImporteArticulo, 2) }}</td>
-                                <td>{{ $detalle->NomPaquete }}</td>
-                                <td>{{ $detalle->Cliente }}</td>
-                                <td>
-                                    @if ($detalle->Recorte == 0)
-                                        <i style="color: green; font-size: 20px" class="fa fa-check-circle-o"></i>
-                                    @endif
-                                </td>
-                            </tr>
+                            @foreach ($ticket->detalle as $detalle)
+                                <tr>
+                                    <td>{{ $detalle->CodArticulo }}</td>
+                                    <td>{{ $detalle->NomArticulo }}</td>
+                                    <td>{{ number_format($detalle->CantArticulo, 3) }}</td>
+                                    <td>{{ number_format($detalle->PrecioArticulo, 2) }}</td>
+                                    <td>{{ number_format($detalle->IvaArticulo, 2) }}</td>
+                                    <td>{{ number_format($detalle->ImporteArticulo, 2) }}</td>
+                                    <td>{{ $detalle->NomPaquete }}</td>
+                                    <td>{{ $detalle->Cliente }}</td>
+                                    <td>
+                                        @if ($detalle->Recorte == 0)
+                                            <i style="color: green; font-size: 20px" class="fa fa-check-circle-o"></i>
+                                        @endif
+                                    </td>
+                                </tr>
                             @endforeach
-                            </tr>
                         </tbody>
                     </table>
                 </div>
