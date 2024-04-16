@@ -19,6 +19,7 @@
                                 <th>Importe</th>
                                 <th>Paquete</th>
                                 <th>Cliente Pedido</th>
+                                <th>Recorte</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -33,6 +34,11 @@
                                 <td>{{ number_format($detalle->ImporteArticulo, 2) }}</td>
                                 <td>{{ $detalle->NomPaquete }}</td>
                                 <td>{{ $detalle->Cliente }}</td>
+                                <td class="text-center">
+                                    @if ($detalle->Recorte == 0)
+                                        <i style="color: green; font-size: 20px" class="fa fa-check-circle-o"></i>
+                                    @endif
+                                </td>
                             </tr>
                             @endforeach
                             </tr>
