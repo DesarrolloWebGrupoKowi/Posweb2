@@ -835,6 +835,28 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //update(Actualiza el sistema con los ultimos cambios de git)
     Route::get('/Update', 'App\Http\Controllers\ConfigSystemController@Index')->name('Update.index');
+
+    //+============================================================================================================================================+//
+    //CatDescuentos
+    Route::get('/CatDescuentos', 'App\Http\Controllers\DescuentosController@CatDescuentos');
+
+    //VerDescuentos
+    Route::get('/VerDescuentos', 'App\Http\Controllers\DescuentosController@VerDescuentos');
+
+    ///BuscarCodArticuloPaquqete
+    // Route::get('/BuscarCodArticuloPaquqete', 'App\Http\Controllers\PaquetesController@BuscarCodArticuloPaquqete');
+
+    //GuardarDescuento
+    Route::post('/GuardarDescuento', 'App\Http\Controllers\DescuentosController@GuardarDescuento');
+
+    // //EditarPaquete
+    Route::get('/EditarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EditarDescuento');
+
+    //EditarDescuentoExistente
+    Route::post('/EditarDescuentoExistente/{idDescuento}', 'App\Http\Controllers\DescuentosController@EditarDescuentoExistente');
+
+    // //EliminarDescuento
+    Route::post('/EliminarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EliminarDescuento');
 }); //->Termina Middleware Auth
 
 // pagina de error 404

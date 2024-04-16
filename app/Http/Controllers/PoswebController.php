@@ -375,6 +375,8 @@ class PoswebController extends Controller
 
     public function CobroEmpleado(Request $request)
     {
+        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idPlaza = Tienda::where('TiendaActiva', 0)->value('IdPlaza');
         $numNomina = $request->numNomina;
 
         TemporalPos::where('TemporalPos', 1)
@@ -406,6 +408,7 @@ class PoswebController extends Controller
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
+                        'a.PrecioRecorte',
                         'a.Iva',
                         'a.Status',
                         'b.PrecioArticulo',
@@ -428,6 +431,7 @@ class PoswebController extends Controller
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
+                        'a.PrecioRecorte',
                         'a.Iva',
                         'a.Status',
                         'b.PrecioArticulo',
@@ -442,7 +446,17 @@ class PoswebController extends Controller
                     ->first();
             }
 
-            $subTotal = $articulo->PrecioArticulo * $pArticulo->CantArticulo;
+            // Buscamos si el producto cuenta con descuento
+            $sp_descuento = DB::select('exec SP_DESCUENTOS ' . $idTienda . ',' . $idPlaza . ',' . $articulo->IdArticulo . '');
+            $descuentoArt = $sp_descuento[0]->Descuento;
+            $IdEncDescuento = $sp_descuento[0]->IdEncDescuento;
+
+            $precioArticulo = $descuentoArt == '.00' ? $articulo->PrecioArticulo : $descuentoArt;
+
+            // Buscamos si el es precio de recorte
+            $precioVenta = ($pArticulo->Recorte == '0' ? $articulo->PrecioRecorte : $precioArticulo);
+            $subTotal = $precioVenta * $pArticulo->CantArticulo;
+
             if ($articulo->Iva == 0) {
                 $iva = $subTotal * $articulo->PorcentajeIva;
             } else {
@@ -464,11 +478,12 @@ class PoswebController extends Controller
                     ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
                     ->update([
                         'PrecioLista' => $articulo->PrecioArticulo,
-                        'PrecioVenta' => $articulo->PrecioArticulo,
+                        'PrecioVenta' => $precioVenta,
                         'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
                         'SubTotalArticulo' => $subTotal,
                         'IvaArticulo' => $iva,
                         'ImporteArticulo' => $total,
+                        'IdEncDescuento' => isset($IdEncDescuento) && $IdEncDescuento != 0 ? $IdEncDescuento : null,
                     ]);
             } else {
                 PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -615,6 +630,8 @@ class PoswebController extends Controller
         try {
             DB::beginTransaction();
 
+            $idTienda = Auth::user()->usuarioTienda->IdTienda;
+            $idPlaza = Tienda::where('TiendaActiva', 0)->value('IdPlaza');
             $preventa = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->get();
 
@@ -637,6 +654,7 @@ class PoswebController extends Controller
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
+                        'a.PrecioRecorte',
                         'a.Iva',
                         'a.Status',
                         'b.PrecioArticulo',
@@ -650,9 +668,16 @@ class PoswebController extends Controller
                     ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
                     ->first();
 
-                //return $articulo;
+                // Buscamos si el producto cuenta con descuento
+                $sp_descuento = DB::select('exec SP_DESCUENTOS ' . $idTienda . ',' . $idPlaza . ',' . $articulo->IdArticulo . '');
+                $descuentoArt = $sp_descuento[0]->Descuento;
+                $IdEncDescuento = $sp_descuento[0]->IdEncDescuento;
+                $precioArticulo = $descuentoArt == '.00' ? $articulo->PrecioArticulo : $descuentoArt;
 
-                $subTotal = $articulo->PrecioArticulo * $pArticulo->CantArticulo;
+                // Buscamos si el es precio de recorte
+                $precioVenta = ($pArticulo->Recorte == '0' ? $articulo->PrecioRecorte : $precioArticulo);
+                $subTotal = $precioVenta * $pArticulo->CantArticulo;
+
                 if ($articulo->Iva == 0) {
                     $iva = $subTotal * $articulo->PorcentajeIva;
                 } else {
@@ -669,11 +694,12 @@ class PoswebController extends Controller
                         ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
                         ->update([
                             'PrecioLista' => $articulo->PrecioArticulo,
-                            'PrecioVenta' => $articulo->PrecioArticulo,
+                            'PrecioVenta' => $precioVenta,
                             'IdListaPrecio' => $articulo->IdListaPrecio,
                             'SubTotalArticulo' => $subTotal,
                             'IvaArticulo' => $iva,
                             'ImporteArticulo' => $total,
+                            'IdEncDescuento' => isset($IdEncDescuento) && $IdEncDescuento != 0 ? $IdEncDescuento : null,
                         ]);
                 } else {
                     PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -700,6 +726,7 @@ class PoswebController extends Controller
             ->value('NumNomina');
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idPlaza = Tienda::where('TiendaActiva', 0)->value('IdPlaza');
         $cantidad = $request->txtCantidad;
         $recorte = $request->recorte;
         $codigo = $request->txtCodigo;
@@ -952,15 +979,20 @@ class PoswebController extends Controller
         if ($recorte == 1) {
             $subTotal = $articuloCod->PrecioRecorte * $peso;
             $subTotalArticulo = number_format($subTotal, 2);
-            $precioLista = number_format($articuloCod->PrecioRecorte, 2);
+            $importe = $subTotal + $ivaArticulo;
+            $precioLista = $articulo->PrecioArticulo;
             $precioVenta = number_format($articuloCod->PrecioRecorte, 2);
-            $importeArticulo = number_format($articuloCod->PrecioRecorte, 2);
+            $importeArticulo = number_format($importe, 2);
         } else {
-            $subTotal = $articulo->PrecioArticulo * $peso;
+            $sp_descuento = DB::select('exec SP_DESCUENTOS ' . $idTienda . ',' . $idPlaza . ',' . $articulo->IdArticulo . '');
+            $descuentoArt = $sp_descuento[0]->Descuento;
+            $IdEncDescuento = $sp_descuento[0]->IdEncDescuento;
+
+            $subTotal = ($descuentoArt == '.00' ? $articulo->PrecioArticulo : $descuentoArt) * $peso;
             $subTotalArticulo = number_format($subTotal, 2);
             $importe = $subTotal + $ivaArticulo;
             $precioLista = $articulo->PrecioArticulo;
-            $precioVenta = $articulo->PrecioArticulo;
+            $precioVenta = ($descuentoArt == '.00' ? $articulo->PrecioArticulo : $descuentoArt);
             $importeArticulo = number_format($importe, 2);
         }
 
@@ -978,6 +1010,8 @@ class PoswebController extends Controller
                 'ImporteArticulo' => $importeArticulo,
                 'Status' => 0,
                 'IdDatPrecios' => $articulo->IdDatPrecios,
+                'Recorte' => $recorte == 1 ? 0 : 1,
+                'IdEncDescuento' => isset($IdEncDescuento) && $IdEncDescuento != 0 ? $IdEncDescuento : null,
             ]);
 
         return redirect()->route('Pos');
@@ -1278,9 +1312,9 @@ class PoswebController extends Controller
                         'IdEncabezado' => $idEncabezado,
                         'IdArticulo' => $detalle->IdArticulo,
                         'CantArticulo' => $detalle->CantArticulo,
+                        'PrecioLista' => $detalle->PrecioLista,
                         'PrecioArticulo' => $detalle->PrecioVenta,
                         'IdListaPrecio' => $detalle->IdListaPrecio,
-                        'PrecioRecorte' => null,
                         'CapturaManual' => null,
                         'ImporteArticulo' => $detalle->ImporteArticulo,
                         'IvaArticulo' => $detalle->IvaArticulo,
@@ -1289,6 +1323,8 @@ class PoswebController extends Controller
                         'IdPedido' => $detalle->IdPedido,
                         'IdDatPrecios' => $detalle->IdDatPrecios,
                         'Linea' => $index + 1,
+                        'Recorte' => $detalle->Recorte == '0' ? 0 : 1,
+                        'IdEncDescuento' => $detalle->IdEncDescuento,
                     ]);
                 }
 

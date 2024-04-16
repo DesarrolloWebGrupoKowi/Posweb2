@@ -29,7 +29,7 @@ class StockTiendaController extends Controller
         $tienda = Tienda::where('IdTienda', $idTienda)
             ->first();
 
-        $stocks = DB::table('DatInventario as a')
+        $stocksPos = DB::table('DatInventario as a')
             ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
             ->where('a.IdTienda', $idTienda)
             ->where(function ($query) use (
@@ -38,8 +38,30 @@ class StockTiendaController extends Controller
                 $query->where('a.CodArticulo', 'like', '%' . $codArticulo . '%');
                 $query->orWhere('b.NomArticulo', 'like', '%' . $codArticulo . '%');
             })
-            ->orderBy('a.CodArticulo')
+            ->where('a.StockArticulo', '>', 0)
+            ->orderBy('b.NomArticulo')
             ->get();
+
+        $stocksLess = DB::table('DatInventario as a')
+            ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+            ->where('a.IdTienda', $idTienda)
+            ->where(function ($query) use (
+                $codArticulo
+            ) {
+                $query->where('a.CodArticulo', 'like', '%' . $codArticulo . '%');
+                $query->orWhere('b.NomArticulo', 'like', '%' . $codArticulo . '%');
+            })
+            ->where('a.StockArticulo', '<=', 0)
+            ->orderBy('b.NomArticulo')
+            ->get();
+
+        $stocks = [];
+        foreach ($stocksPos as $item) {
+            array_push($stocks, $item);
+        }
+        foreach ($stocksLess as $item) {
+            array_push($stocks, $item);
+        }
 
         $totalStock = InventarioTienda::where('IdTienda', $idTienda)
             ->where('CodArticulo', 'like', '%' . $codArticulo . '%')
@@ -112,9 +134,25 @@ class StockTiendaController extends Controller
                 ->get();
         }
 
-        $stocks = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
+        $stocksPos  = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $idTienda)
+            ->where('DatInventario.StockArticulo', '>', 0)
+            ->orderBy('b.NomArticulo')
             ->get();
+
+        $stocksLess = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
+            ->where('IdTienda', $idTienda)
+            ->where('DatInventario.StockArticulo', '<=', 0)
+            ->orderBy('b.NomArticulo')
+            ->get();
+
+        $stocks = [];
+        foreach ($stocksPos as $item) {
+            array_push($stocks, $item);
+        }
+        foreach ($stocksLess as $item) {
+            array_push($stocks, $item);
+        }
 
         return view('Stock.ReporteStockAdmin', compact('tiendas', 'idTienda', 'stocks'));
     }
@@ -146,9 +184,25 @@ class StockTiendaController extends Controller
                 ->get();
         }
 
-        $stocks = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
+        $stocksPos  = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $idTienda)
+            ->where('DatInventario.StockArticulo', '>', 0)
+            ->orderBy('b.NomArticulo')
             ->get();
+
+        $stocksLess = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
+            ->where('IdTienda', $idTienda)
+            ->where('DatInventario.StockArticulo', '<=', 0)
+            ->orderBy('b.NomArticulo')
+            ->get();
+
+        $stocks = [];
+        foreach ($stocksPos as $item) {
+            array_push($stocks, $item);
+        }
+        foreach ($stocksLess as $item) {
+            array_push($stocks, $item);
+        }
 
         return view('Stock.UpdateStockAdmin', compact('tiendas', 'idTienda', 'stocks'));
     }
