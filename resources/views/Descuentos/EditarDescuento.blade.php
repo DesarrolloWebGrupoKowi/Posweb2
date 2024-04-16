@@ -70,11 +70,17 @@
                     <label class="form-label fw-bold text-secondary">Fecha inicio</label>
                     <input class="form-control" type="date" name="fechaInicio" id="fechaInicio"required
                         value="{{ $descuento->FechaInicio }}" {{ count($detalle) != 0 ? 'disabled' : '' }}>
+                    @if (count($detalle) != 0)
+                        <input type="hidden" name="fechaInicio" id="fechaInicio" value="{{ $descuento->FechaInicio }}">
+                    @endif
                 </div>
                 <div class="col-12 col-sm-5 form-group">
                     <label class="form-label fw-bold text-secondary">Fecha fin</label>
                     <input class="form-control" type="date" name="fechaFin" id="fechaFin" required
                         value="{{ $descuento->FechaFin }}" {{ count($detalle) != 0 ? 'disabled' : '' }}>
+                    @if (count($detalle) != 0)
+                        <input type="hidden" name="fechaFin" id="fechaFin" value="{{ $descuento->FechaFin }}">
+                    @endif
                 </div>
                 <div class="col-11 d-flex justify-content-end">
                     <button id="btnGenerarObject" class="btn btn-warning">

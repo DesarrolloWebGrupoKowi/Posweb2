@@ -146,7 +146,7 @@ class DescuentosController extends Controller
     // ECHO
     public function EditarDescuentoExistente(Request $request, $idDescuento)
     {
-        $codsArticulo = $request->CodArticulo;
+        $codsArticulo = $request->CodArticulo ?? [];
         $listaPrecios = $request->listaPrecios;
         $preciosArticulo = $request->PrecioArticulo;
 
