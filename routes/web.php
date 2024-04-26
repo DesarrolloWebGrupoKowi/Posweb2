@@ -857,6 +857,13 @@ Route::group(['middleware' => 'auth'], function () {
 
     // //EliminarDescuento
     Route::post('/EliminarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EliminarDescuento');
+
+    //+============================================================================================================================================+//
+    //CatRosticero
+    Route::get('/CatRosticero', 'App\Http\Controllers\RosticeroController@CatRosticero');
+
+    //VerRosticero
+    Route::get('/VerRosticero', 'App\Http\Controllers\RosticeroController@VerRosticero');
 }); //->Termina Middleware Auth
 
 // pagina de error 404

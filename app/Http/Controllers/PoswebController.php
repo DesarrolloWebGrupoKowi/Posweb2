@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Articulo;
 use App\Models\Banco;
-use App\Models\BloqueoEmpleado;
 use App\Models\CatFrecuentesSocios;
 use App\Models\CatPaquete;
-use App\Models\Ciudad;
 use App\Models\ClienteCloudTienda;
 use App\Models\CorteTienda;
 use App\Models\DatAsignacionPreparadosLocal;
@@ -18,7 +16,6 @@ use App\Models\DatEncPedido;
 use App\Models\DatMonederoAcumulado;
 use App\Models\DatTipoPago;
 use App\Models\Empleado;
-use App\Models\FrecuenteSocio;
 use App\Models\Grupo;
 use App\Models\InventarioTienda;
 use App\Models\LimiteCredito;
@@ -30,9 +27,7 @@ use App\Models\PreventaTmp;
 use App\Models\SolicitudFactura;
 use App\Models\TemporalPos;
 use App\Models\Tienda;
-use App\Models\TipoPago;
 use App\Models\TipoPagoTienda;
-use App\Models\UsuarioTienda;
 use App\Models\VentaCreditoEmpleado;
 use DateTime;
 use Illuminate\Http\Request;
@@ -1260,7 +1255,7 @@ class PoswebController extends Controller
                 // TODO:: DatEncabezado
                 DB::table('DatEncabezado')
                     ->insert([
-                        'IdEncabezado' => -1,
+                        'IdEncabezado' => -2,
                         'IdTienda' => $idTienda,
                         'IdDatCaja' => $caja->IdDatCajas,
                         'IdTicket' => $idTicket,
