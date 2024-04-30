@@ -58,7 +58,7 @@ class PreciosController extends Controller
             DB::beginTransaction();
 
             if ($radioActualizar == 'Ahora') {
-                if (HistorialPrecio::all()->isNotEmpty()) {
+                if (HistorialPrecio::take(1)->get()->isNotEmpty()) {
                     DB::table('HistorialPrecios')
                         ->where('Status', 0)
                         ->update([
