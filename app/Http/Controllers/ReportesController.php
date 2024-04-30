@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Exports\ConcentradoDeArticulosExport;
 use App\Exports\ConcentradoPorCiudadYFamilia;
+use App\Exports\DineroElectronicoExport;
 use App\Exports\GrupoYTipoPrecio;
 use App\Exports\VentasPorTipoDePrecioExport;
 use App\Models\CapMerma;
 use App\Models\DatEncabezado;
+use App\Models\DatTipoPago;
 use App\Models\Tienda;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -398,5 +400,100 @@ class ReportesController extends Controller
             ->paginate(10);
 
         return view('Reportes.ConcentradoDeMermas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+    }
+
+    public function ReporteDineroElectronido(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+
+        if ($usuarioTienda->Todas == 0) {
+            $tiendas = Tienda::where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendas = Tienda::where('Status', 0)
+                ->where('IdTienda', $usuarioTienda->IdTienda)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+                ->where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+
+        $concentrado = collect(DB::select("SELECT NomTienda,
+                CONVERT(varchar(12), Fecha, 103) as Fecha,
+                sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
+                sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
+                sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
+                sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
+                sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+            from (
+                select t.NomTienda,
+                    cast(FechaVenta as date) as Fecha,
+                    dt.IdTipoPago,
+                    abs(isnull(dm.Monedero,0)) as Monedero,
+                    case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
+                from DatMonederoElectronico as dm
+                    left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
+                    left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
+                    left join CatTiendas as t on dm.IdTienda = t.IdTienda
+                    left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
+                    left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
+                where cast(FechaVenta as date) >='$fecha1' and
+                    cast(FechaVenta as date) <'$fecha2' and
+                    dm.IdTienda = '$idTienda' and
+                    dt.IdTipoPago in (1, 7) and
+                    dm.Monedero < 0
+                group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+            ) as a group by NomTienda, Fecha
+            order by NomTienda, Fecha"));
+
+        return view('Reportes.DineroElectronico', compact('fecha1', 'fecha2', 'idTienda', 'tiendas', 'concentrado'));
+    }
+
+    public function ExportReporteDineroElectronido(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+
+        $concentrado = collect(DB::select("SELECT NomTienda,
+                CONVERT(varchar(12), Fecha, 103) as Fecha,
+                sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
+                sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
+                sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
+                sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
+                sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+            from (
+                select t.NomTienda,
+                    cast(FechaVenta as date) as Fecha,
+                    dt.IdTipoPago,
+                    abs(isnull(dm.Monedero,0)) as Monedero,
+                    case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
+                from DatMonederoElectronico as dm
+                    left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
+                    left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
+                    left join CatTiendas as t on dm.IdTienda = t.IdTienda
+                    left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
+                    left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
+                where cast(FechaVenta as date) >='$fecha1' and
+                    cast(FechaVenta as date) <'$fecha2' and
+                    dm.IdTienda = '$idTienda' and
+                    dt.IdTipoPago in (1, 7) and
+                    dm.Monedero < 0
+                group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+            ) as a group by NomTienda, Fecha
+            order by NomTienda, Fecha"));
+
+        $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'dineroelectronico.xlsx';
+        return Excel::download(new DineroElectronicoExport($concentrado), $name);
     }
 }
