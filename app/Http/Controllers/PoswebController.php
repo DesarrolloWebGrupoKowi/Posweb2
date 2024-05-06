@@ -2012,8 +2012,8 @@ class PoswebController extends Controller
             },
         ])
             ->where('IdTienda', $idTienda)
-            ->select('IdClienteCloud', 'Bill_To')
-            ->groupBy('IdClienteCloud', 'Bill_To')
+            ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+            ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
             ->whereIn('Bill_To', $billsTo)
             ->get();
 
