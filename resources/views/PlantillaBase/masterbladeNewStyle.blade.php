@@ -69,11 +69,13 @@
                                         </a>
                                     </li>
                                 @endif
-                                <li>
-                                    <a href="/Update" class="dropdown-item text-white py-2">
-                                        <i class="fa fa-cloud-download pe-2"></i> Actualizar
-                                    </a>
-                                </li>
+                                @if (Auth::user()->tipoUsuario->IdTipoUsuario == 2)
+                                    <li>
+                                        <a href="/Update" class="dropdown-item text-white py-2">
+                                            <i class="fa fa-cloud-download pe-2"></i> Actualizar
+                                        </a>
+                                    </li>
+                                @endif
                                 <li>
                                     <a class="dropdown-item text-white py-2" href="/Logout"
                                         onclick="event.preventDefault();

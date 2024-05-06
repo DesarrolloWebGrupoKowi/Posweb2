@@ -254,7 +254,7 @@
 
                     <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
                     <table>
-                        @if ($corteTienda->IdListaPrecio == 4 && $corteTienda->IdTipoNomina == 4)
+                        @if ($corteTienda->IdTipoNomina == 4)
                             <tr>
                                 <th style="width: 10vh"></th>
                                 <th style="width: 60vh; text-align:center">
@@ -273,7 +273,7 @@
                         <!--TERMINA MONEDERO ELECTRONICO QUINCENALES-->
 
                         <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS SEMANALES-->
-                        @if ($corteTienda->IdListaPrecio == 4 && $corteTienda->IdTipoNomina == 3)
+                        @if ($corteTienda->IdTipoNomina == 3)
                             <tr>
                                 <th style="width: 10vh"></th>
                                 <th style="width: 60vh; text-align:center">
