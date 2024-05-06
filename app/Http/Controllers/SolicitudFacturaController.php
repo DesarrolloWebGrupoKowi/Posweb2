@@ -40,6 +40,9 @@ class SolicitudFacturaController extends Controller
 
         $chkTipoPagoTicket = $request->chkTipoPagoTicket;
 
+        $metodosPago = CatMetodoPago::where('Status', 0)
+            ->get();
+
         $cliente = DB::table('CatClientes as a')
             ->leftJoin('CatClienteEmail as b', 'b.IdClienteCloud', 'a.IdClienteCloud')
             ->where('a.RFC', $rfcCliente)
@@ -92,7 +95,7 @@ class SolicitudFacturaController extends Controller
 
         //return $ticket;
 
-        return view('SolicitudFactura.SolicitudFactura', compact('auxTicketFacturado', 'tienda', 'rfcCliente', 'cliente', 'numTicket', 'ticket', 'estadoTienda', 'nomCliente', 'usosCFDI', 'tiposPagoTicket', 'banderaMultiPagoFact', 'chkTipoPagoTicket'));
+        return view('SolicitudFactura.SolicitudFactura', compact('auxTicketFacturado', 'tienda', 'rfcCliente', 'cliente', 'numTicket', 'ticket', 'estadoTienda', 'nomCliente', 'usosCFDI', 'tiposPagoTicket', 'banderaMultiPagoFact', 'chkTipoPagoTicket', 'metodosPago'));
     }
 
     public function VerSolicitudesFactura(Request $request)
@@ -194,8 +197,8 @@ class SolicitudFacturaController extends Controller
             'cfdi' => 'required'
         ]);
 
-        if(!empty($request->chkEdit) && empty($request->file('cSituacionFiscal'))){
-            return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.' );
+        if (!empty($request->chkEdit) && empty($request->file('cSituacionFiscal'))) {
+            return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.');
         }
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
@@ -417,6 +420,7 @@ class SolicitudFacturaController extends Controller
                         'IdUsuarioCliente' => null,
                         'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
+                        'MetodoPago' => strtoupper($request->metodopag),
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -549,6 +553,7 @@ class SolicitudFacturaController extends Controller
                     'IdUsuarioCliente' => null,
                     'Bill_To' => null,
                     'UsoCFDI' => strtoupper($request->cfdi),
+                    'MetodoPago' => strtoupper($request->metodopag),
                     'Editar' => 0,
                     'IdCaja' => $idCaja,
                     'Status' => 0,
@@ -678,6 +683,7 @@ class SolicitudFacturaController extends Controller
                         'IdUsuarioCliente' => null,
                         'Bill_To' => null,
                         'UsoCFDI' => strtoupper($request->cfdi),
+                        'MetodoPago' => strtoupper($request->metodopag),
                         'Editar' => 0,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
