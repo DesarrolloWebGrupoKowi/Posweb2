@@ -206,8 +206,8 @@ class CortesTiendaController extends Controller
                             ->whereNull('DatCortesTienda.IdSolicitudFactura');
                     },
                 ])
-                    ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina', 'IdTienda')
-                    ->distinct('Bill_To')
+                    ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+                    ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
                     ->where('IdTienda', $idTienda)
                     ->whereIn('Bill_To', $billsTo)
                     ->get();

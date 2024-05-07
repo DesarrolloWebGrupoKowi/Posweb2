@@ -19,6 +19,6 @@ class ConfigSystemController extends Controller
         // dump("Ahora imprimiré las líneas de salida:");
         // dump($salida);
 
-        return redirect('/');
+        return back();
     }
 }
