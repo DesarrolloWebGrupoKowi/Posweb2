@@ -134,6 +134,7 @@ class TransaccionProductoController extends Controller
             foreach ($codsArticulo as $keyCodArticulo => $cantArticulo) {
                 DatRecepcion::insert([
                     'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
+                    'IdRecepcionLocal' => $capRecepcion->IdRecepcionLocal,
                     'CodArticulo' => $keyCodArticulo,
                     'CantEnviada' => $cantArticulo,
                     'IdStatusRecepcion' => 1
