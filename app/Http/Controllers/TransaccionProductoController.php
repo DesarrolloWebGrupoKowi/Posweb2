@@ -132,8 +132,10 @@ class TransaccionProductoController extends Controller
             $IdTransferencia =  DatTransferencia::where('IdDatTransferencia', $transferencia->IdDatTransferencia)->value('IdTransferencia');
 
             foreach ($codsArticulo as $keyCodArticulo => $cantArticulo) {
+                $keyCodArticulo = trim($keyCodArticulo);
                 DatRecepcion::insert([
                     'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
+                    'IdRecepcionLocal' => $capRecepcion->IdRecepcionLocal,
                     'CodArticulo' => $keyCodArticulo,
                     'CantEnviada' => $cantArticulo,
                     'IdStatusRecepcion' => 1
