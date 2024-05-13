@@ -23,7 +23,7 @@ class ArticulosController extends Controller
             ->where('a.Status', 0)
             ->where('a.NomArticulo', 'like', '%' . $filtroArticulo . '%')
             ->orderBy('a.CodArticulo')
-            ->paginate(10);
+            ->paginate(10)->withQueryString();
 
         //return $articulos;
 
@@ -60,7 +60,6 @@ class ArticulosController extends Controller
 
             $articulo = Articulo::where('CodArticulo', $id)
                 ->first();
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
@@ -182,7 +181,6 @@ class ArticulosController extends Controller
                 ->first();
 
             DB::statement('Execute SP_NUEVOARTICULOYPRECIO ' . $spArticulo->CodArticulo . '');
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());

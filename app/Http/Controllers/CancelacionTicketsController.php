@@ -8,6 +8,7 @@ use App\Models\Caja;
 use App\Models\CorteTienda;
 use App\Models\CreditoEmpleado;
 use App\Models\DatCaja;
+use App\Models\DatCorteInvTmp;
 use App\Models\DatDetalle;
 use App\Models\DatEncabezado;
 use App\Models\DatMonederoElectronico;
@@ -158,6 +159,7 @@ class CancelacionTicketsController extends Controller
                 ->first();
 
             $idTienda = $solicitudCancelacion->IdTienda;
+            $idCaja = $solicitudCancelacion->IdCaja;
 
             // Actualizamos la solicitud de ticked
             SolicitudCancelacionTicket::where('IdEncabezado', $idEncabezado)
@@ -235,12 +237,27 @@ class CancelacionTicketsController extends Controller
             }
 
             // insertar en el historial de movimientos de producto, con referencia del IdEncabezado
+            DatCorteInvTmp::insert([
+                'IdTienda' => $idTienda,
+                'IdCaja' => $idCaja,
+                'Codigo' => $codArticulo,
+                'Cantidad' => $detalle->CantArticulo,
+                'Fecha_Creacion' => date('d-m-Y H:i:s'),
+                'StatusProcesado' => 1,
+                'IdMovimiento' => 12,
+                'Referencia' => $idEncabezado
+            ]);
+
             HistorialMovimientoProducto::insert([
                 'IdTienda' => $idTienda,
+                'CodArticulo' => $codArticulo,
+                'CantArticulo' => $detalle->CantArticulo,
                 'FechaMovimiento' => date('d-m-Y H:i:s'),
-                'Referencia' => $idEncabezado,
+                'Referencia' => 'Cancelacion ' . $idEncabezado,
                 'IdMovimiento' => 12,
                 'IdUsuario' => Auth::user()->IdUsuario,
+                'ReferenciaId' => $idEncabezado,
+                'IDCAJA' => $idCaja
             ]);
         } catch (\Throwable $th) {
             DB::rollback(); // hubo algun error
