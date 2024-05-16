@@ -19,7 +19,18 @@ class CapRecepcionLocal extends Model
         'Organization_Id',
         'MotivoCancelacion',
         'FechaCancelacion',
-        'IdStatusRecepcion'
+        'IdStatusRecepcion',
+        'IdTiendaDestino',
+        'FechaLlegada',
+        'IdUsuario',
+        'IdTienda',
+        'IdCaja',
+        'IdCajaOrigen',
+        'StatusInventario',
+        'idtiporecepcion',
+        'Subir',
+        'IdPreparado',
+        'CantidadPreparado',
     ];
     public $timestamps = false;
     protected $primaryKey = 'IdCapRecepcion';

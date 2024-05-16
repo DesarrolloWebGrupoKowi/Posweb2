@@ -105,18 +105,16 @@ class TransaccionProductoController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->value('IdCaja');
 
-            $idRecepcion = $idTienda . $idCaja . $idCapRecepcion;
-
-            $capRecepcion = new CapRecepcion();
-            $capRecepcion->IdRecepcionLocal = $idRecepcion;
-            $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
-            $capRecepcion->PackingList = 'TRANSFERENCIA';
-            $capRecepcion->IdTiendaOrigen = Auth::user()->usuarioTienda->IdTienda;
-            $capRecepcion->IdTiendaDestino = $idTiendaDestino;
-            $capRecepcion->idtiporecepcion = 2;
-            $capRecepcion->Almacen = $almacen;
-            $capRecepcion->IdStatusRecepcion = 2;
-            $capRecepcion->save();
+            $recepcion = CapRecepcion::create([
+                'FechaLlegada' => date('d-m-Y H:i:s'),
+                'PackingList' => 'TRANSFERENCIA',
+                'IdTiendaOrigen' => Auth::user()->usuarioTienda->IdTienda,
+                'IdTiendaDestino' => $idTiendaDestino,
+                'idtiporecepcion' => 2,
+                'Almacen' => $almacen,
+                'IdStatusRecepcion' => 2,
+                'IdCajaOrigen' => $idCaja,
+            ]);
 
             // Guardamos la transferencia
             $transferencia = new DatTransferencia();
@@ -129,13 +127,14 @@ class TransaccionProductoController extends Controller
             $transferencia->Subir = 0;
             $transferencia->save();
 
+            $IdCapRecepcionLocal = CapRecepcion::where('IdCapRecepcion', $recepcion->IdCapRecepcion)->value('IdRecepcionLocal');
             $IdTransferencia =  DatTransferencia::where('IdDatTransferencia', $transferencia->IdDatTransferencia)->value('IdTransferencia');
 
             foreach ($codsArticulo as $keyCodArticulo => $cantArticulo) {
                 $keyCodArticulo = trim($keyCodArticulo);
                 DatRecepcion::insert([
-                    'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
-                    'IdRecepcionLocal' => $capRecepcion->IdRecepcionLocal,
+                    'IdCapRecepcion' => $recepcion->IdCapRecepcion,
+                    'IdRecepcionLocal' => $IdCapRecepcionLocal,
                     'CodArticulo' => $keyCodArticulo,
                     'CantEnviada' => $cantArticulo,
                     'IdStatusRecepcion' => 1
@@ -194,7 +193,7 @@ class TransaccionProductoController extends Controller
             try {
                 //Envio de Correo de Transferencia de Producto
                 $asunto = 'Se Ha Realizado Una Nueva Transferencia de Producto';
-                $mensaje = 'Envia: ' . $nomOrigenTienda . '. Recibe: ' . $nomDestinoTienda . '. Id de Recepción: ' . $capRecepcion->IdCapRecepcion;
+                $mensaje = 'Envia: ' . $nomOrigenTienda . '. Recibe: ' . $nomDestinoTienda . '. Id de Recepción: ' . $recepcion->IdCapRecepcion;
 
                 //$enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; " . $correoDestinoTienda . "', '" . $asunto . "', '" . $mensaje . "'";
                 // DB::statement($enviarCorreo);

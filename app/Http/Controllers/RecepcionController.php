@@ -272,8 +272,8 @@ class RecepcionController extends Controller
                 //Obetener tienda
                 $almacen = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)->value('Almacen');
 
-                $idCapRecepcion = DB::table('CapRecepcion')
-                    ->max('IdCapRecepcion') + 1;
+                // $idCapRecepcion = DB::table('CapRecepcion')
+                //     ->max('IdCapRecepcion') + 1;
 
                 //Obtener caja
                 $idCaja = DatCaja::where('Status', 0)
@@ -281,11 +281,11 @@ class RecepcionController extends Controller
                     ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                     ->value('IdCaja');
 
-                $idRecepcion = Auth::user()->usuarioTienda->IdTienda . $idCaja . $idCapRecepcion;
+                // $idRecepcion = Auth::user()->usuarioTienda->IdTienda . $idCaja . $idCapRecepcion;
 
                 //Insert a CapRecepcion y DatRecepcion cuando el idRecepcion==0
-                CapRecepcion::insert([
-                    'IdRecepcionLocal' => $idRecepcion,
+                $recepcion = CapRecepcion::create([
+                    // 'IdRecepcionLocal' => $idRecepcion,
                     'FechaRecepcion' => date('d-m-Y H:i:s'),
                     'FechaLlegada' => date('d-m-Y H:i:s'),
                     'PackingList' => 'RECEPCION MANUAL',
@@ -293,13 +293,15 @@ class RecepcionController extends Controller
                     'IdStatusRecepcion' => 2,
                     'IdUsuario' => Auth::user()->IdUsuario,
                     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                    'IdTiendaOrigen' => Auth::user()->usuarioTienda->IdTienda,
                     'IdCaja' => $idCaja,
+                    'IdCajaOrigen' => $idCaja,
                     'StatusInventario' => 1,
                     'idtiporecepcion' => 11,
                 ]);
 
                 //Id Insertado
-                $idCapRecepcionReturned = CapRecepcion::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)->max('IdCapRecepcion');
+                $IdCapRecepcionLocal = CapRecepcion::where('IdCapRecepcion', $recepcion->IdCapRecepcion)->value('IdRecepcionLocal');
 
                 $Linea = 0;
 
@@ -309,8 +311,8 @@ class RecepcionController extends Controller
                         if ($codArticulo == $codArticuloRec) {
                             $Linea = $Linea + 1;
                             DatRecepcion::insert([
-                                'IdCapRecepcion' => $idCapRecepcionReturned,
-                                'IdRecepcionLocal' => $idRecepcion,
+                                'IdCapRecepcion' => $recepcion->IdCapRecepcion,
+                                'IdRecepcionLocal' => $IdCapRecepcionLocal,
                                 'CodArticulo' => $codArticulo,
                                 'CantEnviada' => $cantRecepcion,
                                 'CantRecepcionada' => $cantRecepcion,
@@ -398,6 +400,10 @@ class RecepcionController extends Controller
     public function CancelarRecepcion($idRecepcion, Request $request)
     {
         $motivoCancelacion = $request->motivoCancelacion;
+        $idCaja = DatCaja::where('Status', 0)
+            ->where('Activa', 0)
+            ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            ->value('IdCaja');
 
         try {
             DB::beginTransaction();
@@ -408,6 +414,8 @@ class RecepcionController extends Controller
                     'FechaCancelacion' => date('d-m-Y H:i:s'),
                     'MotivoCancelacion' => $motivoCancelacion,
                     'IdUsuario' => Auth::user()->IdUsuario,
+                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                    'IdCaja' => $idCaja,
                 ]);
 
             DatRecepcion::where('IdCapRecepcion', $idRecepcion)
