@@ -49,7 +49,7 @@
                                 <td>{{ substr_replace($item->Source_Transaction_Identifier, '_', 3, 0) }}</td>
                                 <td>{{ $item->IdTicket }}</td>
                                 <td>{{ $item->MENSAJE_ERROR }}</td>
-                                <td>{{ $item->FechaVenta }}</td>
+                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($item->FechaVenta)) }}</td>
                                 <td>{{ $item->NomTienda }}</td>
                             </tr>
                         @endforeach
