@@ -496,4 +496,20 @@ class ReportesController extends Controller
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'dineroelectronico.xlsx';
         return Excel::download(new DineroElectronicoExport($concentrado), $name);
     }
+
+    function ReportePedidosOracle(Request $request)
+    {
+        $pos = substr_replace($request->pos, '', 3, 1);
+        // $pos = 'POS482305';
+        $concentrado = DB::table('DatCortesTienda as a')
+            ->leftJoin('DatEncabezado as b', 'b.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatTiendas as c', 'a.IdTienda', 'c.IdTienda')
+            ->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as d', 'd.Source_Transaction_Identifier', 'a.Source_Transaction_Identifier')
+            ->select(DB::raw('a.Source_Transaction_Identifier, b.IdTicket, a.FechaVenta, c.NomTienda, d.MENSAJE_ERROR'))
+            ->where('a.Source_Transaction_Identifier', $pos)
+            ->groupBy('a.Source_Transaction_Identifier', 'b.IdTicket', 'a.FechaVenta', 'c.NomTienda', 'd.MENSAJE_ERROR')
+            ->get();
+
+        return view('Reportes.PedidosOracle', compact('pos', 'concentrado'));
+    }
 }

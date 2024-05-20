@@ -786,6 +786,9 @@ Route::group(['middleware' => 'auth'], function () {
     //ReporteGrupoYTipoPrecio
     Route::get('/ExportReporteDineroElectronido', 'App\Http\Controllers\ReportesController@ExportReporteDineroElectronido')->name('ExportReporteDineroElectronido');
 
+    //ReportePedidosOracle
+    Route::get('/ReportePedidosOracle', 'App\Http\Controllers\ReportesController@ReportePedidosOracle')->name('ReportePedidosOracle');
+
     //+============================================================================================================================================+//
     //BloqueoEmpleados
     Route::get('/BloqueoEmpleados', 'App\Http\Controllers\BloqueoEmpleadosController@BloqueoEmpleados');
