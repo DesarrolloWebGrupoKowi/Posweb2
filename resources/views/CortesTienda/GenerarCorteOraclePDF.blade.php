@@ -131,7 +131,7 @@
                 </tbody>
                 <tfoot>
                     <!--MONEDERO ELECTRONICO QUINCENAL-->
-                    @if ($corteTienda->IdListaPrecio == 4 && $corteTienda->IdTipoNomina == 4)
+                    @if ($corteTienda->IdTipoNomina == 4)
                         <tr>
                             <td></td>
                             <td style="text-align:center; font-weight: bold;">Dinero Electrónico: </td>
@@ -148,7 +148,7 @@
                     <!--TERMINA MONEDERO ELECTRONICO QUINCENAL-->
 
                     <!--MONEDERO ELECTRONICO SEMANAL-->
-                    @if ($corteTienda->IdListaPrecio == 4 && $corteTienda->IdTipoNomina == 3)
+                    @if ($corteTienda->IdTipoNomina == 3)
                         <tr>
                             <td></td>
                             <td style="text-align:center; font-weight: bold;">Dinero Electrónico: </td>

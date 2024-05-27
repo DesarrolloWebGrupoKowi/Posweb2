@@ -5,15 +5,18 @@
 
     <div class="container-fluid pt-4 width-95">
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Creación de Preparados'])
+            @include('components.title', [
+                'titulo' => 'Creación de Preparados',
+                'options' => [['name' => 'Preparados', 'value' => '/AsignarPreparados']],
+            ])
             <div>
-                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarPreparado">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar preparado
+                <button type="button" class="btn btn-primary" role="tooltip" title="Agregar preparado" data-bs-toggle="modal"
+                    data-bs-target="#ModalAgregarPreparado">
+                    <small><i class="fa fa-plus-circle pe-1"></i> Agregar preparado</small>
                 </button>
                 @if ($idPreparado)
-                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarDetalle">
+                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar detalle"
+                        data-bs-toggle="modal" data-bs-target="#ModalAgregarDetalle">
                         <i class="fa fa-plus-circle pe-1"></i> Agregar detalle
                     </button>
                 @endif

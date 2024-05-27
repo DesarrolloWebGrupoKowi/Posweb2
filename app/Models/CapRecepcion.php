@@ -16,11 +16,19 @@ class CapRecepcion extends Model
         'FechaRecepcion',
         'PackingList',
         'IdTiendaOrigen',
+        'IdTiendaDestino',
         'Almacen',
         'Organization_Id',
         'MotivoCancelacion',
         'FechaCancelacion',
-        'IdStatusRecepcion'
+        'IdStatusRecepcion',
+        'FechaLlegada',
+        'IdUsuario',
+        'IdTienda',
+        'IdCaja',
+        'IdCajaOrigen',
+        'StatusInventario',
+        'idtiporecepcion'
     ];
     public $timestamps = false;
     protected $primaryKey = 'IdCapRecepcion';
