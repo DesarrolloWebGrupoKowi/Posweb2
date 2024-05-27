@@ -12,11 +12,11 @@ use App\Models\OnHanTiendaCloudTable;
 class CapMerma extends Model
 {
     use HasFactory;
-    protected $connection = 'server';
+    // protected $connection = 'server';
     protected $table = 'CapMermas';
     protected $fillable = [
-        'IdTienda', 'FechaCaptura', 'CodArticulo', 
-        'CantArticulo', 'IdTipoMerma', 'IdSubTipoMerma', 
+        'IdTienda', 'FechaCaptura', 'CodArticulo',
+        'CantArticulo', 'IdTipoMerma', 'IdSubTipoMerma',
         'Comentario', 'IdUsuarioCaptura', 'IdUsuarioInterfaz', 'FechaInterfaz'
     ];
     public $timestamps = false;

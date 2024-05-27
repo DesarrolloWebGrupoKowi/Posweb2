@@ -184,27 +184,34 @@ class AsignarPreparadosController extends Controller
             // DB::connection('server')->beginTransaction();
 
             // Creamos una recepcion
-            $capRecepcion = new CapRecepcionLocal();
-            $capRecepcion->IdRecepcionLocal = $idRecepcion;
-            $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
-            $capRecepcion->PackingList = $nombrePreparado;
-            $capRecepcion->IdTiendaOrigen = Auth::user()->usuarioTienda->IdTienda;
-            $capRecepcion->IdTiendaDestino = $IdTD;
-            $capRecepcion->Almacen = $almacen;
-            $capRecepcion->IdStatusRecepcion = 2;
-            $capRecepcion->CantidadPreparado = $request->cantidad;
-            $capRecepcion->IdPreparado = $request->preparado;
-            $capRecepcion->Subir = 0;
-            $capRecepcion->idtiporecepcion = 15;
+            $idCaja = DatCaja::where('Status', 0)
+                ->where('Activa', 0)
+                ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                ->value('IdCaja');
 
-            // $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
-            $capRecepcion->save();
+            $recepcion = CapRecepcionLocal::create([
+                // 'IdRecepcionLocal' => $idRecepcion,
+                'FechaLlegada' => date('d-m-Y H:i:s'),
+                'PackingList' => $nombrePreparado,
+                'IdTiendaOrigen' => Auth::user()->usuarioTienda->IdTienda,
+                'IdTiendaDestino' => $IdTD,
+                'Almacen' => $almacen,
+                'IdStatusRecepcion' => 2,
+                'CantidadPreparado' => $request->cantidad,
+                'IdPreparado' => $request->preparado,
+                'Subir' => 0,
+                'idtiporecepcion' => 15,
+                'IdCajaOrigen' => $idCaja,
+            ]);
+
+            //Id Insertado
+            $IdCapRecepcionLocal = CapRecepcionLocal::where('IdCapRecepcion', $recepcion->IdCapRecepcion)->value('IdRecepcionLocal');
 
             foreach ($detalleArticulos as $articulo) {
                 // Creamos un detalle de recepcion por cada producto
                 DatRecepcionLocal::insert([
-                    'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
-                    'IdRecepcionLocal' => $idRecepcion,
+                    'IdCapRecepcion' => $recepcion->IdCapRecepcion,
+                    'IdRecepcionLocal' => $IdCapRecepcionLocal,
                     'CodArticulo' => $articulo->CodArticulo,
                     'CantEnviada' => $cantidadEnviada * $articulo->CantidadFormula,
                     'IdStatusRecepcion' => 1,

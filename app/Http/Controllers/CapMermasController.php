@@ -80,9 +80,14 @@ class CapMermasController extends Controller
     {
         try {
             DB::beginTransaction();
-            DB::connection('server')->beginTransaction();
+            // DB::beginTransaction();
 
             $idTienda = Auth::user()->usuarioTienda->IdTienda;
+            $caja = DB::table('DatCajas as a')
+                ->where('IdTienda', $idTienda)
+                ->where('a.Activa', 0)
+                ->where('a.Status', 0)
+                ->value('IdCaja');
 
             $mermasTmp = MermaTmp::where('IdTienda', $idTienda)
                 ->get();
@@ -96,7 +101,9 @@ class CapMermasController extends Controller
                     'IdTipoMerma' => $merma->IdTipoMerma,
                     'IdSubTipoMerma' => $merma->IdSubTipoMerma,
                     'Comentario' => $merma->Comentario,
-                    'IdUsuarioCaptura' => Auth::user()->IdUsuario
+                    'IdUsuarioCaptura' => Auth::user()->IdUsuario,
+                    'IdCaja' => $caja,
+                    'Subir' => 0
                 ]);
 
                 //GUARDAR MOVIMIENTOS EN HISTORIAL MOVIMIENTOS
@@ -116,7 +123,7 @@ class CapMermasController extends Controller
                     ->sum('StockArticulo');
 
                 //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO WEB
-                DB::connection('server')->table('DatInventario')
+                DB::table('DatInventario')
                     ->where('IdTienda', $idTienda)
                     ->where('CodArticulo', $merma->CodArticulo)
                     ->update([
@@ -146,17 +153,15 @@ class CapMermasController extends Controller
                 $mensaje = 'LA TIENDA HA CAPTURADO NUEVA(S) MERMA(S). Usuario: ' . Auth::user()->NomUsuario;
 
                 $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; cponce@kowi.com.mx; " . $correoTienda->EncargadoCorreo . "; " . $correoTienda->GerenteCorreo . "; ', '" . $asunto . "', '" . $mensaje . "'";
-                DB::connection('server')->statement($enviarCorreo);
+                DB::statement($enviarCorreo);
             } catch (\Throwable $th) {
             }
         } catch (\Throwable $th) {
             DB::rollback();
-            DB::connection('server')->rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         DB::commit();
-        DB::connection('server')->commit();
         return redirect('CapMermas')->with('msjAdd', 'Se Mermó el Producto Correctamente!');
     }
 

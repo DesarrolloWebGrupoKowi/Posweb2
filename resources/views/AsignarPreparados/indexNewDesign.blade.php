@@ -8,6 +8,9 @@
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Lista de preparados'])
             <div class="">
+                <a href="/Preparados" class="btn btn-primary ">
+                    <small><i class="fa fa-plus-circle pe-1"></i>Agregar preparado</small>
+                </a>
                 <a href="/DetalleAsignados" class="btn btn-sm btn-dark">
                     <i class="fa fa-eye"></i> Ver detalle asignados
                 </a>

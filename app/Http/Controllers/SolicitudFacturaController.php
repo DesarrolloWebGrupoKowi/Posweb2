@@ -742,6 +742,10 @@ class SolicitudFacturaController extends Controller
     {
         $pdf = $request->file('cSituacionFiscal');
 
+        if (empty($pdf)) {
+            return back()->with('msjdelete', 'No se encuentra la constancia de situacion fiscal.');
+        }
+
         $nomArchivo = $pdf->getClientOriginalName();
 
         $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
