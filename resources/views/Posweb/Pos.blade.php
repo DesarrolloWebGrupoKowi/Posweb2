@@ -11,6 +11,12 @@
     <link rel="stylesheet" href="Icons/font-awesome.min.css">
     <link rel="stylesheet" href="css/stylePosTailwind.css">
     <title>:: Punto de Venta ::</title>
+    <style>
+        input[type="checkbox"] {
+            width: 2em;
+            height: 2em;
+        }
+    </style>
 </head>
 
 <body>
@@ -160,14 +166,22 @@
                         <div class="col-6">
                             <input {!! $banderaMultiPago > 0 ? 'disabled' : '' !!} class="form-control txtPos" type="number"
                                 name="txtCantidad" id="txtCantidad" placeholder="Peso" min="0.001"
-                                step="any" autocomplete="off">
+                                step="any" autocomplete="off" tabindex="1">
+                        </div>
+                        <div class="col-6 d-flex align-items-center gap-2">
+                            <input class="form-check-input" type="checkbox" value="1" id="recorte"
+                                name="recorte" tabindex="3">
+                            <label class="form-check-label txtPos text-muted" for="recorte">
+                                Recorte
+                            </label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12">
                             <input {!! $banderaMultiPago > 0 ? 'disabled' : '' !!} type="text" name="txtCodigo" id="txtCodigo"
                                 class="form-control txtPos" placeholder="Leer Código" autocomplete="off" required
-                                autofocus maxlength="13" minlength="12" OnKeyPress="return teclas(event);">
+                                autofocus maxlength="13" minlength="12" OnKeyPress="return teclas(event);"
+                                tabindex="2">
                         </div>
                         <input hidden id="hacerSubmit" type="submit" />
                     </div>

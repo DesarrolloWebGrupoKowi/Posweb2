@@ -188,6 +188,7 @@ class CortesTiendaController extends Controller
                         $oraclePedido->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH', 'XXH.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->whereDate('FechaVenta', $fecha1)
                             ->where('IdTienda', $idTienda)
+                            ->where('StatusVenta', 0)
                             ->select(
                                 'DatCortesTienda.Bill_To',
                                 'DatCortesTienda.Source_Transaction_Identifier',
@@ -205,8 +206,8 @@ class CortesTiendaController extends Controller
                             ->whereNull('DatCortesTienda.IdSolicitudFactura');
                     },
                 ])
-                    ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina', 'IdTienda')
-                    ->distinct('Bill_To')
+                    ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+                    ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
                     ->where('IdTienda', $idTienda)
                     ->whereIn('Bill_To', $billsTo)
                     ->get();
@@ -621,8 +622,8 @@ class CortesTiendaController extends Controller
                     ->whereNull('DatCortesTienda.IdSolicitudFactura');
             }])
                 ->where('IdTienda', $idTienda)
-                ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
-                ->distinct('Bill_To')
+                ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+                ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
                 ->whereIn('Bill_To', $billsTo)
                 ->get();
 
@@ -750,8 +751,8 @@ class CortesTiendaController extends Controller
                         ->whereNull('DatCortesTienda.IdSolicitudFactura');
                 },
             ])
-                ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina', 'IdTienda')
-                ->distinct('Bill_To')
+                ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+                ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
                 ->where('IdTienda', $idTienda)
                 ->whereIn('Bill_To', $billsTo)
                 ->get();

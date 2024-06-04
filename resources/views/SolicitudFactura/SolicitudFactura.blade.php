@@ -231,7 +231,7 @@
                         </div>
                         <div class="col-3">
                             <label for="">Uso del CFDI</label>
-                            <select name="cfdi" id="cfdi" class="form-select">
+                            <select name="cfdi" id="cfdi" class="form-select" required>
                                 @foreach ($usosCFDI as $usoCFDI)
                                     <option value="{{ $usoCFDI->UsoCFDI }}">{{ $usoCFDI->NomCFDI }}</option>
                                 @endforeach
@@ -240,8 +240,16 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-4">
+                            <label for="">Método de pago</label>
+                            <select class="form-select" name="metodopag" id="metodopag" required>
+                                @foreach ($metodosPago as $metodopago)
+                                    <option value="{{ $metodopago->MetPago }}">{{ $metodopago->Descripcion }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-4">
                             <label for="">Constancia Situación Fiscal</label>
-                            <input type="file" class="form-control" name="cSituacionFiscal">
+                            <input type="file" class="form-control" name="cSituacionFiscal" required>
                         </div>
                     </div>
                     <div class="row d-flex justify-content-center">

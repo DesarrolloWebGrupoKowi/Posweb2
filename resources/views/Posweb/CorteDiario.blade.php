@@ -173,7 +173,7 @@
 
                 <table>
                     <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
-                    @if ($corteTienda->IdListaPrecio == 4 && $corteTienda->IdTipoNomina == 4)
+                    @if ($corteTienda->IdTipoNomina == 4)
                         <tr>
                             <th style="width: 10vh"></th>
                             <th style="width: 60vh; text-align:center">
@@ -192,7 +192,7 @@
                     <!--TERMINA MONEDERO ELECTRONICO QUINCENALES-->
 
                     <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS SEMANALES-->
-                    @if ($corteTienda->IdListaPrecio == 4 && $corteTienda->IdTipoNomina == 3)
+                    @if ($corteTienda->IdTipoNomina == 3)
                         <tr>
                             <th style="width: 10vh"></th>
                             <th style="width: 60vh; text-align:center">
@@ -231,6 +231,7 @@
 
         <!--SOLICITUDES DE FACTURA-->
         @foreach ($facturas as $factura)
+            @if(count($factura->FacturaLocal)!=0)
             <div class="content-table content-table-full card p-4 mb-4" style="border-radius: 20px">
                 <div class="d-flex justify-content-left">
                     <h6 class="p-1 bg-dark text-white rounded-3">{{ $factura->NomCliente }}</h6>
@@ -290,6 +291,7 @@
                     </tr>
                 </table>
             </div>
+            @endif
         @endforeach
         <!--TERMINA SOLICITUDES DE FACTURA-->
 

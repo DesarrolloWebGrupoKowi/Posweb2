@@ -753,6 +753,9 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     //+============================================================================================================================================+//
+    //ReporteMermasAdmin
+    Route::get('/ReporteMermasAdmin', 'App\Http\Controllers\ReportesController@ReporteMermasAdmin')->name('ReporteMermasAdmin');
+
     //ReporteConcentradoDeArticulos
     Route::get('/ReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeArticulos')->name('ReporteConcentradoDeArticulos');
 
@@ -764,6 +767,27 @@ Route::group(['middleware' => 'auth'], function () {
 
     //ReportePorTipoDePrecio
     Route::get('/ExportReportePorTipoDePrecio', 'App\Http\Controllers\ReportesController@ExportReportePorTipoDePrecio')->name('ExportReportePorTipoDePrecio');
+
+    //ReporteConcentradoPorCiudadYFamilia
+    Route::get('/ReporteConcentradoPorCiudadYFamilia', 'App\Http\Controllers\ReportesController@ReporteConcentradoPorCiudadYFamilia')->name('ReporteConcentradoPorCiudadYFamilia');
+
+    //ReporteConcentradoPorCiudadYFamilia
+    Route::get('/ExportReporteConcentradoPorCiudadYFamilia', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoPorCiudadYFamilia')->name('ExportReporteConcentradoPorCiudadYFamilia');
+
+    //ReporteGrupoYTipoPrecio
+    Route::get('/ReporteGrupoYTipoPrecio', 'App\Http\Controllers\ReportesController@ReporteGrupoYTipoPrecio')->name('ReporteGrupoYTipoPrecio');
+
+    //ReporteGrupoYTipoPrecio
+    Route::get('/ExportReporteGrupoYTipoPrecio', 'App\Http\Controllers\ReportesController@ExportReporteGrupoYTipoPrecio')->name('ExportReporteGrupoYTipoPrecio');
+
+    //ReporteGrupoYTipoPrecio
+    Route::get('/ReporteDineroElectronido', 'App\Http\Controllers\ReportesController@ReporteDineroElectronido')->name('ReporteDineroElectronido');
+
+    //ReporteGrupoYTipoPrecio
+    Route::get('/ExportReporteDineroElectronido', 'App\Http\Controllers\ReportesController@ExportReporteDineroElectronido')->name('ExportReporteDineroElectronido');
+
+    //ReportePedidosOracle
+    Route::get('/ReportePedidosOracle', 'App\Http\Controllers\ReportesController@ReportePedidosOracle')->name('ReportePedidosOracle');
 
     //+============================================================================================================================================+//
     //BloqueoEmpleados
@@ -820,6 +844,35 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //update(Actualiza el sistema con los ultimos cambios de git)
     Route::get('/Update', 'App\Http\Controllers\ConfigSystemController@Index')->name('Update.index');
+
+    //+============================================================================================================================================+//
+    //CatDescuentos
+    Route::get('/CatDescuentos', 'App\Http\Controllers\DescuentosController@CatDescuentos');
+
+    //VerDescuentos
+    Route::get('/VerDescuentos', 'App\Http\Controllers\DescuentosController@VerDescuentos');
+
+    ///BuscarCodArticuloPaquqete
+    // Route::get('/BuscarCodArticuloPaquqete', 'App\Http\Controllers\PaquetesController@BuscarCodArticuloPaquqete');
+
+    //GuardarDescuento
+    Route::post('/GuardarDescuento', 'App\Http\Controllers\DescuentosController@GuardarDescuento');
+
+    // //EditarPaquete
+    Route::get('/EditarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EditarDescuento');
+
+    //EditarDescuentoExistente
+    Route::post('/EditarDescuentoExistente/{idDescuento}', 'App\Http\Controllers\DescuentosController@EditarDescuentoExistente');
+
+    // //EliminarDescuento
+    Route::post('/EliminarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EliminarDescuento');
+
+    //+============================================================================================================================================+//
+    //CatRosticero
+    Route::get('/CatRosticero', 'App\Http\Controllers\RosticeroController@CatRosticero');
+
+    //VerRosticero
+    Route::get('/VerRosticero', 'App\Http\Controllers\RosticeroController@VerRosticero');
 }); //->Termina Middleware Auth
 
 // pagina de error 404

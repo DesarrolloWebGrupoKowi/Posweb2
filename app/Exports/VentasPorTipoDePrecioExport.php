@@ -11,13 +11,17 @@ use Maatwebsite\Excel\Concerns\FromView;
 class VentasPorTipoDePrecioExport implements FromView
 {
     private $concentrado;
-    public function __construct($concentrado)
+    private $totales;
+    private $clientes;
+    public function __construct($concentrado, $totales, $clientes)
     {
         $this->concentrado = $concentrado;
+        $this->totales = $totales;
+        $this->clientes = $clientes;
     }
 
     public function view(): View
     {
-        return view('Reportes.ExportVentasPorTipoDePrecio', ['data' => $this->concentrado]);
+        return view('Reportes.ExportVentasPorTipoDePrecio', ['data' => $this->concentrado, 'totales' => $this->totales, 'clientes' => $this->clientes]);
     }
 }

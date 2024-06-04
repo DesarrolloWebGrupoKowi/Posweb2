@@ -90,27 +90,10 @@ jobs:
       - name: Limpiar cache view
         run: php artisan view:cache
 
-  gh-menudeonav:
-    runs-on:
-      - self-hosted
-      - gh-menudeonav
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      - name: Limpiar cache
-        run: php artisan cache:clear
-      - name: Limpiar cache config
-        run: php artisan config:cache
-      - name: Limpiar cache route
-        run: php artisan route:cache
-      - name: Limpiar cache view
-        run: php artisan view:cache
-
   gh_menudeo_estadio:
     runs-on:
       - self-hosted
-      - gh_menudeo_estadio
+      - gh-menudeo-estadio
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies
@@ -127,7 +110,58 @@ jobs:
   gh_menudeo_estadio_2:
     runs-on:
       - self-hosted
-      - gh_menudeo_estadio_2
+      - gh-menudeo-estadio-2
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
+
+  gh_aux:
+    runs-on:
+      - self-hosted
+      - gh-aux
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
+
+  gh_menudeo_alamos:
+    runs-on:
+      - self-hosted
+      - gh_menudeo_alamos
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
+
+  gh-menudeo-pork:
+    runs-on:
+      - self-hosted
+      - gh-menudeo-pork
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies

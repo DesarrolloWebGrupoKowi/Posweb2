@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
+use App\Models\CatMetodoPago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +39,9 @@ class SolicitudFacturaController extends Controller
         $numTicket = $request->numTicket;
 
         $chkTipoPagoTicket = $request->chkTipoPagoTicket;
+
+        $metodosPago = CatMetodoPago::where('Status', 0)
+            ->get();
 
         $cliente = DB::table('CatClientes as a')
             ->leftJoin('CatClienteEmail as b', 'b.IdClienteCloud', 'a.IdClienteCloud')
@@ -91,7 +95,7 @@ class SolicitudFacturaController extends Controller
 
         //return $ticket;
 
-        return view('SolicitudFactura.SolicitudFactura', compact('auxTicketFacturado', 'tienda', 'rfcCliente', 'cliente', 'numTicket', 'ticket', 'estadoTienda', 'nomCliente', 'usosCFDI', 'tiposPagoTicket', 'banderaMultiPagoFact', 'chkTipoPagoTicket'));
+        return view('SolicitudFactura.SolicitudFactura', compact('auxTicketFacturado', 'tienda', 'rfcCliente', 'cliente', 'numTicket', 'ticket', 'estadoTienda', 'nomCliente', 'usosCFDI', 'tiposPagoTicket', 'banderaMultiPagoFact', 'chkTipoPagoTicket', 'metodosPago'));
     }
 
     public function VerSolicitudesFactura(Request $request)
@@ -115,6 +119,9 @@ class SolicitudFacturaController extends Controller
     public function VerificarSolicitudFactura($idTicket, $rfcCliente, $bill_To, $correo)
     {
         $usosCFDI = UsoCFDI::where('Status', 0)
+            ->get();
+
+        $metodosPago = CatMetodoPago::where('Status', 0)
             ->get();
 
         if ($correo == 'NoTieneCorreo') {
@@ -173,12 +180,11 @@ class SolicitudFacturaController extends Controller
 
         //return $tiposPagoTicket;
 
-        return view('SolicitudFactura.VerificarSolicitudFactura', compact('rfcCliente', 'bill_To', 'cliente', 'ticket', 'tiposPagoTicket', 'nomCliente', 'banderaMultiPagoFact', 'usosCFDI'));
+        return view('SolicitudFactura.VerificarSolicitudFactura', compact('rfcCliente', 'bill_To', 'cliente', 'ticket', 'tiposPagoTicket', 'nomCliente', 'banderaMultiPagoFact', 'usosCFDI', 'metodosPago'));
     }
 
     public function GuardarSolicitudFactura(Request $request)
     {
-        // return $request->all();
         $request->validate([
             'calle' => 'required',
             'numExt' => 'required',
@@ -190,6 +196,10 @@ class SolicitudFacturaController extends Controller
             'email' => 'required | email',
             'cfdi' => 'required'
         ]);
+
+        if (!empty($request->chkEdit) && empty($request->file('cSituacionFiscal'))) {
+            return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.');
+        }
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
@@ -260,6 +270,7 @@ class SolicitudFacturaController extends Controller
                         'IdUsuarioCliente' => null,
                         'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
+                        'MetodoPago' => strtoupper($request->metodopag),
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -292,7 +303,9 @@ class SolicitudFacturaController extends Controller
 
                 $pdf = $request->file('cSituacionFiscal');
                 if (!empty($pdf)) {
-                    $nomArchivo = $pdf->getClientOriginalName();
+                    $array = explode('.', $pdf->getClientOriginalName());
+                    $ext = end($array);
+                    $nomArchivo = strtoupper($request->rfcCliente) . '.' . $ext;
 
                     $constanciaEncoded = chunk_split(base64_encode(file_get_contents($pdf)));
 
@@ -407,6 +420,7 @@ class SolicitudFacturaController extends Controller
                         'IdUsuarioCliente' => null,
                         'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
+                        'MetodoPago' => strtoupper($request->metodopag),
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -539,6 +553,7 @@ class SolicitudFacturaController extends Controller
                     'IdUsuarioCliente' => null,
                     'Bill_To' => null,
                     'UsoCFDI' => strtoupper($request->cfdi),
+                    'MetodoPago' => strtoupper($request->metodopag),
                     'Editar' => 0,
                     'IdCaja' => $idCaja,
                     'Status' => 0,
@@ -668,6 +683,7 @@ class SolicitudFacturaController extends Controller
                         'IdUsuarioCliente' => null,
                         'Bill_To' => null,
                         'UsoCFDI' => strtoupper($request->cfdi),
+                        'MetodoPago' => strtoupper($request->metodopag),
                         'Editar' => 0,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -725,6 +741,10 @@ class SolicitudFacturaController extends Controller
     public function SubirConstanciaSolicitud(Request $request, $idSolicitudFactura)
     {
         $pdf = $request->file('cSituacionFiscal');
+
+        if (empty($pdf)) {
+            return back()->with('msjdelete', 'No se encuentra la constancia de situacion fiscal.');
+        }
 
         $nomArchivo = $pdf->getClientOriginalName();
 

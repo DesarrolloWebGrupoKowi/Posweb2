@@ -6,10 +6,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    {{-- <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="Icons/font-awesome.min.css">
-    <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}"> --}}
     <title>Empleado</title>
+    <style>
+        * {
+            font-family: sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-head {
+            background: #1e293b;
+            color: white;
+
+        }
+
+        tr th,
+        tr td {
+            text-align: left;
+            line-height: 32px;
+        }
+    </style>
 </head>
 
 <body class="bg-transparent">
@@ -17,7 +39,7 @@
         @include('Alertas.Alertas')
     </div>
     @if (!empty($frecuenteSocio))
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div style="border-radius: 20px">
             <table>
                 <thead class="table-head">
                     <tr>

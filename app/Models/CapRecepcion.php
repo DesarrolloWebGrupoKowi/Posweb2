@@ -10,17 +10,25 @@ use App\Models\StatusRecepcion;
 class CapRecepcion extends Model
 {
     use HasFactory;
-    protected $connection = 'server';
+    // protected $connection = 'server';
     protected $table = 'CapRecepcion';
     protected $fillable = [
         'FechaRecepcion',
         'PackingList',
         'IdTiendaOrigen',
+        'IdTiendaDestino',
         'Almacen',
         'Organization_Id',
         'MotivoCancelacion',
         'FechaCancelacion',
-        'IdStatusRecepcion'
+        'IdStatusRecepcion',
+        'FechaLlegada',
+        'IdUsuario',
+        'IdTienda',
+        'IdCaja',
+        'IdCajaOrigen',
+        'StatusInventario',
+        'idtiporecepcion'
     ];
     public $timestamps = false;
     protected $primaryKey = 'IdCapRecepcion';

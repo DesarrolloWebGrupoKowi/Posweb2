@@ -13,14 +13,20 @@
                     ],
                 ],
             ])
-            @if ($solicitud->Bill_To != null)
-                <div class="">
+            <div class="">
+                @if ($solicitud['ConstanciaSituacionFiscal'] != null)
+                    <a href="{{ '/VerConstanciaCliente/' . $solicitud->IdSolicitudFactura }}" type="button"
+                        class="btn btn-sm btn-dark" target="_blank" title="Finalizar solicitud">
+                        <i class="fa fa-book"></i> Ver constancia
+                    </a>
+                @endif
+                @if ($solicitud->Bill_To != null)
                     <a href="{{ '/SolicitudesFactura/Finalizar/' . $solicitud->Id }}" type="button"
                         class="btn btn-sm btn-dark" title="Finalizar solicitud">
                         <i class="fa fa-check" aria-hidden="true"></i> Finalizar solicitud
                     </a>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
 
         <div>
@@ -32,6 +38,16 @@
                 <div class="col-md-3">
                     <label class="form-label fw-bold m-0 text-secondary">Id</label>
                     <input type="text" class="form-control" value="{{ $solicitud->IdSolicitudFactura }}" disabled>
+                </div>
+                <div class="col-md-3">
+                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Cliente Cloud </label>
+                    <input type="text" class="form-control"
+                        value="{{ $solicitud->IdClienteCloud ? $solicitud->IdClienteCloud : 'Sin dato' }}" disabled>
+                </div>
+                <div class="col-md-3">
+                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Usuario Cliente </label>
+                    <input type="text" class="form-control"
+                        value="{{ $solicitud->IdUsuarioCliente ? $solicitud->IdUsuarioCliente : 'Sin dato' }}" disabled>
                 </div>
                 <div class="col-md-3 ">
                     <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Fecha</label>
@@ -116,15 +132,18 @@
                     <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Tipo De Pago </label>
                     <input type="text" class="form-control" value="{{ $solicitud->NomTipoPago }}" disabled>
                 </div>
-                <div class="col-md-3">
-                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Cliente Cloud </label>
-                    <input type="text" class="form-control"
-                        value="{{ $solicitud->IdClienteCloud ? $solicitud->IdClienteCloud : 'Sin dato' }}" disabled>
+                <div class="col-md-3 ">
+                    <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Banco </label>
+                    <input type="text" class="form-control" value="{{ $solicitud->NomBanco }}" disabled>
+                </div>
+                <div class="col-md-3 ">
+                    <label for="inputPassword4" class="form-label fw-bold text-secondary m-0">Numero Tarjeta </label>
+                    <input type="text" class="form-control" value="{{ $solicitud->NumTarjeta }}" disabled>
                 </div>
                 <div class="col-md-3">
-                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Id Usuario Cliente </label>
+                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Bill To </label>
                     <input type="text" class="form-control"
-                        value="{{ $solicitud->IdUsuarioCliente ? $solicitud->IdUsuarioCliente : 'Sin dato' }}" disabled>
+                        value="{{ $solicitud->Bill_To ? $solicitud->Bill_To : 'Sin dato' }}" disabled>
                 </div>
                 <div class="col-md-3">
                     <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Uso CFDI </label>
@@ -132,9 +151,9 @@
                         value="{{ $solicitud->UsoCFDI ? $solicitud->UsoCFDI : 'Sin dato' }}" disabled>
                 </div>
                 <div class="col-md-3">
-                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Bill To </label>
+                    <label for="inputPassword4" class="form-label text-secondary fw-bold m-0">Metódo Pago </label>
                     <input type="text" class="form-control"
-                        value="{{ $solicitud->Bill_To ? $solicitud->Bill_To : 'Sin dato' }}" disabled>
+                        value="{{ $solicitud->MetodoPago ? $solicitud->MetodoPago : 'Sin dato' }}" disabled>
                 </div>
             </div>
 
@@ -143,7 +162,8 @@
                 <table>
                     <thead class="table-head">
                         <tr>
-                            <th class="rounded-start">NomCliente</th>
+                            <th class="rounded-start">Sitio</th>
+                            <th>NomCliente</th>
                             <th>IdClienteCloud</th>
                             <th>RFC</th>
                             <th>Ship_To</th>
@@ -159,6 +179,7 @@
                         @else
                             @foreach ($clientes as $cliente)
                                 <tr>
+                                    <td>{{ $cliente->Sitio }}</td>
                                     <td>{{ $cliente->NomCliente }}</td>
                                     <td>{{ $cliente->IdClienteCloud }}</td>
                                     <td>{{ $cliente->RFC }}</td>

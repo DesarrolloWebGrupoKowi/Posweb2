@@ -10,8 +10,11 @@ use App\Models\Tienda;
 use App\Models\TransaccionTienda;
 use App\Models\InventarioTienda;
 use App\Models\CapRecepcion;
+use App\Models\DatCaja;
 use App\Models\DatCorteInvTmp;
 use App\Models\DatRecepcion;
+use App\Models\DatTransferencia;
+use App\Models\DatTransferenciaDetalle;
 use App\Models\MovimientoProducto;
 use App\Models\HistorialMovimientoProducto;
 
@@ -76,6 +79,7 @@ class TransaccionProductoController extends Controller
     {
         $idTiendaDestino = $request->idTiendaDestino;
         $codsArticulo = $request->CodArticulo;
+        $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
         try {
             $almacen = Tienda::where('IdTienda', $idTiendaDestino)
@@ -87,27 +91,59 @@ class TransaccionProductoController extends Controller
             $correoDestinoTienda = Tienda::where('IdTienda', $idTiendaDestino)
                 ->value('Correo');
 
-            $nomOrigenTienda = Tienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            $nomOrigenTienda = Tienda::where('IdTienda', $idTienda)
                 ->value('NomTienda');
 
             DB::beginTransaction();
-            DB::connection('server')->beginTransaction();
 
-            $capRecepcion = new CapRecepcion();
-            $capRecepcion->FechaLlegada = date('d-m-Y H:i:s');
-            $capRecepcion->PackingList = 'TRANSFERENCIA';
-            $capRecepcion->IdTiendaOrigen = Auth::user()->usuarioTienda->IdTienda;
-            $capRecepcion->Almacen = $almacen;
-            $capRecepcion->IdStatusRecepcion = 1;
-            $capRecepcion->IdUsuario = Auth::user()->IdUsuario;
-            $capRecepcion->save();
+            $idCapRecepcion = DB::table('CapRecepcion')
+                ->max('IdCapRecepcion') + 1;
+
+            //Obtener caja
+            $idCaja = DatCaja::where('Status', 0)
+                ->where('Activa', 0)
+                ->where('IdTienda', $idTienda)
+                ->value('IdCaja');
+
+            $recepcion = CapRecepcion::create([
+                'FechaLlegada' => date('d-m-Y H:i:s'),
+                'PackingList' => 'TRANSFERENCIA',
+                'IdTiendaOrigen' => Auth::user()->usuarioTienda->IdTienda,
+                'IdTiendaDestino' => $idTiendaDestino,
+                'idtiporecepcion' => 2,
+                'Almacen' => $almacen,
+                'IdStatusRecepcion' => 2,
+                'IdCajaOrigen' => $idCaja,
+            ]);
+
+            // Guardamos la transferencia
+            $transferencia = new DatTransferencia();
+            $transferencia->IdTransferencia = 0;
+            $transferencia->IdCaja = $idCaja;
+            $transferencia->IdTiendaOrigen = $idTienda;
+            $transferencia->IdTiendaDestino = $idTiendaDestino;
+            $transferencia->FechaTransferencia = date('d-m-Y H:i:s');
+            $transferencia->IdUsuario = Auth::user()->IdUsuario;
+            $transferencia->Subir = 0;
+            $transferencia->save();
+
+            $IdCapRecepcionLocal = CapRecepcion::where('IdCapRecepcion', $recepcion->IdCapRecepcion)->value('IdRecepcionLocal');
+            $IdTransferencia =  DatTransferencia::where('IdDatTransferencia', $transferencia->IdDatTransferencia)->value('IdTransferencia');
 
             foreach ($codsArticulo as $keyCodArticulo => $cantArticulo) {
+                $keyCodArticulo = trim($keyCodArticulo);
                 DatRecepcion::insert([
-                    'IdCapRecepcion' => $capRecepcion->IdCapRecepcion,
+                    'IdCapRecepcion' => $recepcion->IdCapRecepcion,
+                    'IdRecepcionLocal' => $IdCapRecepcionLocal,
                     'CodArticulo' => $keyCodArticulo,
                     'CantEnviada' => $cantArticulo,
                     'IdStatusRecepcion' => 1
+                ]);
+
+                DatTransferenciaDetalle::insert([
+                    'IdTransferencia' => $IdTransferencia,
+                    'CodArticulo' => $keyCodArticulo,
+                    'CantidadTrasferencia' => $cantArticulo
                 ]);
 
                 HistorialMovimientoProducto::insert([
@@ -120,13 +156,13 @@ class TransaccionProductoController extends Controller
                     'IdUsuario' => Auth::user()->IdUsuario
                 ]);
 
-                $stockArticulo = InventarioTienda::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                $stockArticulo = InventarioTienda::where('IdTienda', $idTienda)
                     ->where('CodArticulo', '' . $keyCodArticulo . '')
                     ->value('StockArticulo');
 
                 if ($stockArticulo < $cantArticulo) {
                     DB::rollback();
-                    DB::connection('server')->rollback();
+                    // DB::rollback();
                     return back()->with('msjdelete', 'No Puede Enviar Más Cantidad del Stock Disponible!');
                 }
 
@@ -136,39 +172,38 @@ class TransaccionProductoController extends Controller
                         'StockArticulo' => $stockArticulo - $cantArticulo
                     ]);
 
-                $batch = DatCorteInvTmp::select(DB::raw('Max(CAST(Batch AS int)) as batch'))
-                    ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->value('batch');
+                // $batch = DatCorteInvTmp::select(DB::raw('Max(CAST(Batch AS int)) as batch'))
+                //     ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                //     ->value('batch');
 
 
-                DatCorteInvTmp::insert([
-                    'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
-                    'IdCaja' => 1,
-                    'Codigo' => $keyCodArticulo,
-                    'Cantidad' => -$cantArticulo,
-                    'Fecha_Creacion' => date('d-m-Y H:i:s'),
-                    'Batch' => $batch,
-                    'StatusProcesado' => 0,
-                    'IdMovimiento' => 2
-                ]);
+                // Ya no se pondra aqui, ahora se hara por los procedimientos almacenados
+                // DatCorteInvTmp::insert([
+                //     'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                //     'IdCaja' => 1,
+                //     'Codigo' => $keyCodArticulo,
+                //     'Cantidad' => -$cantArticulo,
+                //     'Fecha_Creacion' => date('d-m-Y H:i:s'),
+                //     'Batch' => $batch,
+                //     'StatusProcesado' => 0,
+                //     'IdMovimiento' => 2
+                // ]);
             }
 
             try {
                 //Envio de Correo de Transferencia de Producto
                 $asunto = 'Se Ha Realizado Una Nueva Transferencia de Producto';
-                $mensaje = 'Envia: ' . $nomOrigenTienda . '. Recibe: ' . $nomDestinoTienda . '. Id de Recepción: ' . $capRecepcion->IdCapRecepcion;
+                $mensaje = 'Envia: ' . $nomOrigenTienda . '. Recibe: ' . $nomDestinoTienda . '. Id de Recepción: ' . $recepcion->IdCapRecepcion;
 
-                $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; " . $correoDestinoTienda . "', '" . $asunto . "', '" . $mensaje . "'";
-                DB::statement($enviarCorreo);
+                //$enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx; " . $correoDestinoTienda . "', '" . $asunto . "', '" . $mensaje . "'";
+                // DB::statement($enviarCorreo);
             } catch (\Throwable $th) {
             }
 
             DB::commit();
-            DB::connection('server')->commit();
             return back()->with('msjAdd', 'Transferencia Exitosa!');
         } catch (\Throwable $th) {
             DB::rollback();
-            DB::connection('server')->rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
             //return $th;
         }

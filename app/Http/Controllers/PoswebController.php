@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Articulo;
 use App\Models\Banco;
-use App\Models\BloqueoEmpleado;
+use App\Models\CatFrecuentesSocios;
 use App\Models\CatPaquete;
-use App\Models\Ciudad;
 use App\Models\ClienteCloudTienda;
 use App\Models\CorteTienda;
 use App\Models\DatAsignacionPreparadosLocal;
@@ -17,7 +16,6 @@ use App\Models\DatEncPedido;
 use App\Models\DatMonederoAcumulado;
 use App\Models\DatTipoPago;
 use App\Models\Empleado;
-use App\Models\FrecuenteSocio;
 use App\Models\Grupo;
 use App\Models\InventarioTienda;
 use App\Models\LimiteCredito;
@@ -29,9 +27,7 @@ use App\Models\PreventaTmp;
 use App\Models\SolicitudFactura;
 use App\Models\TemporalPos;
 use App\Models\Tienda;
-use App\Models\TipoPago;
 use App\Models\TipoPagoTienda;
-use App\Models\UsuarioTienda;
 use App\Models\VentaCreditoEmpleado;
 use DateTime;
 use Illuminate\Http\Request;
@@ -58,15 +54,15 @@ class PoswebController extends Controller
             ->where('NumNomina', $numNomina)
             ->first();
 
-        exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
+        // exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
 
-        if ($codigo === 1) {
-            $frecuenteSocio = null;
-        } else {
-            $frecuenteSocio = FrecuenteSocio::with('TipoCliente')
-                ->where('FolioViejo', $numNomina)
-                ->first();
-        }
+        // if ($codigo === 1) {
+        //     $frecuenteSocio = null;
+        // } else {
+        // }
+        $frecuenteSocio = CatFrecuentesSocios::with('TipoCliente')
+            ->where('FolioViejo', $numNomina)
+            ->first();
 
         if (!empty($cliente)) {
 
@@ -308,7 +304,7 @@ class PoswebController extends Controller
                 ->where('NumNomina', $numNomina)
                 ->first();
 
-            $frecuenteSocio = FrecuenteSocio::with('TipoCliente')
+            $frecuenteSocio = CatFrecuentesSocios::with('TipoCliente')
                 ->where('FolioViejo', $numNomina)
                 ->first();
 
@@ -374,6 +370,8 @@ class PoswebController extends Controller
 
     public function CobroEmpleado(Request $request)
     {
+        $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idPlaza = Tienda::where('TiendaActiva', 0)->value('IdPlaza');
         $numNomina = $request->numNomina;
 
         TemporalPos::where('TemporalPos', 1)
@@ -395,7 +393,7 @@ class PoswebController extends Controller
             $buscarArticulo = Articulo::where('IdArticulo', $pArticulo->IdArticulo)
                 ->first();
 
-            if (empty($numNomina) || $pArticulo->CantArticulo > $empySoc->PesoMaximo) {
+            if (empty($numNomina)) {
                 $articulo = DB::table('CatArticulos as a')
                     ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
@@ -405,6 +403,7 @@ class PoswebController extends Controller
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
+                        'a.PrecioRecorte',
                         'a.Iva',
                         'a.Status',
                         'b.PrecioArticulo',
@@ -413,35 +412,70 @@ class PoswebController extends Controller
                         'c.PorcentajeIva'
                     )
                     ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
-                    ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+                    ->where('d.IdTienda', $idTienda)
                     ->where('c.IdListaPrecio', '<>', 4)
                     ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
                     ->first();
             } else {
-                $articulo = DB::table('CatArticulos as a')
-                    ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
-                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
-                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select(
-                        'a.IdArticulo',
-                        'a.CodArticulo',
-                        'a.NomArticulo',
-                        'a.Peso',
-                        'a.Iva',
-                        'a.Status',
-                        'b.PrecioArticulo',
-                        'c.IdListaPrecio',
-                        'c.NomListaPrecio',
-                        'c.PorcentajeIva'
-                    )
-                    ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
-                    ->where('d.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                    ->where('c.IdListaPrecio', 4)
-                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
-                    ->first();
+                if ($pArticulo->CantArticulo >= 10 && $pArticulo->CantArticulo <= 20 && ((strpos($buscarArticulo->NomArticulo, 'RECORTE') !== false) && strpos($buscarArticulo->NomArticulo, '90/10') !== false || strpos($buscarArticulo->NomArticulo, 'CERDO') !== false)) {
+                    $articulo = DB::table('CatArticulos as a')
+                        ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                        ->select(
+                            'a.IdArticulo',
+                            'a.CodArticulo',
+                            'a.NomArticulo',
+                            'a.Peso',
+                            'a.Iva',
+                            'a.Status',
+                            'b.PrecioArticulo',
+                            'c.IdListaPrecio',
+                            'c.NomListaPrecio',
+                            'c.PorcentajeIva',
+                            'b.IdDatPrecios'
+                        )
+                        ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
+                        ->where('d.IdTienda', $idTienda)
+                        ->where('c.IdListaPrecio', 2)
+                        ->first();
+                } else {
+                    $articulo = DB::table('CatArticulos as a')
+                        ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                        ->select(
+                            'a.IdArticulo',
+                            'a.CodArticulo',
+                            'a.NomArticulo',
+                            'a.Peso',
+                            'a.PrecioRecorte',
+                            'a.Iva',
+                            'a.Status',
+                            'b.PrecioArticulo',
+                            'c.IdListaPrecio',
+                            'c.NomListaPrecio',
+                            'c.PorcentajeIva'
+                        )
+                        ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
+                        ->where('d.IdTienda', $idTienda)
+                        ->where('c.IdListaPrecio', 4)
+                        // ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
+                        ->first();
+                }
             }
 
-            $subTotal = $articulo->PrecioArticulo * $pArticulo->CantArticulo;
+            // Buscamos si el producto cuenta con descuento
+            $sp_descuento = DB::select('exec SP_DESCUENTOS ' . $idTienda . ',' . $idPlaza . ',' . $articulo->IdArticulo . '');
+            $descuentoArt = $sp_descuento[0]->Descuento;
+            $IdEncDescuento = $sp_descuento[0]->IdEncDescuento;
+
+            $precioArticulo = $descuentoArt == '.00' ? $articulo->PrecioArticulo : $descuentoArt;
+
+            // Buscamos si el es precio de recorte
+            $precioVenta = ($pArticulo->Recorte == '0' ? $articulo->PrecioRecorte : $precioArticulo);
+            $subTotal = $precioVenta * $pArticulo->CantArticulo;
+
             if ($articulo->Iva == 0) {
                 $iva = $subTotal * $articulo->PorcentajeIva;
             } else {
@@ -463,11 +497,12 @@ class PoswebController extends Controller
                     ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
                     ->update([
                         'PrecioLista' => $articulo->PrecioArticulo,
-                        'PrecioVenta' => $articulo->PrecioArticulo,
+                        'PrecioVenta' => $precioVenta,
                         'IdListaPrecio' => empty($numNomina) ? $articulo->IdListaPrecio : 4,
                         'SubTotalArticulo' => $subTotal,
                         'IvaArticulo' => $iva,
                         'ImporteArticulo' => $total,
+                        'IdEncDescuento' => isset($IdEncDescuento) && $IdEncDescuento != 0 ? $IdEncDescuento : null,
                     ]);
             } else {
                 PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -614,6 +649,8 @@ class PoswebController extends Controller
         try {
             DB::beginTransaction();
 
+            $idTienda = Auth::user()->usuarioTienda->IdTienda;
+            $idPlaza = Tienda::where('TiendaActiva', 0)->value('IdPlaza');
             $preventa = PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
                 ->get();
 
@@ -636,6 +673,7 @@ class PoswebController extends Controller
                         'a.CodArticulo',
                         'a.NomArticulo',
                         'a.Peso',
+                        'a.PrecioRecorte',
                         'a.Iva',
                         'a.Status',
                         'b.PrecioArticulo',
@@ -649,9 +687,16 @@ class PoswebController extends Controller
                     ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pArticulo->CantArticulo)
                     ->first();
 
-                //return $articulo;
+                // Buscamos si el producto cuenta con descuento
+                $sp_descuento = DB::select('exec SP_DESCUENTOS ' . $idTienda . ',' . $idPlaza . ',' . $articulo->IdArticulo . '');
+                $descuentoArt = $sp_descuento[0]->Descuento;
+                $IdEncDescuento = $sp_descuento[0]->IdEncDescuento;
+                $precioArticulo = $descuentoArt == '.00' ? $articulo->PrecioArticulo : $descuentoArt;
 
-                $subTotal = $articulo->PrecioArticulo * $pArticulo->CantArticulo;
+                // Buscamos si el es precio de recorte
+                $precioVenta = ($pArticulo->Recorte == '0' ? $articulo->PrecioRecorte : $precioArticulo);
+                $subTotal = $precioVenta * $pArticulo->CantArticulo;
+
                 if ($articulo->Iva == 0) {
                     $iva = $subTotal * $articulo->PorcentajeIva;
                 } else {
@@ -668,11 +713,12 @@ class PoswebController extends Controller
                         ->where('IdDatVentaTmp', $pArticulo->IdDatVentaTmp)
                         ->update([
                             'PrecioLista' => $articulo->PrecioArticulo,
-                            'PrecioVenta' => $articulo->PrecioArticulo,
+                            'PrecioVenta' => $precioVenta,
                             'IdListaPrecio' => $articulo->IdListaPrecio,
                             'SubTotalArticulo' => $subTotal,
                             'IvaArticulo' => $iva,
                             'ImporteArticulo' => $total,
+                            'IdEncDescuento' => isset($IdEncDescuento) && $IdEncDescuento != 0 ? $IdEncDescuento : null,
                         ]);
                 } else {
                     PreventaTmp::where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
@@ -699,7 +745,9 @@ class PoswebController extends Controller
             ->value('NumNomina');
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $idPlaza = Tienda::where('TiendaActiva', 0)->value('IdPlaza');
         $cantidad = $request->txtCantidad;
+        $recorte = $request->recorte;
         $codigo = $request->txtCodigo;
 
         //Extraer codigo de etiqueta
@@ -712,6 +760,8 @@ class PoswebController extends Controller
         $empySoc = ListaPrecio::where('IdListaPrecio', 4)
             ->first();
 
+        // Obtenemos el articulo
+        $articuloCod = Articulo::where('CodEtiqueta', $codEtiqueta)->first();
         //return $empySoc;
 
         if ($inicio == '200') {
@@ -719,7 +769,14 @@ class PoswebController extends Controller
 
             $nombreArticulos = Articulo::where('CodEtiqueta', $codEtiqueta)->value('NomArticulo');
 
-            if (empty($numNomina) || $peso > $empySoc->PesoMaximo) {
+            if (empty($numNomina)) {
+                $listaPrecioTienda = DB::table('CatListasPrecio as a')
+                    ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
+                    ->where('b.IdTienda', $idTienda)
+                    ->where('a.IdListaPrecio', '<>', 4)
+                    ->whereRaw('? between a.PesoMinimo and a.PesoMaximo', $peso)
+                    ->first();
+            } else {
                 if ($peso >= 10 && $peso <= 20 && ((strpos($nombreArticulos, 'RECORTE') !== false) && strpos($nombreArticulos, '90/10') !== false || strpos($nombreArticulos, 'CERDO') !== false)) {
                     $listaPrecioTienda = DB::table('CatListasPrecio as a')
                         ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
@@ -730,17 +787,10 @@ class PoswebController extends Controller
                     $listaPrecioTienda = DB::table('CatListasPrecio as a')
                         ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
                         ->where('b.IdTienda', $idTienda)
-                        ->where('a.IdListaPrecio', '<>', 4)
+                        ->where('a.IdListaPrecio', 4)
                         ->whereRaw('? between a.PesoMinimo and a.PesoMaximo', $peso)
                         ->first();
                 }
-            } else {
-                $listaPrecioTienda = DB::table('CatListasPrecio as a')
-                    ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
-                    ->where('b.IdTienda', $idTienda)
-                    ->where('a.IdListaPrecio', 4)
-                    ->whereRaw('? between a.PesoMinimo and a.PesoMaximo', $peso)
-                    ->first();
             }
 
             //return $listaPrecioTienda;
@@ -750,7 +800,30 @@ class PoswebController extends Controller
                 return redirect()->route('Pos')->with('Pos', 'La Tienda no Tiene la Lista de Precio, Para el Peso: ' . number_format($peso, 2));
             }
 
-            if (empty($numNomina) || $peso > $empySoc->PesoMaximo) {
+            if (empty($numNomina)) {
+                $articulo = DB::table('CatArticulos as a')
+                    ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                    ->select(
+                        'a.IdArticulo',
+                        'a.CodArticulo',
+                        'a.NomArticulo',
+                        'a.Peso',
+                        'a.Iva',
+                        'a.Status',
+                        'b.PrecioArticulo',
+                        'c.IdListaPrecio',
+                        'c.NomListaPrecio',
+                        'c.PorcentajeIva',
+                        'b.IdDatPrecios'
+                    )
+                    ->where('a.CodEtiqueta', $codEtiqueta)
+                    ->where('d.IdTienda', $idTienda)
+                    ->where('c.IdListaPrecio', '<>', 4)
+                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso)
+                    ->first();
+            } else {
                 if ($peso >= 10 && $peso <= 20 && ((strpos($nombreArticulos, 'RECORTE') !== false) && strpos($nombreArticulos, '90/10') !== false || strpos($nombreArticulos, 'CERDO') !== false)) {
                     $articulo = DB::table('CatArticulos as a')
                         ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
@@ -793,38 +866,16 @@ class PoswebController extends Controller
                         )
                         ->where('a.CodEtiqueta', $codEtiqueta)
                         ->where('d.IdTienda', $idTienda)
-                        ->where('c.IdListaPrecio', '<>', 4)
+                        ->where('c.IdListaPrecio', 4)
                         ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso)
                         ->first();
                 }
-            } else {
-                $articulo = DB::table('CatArticulos as a')
-                    ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
-                    ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
-                    ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                    ->select(
-                        'a.IdArticulo',
-                        'a.CodArticulo',
-                        'a.NomArticulo',
-                        'a.Peso',
-                        'a.Iva',
-                        'a.Status',
-                        'b.PrecioArticulo',
-                        'c.IdListaPrecio',
-                        'c.NomListaPrecio',
-                        'c.PorcentajeIva',
-                        'b.IdDatPrecios'
-                    )
-                    ->where('a.CodEtiqueta', $codEtiqueta)
-                    ->where('d.IdTienda', $idTienda)
-                    ->where('c.IdListaPrecio', 4)
-                    ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso)
-                    ->first();
             }
 
             //return $articulo;
 
         } else {
+            $nombreArticulos = Articulo::where('CodEtiqueta', $codEtiqueta)->value('NomArticulo');
             $articuloPorAmece = Articulo::where('Amece', $codigo)
                 ->where('Status', 0)
                 ->first();
@@ -845,7 +896,7 @@ class PoswebController extends Controller
 
                 is_null($cantidad) ? $pesoFijo = $pesoFijo : $pesoFijo = $cantidad;
 
-                if (empty($numNomina) || $pesoFijo > $empySoc->PesoMaximo) {
+                if (empty($numNomina)) {
                     $listaPrecioTienda = DB::table('CatListasPrecio as a')
                         ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
                         ->where('b.IdTienda', $idTienda)
@@ -853,12 +904,20 @@ class PoswebController extends Controller
                         ->whereRaw('? between a.PesoMinimo and a.PesoMaximo', $pesoFijo)
                         ->first();
                 } else {
-                    $listaPrecioTienda = DB::table('CatListasPrecio as a')
-                        ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
-                        ->where('b.IdTienda', $idTienda)
-                        ->where('a.IdListaPrecio', 4)
-                        ->whereRaw('? between a.PesoMinimo and a.PesoMaximo', $pesoFijo)
-                        ->first();
+                    if ($peso >= 10 && $peso <= 20 && ((strpos($nombreArticulos, 'RECORTE') !== false) && strpos($nombreArticulos, '90/10') !== false || strpos($nombreArticulos, 'CERDO') !== false)) {
+                        $listaPrecioTienda = DB::table('CatListasPrecio as a')
+                            ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
+                            ->where('b.IdTienda', $idTienda)
+                            ->where('a.IdListaPrecio', 2)
+                            ->first();
+                    } else{
+                        $listaPrecioTienda = DB::table('CatListasPrecio as a')
+                            ->leftJoin('DatListaPrecioTienda as b', 'b.IdListaPrecio', 'a.IdListaPrecio')
+                            ->where('b.IdTienda', $idTienda)
+                            ->where('a.IdListaPrecio', 4)
+                            //->whereRaw('? between a.PesoMinimo and a.PesoMaximo', $pesoFijo)
+                            ->first();
+                    }
                 }
 
                 //La Tienda no tiene esa lista de precio
@@ -866,7 +925,7 @@ class PoswebController extends Controller
                     return redirect()->route('Pos')->with('Pos', 'La Tienda no Tiene la Lista de Precio, Para el Peso: ' . number_format($pesoFijo, 2));
                 }
 
-                if (empty($numNomina) || $pesoFijo > $empySoc->PesoMaximo) {
+                if (empty($numNomina)) {
                     $articulo = DB::table('CatArticulos as a')
                         ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
                         ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
@@ -880,21 +939,37 @@ class PoswebController extends Controller
 
                     // return $articulo;
                 } else {
-                    $articulo = DB::table('CatArticulos as a')
-                        ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
-                        ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
-                        ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
-                        ->where('a.Amece', $codigo)
-                        ->where('d.IdTienda', $idTienda)
-                        ->where('c.IdListaPrecio', 4)
-                        ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pesoFijo)
-                        ->first();
+                    if ($peso >= 10 && $peso <= 20 && ((strpos($nombreArticulos, 'RECORTE') !== false) && strpos($nombreArticulos, '90/10') !== false || strpos($nombreArticulos, 'CERDO') !== false)) {
+                        $articulo = DB::table('CatArticulos as a')
+                            ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                            ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                            ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                            ->where('a.Amece', $codigo)
+                            ->where('d.IdTienda', $idTienda)
+                            ->where('c.IdListaPrecio', 2)
+                            ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pesoFijo)
+                            ->first();
+                    }else{
+                        $articulo = DB::table('CatArticulos as a')
+                            ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
+                            ->leftJoin('CatListasPrecio as c', 'c.IdListaPrecio', 'b.IdListaPrecio')
+                            ->leftJoin('DatListaPrecioTienda as d', 'd.IdListaPrecio', 'c.IdListaPrecio')
+                            ->where('a.Amece', $codigo)
+                            ->where('d.IdTienda', $idTienda)
+                            ->where('c.IdListaPrecio', 4)
+                            ->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $pesoFijo)
+                            ->first();
+                    }
                 }
             }
             //Asignar el peso segun el peso escrito en el txt o el peso fijo
             $peso = $pesoFijo;
         }
 
+        // Verificamos que el producto tenga precio de recorte
+        if ($recorte == 1 && ($articuloCod->PrecioRecorte == 0 || $articuloCod->PrecioRecorte == null)) {
+            return redirect()->route('Pos')->with('Pos', 'El producto no tiene precio de recorte: ' . $codigo);
+        }
         //Si el peso de la etiqueta es igual a 0
         if ($peso == 0) {
             return redirect()->route('Pos')->with('Pos', 'La Etiqueta No Trae Peso: ' . $codigo);
@@ -941,10 +1016,25 @@ class PoswebController extends Controller
         $idDatVentaTmp = PreventaTmp::where('IdTienda', $idTienda)
             ->max('IdDatVentaTmp') + 1;
 
-        $subTotal = $articulo->PrecioArticulo * $peso;
-        $subTotalArticulo = number_format($subTotal, 2);
-        $importe = $subTotal + $ivaArticulo;
-        $importeArticulo = number_format($importe, 2);
+        if ($recorte == 1) {
+            $subTotal = $articuloCod->PrecioRecorte * $peso;
+            $subTotalArticulo = number_format($subTotal, 2);
+            $importe = $subTotal + $ivaArticulo;
+            $precioLista = $articulo->PrecioArticulo;
+            $precioVenta = number_format($articuloCod->PrecioRecorte, 2);
+            $importeArticulo = number_format($importe, 2);
+        } else {
+            $sp_descuento = DB::select('exec SP_DESCUENTOS ' . $idTienda . ',' . $idPlaza . ',' . $articulo->IdArticulo . '');
+            $descuentoArt = $sp_descuento[0]->Descuento;
+            $IdEncDescuento = $sp_descuento[0]->IdEncDescuento;
+
+            $subTotal = ($descuentoArt == '.00' ? $articulo->PrecioArticulo : $descuentoArt) * $peso;
+            $subTotalArticulo = number_format($subTotal, 2);
+            $importe = $subTotal + $ivaArticulo;
+            $precioLista = $articulo->PrecioArticulo;
+            $precioVenta = ($descuentoArt == '.00' ? $articulo->PrecioArticulo : $descuentoArt);
+            $importeArticulo = number_format($importe, 2);
+        }
 
         DB::table('DatVentaTmp')
             ->insert([
@@ -952,14 +1042,16 @@ class PoswebController extends Controller
                 'IdTienda' => $idTienda,
                 'IdArticulo' => $articulo->IdArticulo,
                 'CantArticulo' => $peso,
-                'PrecioLista' => $articulo->PrecioArticulo,
-                'PrecioVenta' => $articulo->PrecioArticulo,
+                'PrecioLista' => $precioLista,
+                'PrecioVenta' => $precioVenta,
                 'IdListaPrecio' => $articulo->IdListaPrecio,
                 'IvaArticulo' => $ivaArticulo,
                 'SubTotalArticulo' => $subTotalArticulo,
                 'ImporteArticulo' => $importeArticulo,
                 'Status' => 0,
                 'IdDatPrecios' => $articulo->IdDatPrecios,
+                'Recorte' => $recorte == 1 ? 0 : 1,
+                'IdEncDescuento' => isset($IdEncDescuento) && $IdEncDescuento != 0 ? $IdEncDescuento : null,
             ]);
 
         return redirect()->route('Pos');
@@ -1084,22 +1176,23 @@ class PoswebController extends Controller
                 $pago = $request->txtPago;
 
                 // Aqui obtenemos la preventa
-                $detalle = PreventaTmp::where('IdTienda', $idTienda)
-                    ->get();
+                $detalle = PreventaTmp::get();
 
-                $subTotal = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('SubTotalArticulo');
+                $subTotal = PreventaTmp::sum('SubTotalArticulo');
 
                 $subTotalVenta = number_format($subTotal, 2);
 
-                $iva = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('IvaArticulo');
+                $iva = PreventaTmp::sum('IvaArticulo');
                 $ivaVenta = number_format($iva, 2);
 
-                $totalVentaSinFormat = PreventaTmp::where('IdTienda', $idTienda)
-                    ->sum('ImporteArticulo') - $temporalPos->MonederoDescuento;
+                $totalVentaSinFormat = PreventaTmp::sum('ImporteArticulo') - $temporalPos->MonederoDescuento;
 
-                $totalVenta = number_format($totalVentaSinFormat, 2); // format a la venta (2)
+                Log::info('Total de venta sin formato');
+                Log::info($totalVentaSinFormat);
+
+                $totalVenta = round($totalVentaSinFormat, 2); // format a la venta (2)
+                Log::info('Total de venta:');
+                Log::info($totalVenta);
 
                 // TODO:: Tickets
                 $fechaActual = date("Y-m-d");
@@ -1197,6 +1290,7 @@ class PoswebController extends Controller
                 }
 
                 if ($idTipoPago != 1 && $pago > $totalVenta) {
+                    return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1):' . $pago . '   :' . $totalVenta);
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
                 }
 
@@ -1206,7 +1300,7 @@ class PoswebController extends Controller
                 // TODO:: DatEncabezado
                 DB::table('DatEncabezado')
                     ->insert([
-                        'IdEncabezado' => -1,
+                        'IdEncabezado' => -2,
                         'IdTienda' => $idTienda,
                         'IdDatCaja' => $caja->IdDatCajas,
                         'IdTicket' => $idTicket,
@@ -1258,9 +1352,9 @@ class PoswebController extends Controller
                         'IdEncabezado' => $idEncabezado,
                         'IdArticulo' => $detalle->IdArticulo,
                         'CantArticulo' => $detalle->CantArticulo,
+                        'PrecioLista' => $detalle->PrecioLista,
                         'PrecioArticulo' => $detalle->PrecioVenta,
                         'IdListaPrecio' => $detalle->IdListaPrecio,
-                        'PrecioRecorte' => null,
                         'CapturaManual' => null,
                         'ImporteArticulo' => $detalle->ImporteArticulo,
                         'IvaArticulo' => $detalle->IvaArticulo,
@@ -1269,12 +1363,16 @@ class PoswebController extends Controller
                         'IdPedido' => $detalle->IdPedido,
                         'IdDatPrecios' => $detalle->IdDatPrecios,
                         'Linea' => $index + 1,
+                        'Recorte' => $detalle->Recorte == '0' ? 0 : 1,
+                        'IdEncDescuento' => $detalle->IdEncDescuento,
                     ]);
                 }
 
-                $importeVenta = PreventaTmp::where('IdTienda', $idTienda)
-                    ->select('ImporteArticulo')
+                $importeVenta = PreventaTmp::select('ImporteArticulo')
                     ->sum('ImporteArticulo');
+
+                // Formatear el valor con dos decimales
+                // $importeVentaFormateado = number_format($importeVenta, 2);
 
                 //Si hay IdPedido en el detalle para marcarlo como vendido
                 if ($idPedidoDist != null) {
@@ -1284,6 +1382,11 @@ class PoswebController extends Controller
                             'Status' => 2,
                         ]);
                 }
+
+                Log::info('Importes de venta y cantidad de pago');
+                Log::info('Pago: ' . $pago);
+                Log::info('Importe ventadasjip: ' . $importeVenta);
+                Log::info($pago > $importeVenta || $pago == $importeVenta);
 
                 if ($pago > $importeVenta || $pago == $importeVenta) {
 
@@ -1954,8 +2057,8 @@ class PoswebController extends Controller
             },
         ])
             ->where('IdTienda', $idTienda)
-            ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
-            ->distinct('Bill_To')
+            ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+            ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
             ->whereIn('Bill_To', $billsTo)
             ->get();
 
