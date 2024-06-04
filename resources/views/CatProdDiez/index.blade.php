@@ -6,10 +6,12 @@
         <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
             @include('components.title', ['titulo' => 'Catálogo Productos Cambio de Lista'])
             <div>
-                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar Producto
-                </button>
+                @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
+                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                        <i class="fa fa-plus-circle pe-1"></i> Agregar Producto
+                    </button>
+                @endif
                 <a class="btn btn-dark-outline" href="/CatProdDiez">
                     <span class="material-icons">refresh</span>
                 </a>
@@ -44,9 +46,10 @@
                         <th>Lista Precio</th>
                         <th>Usuario</th>
                         <th>Fecha Creación</th>
-                        <th>Estatus</th>
-                        {{-- <th>Editar</th> --}}
-                        <th class="rounded-end">Eliminar</th>
+                        <th class="{{ Auth::user()->tipoUsuario->IdTipoUsuario == 2 ? 'rounded-end' : '' }}">Estatus</th>
+                        @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
+                            <th class="rounded-end">Eliminar</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -71,13 +74,15 @@
                                         <i class="fs-5 fa fa-times-circle-o" aria-hidden="true"></i>
                                     @endif
                                 </td>
-                                <td>
-                                    <button class="btn" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEliminarConfirm{{ $item->IdCatProdDiez }}">
-                                        <span style="color: red" class="material-icons">delete_forever</span>
-                                    </button>
-                                    @include('CatProdDiez.ModalEliminarConfirm')
-                                </td>
+                                @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
+                                    <td>
+                                        <button class="btn" data-bs-toggle="modal"
+                                            data-bs-target="#ModalEliminarConfirm{{ $item->IdCatProdDiez }}">
+                                            <span style="color: red" class="material-icons">delete_forever</span>
+                                        </button>
+                                        @include('CatProdDiez.ModalEliminarConfirm')
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     @endif
