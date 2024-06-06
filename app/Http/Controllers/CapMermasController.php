@@ -123,12 +123,12 @@ class CapMermasController extends Controller
                     ->sum('StockArticulo');
 
                 //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO WEB
-                DB::table('DatInventario')
-                    ->where('IdTienda', $idTienda)
-                    ->where('CodArticulo', $merma->CodArticulo)
-                    ->update([
-                        'StockArticulo' => $stock - $merma->CantArticulo
-                    ]);
+                // DB::table('DatInventario')
+                //     ->where('IdTienda', $idTienda)
+                //     ->where('CodArticulo', $merma->CodArticulo)
+                //     ->update([
+                //         'StockArticulo' => $stock - $merma->CantArticulo
+                //     ]);
 
                 //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO LOCAL
                 InventarioTienda::where('IdTienda', $idTienda)
