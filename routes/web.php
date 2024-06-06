@@ -868,6 +868,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/EliminarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EliminarDescuento');
 
     //+============================================================================================================================================+//
+    //CatProdDiez
+    Route::get('/CatProdDiez', 'App\Http\Controllers\CatProdDiezController@index')->name('CatProdDiez.index');
+
+    //CrearCatProdDiez
+    Route::post('/CrearCatProdDiez', 'App\Http\Controllers\CatProdDiezController@store');
+
+    //EliminarCatProdDiez
+    Route::delete('/EliminarCatProdDiez/{id}', 'App\Http\Controllers\CatProdDiezController@destroy');
+
+    //+============================================================================================================================================+//
     //CatRosticero
     Route::get('/CatRosticero', 'App\Http\Controllers\RosticeroController@CatRosticero');
 
