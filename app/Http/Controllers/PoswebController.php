@@ -1064,9 +1064,9 @@ class PoswebController extends Controller
                 $clienteCloud = ClienteCloudTienda::where('IdListaPrecio', $item->IdListaPrecio)
                     ->where('IdTipoPago', $request->tipoPago)
                     ->first();
-                if (empty($clienteCloud)) {
+                if (empty($clienteCloud) && $request->tipoPago != 7) {
                     $listaprecio = ListaPrecio::where('IdListaPrecio', $item->IdListaPrecio)->first();
-                    return redirect('Pos')->with('msjupdate', 'La lista de precios ' . $listaprecio->NomListaPrecio . ' no esta asignada para este usuario.');
+                    return redirect('Pos')->with('msjupdate', 'La lista de precios ' . $listaprecio->NomListaPrecio . ' no tiene cliente para este tipo de pago.');
                 }
             }
 
