@@ -2,224 +2,252 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Articulo;
+use App\Models\CatRosticeroArticulos;
+use App\Models\DatCaja;
+use App\Models\DatDetalleRosticero;
 use Illuminate\Http\Request;
+use App\Models\DatRosticero;
+use App\Models\HistorialMovimientoProducto;
+use App\Models\InventarioTienda;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\CatTipoDescuento;
-use App\Models\DatDetDescuentos;
-use App\Models\DatEncDescuentos;
-use App\Models\ListaPrecio;
-use App\Models\Plaza;
-use App\Models\Tienda;
 
 class RosticeroController extends Controller
 {
     // ECHO
     public function VerRosticero(Request $request)
     {
-        $nomDescuento = $request->nomDescuento;
+        $rostisados = DatRosticero::with('Detalle')
+            ->leftjoin('CatArticulos as a', 'a.CodArticulo', 'DatRosticero.CodigoVenta')
+            ->orderBy('Fecha', 'desc')
+            ->paginate(10);
 
-        $descuentos = DatEncDescuentos::with(['ArticulosDescuento' => function ($articulos) {
-            $articulos->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetDescuentos.IdArticulo');
-            $articulos->leftJoin('CatListasPrecio', 'CatListasPrecio.IdListaPrecio', 'DatDetDescuentos.IdListaPrecio');
-        }])
-            ->leftjoin('CatTipoDescuento', 'CatTipoDescuento.IdTipoDescuento', 'DatEncDescuentos.TipoDescuento')
-            ->leftjoin('CatPlazas', 'CatPlazas.IdPlaza', 'DatEncDescuentos.IdPlaza')
-            ->leftjoin('CatTiendas', 'CatTiendas.IdTienda', 'DatEncDescuentos.IdTienda')
-            ->where('NomDescuento', 'like', '%' . $nomDescuento . '%')
-            ->where('DatEncDescuentos.Status', 0)
+        $articulos = CatRosticeroArticulos::select('CatRosticeroArticulos.*', 'a.NomArticulo as articuloPrima', 'b.NomArticulo as articuloVenta')
+            ->leftjoin('CatArticulos as a', 'a.CodArticulo', 'CatRosticeroArticulos.CodigoMatPrima')
+            ->leftjoin('CatArticulos as b', 'b.CodArticulo', 'CatRosticeroArticulos.CodigoVenta')
             ->get();
 
-        $descuentosActivos = DatEncDescuentos::where('Status', 0)
-            ->count();
-
-        //return $paquetes;
-
-        return view('Rosticero.VerRosticero', compact('descuentos', 'nomDescuento', 'descuentosActivos'));
+        return view('Rosticero.VerRosticero', compact('rostisados', 'articulos'));
     }
 
-    // ECHO
-    public function CatRosticero(Request $request)
+    public function CrearRosticero(Request $request)
     {
-        $nomDescuento = $request->nomDescuento;
+        try {
+            DB::beginTransaction();
 
-        $tiposdescuentos = CatTipoDescuento::where('status', 0)->get();
-        $tiendas = Tienda::where('status', 0)->get();
-        $plazas = Plaza::where('status', 0)->get();
+            $idTienda = Auth::user()->usuarioTienda->IdTienda;
+            $caja = DatCaja::where('Activa', 0)->where('Status', 0)->first();
+            $rostisado = CatRosticeroArticulos::where('IdCatRosticeroArticulos', $request->CodigoVenta)->first();
+            $MermaStnd = $request->CantidadMatPrima * ($rostisado->PorcentajeMerma / 100);
 
-        return view('Rosticero.CatRosticero', compact('nomDescuento', 'tiposdescuentos', 'tiendas', 'plazas'));
+            // Validamos stock en el producto prima
+            $stock = InventarioTienda::where('CodArticulo', $rostisado->CodigoMatPrima)->first();
+            if ($stock == null || $stock->StockArticulo < $request->CantidadMatPrima) {
+                return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');;
+            }
+
+            // Agregamos el rostisado
+            DatRosticero::create([
+                'IdRosticero' => 0,
+                'CodigoMatPrima' => $rostisado->CodigoMatPrima,
+                'CantidadMatPrima' => $request->CantidadMatPrima,
+                'CodigoVenta' => $rostisado->CodigoVenta,
+                'CantidadVenta' => 0,
+                'IdTienda' => $caja->IdTienda,
+                'IdCaja' => $caja->IdCaja,
+                'Fecha' => date("Y-d-m H:i:s"),
+                'MermaStnd' => $MermaStnd,
+                'MermaReal' => $request->CantidadMatPrima,
+                'Disponible' => 0,
+                'IdUsuario' => Auth::user()->IdUsuario
+            ]);
+
+            //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO LOCAL
+            InventarioTienda::where('IdTienda', $idTienda)
+                ->where('CodArticulo', $rostisado->CodigoMatPrima)
+                ->update([
+                    'StockArticulo' => $stock->StockArticulo - $request->CantidadMatPrima
+                ]);
+
+            DB::commit();
+            return back()->with('msjAdd', 'La sentencia se ejecuto correctamente');
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $e->getMessage());
+        }
     }
 
-    public function BuscarCodArticuloPaquqete(Request $request)
+    public function EditarRosticero($id, Request $request)
     {
-        $codArticulo = $request->codArticulo;
-
-        $articulo =  DB::table('CatArticulos as a')
-            ->select('a.NomArticulo', 'b.PrecioArticulo')
-            ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
-            ->where('a.CodArticulo', $codArticulo)
+        $rostisado = CatRosticeroArticulos::where('IdCatRosticeroArticulos', $request->CodigoMatPrima)
             ->first();
 
-        $pArticulo = empty($articulo) ? '' : $articulo->NomArticulo . ' - $' . $articulo->PrecioArticulo;
 
-        return $pArticulo;
+        $MermaStnd = $request->CantidadMatPrima * ($rostisado->PorcentajeMerma / 100);
+        $MermaReal = $request->CantidadMatPrima - $request->CantidadVenta;
+
+        DatRosticero::where('IdDatRosticero', $id)
+            ->update([
+                'CodigoMatPrima' => $rostisado->CodigoMatPrima,
+                'CantidadMatPrima' => $request->CantidadMatPrima,
+                'CodigoVenta' => $rostisado->CodigoVenta,
+                'CantidadVenta' => $request->CantidadVenta,
+                'MermaStnd' => $MermaStnd,
+                'MermaReal' => $MermaReal,
+                'Disponible' => $request->CantidadVenta,
+                'IdUsuario' => Auth::user()->IdUsuario,
+                'Subir' => 0
+            ]);
+        return back()->with('msjAdd', 'La sentencia se ejecuto correctamente');
     }
 
-    // ECHO
-    public function GuardarDescuento(Request $request)
+    public function AgregarDetalleRosticero($id, Request $request)
     {
-        $IdEncDescuento = $request->IdEncDescuento;
-        $nomDescuento = $request->nomDescuento;
-        try {
-            if ($request->fechaInicio > $request->fechaFin) {
-                return back()->with('msjdelete', 'La fecha de inicio no puede ser mayor a la fecha de fin.');
-            }
-            DB::beginTransaction();
-            // Comprobamos si trae id de descuento, para saber si es actualizacion o insercion
-            if ($IdEncDescuento != null) {
-                DatEncDescuentos::where('IdEncDescuento', $IdEncDescuento)
-                    ->update([
-                        'NomDescuento' => strtoupper($nomDescuento),
-                        'TipoDescuento' => $request->tipoDescuento,
-                        'FechaInicio' => $request->fechaInicio,
-                        'FechaFin' => $request->fechaFin,
-                        'FechaCreacion' => date('d-m-Y H:i:s'),
-                        'IdTienda' => $request->idTienda,
-                        'IdPlaza' => $request->idPlaza,
-                        'Status' => 0
-                    ]);
-            } else {
-                $catDescuento = new DatEncDescuentos();
-                $catDescuento->NomDescuento = strtoupper($nomDescuento);
-                $catDescuento->TipoDescuento = $request->tipoDescuento;
-                $catDescuento->FechaInicio = $request->fechaInicio;
-                $catDescuento->FechaFin = $request->fechaFin;
-                $catDescuento->FechaCreacion = date('d-m-Y H:i:s');
-                $catDescuento->IdTienda = $request->idTienda;
-                $catDescuento->IdPlaza = $request->idPlaza;
-                $catDescuento->Status = 0;
-                $catDescuento->save();
-            }
-            DB::commit();
+        $codigo = $request->codigo;
+        $codEtiqueta = substr($codigo, 3, 4);
+        $primerPeso = substr($codigo, 7, 5);
+        $peso = $primerPeso / 1000;
 
-            $IdEncDescuento = $IdEncDescuento != null ? $IdEncDescuento : $catDescuento->IdEncDescuento;
-            $msg = $IdEncDescuento != null ? 'El descuento quedo actualizado correctamente.' : 'Se Agrego el Descuento: ' . $catDescuento->nomDescuento;
+        $CodArticulo = Articulo::where('codEtiqueta', $codEtiqueta)->value('CodArticulo');
+        $rostisado = DatRosticero::where('IdRosticero', $id)->first();
 
-            return redirect('EditarDescuento/' . $IdEncDescuento)->with('msjAdd', $msg);
-        } catch (\Throwable $th) {
-            return back()->with('msjdelete', 'Error : ' . $th->getMessage());
-            DB::rollback();
-        }
-    }
-
-    // ECHO
-    public function EditarDescuento(Request $request, $IdEncDescuento)
-    {
-        try {
-            DB::beginTransaction();
-
-            $descuento = DatEncDescuentos::where('IdEncDescuento', $IdEncDescuento)
-                ->where('status', 0)
-                ->whereNull('FechaDesactivar')
-                ->first();
-
-            if ($descuento == null) {
-                return back()->with('msjdelete', 'No Existe el Descuento con el Id: ' . $IdEncDescuento);
-            }
-
-            $detalle = DatDetDescuentos::where('IdEncDescuento', $IdEncDescuento)
-                ->leftjoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetDescuentos.IdArticulo')
-                ->leftjoin('CatListasPrecio', 'CatListasPrecio.IdListaPrecio', 'DatDetDescuentos.IdListaPrecio')->get();
-            $tiposdescuentos = CatTipoDescuento::where('status', 0)->get();
-            $tiendas = Tienda::where('status', 0)->get();
-            $plazas = Plaza::where('status', 0)->get();
-            $ListaPrecio = ListaPrecio::get();
-
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollback();
-            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        if ($rostisado->CodigoVenta != $CodArticulo) {
+            return back()->with('msjdelete', 'El producto no se pertenece a este rostisado.');
         }
 
-        return view('Descuentos.EditarDescuento', compact('descuento', 'detalle', 'tiposdescuentos', 'tiendas', 'plazas', 'ListaPrecio'));
+        // Agregamos el detalle del rostisado
+        DatDetalleRosticero::create([
+            'IdRosticero' => $id,
+            'CodigoArticulo' => $CodArticulo,
+            'Cantidad' => $peso,
+            'FechaCreacion' => date("Y-d-m H:i:s"),
+            'subir' => 0
+        ]);
+
+        // Actualizamos el rostisado
+        DatRosticero::where('IdRosticero', $id)
+            ->update([
+                'CantidadVenta' => $rostisado->CantidadVenta + $peso,
+                'MermaReal' => $rostisado->MermaReal - $peso,
+            ]);
+
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'id' => $id]);
     }
 
-    // ECHO
-    public function EditarDescuentoExistente(Request $request, $idDescuento)
+    public function ApiAgregarDetalleRosticero($id, Request $request)
     {
-        $codsArticulo = $request->CodArticulo ?? [];
-        $listaPrecios = $request->listaPrecios;
-        $preciosArticulo = $request->PrecioArticulo;
+        $codigo = $request->codigo;
+        $codEtiqueta = substr($codigo, 3, 4);
+        $primerPeso = substr($codigo, 7, 5);
+        $peso = $primerPeso / 1000;
 
+        $CodArticulo = Articulo::where('codEtiqueta', $codEtiqueta)->value('CodArticulo');
+        $rostisado = DatRosticero::where('IdRosticero', $id)->first();
+
+        if ($rostisado->CodigoVenta != $CodArticulo) {
+            return response()->json([
+                'ok' => 'false',
+                'msj' => 'El producto no se pertenece a este rostisado.',
+            ]);
+        }
+
+        // Agregamos el detalle del rostisado
+        // DatDetalleRosticero::create([
+        //     'IdRosticero' => $id,
+        //     'CodigoArticulo' => $CodArticulo,
+        //     'Cantidad' => $peso,
+        //     'FechaCreacion' => date("Y-d-m H:i:s"),
+        //     'subir' => 0
+        // ]);
+
+        // // Actualizamos el rostisado
+        // DatRosticero::where('IdRosticero', $id)
+        //     ->update([
+        //         'CantidadVenta' => $rostisado->CantidadVenta + $peso,
+        //         'MermaReal' => $rostisado->MermaReal - $peso,
+        //     ]);
+
+
+        return response()->json([
+            'ok' => 'true',
+            'msj' => 'La sentencia se ejecuto correctamente',
+        ]);
+    }
+
+    public function RecalentadoRosticero($id, Request $request)
+    {
         try {
-            DB::beginTransaction();
+            $codigo = $request->codigo;
+            $codEtiqueta = substr($codigo, 3, 4);
+            $primerPeso = substr($codigo, 7, 5);
+            $peso = $primerPeso / 1000;
 
-            // Obtenemos la fechas del descuento a actualizar
-            $descuento = DatEncDescuentos::where('IdEncDescuento', $idDescuento)->first();
-            $tipoDescuento = $descuento->TipoDescuento;
-            $fechaInicio = $descuento->FechaInicio;
-            $fechaFin = $descuento->FechaFin;
+            $CodArticulo = Articulo::where('codEtiqueta', $codEtiqueta)->value('CodArticulo');
+            $detalle = DatDetalleRosticero::where('IdDatDetalleRosticero', $id)->first();
+            $rostisado = DatRosticero::where('IdRosticero', $detalle->IdRosticero)->first();
 
-            // Eliminamos el detalle del descuento, para agregarlo de nuevo
-            DatDetDescuentos::where('IdEncDescuento', $idDescuento)->delete();
-
-            foreach ($codsArticulo as $key => $codArticulo) {
-                $articulo =  DB::table('CatArticulos as a')
-                    ->select('a.IdArticulo')
-                    ->where('a.CodArticulo', $codArticulo)
-                    ->value('a.IdArticulo');
-
-                // Validamos que no exista ese producto en ese tipo de descuento
-                $existencias = DatEncDescuentos::select('DatEncDescuentos.*', 'DatDetDescuentos.IdArticulo')
-                    ->leftjoin('DatDetDescuentos', 'DatDetDescuentos.IdEncDescuento', 'DatEncDescuentos.IdEncDescuento')
-                    ->where('TipoDescuento', $tipoDescuento)
-                    ->where('DatEncDescuentos.IdEncDescuento', '<>', $idDescuento)
-                    ->where('DatDetDescuentos.IdEncDescuento', '<>', null)
-                    ->where('DatEncDescuentos.FechaInicio', '<=', $fechaInicio)
-                    ->where('DatEncDescuentos.FechaFin', '>=', $fechaFin)
-                    ->where('DatDetDescuentos.IdArticulo', $articulo)
-                    ->get();
-
-                if (count($existencias) != 0) {
-                    DB::rollback();
-                    return back()->with('msjdelete', 'El producto ya cuenta con ese tipo de descuento en esas fechas.');
-                }
-
-                // Agregamos los productos
-                $datDescuento = new DatDetDescuentos();
-                $datDescuento->IdEncDescuento = $idDescuento;
-                $datDescuento->IdArticulo = $articulo;
-                $datDescuento->PrecioDescuento = $preciosArticulo[$key];
-                $datDescuento->IdListaPrecio = $listaPrecios[$key];
-                $datDescuento->save();
+            if ($rostisado->CodigoVenta != $CodArticulo) {
+                return back()->with('msjdelete', 'El producto no se pertenece a este rostisado.');
             }
 
-            DB::commit();
-            return back()->with('msjAdd', 'Descuento actualizado correctamente!!');
-        } catch (\Throwable $th) {
-            DB::rollback();
-            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
-        }
-    }
+            if ($detalle->Cantidad <= $peso) {
+                return back()->with('msjdelete', 'No se puede mermar ninguna cantidad.');
+            }
 
-    // ECHO
-    public function EliminarDescuento($IdEncDescuento)
-    {
-        try {
-            $NomDescuento = DatEncDescuentos::where('IdEncDescuento', $IdEncDescuento)
-                ->value('NomDescuento');
-
-            DB::beginTransaction();
-            DatEncDescuentos::where('IdEncDescuento', $IdEncDescuento)
+            // Agregamos el detalle del rostisado
+            DatDetalleRosticero::where('IdDatDetalleRosticero', $id)
                 ->update([
-                    'FechaDesactivar' => date('d-m-Y H:i:s'),
-                    'Status' => 1
+                    'Cantidad' => $peso,
                 ]);
-            DB::commit();
 
-            return back()->with('msjdelete', 'Se Elimino: ' . $NomDescuento);
-        } catch (\Throwable $th) {
-            DB::rollback();
-            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+            // Actualizamos el rostisado
+            DatRosticero::where('IdRosticero', $detalle->IdRosticero)
+                ->update([
+                    'CantidadVenta' => $rostisado->CantidadVenta - ($detalle->Cantidad - $peso),
+                    'MermaReal' => $rostisado->MermaReal + ($detalle->Cantidad - $peso),
+                ]);
+
+            return back()->with('msjAdd', 'La sentencia se ejecuto correctamente');
+        } catch (\Throwable $e) {
+            return back()->with('msjdelete', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function EliminarRosticero($id)
+    {
+        try {
+            DatRosticero::where('IdDatRosticero', $id)
+                ->delete();
+
+            return back()->with('msjAdd', 'La sentencia se ejecuto correctamente');
+        } catch (\Throwable $e) {
+            return back()->with('msjdelete', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function EliminarDetalleRosticero($id)
+    {
+        try {
+            $detalle = DatDetalleRosticero::where('IdDatDetalleRosticero', $id)->first();
+            $rosticero = DatRosticero::where('IdRosticero', $detalle->IdRosticero)->first();
+
+            DatRosticero::where('IdRosticero', $detalle->IdRosticero)
+                ->update([
+                    'CantidadVenta' => $rosticero->CantidadVenta - $detalle->Cantidad,
+                    'MermaReal' => $rosticero->MermaReal + $detalle->Cantidad,
+                ]);
+
+            DatDetalleRosticero::where('IdDatDetalleRosticero', $id)
+                ->delete();
+
+            $cantidad = DatDetalleRosticero::where('IdRosticero', $detalle->IdRosticero)
+                ->count();
+
+            // return back()->with('msjAdd', 'La sentencia se ejecuto correctamente');
+            return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'id' => $cantidad > 0 ? $detalle->IdRosticero : -1]);
+        } catch (\Throwable $e) {
+            return back()->with('msjdelete', 'Error: ' . $e->getMessage());
         }
     }
 }

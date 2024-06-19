@@ -878,11 +878,29 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('/EliminarCatProdDiez/{id}', 'App\Http\Controllers\CatProdDiezController@destroy');
 
     //+============================================================================================================================================+//
-    //CatRosticero
-    Route::get('/CatRosticero', 'App\Http\Controllers\RosticeroController@CatRosticero');
-
     //VerRosticero
     Route::get('/VerRosticero', 'App\Http\Controllers\RosticeroController@VerRosticero');
+
+    //Crear Rosticero
+    Route::post('/CrearRosticero', 'App\Http\Controllers\RosticeroController@CrearRosticero');
+
+    //Editar Rosticero
+    Route::post('/EditarRosticero/{id}', 'App\Http\Controllers\RosticeroController@EditarRosticero');
+
+    //Agregar Detalle De Rosticero
+    Route::post('/AgregarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@AgregarDetalleRosticero');
+
+    //Agregar Detalle De Rosticero
+    Route::post('/Api/AgregarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@ApiAgregarDetalleRosticero');
+
+    //Agregar Detalle De Rosticero
+    Route::post('/RecalentadoRosticero/{id}', 'App\Http\Controllers\RosticeroController@RecalentadoRosticero');
+
+    //Eliminar Rosticero
+    Route::delete('/EliminarRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarRosticero');
+
+    //Eliminar Rosticero
+    Route::delete('/EliminarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarDetalleRosticero');
 }); //->Termina Middleware Auth
 
 // pagina de error 404
