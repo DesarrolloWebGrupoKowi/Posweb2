@@ -28,7 +28,8 @@ class AsignacionPreparadosController extends Controller
                     'CatPreparado.Nombre',
                     'CatPreparado.Fecha',
                     'CatTiendas.NomTienda',
-                    'DatAsignacionPreparados.CantidadEnvio'
+                    'DatAsignacionPreparados.CantidadEnvio',
+                    'CatPreparado.Subir',
                 )
                 ->leftJoin('CatPreparado', 'CatPreparado.preparado', 'DatAsignacionPreparados.IdPreparado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')
@@ -45,7 +46,8 @@ class AsignacionPreparadosController extends Controller
                     'CatPreparado.Nombre',
                     'CatPreparado.Fecha',
                     'CatTiendas.NomTienda',
-                    'DatAsignacionPreparados.CantidadEnvio'
+                    'DatAsignacionPreparados.CantidadEnvio',
+                    'CatPreparado.Subir',
                 )
                 ->leftJoin('CatPreparado', 'CatPreparado.preparado', 'DatAsignacionPreparados.IdPreparado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')

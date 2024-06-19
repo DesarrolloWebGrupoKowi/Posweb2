@@ -434,8 +434,8 @@ class RecepcionController extends Controller
 
     public function ReporteRecepciones(Request $request)
     {
-        $fecha1 = $request->fecha1;
-        $fecha2 = $request->fecha2;
+        $fecha1 = $request->input('fecha1', date('Y-m-d'));
+        $fecha2 = $request->input('fecha2', date('Y-m-d'));
         $chkReferencia = $request->chkReferencia;
         $referencia = $request->referencia;
 

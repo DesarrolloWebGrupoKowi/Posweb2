@@ -184,22 +184,60 @@ class CapMermasController extends Controller
 
     public function ReporteMermas(Request $request)
     {
-        $fecha1 = $request->fecha1;
-        $fecha2 = $request->fecha2;
+        $fecha1 = $request->input('fecha1', date('Y-m-d'));
+        $fecha2 = $request->input('fecha2', date('Y-m-d'));
         $agrupadoDia = $request->agrupado;
-
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
-        $mermas = TipoMerma::with(['Mermas' => function ($merma) use ($idTienda, $fecha1, $fecha2) {
-            $merma->where('IdTienda', $idTienda)
-                ->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'CapMermas.CodArticulo')
-                ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "' ");
-        }])
-            ->where('Status', 0)
-            ->get();
+        if ($agrupadoDia == 'on') {
+            $mermas = TipoMerma::with(['Mermas' => function ($merma) use ($idTienda, $fecha1, $fecha2) {
+                $merma->select(
+                    'CapMermas.IdTipoMerma',
+                    'CatArticulos.CodArticulo',
+                    'CapMermas.CodArticulo',
+                    'CapMermas.IdTienda',
+                    'CatArticulos.NomArticulo',
+                    DB::raw('SUM(CapMermas.CantArticulo) as CantArticulo'),
+                    DB::raw("FORMAT(CapMermas.FechaCaptura, 'dd/MM/yyyy') as FechaCaptura")
+                )
+                    ->where('IdTienda', $idTienda)
+                    ->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'CapMermas.CodArticulo')
+                    ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "' ")
+                    ->groupBy(
+                        'CapMermas.IdTipoMerma',
+                        'CatArticulos.CodArticulo',
+                        'CapMermas.CodArticulo',
+                        'CapMermas.IdTienda',
+                        'CatArticulos.NomArticulo',
+                        DB::raw("FORMAT(CapMermas.FechaCaptura, 'dd/MM/yyyy')")
+                    )
+                    ->orderBy('FechaCaptura', 'desc');
+            }])
+                ->where('Status', 0)
+                ->get();
+        } else {
+            $mermas = TipoMerma::with(['Mermas' => function ($merma) use ($idTienda, $fecha1, $fecha2) {
+                $merma->select(
+                    'CapMermas.IdTipoMerma',
+                    'CatArticulos.CodArticulo',
+                    'CapMermas.CodArticulo',
+                    'CapMermas.IdTienda',
+                    'CatArticulos.NomArticulo',
+                    'CapMermas.CantArticulo',
+                    DB::raw("FORMAT(CapMermas.FechaCaptura, 'dd/MM/yyyy') as FechaCaptura")
+                )
+                    ->where('IdTienda', $idTienda)
+                    ->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'CapMermas.CodArticulo')
+                    ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "' ")
+                    ->orderBy('FechaCaptura', 'desc')
+                    ->orderBy('CatArticulos.NomArticulo');
+            }])
+                ->where('Status', 0)
+                ->get();
+        }
 
         //return $mermas;
 
-        return view('CapMermas.ReporteMermas', compact('mermas', 'fecha1', 'fecha2'));
+        return view('CapMermas.ReporteMermas', compact('mermas', 'fecha1', 'fecha2', 'agrupadoDia'));
     }
 }

@@ -80,7 +80,7 @@ class PreparadosController extends Controller
         $preparado->IdTienda = Auth::user()->usuarioTienda->IdTienda;
         $preparado->IdCaja = $idcaja;
         $preparado->Fecha = Carbon::now()->format('Y-d-m');
-        $preparado->IdCatStatusPreparado = 1;
+        $preparado->IdCatStatusPreparado = 2;
         $preparado->save();
 
         return back()->with('msjAdd', 'Preparado agregado correctamente');
@@ -115,11 +115,10 @@ class PreparadosController extends Controller
                 return back()->with('msjdelete', 'Error: El articulo con el código ' . $codArticulo . ' no cuenta con precio en esa lista de precios');
             }
         }
-
         DatPreparados::where('IdPreparado', $idPreparado)->update([
             'IDLISTAPRECIO' => $request->IdListaPrecio,
         ]);
-        return back();
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $idPreparado]);
     }
 
     public function EnviarPreparados($idPreparado)
@@ -148,7 +147,7 @@ class PreparadosController extends Controller
 
         $preparado->delete();
 
-        return redirect()->route('Preparados.index');
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente']);
     }
 
     public function AgregarArticulo($idPreparado, Request $request)
@@ -181,7 +180,7 @@ class PreparadosController extends Controller
         $preparado->IDLISTAPRECIO = $idListaPrecio ? $idListaPrecio : 4;
         $preparado->save();
 
-        return back();
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $idPreparado]);
     }
 
     public function EliminarArticulo($id)
@@ -190,6 +189,7 @@ class PreparadosController extends Controller
 
         $preparado->delete();
 
-        return back();
+        // return back();
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $preparado->IdPreparado]);
     }
 }

@@ -1,96 +1,89 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Reporte de Mermas')
+@section('title', 'Historial mermas')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Reporte de Mermas'])
-            <div>
-                <a href="/CapMermas" class="btn btn-sm btn-dark">
-                    <i class="fa fa-plus-circle pe-1"></i> Captura de mermas
-                </a>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', [
+                    'titulo' => 'Historial mermas',
+                    'options' => [['name' => 'Mermas', 'value' => '/CapMermas']],
+                ])
             </div>
         </div>
 
-        <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/ReporteMermas" method="GET">
-            <div class="col-auto">
-                <input type="date" class="form-control" name="fecha1" required value="{{ date('Y-m-d') }}">
-            </div>
-            <div class="col-auto">
-                <input type="date" class="form-control" name="fecha2" required value="{{ date('Y-m-d') }}">
-            </div>
-            <div class="col-auto">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
 
-            </div>
-            <div class="col-auto">
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <input class="form-check-input" type="checkbox" name="agrupado" id="agrupado">
-                    </span>
-                    <span class="input-group-text card">Reporte Agrupado por dia</span>
+            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/ReporteMermas" method="GET">
+                <div class="d-flex flex-column">
+                    <input type="date" class="form-control rounded" style="line-height: 18px" name="fecha1" required
+                        value="{{ $fecha1 }}">
                 </div>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-dark-outline">
-                    <span class="material-icons">search</span>
-                </button>
-            </div>
-        </form>
-
-        @if (!empty($fecha) || !empty($fecha2))
-            <div class="row">
-                @foreach ($mermas as $merma)
-                    <div class="col-4">
-
-                        <div class="content-table content-table-full card p-4 mb-4" style="border-radius: 20px">
-                            <h5 class="mb-2" style="font-size: 16px">{{ $merma->NomTipoMerma }}</h5>
-                            <table>
-                                <thead class="table-head">
-                                    <tr>
-                                        <th class="rounded-start">Código</th>
-                                        <th>Articulo</th>
-                                        <th class="rounded-end">Cantidad</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if ($merma->Mermas->count() == 0)
-                                        <tr>
-                                            <td style="color: red" colspan="3"><i class="fa fa-exclamation-circle"></i>
-                                                No
-                                                hay
-                                                mermas</td>
-                                        </tr>
-                                    @else
-                                        @php
-                                            $sumCantidad = 0;
-                                        @endphp
-                                        @foreach ($merma->Mermas as $mCaptura)
-                                            <tr>
-                                                <td>{{ $mCaptura->CodArticulo }}</td>
-                                                <td>{{ $mCaptura->NomArticulo }}</td>
-                                                <td>{{ number_format($mCaptura->CantArticulo, 2) }}</td>
-                                            </tr>
-                                            @php
-                                                $sumCantidad = $sumCantidad + $mCaptura->CantArticulo;
-                                            @endphp
-                                        @endforeach
-                                    @endif
-                                </tbody>
-                                @if ($merma->Mermas->count() > 0)
-                                    <tfoot>
-                                        <tr>
-                                            <th></th>
-                                            <th style="text-align: center">Total: </th>
-                                            <th>{{ number_format($sumCantidad, 2) }}</th>
-                                        </tr>
-                                    </tfoot>
-                                @endif
-                            </table>
-                        </div>
+                <div class="d-flex flex-column">
+                    <input type="date" class="form-control rounded" style="line-height: 18px" name="fecha2" required
+                        value="{{ $fecha2 }}">
+                </div>
+                <div class="d-flex flex-column">
+                    <div class="input-group rounded" style="line-height: 18px">
+                        <span class="input-group-text">
+                            <input class="form-check-input" type="checkbox" name="agrupado" id="agrupado"
+                                {{ $agrupadoDia ? 'checked' : '' }}>
+                        </span>
+                        <span class="input-group-text card" style="line-height: 18px">Reporte Agrupado por dia</span>
                     </div>
-                @endforeach
-            </div>
-        @endif
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-dark-outline">
+                        @include('components.icons.search')
+                    </button>
+                </div>
+            </form>
+
+            @if (!empty($fecha) || !empty($fecha2))
+                <table>
+                    <thead class="table-head">
+                        <tr>
+                            <th class="rounded-start">Código</th>
+                            <th>Articulo</th>
+                            <th>Tipo Merma</th>
+                            <th>Fecha Captura</th>
+                            <th class="rounded-end">Cantidad</th>
+                        </tr>
+                    </thead>
+                    @php
+                        $sumCantidad = 0;
+                    @endphp
+                    @foreach ($mermas as $merma)
+                        <tbody>
+                            @if ($merma->Mermas->count() != 0)
+                                @foreach ($merma->Mermas as $mCaptura)
+                                    <tr>
+                                        <td>{{ $mCaptura->CodArticulo }}</td>
+                                        <td>{{ $mCaptura->NomArticulo }}</td>
+                                        <td>{{ $merma->NomTipoMerma }}</td>
+                                        <td> {{ $mCaptura->FechaCaptura }} </td>
+                                        <td>{{ number_format($mCaptura->CantArticulo, 2) }}</td>
+                                    </tr>
+                                    @php
+                                        $sumCantidad = $sumCantidad + $mCaptura->CantArticulo;
+                                    @endphp
+                                @endforeach
+                            @endif
+                        </tbody>
+                    @endforeach
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td style="text-align: right; font-weight: bold;">Total:</td>
+                            <td style="font-weight: bold;">{{ number_format($sumCantidad, 2) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            @endif
+        </div>
     </div>
 
 @endsection

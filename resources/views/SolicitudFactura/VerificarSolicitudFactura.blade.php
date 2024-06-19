@@ -2,85 +2,89 @@
 @section('title', 'Verificar Solicitud de Factura')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', [
-                'titulo' => 'Verificar Solicitud de Factura - ' . $nomCliente->NomCliente,
-                'options' => [
-                    [
-                        'name' => 'Solicitud Factura',
-                        'value' =>
-                            '/SolicitudFactura?rfcCliente=' . $rfcCliente . '&numTicket=' . $ticket->IdTicket,
-                    ],
-                ],
-            ])
-        </div>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
-        <div>
-            @include('Alertas.Alertas')
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', [
+                    'titulo' => 'Verificar Solicitud de Factura - ' . $nomCliente->NomCliente,
+                    'options' => [
+                        [
+                            'name' => 'Solicitud Factura',
+                            'value' =>
+                                '/SolicitudFactura?rfcCliente=' . $rfcCliente . '&numTicket=' . $ticket->IdTicket,
+                        ],
+                    ],
+                ])
+            </div>
+
+            <div>
+                @include('Alertas.Alertas')
+            </div>
         </div>
 
         <form action="/GuardarSolicitudFactura" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="rfcCliente" value="{{ $rfcCliente }}">
             <input type="hidden" name="bill_To" value="{{ $bill_To }}">
-            <div class="d-flex justify-content-end gap-4 mb-3">
-                <div class="col-2">
-                    <div class="input-group">
-                        <span class="input-group-text">Ticket</span>
-                        <input type="text" class="form-control bg-white" name="numTicket" value="{{ $ticket->IdTicket }}"
-                            readonly>
+            <div class="card border-0 p-4" style="border-radius: 10px">
+                <div class="d-flex justify-content-end gap-4 mb-3">
+                    <div class="col-2">
+                        <div class="input-group">
+                            <span class="input-group-text">Ticket</span>
+                            <input type="text" class="form-control bg-white" name="numTicket"
+                                value="{{ $ticket->IdTicket }}" readonly>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="input-group">
+                            <span class="input-group-text">Importe</span>
+                            <input type="text" class="form-control bg-white"
+                                value="{{ number_format($ticket->ImporteVenta, 2) }}" readonly>
+                        </div>
                     </div>
                 </div>
-                <div class="col-3">
-                    <div class="input-group">
-                        <span class="input-group-text">Importe</span>
-                        <input type="text" class="form-control bg-white"
-                            value="{{ number_format($ticket->ImporteVenta, 2) }}" readonly>
-                    </div>
-                </div>
-            </div>
 
-            @if ($banderaMultiPagoFact == 0)
-                <div class="row d-flex justify-content-center">
-                    <div class="col-6">
-                        <h5 class="titulo card p-1">Seleccione Metódos de Pago a Facturar</h5>
+                @if ($banderaMultiPagoFact == 0)
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-6">
+                            <h5 class="titulo card p-1">Seleccione Metódos de Pago a Facturar</h5>
+                        </div>
                     </div>
-                </div>
-                <div class="mb-3 d-flex justify-content-center">
-                    <table style="width: 65%" class="table table-responsive table-striped shadow">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Tipo de Pago</th>
-                                <th>Importe</th>
-                                <th>Dispnible P/ Facturar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($tiposPagoTicket as $tipoPagoTicket)
+                    <div class="mb-3 d-flex justify-content-center">
+                        <table style="width: 65%" class="table table-responsive table-striped shadow">
+                            <thead class="table-dark">
                                 <tr>
-                                    <td>{{ $tipoPagoTicket->NomTipoPago }}</td>
-                                    <td>{{ number_format($tipoPagoTicket->ImporteArticulo, 2) }}</td>
-                                    <td>
-                                        @if ($tipoPagoTicket->IdSolicitudFactura == null)
-                                            <input class="form-check-input mt-0" type="checkbox" id="checkPagoFac"
-                                                name="chkTipoPagoTicket[]" value="{{ $tipoPagoTicket->IdTipoPago }}">
-                                        @endif
-                                    </td>
+                                    <th>Tipo de Pago</th>
+                                    <th>Importe</th>
+                                    <th>Dispnible P/ Facturar</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
+                            </thead>
+                            <tbody>
+                                @foreach ($tiposPagoTicket as $tipoPagoTicket)
+                                    <tr>
+                                        <td>{{ $tipoPagoTicket->NomTipoPago }}</td>
+                                        <td>{{ number_format($tipoPagoTicket->ImporteArticulo, 2) }}</td>
+                                        <td>
+                                            @if ($tipoPagoTicket->IdSolicitudFactura == null)
+                                                <input class="form-check-input mt-0" type="checkbox" id="checkPagoFac"
+                                                    name="chkTipoPagoTicket[]" value="{{ $tipoPagoTicket->IdTipoPago }}">
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
 
-            <div class="row d-flex justify-content-center">
-                <div class="col-3">
-                    <h5 class="titulo text-center card p-1 mb-3">Datos del Cliente</h5>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-3">
+                        <h5 class="titulo text-center p-1 mb-3">Datos del Cliente</h5>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card p-2">
+
                 <div class="row mb-3">
                     <div class="col-8">
                         <label for="">Calle</label>

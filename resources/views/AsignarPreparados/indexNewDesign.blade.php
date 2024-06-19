@@ -2,112 +2,122 @@
 @section('title', 'Lista de preparados')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
-    <div class="container-fluid pt-4 width-general">
-        {{-- Titulo --}}
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Lista de preparados'])
-            <div class="">
-                <a href="/Preparados" class="btn btn-primary ">
-                    <small><i class="fa fa-plus-circle pe-1"></i>Agregar preparado</small>
-                </a>
-                <a href="/DetalleAsignados" class="btn btn-sm btn-dark">
-                    <i class="fa fa-eye"></i> Ver detalle asignados
-                </a>
-            </div>
-        </div>
-
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-
-        <form class="d-flex align-items-center justify-content-end pb-4" action="/AsignarPreparados">
-            <div class="input-group" style="max-width: 300px">
-                <input type="date" class="form-control" name="fecha" value="{{ $fecha }}">
-                <div class="input-group-append">
-                    <button type="submit" class="input-group-text">
-                        <span class="material-icons">search</span>
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Lista de preparados'])
+                <div class="">
+                    {{-- <a href="/Preparados" class="btn btn-dark-outline btn-sm"> Agregar preparado </a> --}}
+                    <button type="button" class="btn btn-dark-outline btn-sm" role="tooltip" title="Agregar preparado"
+                        data-bs-toggle="modal" data-bs-target="#ModalAgregarPreparado">
+                        Agregar preparado
                     </button>
+                    <a href="/DetalleAsignados" class="btn btn-dark-outline btn-sm">Historial preparados</a>
                 </div>
             </div>
-        </form>
+            <div>
+                @include('Alertas.Alertas')
+            </div>
+        </div>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/AsignarPreparados">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="fecha" class="text-secondary" style="font-weight: 500">Buscar:</label>
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha"
+                        id="fecha" value="{{ $fecha }}" autofocus>
+                </div>
+                <button type="submit" class="d-none">
+                    <span class="material-icons">search</span>
+                </button>
+            </form>
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Nombre</th>
+                        <th class="rounded-start">Id</th>
+                        <th>Nombre</th>
                         <th>Fecha</th>
                         <th>Cantidad</th>
                         <th>Cantidad libre</th>
-                        <th>Detalle</th>
-                        <th>Tiendas</th>
-                        <th>Asignar</th>
-                        <th>Regresar</th>
-                        <th class="rounded-end">Finalizar</th>
+                        {{-- <th>Detalle</th> --}}
+                        {{-- <th>Tiendas</th> --}}
+                        {{-- <th>Asignar</th> --}}
+                        {{-- <th>Regresar</th> --}}
+                        <th class="rounded-end text-center"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (count($preparados) == 0)
+                    @include('components.table-empty', ['items' => $preparados, 'colspan' => 9])
+                    @foreach ($preparados as $preparado)
                         <tr>
-                            <td colspan="9">No se encuentra ningun preparado en proceso</td>
-                        </tr>
-                    @else
-                        @foreach ($preparados as $preparado)
-                            <tr>
-                                <td>{{ $preparado->Nombre }}</td>
-                                <td>{{ ucfirst(\Carbon\Carbon::parse($preparado->Fecha)->locale('es')->isoFormat('dddd D \d\e MMMM \d\e\l Y')) }}
-                                </td>
-                                <td>{{ $preparado->Cantidad }} piezas</td>
-                                <td>{{ $preparado->Cantidad - $preparado->CantidadAsignada }} piezas</td>
-                                <td>
-                                    <button class="btn btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#ModalShowDetails{{ $preparado->IdPreparado }}">
-                                        <span class="material-icons editar">visibility</span>
+                            <td>{{ $preparado->IdPreparado }}</td>
+                            <td>{{ $preparado->Nombre }}</td>
+                            <td>{{ ucfirst(\Carbon\Carbon::parse($preparado->Fecha)->locale('es')->isoFormat('dddd D \d\e MMMM \d\e\l Y')) }}
+                            </td>
+                            <td>{{ $preparado->Cantidad }} piezas</td>
+                            <td>{{ $preparado->Cantidad - $preparado->CantidadAsignada }} piezas</td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button
+                                        class="{{ Session::get('modalshow') == $preparado->IdPreparado ? 'modalOpen' : '' }} btn-table"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ModalShowDetails{{ $preparado->IdPreparado }}"
+                                        title="Detalle de preparado">
+                                        @include('components.icons.list')
                                     </button>
-                                    @include('AsignarPreparados.ModalShowDetails')
-                                </td>
-                                <td>
-                                    <button class="btn" data-bs-toggle="modal"
-                                        data-bs-target="#ModalShowTiendas{{ $preparado->IdPreparado }}">
-                                        <span class="material-icons">assignment</span>
+                                    <button
+                                        class="{{ Session::get('id') == $preparado->preparado ? 'modalOpen' : '' }} btn-table"
+                                        data-bs-toggle="modal" data-bs-target="#ModalAsignar{{ $preparado->IdPreparado }}"
+                                        title="Tiendas" {{ count($preparado->Detalle) == 0 ? 'disabled' : '' }}>
+                                        @include('components.icons.house')
                                     </button>
-                                    @include('AsignarPreparados.ModalShowTiendas')
-                                </td>
-                                <td>
-                                    <button class="btn" data-bs-toggle="modal"
-                                        data-bs-target="#ModalAsignar{{ $preparado->IdPreparado }}"
-                                        {{ $preparado->CantidadAsignada == $preparado->Cantidad || $preparado->IdCatStatusPreparado != 2 ? 'disabled' : '' }}>
-                                        <span class="material-icons send">send</span>
+                                    <button class="btn-table" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEliminarPreparado{{ $preparado->IdPreparado }}"
+                                        title="Eliminar preparado" {{ count($preparado->Tiendas) > 0 ? 'disabled' : '' }}>
+                                        @include('components.icons.delete')
                                     </button>
-                                    @include('AsignarPreparados.ModalAsignar')
-                                </td>
-                                <td>
-                                    <button style="font-size: 18px" class="btn eliminar" data-bs-toggle="modal"
-                                        data-bs-target="#ModalRegresar{{ $preparado->IdPreparado }}"
-                                        {{ $preparado->CantidadAsignada > 0 || $preparado->IdCatStatusPreparado != 2 ? 'disabled' : '' }}>
-                                        <i class="fa fa-reply-all"></i>
-                                    </button>
-                                    @include('AsignarPreparados.ModalRegresar')
-                                </td>
-                                <td>
-                                    <button style="font-size: 22px" class="btn" data-bs-toggle="modal"
+
+                                    <button class="btn-table" data-bs-toggle="modal"
                                         data-bs-target="#ModalFinalizar{{ $preparado->IdPreparado }}"
-                                        {{ $preparado->IdCatStatusPreparado != 2 ? 'disabled' : '' }}>
-                                        <i class="fa fa-check-circle-o"></i>
+                                        {{ count($preparado->Tiendas) == 0 ? 'disabled' : '' }} title="Finalizar">
+                                        @include('components.icons.check')
                                     </button>
-                                    @include('AsignarPreparados.ModalFinalizar')
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
+                                </div>
+                                @include('Preparados.ModalEliminarPreparado')
+                                @include('AsignarPreparados.ModalShowDetails')
+                                @include('AsignarPreparados.ModalAsignar')
+                                @include('AsignarPreparados.ModalRegresar')
+                                @include('AsignarPreparados.ModalFinalizar')
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
-
-        </div>
-        <div class="mt-5 d-flex justify-content-center">
-            {!! $preparados->links() !!}
+            @include('components.paginate', ['items' => $preparados])
         </div>
     </div>
+    @include('Preparados.ModalAgregarPreparado')
+    <form id="form-update" method="POST">
+        @csrf
+        <input type="hidden" name="IdListaPrecio" value="5">
+    </form>
+@endsection
 
+@section('scripts')
+    <script>
+        document.addEventListener('change', e => {
+            if (e.target.matches('.form-select')) {
+                console.log(e.target.value);
+                console.log(e.target.getAttribute('data-id'));
+                document.querySelectorAll('.form-select').forEach(element => {
+                    element.value = e.target.value;
+                });
+                let form = document.getElementById('form-update');
+                form.action = '/EditarListaPreciosPreparados/' + e.target.getAttribute('data-id');
+                form.IdListaPrecio.value = e.target.value;
+                form.submit();
+            }
+        })
+    </script>
 @endsection

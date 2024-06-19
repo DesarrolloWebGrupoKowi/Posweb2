@@ -1,18 +1,20 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalTipoPago{{ $ticket->IdTicket }}" aria-hidden="true"
+<div class="modal fade" id="ModalTipoPago{{ $ticket->IdTicket }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-money"></i> Tipo de Pago Ticket :
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Tipo de Pago Ticket :
                     {{ $ticket->IdTicket }}</h5>
             </div>
             <div class="modal-body">
                 <div>
                     <table>
                         <thead>
-                            <th>Tipo de Pago</th>
-                            <th>Pago</th>
-                            <th>Por Pagar</th>
+                            <tr>
+                                <th>Tipo de Pago</th>
+                                <th>Pago</th>
+                                <th>Por Pagar</th>
+                            </tr>
                         </thead>
                         <tbody>
                             @foreach ($ticket->TipoPago as $tipoPago)

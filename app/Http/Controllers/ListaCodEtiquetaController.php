@@ -32,7 +32,7 @@ class ListaCodEtiquetaController extends Controller
                 $query->orWhere('CodArticulo', 'like', '%' . $txtFiltro . '%');
             })
             ->orderBy('CodArticulo')
-            ->paginate(10);
+            ->paginate(10)->withQueryString();
 
         //return $listaCodEtiquetas;
 

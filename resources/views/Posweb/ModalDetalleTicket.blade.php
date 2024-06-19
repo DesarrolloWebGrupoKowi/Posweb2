@@ -1,9 +1,9 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalDetalleTicket{{ $ticket->IdTicket }}" aria-hidden="true"
+<div class="modal fade" id="ModalDetalleTicket{{ $ticket->IdTicket }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-xl">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-info-circle"></i> Detalle Ticket :
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Detalle Ticket :
                     {{ $ticket->IdTicket }}</h5>
             </div>
             <div class="modal-body">

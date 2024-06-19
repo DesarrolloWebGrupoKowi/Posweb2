@@ -1,7 +1,7 @@
 <!-- Modal Agregar-->
 <div class="modal fade" id="ModalAgregarPreparado" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <form action="/Preparados" method="POST">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Agregar Preparado</h5>
@@ -20,7 +20,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <input type="submit" class="btn btn-primary" value="Agregar preparado">
+                    <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    <input type="submit" class="btn btn-sm btn-warning" value="Agregar preparado">
                 </div>
             </form>
         </div>

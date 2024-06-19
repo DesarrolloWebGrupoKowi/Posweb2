@@ -2,34 +2,30 @@
 @section('title', 'Listado de Código de Etiquetas')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Listado de Códigos de Etiqueta'])
-            <div>
-                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar menú
-                </button>
-                <a href="/ListaCodEtiquetas" class="btn btn-dark-outline">
-                    <span class="material-icons">refresh</span>
-                </a>
-                <a href="/GenerarPDF" class="btn btn-dark-outline" target="_blank">
-                    <span class="material-icons">print</span>
-                </a>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Listado de Códigos de Etiqueta'])
+                <div class="d-flex align-items-center justify-content-end gap-2">
+                    <a href="/ListaCodEtiquetas" class="btn btn-dark-outline">
+                        @include('components.icons.switch')
+                    </a>
+                    <a href="/GenerarPDF" class="btn btn-dark-outline" target="_blank">
+                        @include('components.icons.print')
+                    </a>
+                </div>
             </div>
         </div>
 
-        <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/ListaCodEtiquetas" method="GET">
-            <div class="input-group" style="max-width: 300px">
-                <input type="text" class="form-control" name="txtFiltro" placeholder="Nombre del Articulo"
-                    value="{{ $txtFiltro }}" required autofocus>
-                <div class="input-group-append">
-                    <button class="input-group-text"><span class="material-icons">search</span></button>
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <form class="d-flex align-items-center justify-content-end pb-2 gap-2" action="/ListaCodEtiquetas"
+                method="GET">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Buscar:</label>
+                    <input class="form-control rounded" style="line-height: 18px" type="text" name="txtFiltro"
+                        id="txtFiltro" value="{{ $txtFiltro }}" autofocus>
                 </div>
-            </div>
-        </form>
-
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            </form>
             <table>
                 <thead class="table-head">
                     <tr>
@@ -40,27 +36,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if ($listaCodEtiquetas->count() == 0)
-                    @else
-                        @foreach ($listaCodEtiquetas as $listaCodEtiqueta)
-                            <tr>
-                                <td>{{ $listaCodEtiqueta->CodArticulo }}</td>
-                                <td>{{ $listaCodEtiqueta->NomArticulo }}</td>
-                                <td>{{ $listaCodEtiqueta->CodEtiqueta }}</td>
-                                <td>
-                                    <i style="font-size: 24px" class="fa fa-usd" data-bs-toggle="modal"
-                                        data-bs-target="#ModalPrecios{{ $listaCodEtiqueta->IdArticulo }}"></i>
-                                    @include('CodEtiquetas.ModalPrecios')
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
+                    @include('components.table-empty', ['items' => $listaCodEtiquetas, 'colspan' => 4])
+                    @foreach ($listaCodEtiquetas as $listaCodEtiqueta)
+                        <tr>
+                            <td>{{ $listaCodEtiqueta->CodArticulo }}</td>
+                            <td>{{ $listaCodEtiqueta->NomArticulo }}</td>
+                            <td>{{ $listaCodEtiqueta->CodEtiqueta }}</td>
+                            <td>
+                                <button class="btn-table" data-bs-toggle="modal"
+                                    data-bs-target="#ModalPrecios{{ $listaCodEtiqueta->IdArticulo }}">
+                                    @include('components.icons.list')
+                                </button>
+                                @include('CodEtiquetas.ModalPrecios')
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
-        </div>
-
-        <div class="mt-5 d-flex justify-content-center">
-            {!! $listaCodEtiquetas->links() !!}
+            @include('components.paginate', ['items' => $listaCodEtiquetas])
         </div>
     </div>
 

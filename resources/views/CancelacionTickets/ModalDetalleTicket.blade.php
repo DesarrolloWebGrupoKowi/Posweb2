@@ -1,7 +1,7 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalDetalleTicket{{ $solicitud->IdEncabezado }}" aria-hidden="true"
+<div class="modal fade" id="ModalDetalleTicket{{ $solicitud->IdEncabezado }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-xl">
-        <div class="modal-content">
+        <div class="modal-content  border-0">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-info-circle"></i> Detalle Ticket :
                     {{ $solicitud->Encabezado->IdTicket }}</h5>

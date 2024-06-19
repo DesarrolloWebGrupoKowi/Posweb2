@@ -2,15 +2,18 @@
 @section('title', 'Recepción de Producto')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Recepción de Producto ' . $tienda->NomTienda])
-        </div>
-        <div>
-            @include('Alertas.Alertas')
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Recepción de Producto ' . $tienda->NomTienda])
+            </div>
+            <div>
+                @include('Alertas.Alertas')
+            </div>
         </div>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-flex-none content-table-full card border-0 p-4" style="border-radius: 10px">
             <table>
                 <thead class="table-head">
                     <tr>
@@ -34,18 +37,23 @@
                                 <td>{{ $rTienda->PackingList }}</td>
                                 <td>{{ $rTienda->NomTienda }}</td>
                                 <td>{{ strftime('%d %B %Y, %H:%M', strtotime($rTienda->FechaLlegada)) }}</td>
-                                <td>{{ $rTienda->StatusRecepcion->NomStatusRecepcion }}</td>
                                 <td>
-                                    <form class="d-inline" action="/RecepcionProducto">
-                                        <input type="hidden" name="idRecepcion" value="{{ $rTienda->IdCapRecepcion }}">
-                                        <button class="btn btn-sm" data-bs-toggle="mensaje" title="Recepcionar">
-                                            <span class="material-icons">receipt_long</span>
+                                    <span class="tags-yellow">{{ $rTienda->StatusRecepcion->NomStatusRecepcion }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <form class="d-inline" action="/RecepcionProducto">
+                                            <input type="hidden" name="idRecepcion" value="{{ $rTienda->IdCapRecepcion }}">
+                                            <button class="btn-table" data-bs-toggle="mensaje" title="Ver detalle">
+                                                @include('components.icons.list')
+                                            </button>
+                                        </form>
+                                        <button class="btn-table" data-bs-toggle="modal"
+                                            data-bs-target="#ModalCancelarRecepcion{{ $rTienda->IdCapRecepcion }}"
+                                            title="Cancelar recepción">
+                                            @include('components.icons.delete')
                                         </button>
-                                    </form>
-                                    <button type="button" class="btn btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#ModalCancelarRecepcion{{ $rTienda->IdCapRecepcion }}">
-                                        <span style="color: red;" class="material-icons">cancel</span>
-                                    </button>
+                                    </div>
                                 </td>
                                 @include('Recepcion.ModalCancelarRecepcion')
                             </tr>
@@ -55,7 +63,7 @@
             </table>
         </div>
 
-        <div class="mt-4 content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <div class="row mb-3">
                 <div class="col d-flex justify-content-start">
                     <h4>Detalle de Productos en Recepción</h4>

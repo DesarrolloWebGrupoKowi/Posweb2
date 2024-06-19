@@ -1,33 +1,27 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Solicitar Factura')
 @section('dashboardWidth', 'width-general')
-<style>
-    i {
-        cursor: pointer;
-    }
-
-    .btn:active {
-        transform: scale(1.2)
-    }
-</style>
 @section('contenido')
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Solicitar Factura - ' . $tienda->NomTienda])
-        </div>
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Solicitar Factura - ' . $tienda->NomTienda])
+            </div>
 
-        <div>
-            @include('Alertas.Alertas')
+            <div>
+                @include('Alertas.Alertas')
+            </div>
         </div>
 
         @include('SolicitudFactura.ModalClienteConfirm')
         <input type="hidden" id="clienteCount" value="{{ $cliente->count() }}">
-        <div class="card p-3 mb-4" style="border-radius: 20px">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
             <form action="/SolicitudFactura">
                 <div class="row">
                     <div class="col-5">
-                        <div class="input-group mb-3">
+                        <div class="input-group">
                             <span class="input-group-text">RFC del Cliente</span>
                             <input style="text-align: center" type="text" class="form-control" name="rfcCliente"
                                 placeholder="Escribe" value="{{ $rfcCliente }}" maxlength="13" autofocus required>
@@ -42,7 +36,7 @@
                         $auxTicketFacturado > 0
                             ? 'block'
                             : 'none' !!}" id="divNomCliente" class="col-5">
-                            <div class="input-group mb-3">
+                            <div class="input-group">
                                 <span class="input-group-text bg-dark text-white">{{ $nomCliente->NomCliente }}</span>
                             </div>
                         </div>
@@ -52,17 +46,18 @@
         </div>
 
 
-        <div id="divCliente" style="display: {!! !empty($numTicket) ? 'block' : 'none' !!}; border-radius: 20px" class="p-4 card mb-3">
+        <div id="divCliente" style="display: {!! !empty($numTicket) ? 'block' : 'none' !!}; border-radius: 10px"
+            class="content-table content-table-full card border-0 p-4">
             <div class="container">
                 @if ($cliente->count() > 0)
-                    <div class="mt-3">
-                        <div class="row d-flex justify-content-center">
-                            <div class="col-3">
-                                <h5 style="display: {!! !empty($ticket->ImporteVenta) && $cliente->count() > 0 && $auxTicketFacturado > 0 ? 'block' : 'none' !!}" id="tituloClienteExistente"
-                                    class="titulo card p-1">Solicitud de Factura</h5>
-                            </div>
+                    {{-- <div class="mt-3"> --}}
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-3">
+                            <h5 style="display: {!! !empty($ticket->ImporteVenta) && $cliente->count() > 0 && $auxTicketFacturado > 0 ? 'block' : 'none' !!}" id="tituloClienteExistente" class="titulo">
+                                Solicitud de Factura</h5>
                         </div>
                     </div>
+                    {{-- </div> --}}
                 @elseif(!empty($rfcCliente) && $cliente->count() == 0)
                     <div class="row d-flex justify-content-center">
                         <div class="col-3">
@@ -263,12 +258,12 @@
                     @include('SolicitudFactura.ModalConfirmarSolicitudCliente')
                 </form>
             @elseif($cliente->count() > 0 && !empty($ticket->ImporteVenta) && $ticket->StatusVenta == 0 && $auxTicketFacturado > 0)
-                <table class="table table-responsive table-striped">
-                    <thead class="table-dark">
+                <table class="w-100">
+                    <thead class="table-head">
                         <tr>
-                            <th>Dirección</th>
+                            <th class="rounded-start">Dirección</th>
                             <th>Correo</th>
-                            <th>Seleccionar</th>
+                            <th class="rounded-end">Seleccionar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -277,9 +272,9 @@
                                 <td>{{ $dCliente->Calle }}</td>
                                 <td>{{ $dCliente->Email }}</td>
                                 <td>
-                                    <a class="btn"
-                                        href="/VerificarSolicitudFactura/{{ $numTicket }}/{{ $rfcCliente }}/{{ $dCliente->Bill_To }}/{{ empty($dCliente->Email) ? 'NoTieneCorreo' : $dCliente->Email }}">
-                                        <i class="material-icons">task_alt</i>
+                                    <a href="/VerificarSolicitudFactura/{{ $numTicket }}/{{ $rfcCliente }}/{{ $dCliente->Bill_To }}/{{ empty($dCliente->Email) ? 'NoTieneCorreo' : $dCliente->Email }}"
+                                        target="_blank" class="btn-table text-dark" style="width: fit-content" title="Verificar solicitud">
+                                        @include('components.icons.list')
                                     </a>
                                 </td>
                             </tr>

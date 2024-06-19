@@ -16,7 +16,8 @@ class CatPreparado extends Model
     public function Detalle()
     {
         return $this->hasMany(DatPreparados::class, 'IdPreparado', 'IdPreparado')
-            ->leftjoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo');
+            ->leftjoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo')
+            ->leftJoin('DatPrecios', [['CatArticulos.CodArticulo', 'DatPrecios.CodArticulo'], ['DatPreparados.IDLISTAPRECIO', 'DatPrecios.IdListaPrecio']]);
     }
 
     public function Tiendas()
