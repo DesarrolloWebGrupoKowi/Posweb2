@@ -876,7 +876,24 @@ Route::group(['middleware' => 'auth'], function () {
 
     //EliminarCatProdDiez
     Route::delete('/EliminarCatProdDiez/{id}', 'App\Http\Controllers\CatProdDiezController@destroy');
+}); //->Termina Middleware Auth
 
+// GRUPO ROSTICERO
+Route::group(['middleware' => 'auth'], function () {
+    //+============================================================================================================================================+//
+    // Rutas de rosticero para los administrativos
+    //+============================================================================================================================================+//
+    //BajaRosticero
+    Route::get('/InterfazarRosticero', 'App\Http\Controllers\InterfazRosticeroController@index');
+
+    //InterfazarRosticero
+    Route::post('/InterfazarRosticeroBaja/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazRosticeroController@InterfazarBaja');
+
+    //InterfazarRosticero
+    Route::post('/InterfazarRosticeroAlta/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazRosticeroController@InterfazarAlta');
+
+    //+============================================================================================================================================+//
+    // Rutas de rosticero para el cajero
     //+============================================================================================================================================+//
     //VerRosticero
     Route::get('/VerRosticero', 'App\Http\Controllers\RosticeroController@VerRosticero');
@@ -901,7 +918,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Eliminar Rosticero
     Route::delete('/EliminarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarDetalleRosticero');
-}); //->Termina Middleware Auth
+}); //->Termina Middleware Rosticero
 
 // pagina de error 404
 Route::fallback(function () {

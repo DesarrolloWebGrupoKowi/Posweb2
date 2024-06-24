@@ -33,4 +33,9 @@ class DatRosticero extends Model
         return $this->hasMany(DatDetalleRosticero::class, 'IdRosticero', 'IdRosticero')
             ->leftjoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatDetalleRosticero.CodigoArticulo');
     }
+
+    public function Lotes()
+    {
+        return $this->hasMany(ItemCloudTable::class, 'ITEM_NUMBER', 'CodigoMatPrima');
+    }
 }
