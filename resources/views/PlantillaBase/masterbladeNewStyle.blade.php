@@ -6,9 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@yield('title')</title>
+    <title>@yield('title') - Posweb </title>
 
-    <link rel="shortcut icon" href="{{ asset('img/logokowi.png') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logokowi-v2.png') }}">
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('material-icon/material-icon.css') }}">
     <link rel="stylesheet" href="{{ asset('Icons/font-awesome.min.css') }}">
@@ -22,7 +22,7 @@
         style="background: #1e293b; position: fixed; width: 100%; z-index: 999;">
         <div class="container-fluid @yield('dashboardWidth')">
             <a id="imgLogo" class="navbar-brand" href="/">
-                <img src={{ asset('img/logo.png') }} class="rounded" height="32">
+                <img src={{ asset('img/logo-v2.png') }} class="rounded" height="32">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
