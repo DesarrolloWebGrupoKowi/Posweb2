@@ -52,7 +52,8 @@
                         <th>Codigo</th>
                         <th>Rostizado</th>
                         <th>Tienda</th>
-                        <th>Cantidad</th>
+                        <th>Cantidad baja</th>
+                        <th>Cantidad alta</th>
                         <th>Tipo</th>
                         <th class="rounded-end"></th>
                     </tr>
@@ -66,6 +67,7 @@
                             <td>{{ $rostisado->NomArticulo }}</td>
                             <td>{{ $rostisado->NomTienda }}</td>
                             <td>{{ $rostisado->CantidadMatPrima }}</td>
+                            <td>{{ $rostisado->CantidadVenta }}</td>
                             <td>
                                 @if (!$rostisado->FechaInterfazBaja)
                                     <span class="tags-green">Baja</span>
