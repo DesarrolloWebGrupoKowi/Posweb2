@@ -38,12 +38,12 @@
                 @endif
             @else
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto ">
                         <div id="ddUsuario" class="dropdown">
                             <a href="#" class="d-flex align-items-center text-white text-decoration-none gap-2"
                                 id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="rounded-circle"
-                                    style="font-size: 1.2rem; background: #e2e8f0; font-weight: 500; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; color: #1e293b">
+                                <span class="rounded-circle d-flex align-items-center justify-content-center"
+                                    style="font-size: 1.5rem; background: #e2e8f0; width: 2.5rem; height: 2.5rem; color: #1e293b; font-family: 'Times New Roman', serif; text-align: center; cursor: pointer;">
                                     {{ strtoupper(substr(Auth::user()->NomUsuario, 0, 1)) }}
                                 </span>
                                 <span class="pe-1" style="line-height: 1rem; font-weight: 500; color: #e2e8f0">

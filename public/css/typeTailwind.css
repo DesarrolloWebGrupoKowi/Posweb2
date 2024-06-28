@@ -95,6 +95,13 @@ h2 {
     color: #fff;
     line-height: 1.8rem;
     border: 1px solid #1e293b;
+    border-radius: 50rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: .875rem;
+    padding: 3px 15px;
+    font-weight: 500;
 }
 
 .btn-dark-outline {
@@ -139,12 +146,54 @@ button[disabled] i {
 }
 
 .btn-table {
-    display: flex;
-    background-color: #e2e8f0;
-    padding: .425rem 1rem;
+    display: inline-flex;
+    background-color: transparent;
+    padding: 0.3rem .7rem;
     text-align: center;
-    border: 1px solid #1e293b25;
-    border-radius: .5rem;
+    border: 1px solid #64748b;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+    color: #64748b;
+}
+
+.btn-table:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
+
+.btn-table:disabled {
+    background-color: #f1f5f9;
+    color: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-table-delete {
+    color: red;
+}
+
+.btn-table-delete:hover {
+    background-color: #ffe5e5;
+    color: darkred;
+}
+
+.btn-table-success {
+    color: #059669;
+}
+
+.btn-table-success:hover {
+    background-color: #e6fffa;
+    color: #03403f;
+}
+
+.btn-table-show {
+    color: #1e293b;
+}
+
+.btn-table-show:hover {
+    background-color: #e2e8f0;
+    color: #03403f;
 }
 
 .btn-table-outline {
@@ -166,6 +215,10 @@ button[disabled] i {
     border-radius: .25rem;
     background-color: rgb(222 247 236);
     padding: .125rem .625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 21px;
 }
 
 .tags-blue {
@@ -174,6 +227,10 @@ button[disabled] i {
     border-radius: .25rem;
     background-color: rgb(225 239 254);
     padding: .125rem .625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 21px;
 }
 
 .tags-red {
@@ -182,6 +239,10 @@ button[disabled] i {
     border-radius: .25rem;
     background-color: rgb(253 232 232);
     padding: .125rem .625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 21px;
 }
 
 .tags-yellow {
@@ -190,6 +251,10 @@ button[disabled] i {
     border-radius: .25rem;
     background-color: rgb(253 246 178);
     padding: .125rem .625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 21px;
 }
 
 .dp-none {
