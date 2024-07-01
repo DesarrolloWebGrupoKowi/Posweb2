@@ -499,17 +499,19 @@ class ReportesController extends Controller
 
     function ReportePedidosOracle(Request $request)
     {
-        $pos = substr_replace($request->pos, '', 3, 1);
+        $txtFiltro = substr_replace($request->txtFiltro, '', 3, 1);
         // $pos = 'POS482305';
         $concentrado = DB::table('DatCortesTienda as a')
             ->leftJoin('DatEncabezado as b', 'b.IdEncabezado', 'a.IdEncabezado')
             ->leftJoin('CatTiendas as c', 'a.IdTienda', 'c.IdTienda')
             ->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as d', 'd.Source_Transaction_Identifier', 'a.Source_Transaction_Identifier')
             ->select(DB::raw('a.Source_Transaction_Identifier, b.IdTicket, a.FechaVenta, c.NomTienda, d.MENSAJE_ERROR'))
-            ->where('a.Source_Transaction_Identifier', $pos)
+            ->where('a.Source_Transaction_Identifier', $txtFiltro)
             ->groupBy('a.Source_Transaction_Identifier', 'b.IdTicket', 'a.FechaVenta', 'c.NomTienda', 'd.MENSAJE_ERROR')
             ->get();
 
-        return view('Reportes.PedidosOracle', compact('pos', 'concentrado'));
+        $txtFiltro = $txtFiltro ? substr_replace($txtFiltro, '_', 3, 0) : $txtFiltro;
+
+        return view('Reportes.PedidosOracle', compact('txtFiltro', 'concentrado'));
     }
 }
