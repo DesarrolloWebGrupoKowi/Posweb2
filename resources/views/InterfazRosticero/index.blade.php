@@ -48,7 +48,8 @@
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Fecha</th>
+                        <th class="rounded-start">ID</th>
+                        <th>Fecha</th>
                         <th>Codigo</th>
                         <th>Rostizado</th>
                         <th>Tienda</th>
@@ -62,6 +63,7 @@
                     @include('components.table-empty', ['items' => $rostisados, 'colspan' => 9])
                     @foreach ($rostisados as $rostisado)
                         <tr style="vertical-align: middle">
+                            <td>{{ $rostisado->IdRosticero }}</td>
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($rostisado->Fecha)) }}</td>
                             <td>{{ $rostisado->CodigoMatPrima }}</td>
                             <td>{{ $rostisado->NomArticulo }}</td>

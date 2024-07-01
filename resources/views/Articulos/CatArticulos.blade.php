@@ -2,35 +2,25 @@
 @section('title', 'Catálogo de Articulos')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
+    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
 
-    <div class="container-fluid pt-4 width-95">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Articulos'])
-            <div>
-                <a href="/BuscarArticulo" class="btn btn-sm btn-dark">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar articulo
-                </a>
-                <a href="/CatArticulos" class="btn btn-dark-outline">
-                    <span class="material-icons">refresh</span>
-                </a>
-            </div>
-        </div>
-
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-
-        <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/CatArticulos">
-            <div class="input-group" style="max-width: 300px">
-                <input type="text" name="txtFiltroArticulo" class="form-control" placeholder="Nombre del articulo"
-                    value="{{ $filtroArticulo }}">
-                <div class="input-group-append">
-                    <button class="input-group-text"><span class="material-icons">search</span></button>
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Catálogo de Articulos'])
+                <div>
+                    <a href="/BuscarArticulo" class="btn btn-sm btn-dark" title="Agregar articulo">
+                        Agregar articulo @include('components.icons.plus-circle')
+                    </a>
                 </div>
             </div>
-        </form>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <div>
+                @include('Alertas.Alertas')
+            </div>
+        </div>
+
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            @include('components.table-search')
             <table>
                 <thead class="table-head">
                     <tr>
@@ -51,47 +41,40 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (count($articulos) == 0)
+                    @include('components.table-empty', ['items' => $articulos, 'colspan' => 14])
+                    @foreach ($articulos as $articulo)
                         <tr>
-                            <td colspan="14">No Hay Articulos</td>
+                            <td>{{ $articulo->CodArticulo }}</td>
+                            <td>{{ $articulo->NomArticulo }}</td>
+                            <td>{{ $articulo->Amece }}</td>
+                            <td>{{ $articulo->UOM }}</td>
+                            <td>{{ $articulo->UOM2 }}</td>
+                            <td>{{ $articulo->Peso }}</td>
+                            <td>{{ $articulo->CodEtiqueta }}</td>
+                            <td>{{ $articulo->PrecioRecorte }}</td>
+                            <td>{{ $articulo->Factor }}</td>
+                            <td>{{ $articulo->NomTipoArticulo }}</td>
+                            <td>{{ $articulo->NomFamilia }}</td>
+                            <td>{{ $articulo->NomGrupo }}</td>
+                            <td>
+                                @if ($articulo->Iva == 0)
+                                    Si
+                                @else
+                                    No
+                                @endif
+                            </td>
+                            <td>
+                                <button class="btn-table" data-bs-toggle="modal"
+                                    data-bs-target="#ModalEditar-{{ $articulo->CodArticulo }}" title="Editar articulo">
+                                    @include('components.icons.list')
+                                </button>
+                            </td>
+                            @include('Articulos.ModalEditar')
                         </tr>
-                    @else
-                        @foreach ($articulos as $articulo)
-                            <tr>
-                                <td>{{ $articulo->CodArticulo }}</td>
-                                <td>{{ $articulo->NomArticulo }}</td>
-                                <td>{{ $articulo->Amece }}</td>
-                                <td>{{ $articulo->UOM }}</td>
-                                <td>{{ $articulo->UOM2 }}</td>
-                                <td>{{ $articulo->Peso }}</td>
-                                <td>{{ $articulo->CodEtiqueta }}</td>
-                                <td>{{ $articulo->PrecioRecorte }}</td>
-                                <td>{{ $articulo->Factor }}</td>
-                                <td>{{ $articulo->NomTipoArticulo }}</td>
-                                <td>{{ $articulo->NomFamilia }}</td>
-                                <td>{{ $articulo->NomGrupo }}</td>
-                                <td>
-                                    @if ($articulo->Iva == 0)
-                                        Si
-                                    @else
-                                        No
-                                    @endif
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEditar-{{ $articulo->CodArticulo }}">
-                                        <span style="font-size: 18px" class="material-icons">edit</span>
-                                    </button>
-                                </td>
-                                @include('Articulos.ModalEditar')
-                            </tr>
-                        @endforeach
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $articulos])
         </div>
-    </div>
-    <div class="mt-5 d-flex justify-content-center">
-        {!! $articulos->links() !!}
     </div>
 @endsection
