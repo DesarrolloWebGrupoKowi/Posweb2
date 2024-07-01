@@ -2,25 +2,28 @@
 @section('title', 'Editar Paquete')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', [
-                'titulo' => $nomPaquete,
-                'options' => [['name' => 'Paquetes', 'value' => '/VerPaquetes']],
-            ])
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', [
+                    'titulo' => $nomPaquete,
+                    'options' => [['name' => 'CATÁLOGO DE PAQUETES', 'value' => '/VerPaquetes']],
+                ])
+                <div>
+                    <a href="/VerPaquetes" class="btn btn-sm btn-dark" title="Agregar Usuario">
+                        Ver paquetes @include('components.icons.list')
+                    </a>
+                </div>
+            </div>
+
             <div>
-                <a href="/VerPaquetes" class="btn btn-sm btn-dark" title="Agregar Usuario">
-                    <i class="fa fa-eye"></i> Ver paquetes
-                </a>
+                @include('Alertas.Alertas')
             </div>
         </div>
 
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-
-        <div class="mt-4 content-table content-table-full card p-4" style="border-radius: 20px">
-            <div class="row mb-4">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <div class="row mb-2">
                 <div class="container">
                     <form id="formPaquete" action="/EditarPaqueteExistente/{{ $idPaquete }}" method="POST">
                         @csrf
@@ -31,7 +34,7 @@
                     </form>
                 </div>
                 <div class="col-auto">
-                    <label class="form-label fw-bold text-secondary">Codigo de articulo</label>
+                    <label class="form-label text-secondary mb-0" style="font-weight: 500">Código de artículo</label>
                     <input class="form-control" type="text" name="codArticulo" id="codArticulo"
                         placeholder="Código del articulo" autofocus>
                 </div>
@@ -67,9 +70,8 @@
                             </td>
                             <td>${{ $paqDetalle->ImporteArticulo }}</td>
                             <td>
-                                <button class="btn btnEliminarArticulo">
-                                    <span style="color: red" class="material-icons">delete_forever</span>
-                                </button>
+                                <button class="btn-table btn-table-delete btnEliminarArticulo">
+                                    @include('components.icons.delete')</button>
                             </td>
                         </tr>
                     @endforeach
@@ -86,9 +88,7 @@
             <div class="d-flex justify-content-end">
                 <div class="col-auto">
                     <button id="btnConfirmar" class="btn btn-warning" data-bs-toggle="modal"
-                        data-bs-target="#ModalConfirmarGuardar">
-                        <i class="fa fa-save"></i> Guardar
-                    </button>
+                        data-bs-target="#ModalConfirmarGuardar"> Guardar </button>
                 </div>
             </div>
         </div>
@@ -125,14 +125,18 @@
             if (e.key == 'Enter') {
                 if (codArticulo.value != '' && nomArticulo.textContent != '' && nomArticuloValid.textContent !=
                     '') {
-                    document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
-                        '<td>' + codArticulo.value + '</td>' +
-                        '<td>' + nomArticulo.textContent + '</td>' +
-                        '<td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>' +
-                        '<td><input class="form-control form-control-sm" type="number" name="precioArticulo[]" id="precioArticulo" placeholder="Precio" required></td>' +
-                        '<td></td>' +
-                        '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
-                        '</tr>';
+                    document.querySelector('tbody').insertRow(-1).innerHTML = `<tr>
+                            <td>${codArticulo.value} </td>
+                            <td>${nomArticulo.textContent} </td>
+                            <td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>
+                            <td><input class="form-control form-control-sm" type="number" name="precioArticulo[]" id="precioArticulo" placeholder="Precio" required></td>
+                            <td></td>
+                            <td>
+                                <button class="btn-table btn-table-delete btnEliminarArticulo">
+                                    @php echo view('components.icons.delete')->render(); @endphp
+                                </button>
+                            </td>
+                        </tr>`;
                     codArticulo.value = '';
                     nomArticulo.textContent = '';
                 }

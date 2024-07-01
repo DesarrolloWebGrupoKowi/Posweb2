@@ -1,18 +1,17 @@
 <!-- Modal Cantidad Precio Cero-->
 <div class="modal fade" id="ModalCantidadPrecioCero" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-exclamation-circle"></i> Cantidades ó Precios En Cero</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="exampleModalLabel">Cantidades ó Precios En Cero</h5>
             </div>
             <div class="modal-body">
-                <h4 style="text-align: center">No Puede Dejar Cantidades ó Precios en Cero</h4>
+                <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
+                    No Puede Dejar Cantidades ó Precios En Cero
+                </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
-                    <i class="fa fa-close"></i> Cerrar
-                </button>
+                <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">Cerrar </button>
             </div>
         </div>
     </div>

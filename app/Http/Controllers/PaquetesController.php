@@ -13,23 +13,21 @@ class PaquetesController extends Controller
 {
     public function VerPaquetes(Request $request)
     {
-        $nomPaquete = $request->nomPaquete;
+        $txtFiltro  = $request->txtFiltro;
 
         $paquetes = CatPaquete::with(['Usuario' => function ($empleado) {
             $empleado->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina');
         }, 'ArticulosPaquete' => function ($articulos) {
             $articulos->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatPaquetes.CodArticulo');
         }])
-            ->where('NomPaquete', 'like', '%' . $nomPaquete . '%')
+            ->where('NomPaquete', 'like', '%' . $txtFiltro  . '%')
             ->where('Status', 0)
             ->get();
 
         $paquetesActivos = CatPaquete::where('Status', 0)
             ->count();
 
-        //return $paquetes;
-
-        return view('Paquetes.VerPaquetes', compact('paquetes', 'nomPaquete', 'paquetesActivos'));
+        return view('Paquetes.VerPaquetes', compact('paquetes', 'txtFiltro', 'paquetesActivos'));
     }
 
     public function PaquetesLocal(Request $request)
