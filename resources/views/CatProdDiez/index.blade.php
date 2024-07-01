@@ -11,11 +11,8 @@
                     @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
                         <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
                             class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                            <i class="fa fa-plus-circle pe-1"></i> Agregar Producto
+                            Agregar Producto @include('components.icons.plus-circle')
                         </button>
-                        <a class="btn btn-dark-outline" href="/CatProdDiez">
-                            <span class="material-icons">refresh</span>
-                        </a>
                     @endif
                 </div>
             </div>
@@ -69,9 +66,10 @@
                             </td>
                             @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
                                 <td>
-                                    <button class="btn" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEliminarConfirm{{ $item->IdCatProdDiez }}">
-                                        <span style="color: red" class="material-icons">delete_forever</span>
+                                    <button class="btn-table btn-table-delete" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEliminarConfirm{{ $item->IdCatProdDiez }}"
+                                        title="Eliminar artículo">
+                                        @include('components.icons.delete')
                                     </button>
                                     @include('CatProdDiez.ModalEliminarConfirm')
                                 </td>
@@ -80,6 +78,7 @@
                     @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $catProducts])
         </div>
     </div>
 

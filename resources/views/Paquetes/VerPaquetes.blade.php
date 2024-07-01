@@ -70,6 +70,7 @@
                     @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $paquetes])
         </div>
     </div>
 @endsection

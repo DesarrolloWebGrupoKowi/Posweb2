@@ -20,8 +20,10 @@ class ReporteCancelacionTicketsController extends Controller
 {
     public function SolicitudesCancelacion(Request $request)
     {
-        $fecha = $request->txtFecha;
-        empty($fecha) ? $fecha = date('Y-m-d') : $fecha = $fecha;
+        $fecha1 = $request->txtFecha1;
+        $fecha2 = $request->txtFecha2;
+        empty($fecha1) ? $fecha1 = date('Y-m-d') : $fecha1 = $fecha1;
+        empty($fecha2) ? $fecha2 = date('Y-m-d') : $fecha2 = $fecha2;
 
         $solicitudesCancelacion = SolicitudCancelacionTicket::with([
             'Tienda' => function ($query) {
@@ -60,10 +62,12 @@ class ReporteCancelacionTicketsController extends Controller
                     );
             },
         ])
-            ->whereDate('FechaSolicitud', $fecha)
+            // ->whereDate('FechaSolicitud', '>=', $fecha)
+            ->whereRaw("cast(FechaSolicitud as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             // ->whereNull('SolicitudAprobada')
             // ->whereNull('FechaAprobacion')
             // ->whereNull('IdUsuarioAprobacion')
+            ->orderBy('FechaSolicitud', 'DESC')
             ->get();
 
         $importes = SolicitudCancelacionTicket::select('IdEncabezado')
@@ -77,7 +81,8 @@ class ReporteCancelacionTicketsController extends Controller
                         );
                 }
             ])
-            ->whereDate('FechaSolicitud', $fecha)
+            // ->whereDate('FechaSolicitud', '>=', $fecha)
+            ->whereRaw("cast(FechaSolicitud as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->where('SolicitudAprobada', '0')
             ->groupBy('IdEncabezado')
             ->get();
@@ -87,6 +92,6 @@ class ReporteCancelacionTicketsController extends Controller
             $total += $importe->encabezado->ImporteVenta;
         }
 
-        return view('ReporteCancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion', 'total', 'fecha'));
+        return view('ReporteCancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion', 'total', 'fecha1', 'fecha2'));
     }
 }

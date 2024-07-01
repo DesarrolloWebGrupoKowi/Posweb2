@@ -22,12 +22,18 @@ class CatProdDiezController extends Controller
     {
         $textValue = $request->textValue;
 
-        $catProducts = CatProdDiez::leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'CatProdDiez.CodArticulo')
+        $catProducts = CatProdDiez::select(
+            'CatProdDiez.*',
+            'CatArticulos.NomArticulo',
+            'CatListasPrecio.NomListaPrecio',
+            'CatUsuarios.NomUsuario'
+        )
+            ->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'CatProdDiez.CodArticulo')
             ->leftJoin('CatListasPrecio', 'CatListasPrecio.IdListaPrecio', 'CatProdDiez.IdListaPrecio')
             ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'CatProdDiez.IdUsuario')
             ->where('CatArticulos.NomArticulo', 'like', '%' . $textValue . '%')
             ->orWhere('CatArticulos.CodArticulo', 'like', '%' . $textValue . '%')
-            ->get();
+            ->paginate(10);
 
         $listaPrecios = ListaPrecio::get();
 

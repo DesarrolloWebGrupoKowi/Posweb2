@@ -22,7 +22,7 @@ class PaquetesController extends Controller
         }])
             ->where('NomPaquete', 'like', '%' . $txtFiltro  . '%')
             ->where('Status', 0)
-            ->get();
+            ->paginate(10);
 
         $paquetesActivos = CatPaquete::where('Status', 0)
             ->count();

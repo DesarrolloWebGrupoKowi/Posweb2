@@ -1,12 +1,12 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Módulo de Cancelación de Tickets')
+@section('title', 'Reporte de Cancelación de Tickets')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
         <div class="card border-0 p-4 flex-1" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Módulo de Cancelación de Tickets'])
+                @include('components.title', ['titulo' => 'Reporte de Cancelación de Tickets'])
             </div>
             <div>
                 @include('Alertas.Alertas')
@@ -15,12 +15,18 @@
 
         <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="ReporteSolicitudCancelacion">
-                <div class="d-flex align-items-center gap-2">
-                    <label for="txtFecha" class="text-secondary" style="font-weight: 500">Buscar:</label>
-                    <input class="form-control rounded" style="line-height: 18px" type="date" name="txtFecha"
-                        id="txtFecha" value="{{ $fecha }}" autofocus>
+                <div class="col-auto">
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="txtFecha1"
+                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" autofocus>
                 </div>
-                <button type="submit" class="d-none">Buscar</button>
+                <div class="col-auto">
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="txtFecha2"
+                        id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                </div>
+                {{-- <button type="submit" class="d-none">Buscar</button> --}}
+                <button class="btn btn-dark-outline" title="Buscar">
+                    @include('components.icons.search')
+                </button>
             </form>
 
             <table>
@@ -56,7 +62,8 @@
                                 <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
                                 <td>{{ $solicitud->Encabezado->NumCaja }}</td>
                                 <td>{{ $solicitud->Encabezado->IdTicket }}</td>
-                                <th>${{ number_format($solicitud->Encabezado->ImporteVenta, 2) }}</th>
+                                <td class="text-black">${{ number_format($solicitud->Encabezado->ImporteVenta, 2) }}
+                                </td>
                                 <td>
                                     @if ($solicitud->SolicitudAprobada == '0')
                                         <span class="tags-green">Aprovada</span>
@@ -78,16 +85,18 @@
                         @endif
                     @endforeach
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <th></th>
-                        <th></th>
-                        <th>${{ number_format($total, 2) }}</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
+                @if (count($solicitudesCancelacion) > 0)
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <th></th>
+                            <th></th>
+                            <td style="font-weight: 500">${{ number_format($total, 2) }}</td>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                @endif
             </table>
         </div>
     </div>
