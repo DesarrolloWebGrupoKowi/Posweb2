@@ -1,27 +1,25 @@
 <!-- Modal Desbloquear Empleado -->
-<div class="modal fade" data-bs-backdrop="static" id="DesbloquearEmpleado{{ $bloqueo->NumNomina }}"
-    aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+<div class="modal fade" id="DesbloquearEmpleado{{ $bloqueo->NumNomina }}" aria-labelledby="exampleModalToggleLabel2"
+    tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-user-plus"></i> Desbloquear Empleado</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Desbloquear Empleado </h5>
             </div>
             <form action="/DesbloquearEmpleado/{{ $bloqueo->NumNomina }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
-                        <h4 style="text-align: center">¿Desea desbloquear el empleado: {{ $bloqueo->Empleado->Nombre }}
-                            {{ $bloqueo->Empleado->Apellidos }} ?</h4>
+                        <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
+                            ¿Desea desbloquear el empleado
+                            <br>
+                            {{ $bloqueo->Empleado->Nombre }} {{ $bloqueo->Empleado->Apellidos }} ?
+                        </p>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                        <i class="fa fa-close"></i> Cerrar
-                    </button>
-                    <button id="btnDesbloquear" class="btn btn-warning">
-                        <i class="fa fa-user-plus"></i> Desbloquear Empleado
-                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar </button>
+                    <button id="btnDesbloquear" class="btn btn-warning">Desbloquear Empleado </button>
                 </div>
             </form>
         </div>
