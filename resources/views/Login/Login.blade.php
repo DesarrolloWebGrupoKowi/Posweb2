@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="{{ asset('img/logokowi.png') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logokowi-v2.png') }}">
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
     <link href="{{ asset('material-icon/material-icon.css') }}" rel="stylesheet">
@@ -53,7 +53,7 @@
                             </span>
                             <input type="password" class="form-control" name="Password" placeholder="Contraseña">
                         </div>
-                        <div class="mb-3 btnLogin" style="text-align: center;">
+                        <div class="mb-3 btnLogin d-flex justify-content-center" style="text-align: center;">
                             <button id="loginBtn" class="btn btn-sm btn-dark">
                                 <i class="fa fa-sign-in"></i> Iniciar Sesión
                             </button>

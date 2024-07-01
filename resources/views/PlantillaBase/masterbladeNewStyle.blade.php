@@ -32,7 +32,7 @@
             @guest
                 @if (!request()->routeIs('login'))
                     <a class="nav-link d-flex align-items-center text-white text-decoration-none" href="Login">
-                        <i class="fa fa-user pe-2" style="font-size: 1.2rem"></i>
+                        <span class="pe-2">@include('components.icons.user')</span>
                         <strong>Iniciar Sesión</strong>
                     </a>
                 @endif

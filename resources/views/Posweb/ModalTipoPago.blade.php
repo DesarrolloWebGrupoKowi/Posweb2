@@ -3,11 +3,18 @@
     <div class="modal-dialog modal-dialog modal-lg">
         <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2">Tipo de Pago Ticket :
-                    {{ $ticket->IdTicket }}</h5>
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Tipo de Pago Ticket</h5>
             </div>
             <div class="modal-body">
                 <div>
+                    <div>
+                        <p class="m-0 text-left" style="line-height: 24px">
+                            {{ strftime('%d %B %Y', strtotime($ticket->FechaVenta)) }}
+                        </p>
+                        <p class="m-0 text-left fw-bold" style="line-height: 24px">
+                            Ticket No. {{ $ticket->IdTicket }}
+                        </p>
+                    </div>
                     <table>
                         <thead>
                             <tr>
