@@ -63,7 +63,7 @@
                             <td>{{ number_format($ventaEmpleado->ImporteArticulo, 2) }}</td>
                             <td>
                                 @if ($ventaEmpleado->StatusCredito == '0')
-                                    <i class="fa fa-check"></i>
+                                    @include('components.icons.check-all')
                                 @endif
                             </td>
                         </tr>
