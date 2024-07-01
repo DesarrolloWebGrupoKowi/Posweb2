@@ -99,7 +99,7 @@ class CancelacionTicketsController extends Controller
             ->whereNull('SolicitudAprobada')
             ->whereNull('FechaAprobacion')
             ->whereNull('IdUsuarioAprobacion')
-            ->get();
+            ->paginate(10);
 
         //        return $solicitudesCancelacion;
 

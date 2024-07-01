@@ -1,11 +1,11 @@
 <div class="modal fade" id="ModalDetalleTicket{{ $solicitud->IdEncabezado }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-xl">
-        <div class="modal-content  border-0">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-info-circle"></i> Detalle Ticket :
-                    {{ $solicitud->Encabezado->IdTicket }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="exampleModalToggleLabel2">
+                    Detalle Ticket: {{ $solicitud->Encabezado->IdTicket }}
+                </h5>
             </div>
             <div class="modal-body">
                 <div>
@@ -40,9 +40,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">
-                    <i class="fa fa-close"></i> Cerrar
-                </button>
+                <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal"> Cerrar </button>
             </div>
         </div>
     </div>
