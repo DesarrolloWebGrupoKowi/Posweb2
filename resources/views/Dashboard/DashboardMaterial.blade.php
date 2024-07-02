@@ -34,11 +34,12 @@
             </div>
 
             @if ($menus->count() == 0)
-                <div class="d-flex justify-content-center">
-                    <h3><i style="color: red" class="fa fa-exclamation-triangle"></i> No Hay Menus Para Este
-                        Tipo de
-                        Usuario!
-                    </h3>
+                <div class="text-center p-4">
+                    <span class="fw-bold" style="color: #FF8300">500 error</span>
+                    <h1>Menú no encontrado</h1>
+                    <p class="text-secondary">
+                        Este usuario no cuenta con menus asignados, favor de hablar con el administador
+                    </p>
                 </div>
             @else
                 @foreach ($menus as $headerMenu)

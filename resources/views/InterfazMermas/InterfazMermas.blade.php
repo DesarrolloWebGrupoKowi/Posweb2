@@ -80,7 +80,7 @@
                                     @if ($merma->Lotes->count() == 0)
                                         <span class="tags-red">Sin lotes</span>
                                     @else
-                                        <button id="modalLote" class="btn text-secondary" data-bs-toggle="modal"
+                                        <button id="modalLote" class="btn-table" data-bs-toggle="modal"
                                             data-bs-target="#ModalLotes{{ $merma->CodArticulo }}">
                                             @include('components.icons.database')
                                         </button>

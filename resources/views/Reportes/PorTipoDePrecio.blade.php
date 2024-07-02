@@ -1,12 +1,12 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Ventas por tipo de Precio')
+@section('title', 'Concentrado Ventas por tipo de Precio')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
         <div class="card border-0 p-4" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Ventas por tipo de Precio'])
+                @include('components.title', ['titulo' => 'Concentrado Ventas por tipo de Precio'])
                 <div class="d-flex gap-2">
                     <form class="d-flex align-items-center justify-content-end flex-wrap pb-0 gap-2"
                         action="/ReportePorTipoDePrecio" method="GET">

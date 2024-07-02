@@ -1,12 +1,12 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Reporte de Cancelación de Tickets')
+@section('title', 'Reporte Tickets Cancelados')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
         <div class="card border-0 p-4 flex-1" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Reporte de Cancelación de Tickets'])
+                @include('components.title', ['titulo' => 'Reporte Tickets Cancelados'])
             </div>
             <div>
                 @include('Alertas.Alertas')
