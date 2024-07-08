@@ -620,15 +620,23 @@
                                     </td>
                                     <td style="color: red;">
                                         @if ($ticket->StatusVenta == 1)
-                                            <span class="tags-red">
+                                            <span class="tags-red" title="Ticket cancelado">
                                                 @include('components.icons.x')
                                             </span>
                                         @endif
-                                        @if (!empty($ticket->SolicitudCancelacionTicket) and $ticket->StatusVenta == 0)
-                                            <span class="tags-red">
-                                                @include('components.icons.loading')
-                                            </span>
-                                        @endif
+                                        @isset($ticket->SolicitudCancelacionTicket)
+                                            @if ($ticket->SolicitudCancelacionTicket->SolicitudAprobada == 0 and $ticket->StatusVenta == 0)
+                                                <span class="tags-red" title="En proceso de cancelación">
+                                                    @include('components.icons.loading') En proceso de cancelación
+                                                </span>
+                                            @endif
+                                            @if ($ticket->SolicitudCancelacionTicket->SolicitudAprobada == 1 and $ticket->StatusVenta == 0)
+                                                <span class="tags-red" title="Ticket con solicitud de cancelación, cancelada">
+                                                    {{-- @include('components.icons.loading') --}}
+                                                    Solicitud cancelada
+                                                </span>
+                                            @endif
+                                        @endisset
                                     </td>
                                     <td>
                                         <button class="btn-table btn-table-show" data-bs-toggle="modal"
