@@ -716,7 +716,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/CuentasMerma', 'App\Http\Controllers\CuentasMermaController@CuentasMerma')->name('CuentasMerma');
 
     //AgregarCuentaMerma
-    Route::post('/AgregarCuentaMerma/{idTipoMerma}', 'App\Http\Controllers\CuentasMermaController@AgregarCuentaMerma')->name('AgregarCuentaMerma');
+    Route::post('/AgregarCuentaMerma', 'App\Http\Controllers\CuentasMermaController@AgregarCuentaMerma')->name('AgregarCuentaMerma');
 
     //+============================================================================================================================================+//
     //CapMermas
