@@ -86,6 +86,7 @@ class MenuPoswebController extends Controller
     public function OrdenarMenus(Request $request)
     {
         $tiposUsuario = TipoUsuario::where('Status', 0)
+            ->orderBy('NomTipoUsuario')
             ->get();
 
         $idTipoUsuario = $request->idTipoUsuario ? $request->idTipoUsuario : 0;
@@ -136,6 +137,6 @@ class MenuPoswebController extends Controller
                 ]);
         }
 
-        return back();
+        return back()->with('msjAdd', 'Accion realizada correctamente!!');;
     }
 }
