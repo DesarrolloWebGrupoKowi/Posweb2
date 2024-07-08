@@ -10,8 +10,8 @@ class FamiliaArticulosController extends Controller
     public function CatFamilias(Request $request)
     {
         $familias = Familia::where('NomFamilia', 'like', '%' . $request->txtFiltro . '%')
-            ->orWhere('IdFamilia', $request->txtFiltro)
-            ->orderby('IdFamilia')
+            // ->orWhere('IdFamilia', $request->txtFiltro)
+            ->orderby('NomFamilia')
             ->paginate(10);
 
         $txtFiltro = $request->txtFiltro;
