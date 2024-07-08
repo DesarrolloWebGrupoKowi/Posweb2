@@ -2,35 +2,37 @@
 @section('title', 'Inventario')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
-            @include('components.title', ['titulo' => 'Inventario '])
-            <form class="d-flex align-items-center justify-content-end gap-2" action="/ReporteStockAdmin">
-                <div class="d-flex align-items-center justify-content-end">
-                    <div class="input-group" style="min-width: 300px">
-                        {{-- <input type="text" class="form-control" name="codArticulo" id="codArticulo" placeholder="Buscar"
-                            value="{{ $codArticulo }}" autofocus> --}}
-                        <select class="form-select" name="idTienda" id="idTienda" required>
-                            <option value="">Seleccione Tienda</option>
-                            @foreach ($tiendas as $tienda)
-                                <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <div class="input-group-append">
-                            <button class="input-group-text">
-                                <span class="material-icons">search</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <a href="/UpdateStockViewAdmin" class="btn btn-dark">
-                    Ajuste de inventario
-                </a>
-            </form>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Inventario '])
+
+                <form class="d-flex align-items-center justify-content-end gap-2" action="/UpdateStockViewAdmin">
+                    <input type="hidden" name="idTienda" value="{{ $idTienda }}" />
+                    <button class="btn btn-dark">
+                        Ajuste de inventario @include('components.icons.tools')
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <form class="d-flex flex-wrap align-items-center justify-content-end gap-2 pb-2" action="/ReporteStockAdmin">
+                <div>
+                    <select class="form-select rounded" style="line-height: 18px" name="idTienda" id="idTienda">
+                        <option value="">Seleccione Tienda</option>
+                        @foreach ($tiendas as $tienda)
+                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <button class="btn btn-dark-outline">
+                    @include('components.icons.search')
+                </button>
+            </form>
+
             <table>
                 <thead class="table-head">
                     <tr>
@@ -40,21 +42,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (count($stocks) == 0)
+                    @include('components.table-empty', ['items' => $stocks, 'colspan' => 3])
+                    @foreach ($stocks as $stock)
                         <tr>
-                            <td colspan="3">No se Encontraron Coincidencias!</td>
+                            <td>{{ $stock->CodArticulo }}</td>
+                            <td>
+                                {{ $stock->NomArticulo }}
+                            </td>
+                            <td style="color: {!! $stock->StockArticulo == 0 ? 'red; font-weight:bold;' : '' !!}">{{ $stock->StockArticulo }}</td>
                         </tr>
-                    @else
-                        @foreach ($stocks as $stock)
-                            <tr>
-                                <td>{{ $stock->CodArticulo }}</td>
-                                <td>
-                                    {{ $stock->NomArticulo }}
-                                </td>
-                                <td style="color: {!! $stock->StockArticulo == 0 ? 'red; font-weight:bold;' : '' !!}">{{ $stock->StockArticulo }}</td>
-                            </tr>
-                        @endforeach
-                    @endif
+                    @endforeach
                 </tbody>
                 <tfoot>
                     {{-- <tr>
