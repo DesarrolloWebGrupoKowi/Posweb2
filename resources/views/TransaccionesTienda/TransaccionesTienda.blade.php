@@ -2,27 +2,35 @@
 @section('title', 'Transacciones por Tienda')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
-            @include('components.title', ['titulo' => 'Transacciones por Tienda'])
-            <form class="d-flex align-items-center justify-content-end" id="formTransacciones" action="/TransaccionesTienda"
-                method="GET">
-                <div class="form-group" style="min-width: 300px">
-                    <label class="fw-bold text-secondary">Seleccione una tienda</label>
-                    <select class="form-select" name="idTienda" id="idTienda" required>
-                        <option value="">Seleccione una tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </form>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Transacciones por Tienda'])
+                <form class="d-flex align-items-center justify-content-end" id="formTransacciones"
+                    action="/TransaccionesTienda" method="GET">
+                    <div class="form-group" style="min-width: 300px">
+                        <label class="fw-bold text-secondary">Seleccione una tienda</label>
+                        <select class="form-select rounded" style="line-height: 18px" name="idTienda" id="idTienda"
+                            required>
+                            <option value="">Seleccione una tienda</option>
+                            @foreach ($tiendas as $tienda)
+                                <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div>
+                @include('Alertas.Alertas')
+            </div>
         </div>
 
-        <div>
-            @include('Alertas.Alertas')
-        </div>
+        @if (empty($idTienda))
+            <h2 class="text-center">Selecciona una tienda</h2>
+        @endif
 
         @if (!empty($idTienda))
             <div class="row">
@@ -31,7 +39,7 @@
                     <form action="EliminarTransaccionTienda/{{ $idTienda }}" method="POST">
                         @csrf
 
-                        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+                        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
                             <table>
                                 <thead class="table-head">
                                     <tr>
@@ -71,7 +79,7 @@
                 <div class="col-6">
                     <form action="/AgregarTransaccionTienda/{{ $idTienda }}" method="POST">
                         @csrf
-                        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+                        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
                             <table>
                                 <thead class="table-head">
                                     <tr>
