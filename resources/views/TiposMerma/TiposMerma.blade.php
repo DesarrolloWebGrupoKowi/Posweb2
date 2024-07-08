@@ -2,20 +2,23 @@
 @section('title', 'Catálogo de Tipos de Merma')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Tipos de Merma'])
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Catálogo de Tipos de Merma'])
+                <div>
+                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarTipoMerma">
+                        Agregar tipo @include('components.icons.plus-circle')
+                    </button>
+                </div>
+            </div>
             <div>
-                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarTipoMerma">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar tipo
-                </button>
+                @include('Alertas.Alertas')
             </div>
         </div>
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <table>
                 <thead class="table-head">
                     <tr>
@@ -25,37 +28,23 @@
                     </tr>
                 </thead>
                 <tbody style="vertical-align: middle">
-                    @if ($tiposMerma->count() == 0)
+                    @include('components.table-empty', ['items' => $tiposMerma, 'colspan' => 3])
+                    @foreach ($tiposMerma as $tipoMerma)
                         <tr>
-                            <td colspan="3">No hay tipos de merma agregadas!</td>
+                            <td>{{ $tipoMerma->IdTipoMerma }}</td>
+                            <td>{{ $tipoMerma->NomTipoMerma }}</td>
+                            <td>
+                                <button class="btn-table btn-table-delete" data-bs-toggle="modal"
+                                    data-bs-target="#ModalEliminarArticuloTipoMerma{{ $tipoMerma->IdTipoMerma }}">
+                                    @include('components.icons.delete')
+                                </button>
+                            </td>
+                            @include('TiposMerma.ModalEliminarTipoMerma')
                         </tr>
-                    @else
-                        @foreach ($tiposMerma as $tipoMerma)
-                            <tr>
-                                <td>{{ $tipoMerma->IdTipoMerma }}</td>
-                                <td>{{ $tipoMerma->NomTipoMerma }}</td>
-                                <td>
-                                    <button class="btn" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEliminarArticuloTipoMerma{{ $tipoMerma->IdTipoMerma }}">
-                                        <span style="color: red" class="material-icons">delete_forever</span>
-                                    </button>
-                                </td>
-                                @include('TiposMerma.ModalEliminarTipoMerma')
-                            </tr>
-                        @endforeach
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
-    {{-- <div class="container">
-        <div class="d-flex justify-content-end mb-2 me-3">
-            <div class="col-auto">
-                <button class="btn card shadow" data-bs-toggle="modal" data-bs-target="#ModalAgregarTipoMerma">
-                    <span class="material-icons">add_circle</span>
-                </button>
-            </div>
-        </div>
-         --}}
     @include('TiposMerma.ModalAgregarTipoMerma')
 @endsection
