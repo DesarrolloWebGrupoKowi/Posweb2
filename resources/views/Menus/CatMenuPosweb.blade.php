@@ -2,35 +2,27 @@
 @section('title', 'Catálogo de Menú Posweb')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Menús'])
-            <div>
-                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar menú
-                </button>
-                <a href="/CatMenuPosweb" class="btn btn-dark-outline">
-                    <span class="material-icons">refresh</span>
-                </a>
-            </div>
-        </div>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-
-        <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/CatMenuPosweb">
-            <div class="input-group" style="max-width: 300px">
-                <input type="text" name="txtFiltroMenu" class="form-control" placeholder="Menú"
-                    value="{{ $filtroMenu }}" autofocus>
-                <div class="input-group-append">
-                    <button class="input-group-text"><span class="material-icons">search</span></button>
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Catálogo de Menús'])
+                <div>
+                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                        Agregar menú @include('components.icons.plus-circle')
+                    </button>
                 </div>
             </div>
-        </form>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <div>
+                @include('Alertas.Alertas')
+            </div>
+        </div>
+
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            @include('components.table-search')
+
             <table>
                 <thead class="table-head">
                     <tr>
@@ -53,9 +45,9 @@
                             <td>{{ $menuPosweb->cmpIcono }}</td>
                             <td>{{ $menuPosweb->cmpBgColor }}</td>
                             <td>
-                                <button class="btn btn-sm" data-bs-toggle="modal"
+                                <button class="btn-table" data-bs-toggle="modal"
                                     data-bs-target="#ModalEditar{{ $menuPosweb->cmpIdMenu }}">
-                                    <span style="font-size: 18px" class="material-icons">edit</span>
+                                    @include('components.icons.edit')
                                 </button>
                             </td>
                         </tr>
@@ -63,10 +55,8 @@
                     @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $menusPosweb])
         </div>
-    </div>
-    <div class="mt-5 d-flex justify-content-center">
-        {!! $menusPosweb->links() !!}
     </div>
     @include('Menus.ModalAgregar')
 @endsection

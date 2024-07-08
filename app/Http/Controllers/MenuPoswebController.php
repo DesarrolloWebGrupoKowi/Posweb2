@@ -21,7 +21,7 @@ class MenuPoswebController extends Controller
         $tipoMenus = TipoMenu::where('Status', 0)
             ->get();
 
-        $filtroMenu = $request->txtFiltroMenu;
+        $txtFiltro = $request->txtFiltro;
 
         $menusPosweb = DB::table('CatMenus as a')
             ->leftJoin('CatTipoMenu as b', 'b.IdTipoMenu', 'a.IdTipoMenu')
@@ -37,11 +37,14 @@ class MenuPoswebController extends Controller
                 'b.NomTipoMenu as ctmNomTipoMenu',
                 'b.Status as ctmStatus'
             )
-            ->where('a.NomMenu', 'like', '%' . $filtroMenu . '%')
+            ->where('a.NomMenu', 'like', '%' . $txtFiltro . '%')
+            ->orWhere('b.NomTipoMenu', 'like', '%' . $txtFiltro . '%')
+            ->orderBy('b.NomTipoMenu')
+            ->orderBy('a.NomMenu')
             ->paginate(10)
             ->withQueryString();
         //return $menusPosweb;
-        return view('Menus.CatMenuPosweb', compact('tipoMenus', 'menusPosweb', 'filtroMenu'));
+        return view('Menus.CatMenuPosweb', compact('tipoMenus', 'menusPosweb', 'txtFiltro'));
     }
 
     public function CrearMenuPosweb(Request $request)
