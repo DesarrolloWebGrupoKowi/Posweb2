@@ -41,7 +41,7 @@
                     <tr>
                         <th class="rounded-start">Id Estado</th>
                         <th>Nombre</th>
-                        <th></th>
+                        <th>Estatus</th>
                         <th class="rounded-end">Acciones</th>
                     </tr>
                 </thead>
