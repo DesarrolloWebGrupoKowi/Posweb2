@@ -9,14 +9,14 @@
                 <div class="modal-body">
                     @csrf
                     <div class="mb-3">
-                        <label for="" class="form-label mb-0">Nombre del preparado</label>
-                        <input type="text" name="nombre" class="form-control" placeholder="Nombre del preparado"
-                            autofocus>
+                        <label class="form-label mb-0">Nombre del preparado</label>
+                        <input type="text" name="nombre" class="form-control rounded" style="line-height: 18px"
+                            placeholder="Nombre del preparado" autofocus>
                     </div>
                     <div class="mb-3">
-                        <label for="" class="form-label mb-0">Cantidad</label>
-                        <input type="number" name="cantidad" min="0" step=".1" class="form-control"
-                            placeholder="Cantidad">
+                        <label class="form-label mb-0">Cantidad (PIEZAS)</label>
+                        <input type="number" name="cantidad" min="0" step=".1" class="form-control rounded"
+                            style="line-height: 18px" placeholder="Cantidad en piezas">
                     </div>
                 </div>
                 <div class="modal-footer">

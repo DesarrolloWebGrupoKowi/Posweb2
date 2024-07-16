@@ -23,7 +23,9 @@
                     <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha"
                         id="fecha" value="{{ $fecha }}" autofocus>
                 </div>
-                <button type="submit" class="d-none"> </button>
+                <button type="submit" class="btn btn-dark-outline">
+                    @include('components.icons.search')
+                </button>
             </form>
 
             <table>
@@ -48,9 +50,9 @@
                             <td>{{ $asignado->CantidadEnvio }} piezas</td>
                             <td>
                                 @if ($asignado->Subir == 1)
-                                    <span class="tags-green"> Online </span>
+                                    <span class="tags-green" title="En linea"> @include('components.icons.cloud-check') </span>
                                 @else
-                                    <span class="tags-red">Offline </span>
+                                    <span class="tags-red" title="Fuera de linea"> @include('components.icons.cloud-slash') </span>
                                 @endif
                             </td>
                             <td>
@@ -64,10 +66,7 @@
                     @endforeach
                 </tbody>
             </table>
-        </div>
-
-        <div class="mt-5 d-flex justify-content-center">
-            {!! $asignados->links() !!}
+            @include('components.paginate', ['items' => $asignados])
         </div>
     </div>
 
