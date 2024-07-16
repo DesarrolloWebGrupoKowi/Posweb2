@@ -114,10 +114,10 @@
 @section('scripts')
     <script>
         document.addEventListener('change', e => {
-            if (e.target.matches('.form-select')) {
+            if (e.target.matches('.form-select-submit')) {
                 console.log(e.target.value);
                 console.log(e.target.getAttribute('data-id'));
-                document.querySelectorAll('.form-select').forEach(element => {
+                document.querySelectorAll('.form-select-submit').forEach(element => {
                     element.value = e.target.value;
                 });
                 let form = document.getElementById('form-update');

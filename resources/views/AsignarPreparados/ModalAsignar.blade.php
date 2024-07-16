@@ -15,8 +15,7 @@
                         <p class="m-0 text-left fw-bold" style="line-height: 24px">
                             {{ $preparado->Nombre }}</p>
                     </div>
-                    <form class="form-agregar-detalle d-flex gap-2"action="/AsignarTienda/{{ $preparado->IdPreparado }}"
-                        method="POST">
+                    <form class="d-flex gap-2" action="/AsignarTienda/{{ $preparado->IdPreparado }}" method="POST">
                         @csrf
                         <input type="hidden" name="preparado" value="{{ $preparado->preparado }}">
                         <div class="d-flex flex-column">

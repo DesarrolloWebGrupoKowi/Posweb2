@@ -69,8 +69,9 @@
                                     ${{ number_format($detalle->PrecioArticulo * $detalle->CantidadFormula, 2, '.', '.') }}
                                 </td>
                                 <td>
-                                    <select name="IdListaPrecio" id="IdListaPrecio" class="form-select rounded"
-                                        style="line-height: 18px" data-id="{{ $detalle->IdPreparado }}">
+                                    <select name="IdListaPrecio" id="IdListaPrecio"
+                                        class="form-select form-select-submit rounded" style="line-height: 18px"
+                                        data-id="{{ $detalle->IdPreparado }}">
                                         @foreach ($listaPrecios as $lista)
                                             <option value="{{ $lista->IdListaPrecio }}"
                                                 {{ $lista->IdListaPrecio == $detalle->IdListaPrecio ? 'selected' : '' }}>
