@@ -1,5 +1,5 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Módulo de Captura de Mermas')
+@section('title', 'Captura de Mermas')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
@@ -8,7 +8,9 @@
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Captura de Mermas'])
                 <div>
-                    <a href="/ReporteMermas" class="btn btn-sm btn-dark"> Historial mermas </a>
+                    <a href="/ReporteMermas" class="btn btn-dark">
+                        Historial mermas @include('components.icons.text-file')
+                    </a>
                 </div>
             </div>
             <div>
@@ -18,7 +20,7 @@
 
         <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
 
-            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" id="formMerma" action="/CapMermas">
+            <form class="d-flex align-items-center justify-content-end gap-2" id="formMerma" action="/CapMermas">
                 <div class="d-flex align-items-center gap-2">
                     <label for="idTipoMerma" class="text-secondary" style="font-weight: 500; white-space: nowrap;">Tipo de
                         Merma:</label>
@@ -33,7 +35,7 @@
                 </div>
             </form>
 
-            <form class="d-flex flex-wrap align-items-end justify-content-end pb-4 gap-2"
+            <form class="d-flex flex-wrap align-items-end justify-content-end pb-2 gap-2"
                 action="/TmpMermas/{{ $idTipoMerma }}" method="POST">
                 @csrf
                 @if ($subTiposMerma->count() > 0)
