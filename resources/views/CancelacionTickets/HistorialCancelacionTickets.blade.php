@@ -81,13 +81,13 @@
                                 </td>
                                 <td>
                                     @if ($solicitud->SolicitudAprobada == '0')
-                                        <span class="tags-green"> Aprovada </span>
+                                        <span class="tags-green"> Aprobada </span>
                                     @endif
                                     @if ($solicitud->SolicitudAprobada == 1)
                                         <span class="tags-red"> Rechazada </span>
                                     @endif
                                 </td>
-                                <td class="puntitos">
+                                <td class="puntitos" title="{{ $solicitud->MotivoCancelacion }}">
                                     {{ $solicitud->MotivoCancelacion }}
                                 </td>
                                 @include('CancelacionTickets.ModalConfirmarCancelacion')

@@ -79,7 +79,9 @@
                                     </button>
                                     @include('CancelacionTickets.ModalDetalleTicket')
                                 </td>
-                                <td class="puntitos">{{ $solicitud->MotivoCancelacion }}</td>
+                                <td class="puntitos" title="{{ $solicitud->MotivoCancelacion }}">
+                                    {{ $solicitud->MotivoCancelacion }}
+                                </td>
                                 <td>
                                     <button class="btn-table btn-table-success" data-bs-toggle="modal"
                                         data-bs-target="#ModalConfirmarCancelacion{{ $solicitud->IdEncabezado }}"

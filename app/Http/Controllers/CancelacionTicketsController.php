@@ -357,6 +357,7 @@ class CancelacionTicketsController extends Controller
                     ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete');
             },
             'TipoPago',
+            'SolicitudCancelacionTicket',
         ])
             ->where('IdTicket', $idTicket)
             ->where('IdTienda', $idTienda)
