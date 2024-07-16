@@ -31,7 +31,8 @@
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Nombre</th>
+                        <th class="rounded-start">Folio</th>
+                        <th>Nombre</th>
                         <th>Tienda</th>
                         <th>Fecha</th>
                         <th>Cantidad Enviada</th>
@@ -43,6 +44,7 @@
                     @include('components.table-empty', ['items' => $asignados, 'colspan' => 5])
                     @foreach ($asignados as $asignado)
                         <tr>
+                            <td>{{ $asignado->IdPreparado }}</td>
                             <td>{{ $asignado->Nombre }}</td>
                             <td>{{ $asignado->NomTienda }}</td>
                             <td>{{ ucfirst(\Carbon\Carbon::parse($asignado->Fecha)->locale('es')->isoFormat('dddd D \d\e MMMM \d\e\l Y')) }}
