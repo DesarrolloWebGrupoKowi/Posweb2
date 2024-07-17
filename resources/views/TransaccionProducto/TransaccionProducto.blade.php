@@ -7,6 +7,11 @@
         <div class="card border-0 p-4 flex-1" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Transacción de Producto'])
+                <div>
+                    <a href="/HistorialTransaccion" class="btn btn-dark">
+                        Historial transacción @include('components.icons.text-file')
+                    </a>
+                </div>
             </div>
             <div>
                 @include('Alertas.Alertas')
@@ -137,7 +142,7 @@
                     '<td>' + document.querySelector('#nomArticulo').textContent + '</td>' +
                     '<td><input class="form-control form-control-sm" type="number" name="cantArticulo[]" id="cantArticulo" placeholder="Cantidad" required></td>' +
                     // '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
-                    `<td><button class="btn-table btnEliminarArticulo" title="Eliminar rostizado"> @include("components.icons.delete") </button></td>`+
+                    `<td><button class="btn-table btnEliminarArticulo" title="Eliminar rostizado"> @include('components.icons.delete') </button></td>` +
                     '</tr>';
                 codArticulo.value = '';
                 document.querySelector('#nomArticulo').innerHTML = '...';
