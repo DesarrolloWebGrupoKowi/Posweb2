@@ -6,23 +6,38 @@
 
         <div class="card border-0 p-4 flex-1" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Solicitudes de Factura'])
+                @include('components.title', [
+                    'titulo' => 'Solicitudes de Factura',
+                    'options' => [['name' => 'Solicitar factura', 'value' => '/SolicitudFactura']],
+                ])
             </div>
         </div>
 
         <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <form class="d-flex align-items-end justify-content-end gap-2 pb-2" action="/VerSolicitudesFactura">
-                <div class="d-flex align-items-center gap-2">
+                {{-- <div class="d-flex align-items-center gap-2">
                     <label for="fechaSolicitud" class="text-secondary" style="font-weight: 500">Buscar:</label>
                     <input class="form-control rounded" style="line-height: 18px" type="date" name="fechaSolicitud"
                         id="fechaSolicitud" value="{{ $fechaSolicitud }}" autofocus>
+                </div> --}}
+                <div class="col-auto">
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="txtFecha1"
+                        id="fecha1" value="{{ $fecha1 }}" autofocus>
                 </div>
-                <button class="d-none input-group-text"><span class="material-icons">search</span></button>
+                <div class="col-auto">
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="txtFecha2"
+                        id="fecha2" value="{{ $fecha2 }}">
+                </div>
+                <button class="btn btn-dark-outline" title="Buscar">
+                    @include('components.icons.search')
+                </button>
+                {{-- <button class="d-none input-group-text"><span class="material-icons">search</span></button> --}}
             </form>
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Fecha</th>
+                        <th class="rounded-start">Folio</th>
+                        <th>Fecha</th>
                         <th>Nombre</th>
                         <th>RFC</th>
                         <th>Correo</th>
@@ -35,8 +50,11 @@
                     @include('components.table-empty', ['items' => $solicitudesFactura, 'colspan' => 7])
                     @foreach ($solicitudesFactura as $solicitudFactura)
                         <tr>
+                            <td>{{ $solicitudFactura->IdSolicitudFactura }}</td>
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($solicitudFactura->FechaSolicitud)) }}</td>
-                            <td>{{ $solicitudFactura->NomCliente }}</td>
+                            <td class="puntitos" title="{{ $solicitudFactura->NomCliente }}">
+                                {{ $solicitudFactura->NomCliente }}
+                            </td>
                             <td>{{ $solicitudFactura->RFC }}</td>
                             <td>{{ $solicitudFactura->Email }}</td>
                             <td style="text-align: center">
@@ -73,6 +91,7 @@
                     @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $solicitudesFactura])
         </div>
 
     </div>

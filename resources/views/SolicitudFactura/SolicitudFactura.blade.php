@@ -7,6 +7,9 @@
         <div class="card border-0 p-4" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Solicitar Factura - ' . $tienda->NomTienda])
+                <a href="/VerSolicitudesFactura" class="btn btn-dark">
+                    Historial Facturación @include('components.icons.text-file')
+                </a>
             </div>
 
             <div>
@@ -273,7 +276,8 @@
                                 <td>{{ $dCliente->Email }}</td>
                                 <td>
                                     <a href="/VerificarSolicitudFactura/{{ $numTicket }}/{{ $rfcCliente }}/{{ $dCliente->Bill_To }}/{{ empty($dCliente->Email) ? 'NoTieneCorreo' : $dCliente->Email }}"
-                                        target="_blank" class="btn-table text-dark" style="width: fit-content" title="Verificar solicitud">
+                                        target="_blank" class="btn-table text-dark" style="width: fit-content"
+                                        title="Verificar solicitud">
                                         @include('components.icons.list')
                                     </a>
                                 </td>
