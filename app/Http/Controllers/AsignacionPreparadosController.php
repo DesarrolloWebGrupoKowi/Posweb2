@@ -36,7 +36,8 @@ class AsignacionPreparadosController extends Controller
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->whereDate('CatPreparado.Fecha', $fecha)
                 ->orderBy('CatPreparado.Fecha', 'DESC')
-                ->paginate(10);
+                ->paginate(10)
+                ->withQueryString();
         } else {
             $asignados = DatAsignacionPreparados::with('Detalle')
                 ->select(
@@ -53,7 +54,8 @@ class AsignacionPreparadosController extends Controller
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->orderBy('CatPreparado.Fecha', 'DESC')
-                ->paginate(10);
+                ->paginate(10)
+                ->withQueryString();
         }
 
         return view('AsignacionPreparados.index', compact('asignados', 'fecha'));
