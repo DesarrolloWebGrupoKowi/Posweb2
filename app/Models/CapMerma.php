@@ -17,7 +17,7 @@ class CapMerma extends Model
     protected $fillable = [
         'IdTienda', 'FechaCaptura', 'CodArticulo',
         'CantArticulo', 'IdTipoMerma', 'IdSubTipoMerma',
-        'Comentario', 'IdUsuarioCaptura', 'IdUsuarioInterfaz', 'FechaInterfaz'
+        'Comentario', 'IdUsuarioCaptura', 'IdUsuarioInterfaz', 'FechaInterfaz', 'FolioMerma'
     ];
     public $timestamps = false;
     protected $primaryKey = 'IdMerma';

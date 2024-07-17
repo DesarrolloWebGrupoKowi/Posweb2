@@ -14,6 +14,26 @@
         </div>
 
         <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-between">
+                @include('components.number-paginate')
+                <form id="search-form" class="d-flex align-items-center justify-content-end gap-2 pb-2"
+                    action="/HistorialRosticero" method="GET">
+                    <div class="d-flex flex-column">
+                        <input type="date" class="form-control rounded" style="line-height: 18px" name="fecha1"
+                            value="{{ $fecha1 }}" autofocus>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <input type="date" class="form-control rounded" style="line-height: 18px" name="fecha2" required
+                            value="{{ $fecha2 }}">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-dark-outline">
+                            @include('components.icons.search')
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <table>
                 <thead class="table-head">
                     <tr>

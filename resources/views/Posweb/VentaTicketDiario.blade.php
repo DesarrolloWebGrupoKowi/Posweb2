@@ -28,6 +28,7 @@
                 <thead class="table-head">
                     <tr>
                         <th class="rounded-start">Ticket</th>
+                        <th>Folio</th>
                         <th>Fecha</th>
                         <th>Importe</th>
                         <th>Iva</th>
@@ -40,37 +41,45 @@
                     @foreach ($tickets as $ticket)
                         <tr>
                             <td>{{ $ticket->IdTicket }}</td>
+                            <td>{{ $ticket->IdEncabezado }}</td>
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}</td>
                             <td>$ {{ number_format($ticket->ImporteVenta, 2) }}</td>
                             <td>{{ number_format($ticket->Iva, 2) }}</td>
                             <td>
-                                @if ($ticket->StatusVenta == 1)
-                                    <span class="me-2 {{ $ticket->StatusVenta == 1 ? 'tags-red' : 'tags-green' }}">
-                                        {{ $ticket->StatusVenta == 1 ? 'Cancelada' : 'Realizada' }}
-                                    </span>
-                                @endif
-
                                 <span class="{{ $ticket->Subir == 1 ? 'tags-green' : 'tags-red' }}">
-                                    {{ $ticket->Subir == 1 ? 'Online' : 'Offline' }}
+                                    @if ($ticket->StatusVenta == 1)
+                                        @include('components.icons.cloud-slash')
+                                    @else
+                                        @include('components.icons.cloud-slash')
+                                    @endif
                                 </span>
+
+                                @if ($ticket->StatusVenta == 1)
+                                    <span class="me-2 tags-red" title="Ticket cancelado"> Cancelado </span>
+                                @elseif ($ticket->SolicitudCancelacionTicket)
+                                    @if ($ticket->SolicitudCancelacionTicket->SolicitudAprobada != 1)
+                                        <span class="me-2 tags-blue" title="Ticket en proceso de cancelación">
+                                            Solicitud de cancelación
+                                        </span>
+                                    @else
+                                        <span class="me-2 tags-yellow" title="La solicitud de cancelación fue rechazada">
+                                            Cancelación rechazada
+                                        </span>
+                                    @endif
+                                @endif
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
                                     @if (Carbon\Carbon::parse($ticket->FechaVenta)->format('d/m/Y') == Carbon\Carbon::parse(now())->format('d/m/Y'))
-                                        <div class="d-flex">
-                                            <form action="/ImprimirTicket">
-                                                <input class="form-control" type="hidden" name="txtFecha" id="txtFecha"
-                                                    value="{{ $ticket->FechaVenta }}" required>
-                                                <input style="text-align: center" class="form-control" type="hidden"
-                                                    id="txtIdTicket" name="txtIdTicket" placeholder="Ticket" size="4"
-                                                    value="{{ $ticket->IdTicket }}" required>
-                                                <div>
-                                                    <button class="btn-table" title="Reimprimir">
-                                                        @include('components.icons.print')
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
+                                        <form class="d-inline-flex" action="/ImprimirTicket">
+                                            <input type="hidden" name="txtFecha" id="txtFecha"
+                                                value="{{ $ticket->FechaVenta }}" required>
+                                            <input type="hidden" id="txtIdTicket" name="txtIdTicket" placeholder="Ticket"
+                                                size="4" value="{{ $ticket->IdTicket }}" required>
+                                            <button class="btn-table" title="Reimprimir">
+                                                @include('components.icons.print')
+                                            </button>
+                                        </form>
                                     @endif
                                     <button class="btn-table" data-bs-toggle="modal"
                                         data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}" title="Detalle">
@@ -80,6 +89,15 @@
                                         data-bs-target="#ModalTipoPago{{ $ticket->IdTicket }}" title="Tipo pago">
                                         @include('components.icons.dolar')
                                     </button>
+                                    @if (Carbon\Carbon::parse($ticket->FechaVenta)->format('d/m/Y') == Carbon\Carbon::parse(now())->format('d/m/Y'))
+                                        <form class="d-inline-flex" action="/SolicitudCancelacionTicket" method="GET">
+                                            <input name="idTicket" value="{{ $ticket->IdTicket }}" type="hidden">
+
+                                            <button class="btn-table" title="Cancelar ticket">
+                                                @include('components.icons.x')
+                                            </button>
+                                        </form>
+                                    @endif
                                     @if ($ticket->SolicitudFE == 0 && $ticket->SolicitudFE != null)
                                         <button class="btn-table" data-bs-toggle="modal"
                                             data-bs-target="#ModalSolicitudFe{{ $ticket->IdTicket }}"

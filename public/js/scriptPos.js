@@ -174,3 +174,25 @@ tipoPago.addEventListener('change', function () {
         idBanco.removeAttribute('required');
     }
 });
+
+document.addEventListener('submit', (e) => {
+    if (e.target.matches('#formPos')) {
+        // Buscamos si se encuantra con un codigo repetido
+        let codigoEtiqueta = e.target.txtCodigo.value;
+        let IdDatDetalleRosticero = document.querySelector('input[name="IdDatDetalleRosticero"]:checked');
+        let isCodigoEtiqueta = document.getElementById(codigoEtiqueta);
+        if (isCodigoEtiqueta && !IdDatDetalleRosticero) {
+            isCodigoEtiqueta.classList.replace('d-none', 'd-block');
+
+            // let modalOpen = $('ModalRostisado').hasClass('show');
+            let modalOpen = document.getElementById('ModalRostisado').classList.contains('show');
+            if (!modalOpen)
+                setTimeout(() => {
+                    document.getElementById('abrirModalRosticero').click();
+                }, 1);
+
+
+            e.preventDefault();
+        }
+    }
+})

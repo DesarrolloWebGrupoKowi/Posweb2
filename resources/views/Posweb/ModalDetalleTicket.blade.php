@@ -16,7 +16,7 @@
                         </p>
                     </div>
                     <table>
-                        <thead>
+                        <thead class="table-head-secondary">
                             <tr>
                                 <th>Código</th>
                                 <th>Articulo</th>

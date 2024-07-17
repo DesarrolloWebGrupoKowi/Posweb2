@@ -10,7 +10,7 @@
 
     <link rel="shortcut icon" href="{{ asset('img/logokowi-v2.png') }}">
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('material-icon/material-icon.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('material-icon/material-icon.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('Icons/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
 
@@ -93,7 +93,66 @@
         </div>
     </nav>
 
-    <div class="mb-4" style="padding-top: 64px">
+    <div class="mb-4" style="padding-top: 59px">
+        @if (!request()->routeIs('dashboard') && Auth::user()->tipoUsuario->IdTipoUsuario == 2)
+            <div style="background: #cbd5e1">
+                <div class="container-fluid @yield('dashboardWidth')">
+                    <a href="/Dashboard" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.tools')Dashboard
+                    </a>
+                    <a href="/Pos" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.check')Punto de venta
+                    </a>
+                    <a href="/CorteDiario" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.list')Corte diario
+                    </a>
+                    <a href="/VentaTicketDiario"
+                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.check-all')Tickets
+                    </a>
+                    <a href="/SolicitudFactura" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.cloud-check')Facturación
+                    </a>
+                    <a href="/SolicitudCancelacionTicket"
+                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.x')Cancelación
+                    </a>
+                    <a href="/RecepcionProducto"
+                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.bars')Recepción
+                    </a>
+                    <a href="/TransaccionProducto"
+                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.switch')Transsacciones
+                    </a>
+                    <a href="/CapMermas" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.down')Mermas
+                    </a>
+                    <a href="/Pedidos" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.cart')Pedidos
+                    </a>
+                    <a href="/AsignarPreparados"
+                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.text-file')Preparados
+                    </a>
+                    <a href="/VerRosticero" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        style="color: #1e293b; font-weight: 500">
+                        @include('components.icons.next')Rosticero
+                    </a>
+                </div>
+            </div>
+        @endif
         @yield('contenido')
     </div>
 

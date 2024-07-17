@@ -606,6 +606,10 @@ class RosticeroController extends Controller
 
     public function HistorialRosticero(Request $request)
     {
+        $paginate = $request->input('paginate', 10);
+        $fecha1 = $request->input('fecha1');
+        $fecha2 = $request->input('fecha2', date('Y-m-d'));
+
         $rostisados = DatRosticero::select(
             'DatRosticero.*',
             'a.CodArticulo',
@@ -616,10 +620,12 @@ class RosticeroController extends Controller
                 $query->orderBy('IdDatDetalleRosticero', 'asc');
             }])
             ->leftjoin('CatArticulos as a', 'a.CodArticulo', 'DatRosticero.CodigoVenta')
+            ->whereRaw("cast(Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "' ")
             ->whereNotNull('Finalizado')
             ->orderBy('Finalizado')
             ->orderBy('Fecha', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         foreach ($rostisados as $rostisado) {
             // Ordenamos el detalle por linea
@@ -643,6 +649,6 @@ class RosticeroController extends Controller
             $rostisado->newdetalle = $rostisadosDetalle;
         }
 
-        return view('Rosticero.HistorialRosticero', compact('rostisados'));
+        return view('Rosticero.HistorialRosticero', compact('rostisados', 'fecha1', 'fecha2'));
     }
 }

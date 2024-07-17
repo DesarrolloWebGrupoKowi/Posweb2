@@ -16,28 +16,38 @@
                         </p>
                     </div>
                     <table>
-                        <thead>
+                        <thead class="table-head-secondary">
                             <tr>
                                 <th>Tipo de Pago</th>
-                                <th>Pago</th>
-                                <th>Por Pagar</th>
+                                <th class="text-center">Pago</th>
+                                <th class="text-center">Por Pagar</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style="font-size: smaller">
                             @foreach ($ticket->TipoPago as $tipoPago)
                                 <tr>
                                     <td>{{ $tipoPago->NomTipoPago }}</td>
-                                    <td>${{ number_format($tipoPago->PivotPago->Pago, 2) }}</td>
-                                    <td>
+                                    <td class="text-end">${{ number_format($tipoPago->PivotPago->Pago, 2) }}</td>
+                                    <td class="text-end">
                                         @if ($tipoPago->PivotPago->Restante < 0)
                                             {{ number_format($tipoPago->PivotPago->Restante, 2) }}
                                         @endif
                                     </td>
                                 </tr>
                             @endforeach
+                            @foreach ($ticket->TipoPago as $tipoPago)
+                                @if ($tipoPago->PivotPago->Restante >= 0)
+                                    <tr>
+                                        <td></td>
+                                        <td class="text-end">Total: ${{ number_format($ticket->ImporteVenta, 2) }}</t>
+                                        <td class="text-end">Cambio:
+                                            ${{ number_format($tipoPago->PivotPago->Restante, 2) }}</t>
+                                    </tr>
+                                @endif
+                            @endforeach
                         </tbody>
                         <tfoot>
-                            @foreach ($ticket->TipoPago as $tipoPago)
+                            {{-- @foreach ($ticket->TipoPago as $tipoPago)
                                 @if ($tipoPago->PivotPago->Restante >= 0)
                                     <tr>
                                         <th style="text-align: center">Total:
@@ -46,7 +56,7 @@
                                         <th>${{ number_format($tipoPago->PivotPago->Restante, 2) }}</th>
                                     </tr>
                                 @endif
-                            @endforeach
+                            @endforeach --}}
                         </tfoot>
                     </table>
                 </div>

@@ -96,7 +96,7 @@ class PreparadosController extends Controller
         ]);
 
         DB::update("UPDATE [dbo].[DatPreparados]
-            SET CantidadFormula=CantidadPaquete / $request->cantidad
+            SET CantidadFormula=ROUND(CantidadPaquete / $request->cantidad,2)
             WHERE [IdPreparado]=$idPreparado");
 
         return back();
@@ -167,16 +167,17 @@ class PreparadosController extends Controller
         // Validamos que el articulo tenga stock
         $stock = InventarioTienda::where('CodArticulo', $request->codigo)->first();
         if ($stock == null || $stock->StockArticulo < $request->cantidad) {
-            return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');;
+            return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');
         }
 
         $cantidad = CatPreparado::where('IdPreparado', $idPreparado)->value('Cantidad');
+        $formula = $cantidad ? round($request->cantidad / $cantidad, 2) : null;
 
         $preparado = new DatPreparados();
         $preparado->IdPreparado = $idPreparado;
         $preparado->IdArticulo = $idArticulo;
         $preparado->CantidadPaquete = $request->cantidad;
-        $preparado->CantidadFormula = $cantidad ? $request->cantidad / $cantidad : null;
+        $preparado->CantidadFormula = $formula;
         $preparado->IDLISTAPRECIO = $idListaPrecio ? $idListaPrecio : 4;
         $preparado->save();
 
