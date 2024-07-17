@@ -6,7 +6,10 @@
 
         <div class="card border-0 p-4" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Reporte de Recepciones'])
+                @include('components.title', [
+                    'titulo' => 'Reporte de Recepciones',
+                    'options' => [['name' => 'Recepción de producto', 'value' => '/RecepcionProducto']],
+                ])
             </div>
         </div>
 
@@ -41,9 +44,11 @@
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Referencia</th>
+                        <th class="rounded-start">Folio</th>
+                        <th>Referencia</th>
                         <th>Fecha Llegada</th>
                         <th>Fecha Recepción</th>
+                        <th>Origen</th>
                         <th>Status</th>
                         <th class="rounded-end">Detalle</th>
                     </tr>
@@ -52,6 +57,7 @@
                     @include('components.table-empty', ['items' => $recepciones, 'colspan' => 5])
                     @foreach ($recepciones as $recepcion)
                         <tr>
+                            <td>{{ $recepcion->IdRecepcionLocal }}</td>
                             <td>{{ $recepcion->PackingList }}</td>
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($recepcion->FechaLlegada)) }}</td>
                             @if (empty($recepcion->FechaRecepcion))
@@ -59,6 +65,9 @@
                             @else
                                 <td>{{ strftime('%d %B %Y, %H:%M', strtotime($recepcion->FechaRecepcion)) }}</td>
                             @endif
+                            <td>
+                                {{ $recepcion->NomTienda }}
+                            </td>
                             <td>
                                 @if ($recepcion->IdStatusRecepcion == 2)
                                     <span class="tags-green">{{ $recepcion->StatusRecepcion->NomStatusRecepcion }}</span>

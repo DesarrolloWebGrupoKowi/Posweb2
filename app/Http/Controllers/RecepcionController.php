@@ -448,21 +448,23 @@ class RecepcionController extends Controller
                 $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
                     ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
             }, 'StatusRecepcion'])
-                ->where('Almacen', $tienda->Almacen)
-                ->whereRaw("cast(FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('PackingList', $referencia)
+                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
+                ->where('CapRecepcion.Almacen', $tienda->Almacen)
+                ->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->where('CapRecepcion.PackingList', $referencia)
                 ->get();
         } else {
             $recepciones = CapRecepcion::with(['DetalleRecepcion' => function ($query) {
                 $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
                     ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
             }, 'StatusRecepcion'])
-                ->where('Almacen', $tienda->Almacen)
-                ->whereRaw("cast(FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
+                ->where('CapRecepcion.Almacen', $tienda->Almacen)
+                ->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                 ->get();
         }
 
-        //return $recepciones;
+        // return $recepciones;
 
         return view('Recepcion.ReporteRecepciones', compact('recepciones', 'fecha1', 'fecha2', 'referencia', 'chkReferencia'));
     }

@@ -7,6 +7,11 @@
         <div class="card border-0 p-4" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Recepción de Producto ' . $tienda->NomTienda])
+                <div class="d-flex gap-2">
+                    <a href="/ReporteRecepciones" class="btn btn-dark">
+                        Historial Recepciones @include('components.icons.text-file')
+                    </a>
+                </div>
             </div>
             <div>
                 @include('Alertas.Alertas')
@@ -42,7 +47,7 @@
                                 </td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <form class="d-inline" action="/RecepcionProducto">
+                                        <form class="d-inline-flex" action="/RecepcionProducto">
                                             <input type="hidden" name="idRecepcion" value="{{ $rTienda->IdCapRecepcion }}">
                                             <button class="btn-table" data-bs-toggle="mensaje" title="Ver detalle">
                                                 @include('components.icons.list')
@@ -63,7 +68,7 @@
             </table>
         </div>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+        <div class="content-table content-table-flex-none content-table-full card border-0 p-4" style="border-radius: 10px">
             <div class="row mb-3">
                 <div class="col d-flex justify-content-start">
                     <h4>Detalle de Productos en Recepción</h4>
