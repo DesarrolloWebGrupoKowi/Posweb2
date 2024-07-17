@@ -22,8 +22,6 @@ class ReporteCancelacionTicketsController extends Controller
     {
         $fecha1 = $request->txtFecha1;
         $fecha2 = $request->txtFecha2;
-        empty($fecha1) ? $fecha1 = date('Y-m-d') : $fecha1 = $fecha1;
-        empty($fecha2) ? $fecha2 = date('Y-m-d') : $fecha2 = $fecha2;
 
         $solicitudesCancelacion = SolicitudCancelacionTicket::with([
             'Tienda' => function ($query) {
@@ -62,36 +60,24 @@ class ReporteCancelacionTicketsController extends Controller
                     );
             },
         ])
+            ->when(isset($fecha1) && !isset($fecha2), function ($q) use ($fecha1) {
+                return $q->whereDate('FechaSolicitud', '>=', $fecha1);
+            })
+            ->when(!isset($fecha1) && isset($fecha2), function ($q) use ($fecha2) {
+                return $q->whereDate('FechaSolicitud', '<=', $fecha2);
+            })
+            ->when(isset($fecha1) && isset($fecha2), function ($q) use ($fecha1, $fecha2) {
+                return $q->whereRaw("cast(FechaSolicitud as date) between '" . $fecha1 . "' and '" . $fecha2 . "'");
+            })
+            // ->whereRaw("cast(FechaSolicitud as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             // ->whereDate('FechaSolicitud', '>=', $fecha)
-            ->whereRaw("cast(FechaSolicitud as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             // ->whereNull('SolicitudAprobada')
             // ->whereNull('FechaAprobacion')
             // ->whereNull('IdUsuarioAprobacion')
             ->orderBy('FechaSolicitud', 'DESC')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
-        $importes = SolicitudCancelacionTicket::select('IdEncabezado')
-            ->with([
-                'Encabezado' => function ($query) {
-                    $query->leftJoin('DatCajas', 'DatCajas.IdDatCajas', 'DatEncabezado.IdDatCaja')
-                        ->leftJoin('CatCajas', 'CatCajas.IdCaja', 'DatCajas.IdCaja')
-                        ->select(
-                            'DatEncabezado.IdEncabezado',
-                            'DatEncabezado.ImporteVenta'
-                        );
-                }
-            ])
-            // ->whereDate('FechaSolicitud', '>=', $fecha)
-            ->whereRaw("cast(FechaSolicitud as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-            ->where('SolicitudAprobada', '0')
-            ->groupBy('IdEncabezado')
-            ->get();
-
-        $total = 0;
-        foreach ($importes as $importe) {
-            $total += $importe->encabezado->ImporteVenta;
-        }
-
-        return view('ReporteCancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion', 'total', 'fecha1', 'fecha2'));
+        return view('ReporteCancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion', 'fecha1', 'fecha2'));
     }
 }
