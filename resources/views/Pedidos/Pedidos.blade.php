@@ -22,18 +22,11 @@
                     'titulo' => 'Pedidos - ' . $tienda->NomTienda,
                     'options' => [['name' => 'Pedidos guardados', 'value' => '/PedidosGuardados']],
                 ])
-                <form class="d-flex align-items-center justify-content-end gap-2" action="/DatPedidos" target="ifrDatPedidos"
-                    id="formDatPedidos">
-                    <div class="d-flex align-items-center gap-2">
-                        <input class="form-control rounded" style="line-height: 18px/*  */" type="number"
-                            name="cantArticulo" id="cantArticulo" placeholder="Cantidad">
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="text" class="form-control rounded" style="line-height: 18px" name="txtCodEtiqueta"
-                            id="txtCodEtiqueta" placeholder="Leer Código" minlength="12" maxlength="13" autocomplete="off"
-                            autofocus required>
-                    </div>
-                </form>
+                <div class="d-flex gap-2">
+                    <a href="/PedidosGuardados" class="btn btn-sm btn-dark">
+                        Pedidos pendientes @include('components.icons.list')
+                    </a>
+                </div>
             </div>
             <div class="d-flex justify-content-center">
                 @include('Alertas.Alertas')
@@ -42,8 +35,19 @@
 
 
         {{-- <iframe src="/MostrarPedidos" name="ifrDatPedidos" id="ifrDatPedidos" width="100%"></iframe> --}}
-        <div class="content-table content-table-max-height content-table-full card border-0 p-4 h-full"
-            style="border-radius: 10px">
+        <div class="content-table card border-0 p-4 h-full" style="border-radius: 10px; height: 62vh;">
+            <form class="d-flex align-items-center justify-content-end gap-2 mb-2" action="/DatPedidos" id="formDatPedidos">
+                <div class="d-flex align-items-center gap-2">
+                    <input class="form-control rounded" style="line-height: 18px/*  */" type="number" name="cantArticulo"
+                        id="cantArticulo" placeholder="Cantidad">
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="txtCodEtiqueta"
+                        id="txtCodEtiqueta" placeholder="Leer Código" maxlength="13" minlength="12" autocomplete="off"
+                        autofocus required>
+                </div>
+                <button type="submit" class="d-none">submit</button>
+            </form>
             <table>
                 <thead class="table-head">
                     <tr>

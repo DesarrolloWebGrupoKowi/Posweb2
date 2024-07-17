@@ -354,7 +354,7 @@ class PedidosController extends Controller
         if (empty($fechaPedido) && empty($txtCliente)) {
             $pedidos = DatEncPedido::with('ArticuloDetalle', 'Venta')
                 ->where('IdTienda', $usuarioIdTienda)
-                //->whereDate('FechaPedido', '>=', $haceDosDias)
+                ->whereDate('FechaPedido', '=', $fechaHoy)
                 ->orderBy('FechaPedido', 'desc')
                 ->get();
 
@@ -419,5 +419,27 @@ class PedidosController extends Controller
             ]);
 
         return back();
+    }
+
+    public function HistorialGuardados(Request $request)
+    {
+        $paginate = $request->input('paginate', 10);
+        $usuarioIdTienda = Auth::user()->usuarioTienda->IdTienda;
+        $fechaPedido = $request->FechaPedido;
+        $txtCliente = $request->txtCliente;
+
+        $pedidos = DatEncPedido::with('ArticuloDetalle', 'Venta')
+            ->where('IdTienda', $usuarioIdTienda)
+            ->when($fechaPedido, function ($q) use ($fechaPedido) {
+                return $q->whereDate('FechaPedido', $fechaPedido);
+            })
+            ->when($txtCliente, function ($q) use ($txtCliente) {
+                return $q->where('Cliente', 'like', '%' . $txtCliente . '%');
+            })
+            ->orderBy('FechaPedido', 'desc')
+            ->paginate($paginate)
+            ->withQueryString();
+
+        return view('Pedidos.HistorialPedidos', compact('pedidos', 'fechaPedido', 'txtCliente'));
     }
 }

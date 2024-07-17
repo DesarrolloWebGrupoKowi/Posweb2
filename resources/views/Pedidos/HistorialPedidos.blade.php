@@ -1,20 +1,15 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Pedidos Guardados')
+@section('title', 'Historial Pedidos')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
     <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
         <div class="card border-0 p-4" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Pedidos Guardados - ' . $tienda->NomTienda])
-                <div class="d-flex gap-2">
-                    <a href="/Pedidos" class="btn btn-sm btn-dark">
-                        @include('components.icons.plus-circle') Realizar Pedido
-                    </a>
-                    <a href="/HistorialGuardados" class="btn btn-sm btn-dark">
-                        Historial Pedidos @include('components.icons.text-file')
-                    </a>
-                </div>
+                @include('components.title', [
+                    'titulo' => 'Historial Pedidos',
+                    'options' => [['name' => 'Pedidos guardados', 'value' => '/PedidosGuardados']],
+                ])
             </div>
             <div>
                 @include('Alertas.Alertas')
@@ -22,33 +17,22 @@
         </div>
 
         <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/PedidosGuardados">
-                <div class="d-flex align-items-center gap-2">
-                    <label for="codArticulo" class="text-secondary" style="font-weight: 500">Buscar:</label>
-                    <select id="selectBusqueda" name="selectBusqueda" class="form-select rounded" style="line-height: 18px">
-                        <option selected value="0">Seleccione</option>
-                        <option {!! $selectBusqueda == 1 ? 'selected' : '' !!} value="1">Buscar por Cliente</option>
-                        <option {!! $selectBusqueda == 2 ? 'selected' : '' !!} value="2">Buscar por Fecha</option>
-                    </select>
-                </div>
-                <div id="divCliente" style="display: {!! $selectBusqueda == 1 ? 'block' : 'none' !!}">
+            <div class="d-flex justify-content-between">
+                @include('components.number-paginate')
+                <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/HistorialGuardados">
                     <div class="d-flex align-items-center gap-2">
                         <input type="text" class="form-control rounded" style="line-height: 18px" id="txtCliente"
-                            name="txtCliente" value="{{ $txtCliente }}" placeholder="Nombre de Cliente">
+                            name="txtCliente" value="{{ $txtCliente }}" placeholder="Nombre de Cliente" autofocus>
                     </div>
-                </div>
-                <div class="col-2" id="divFechaPedido" style="display: {!! $selectBusqueda == 2 ? 'block' : 'none' !!}">
                     <div class="d-flex align-items-center gap-2">
                         <input type="date" class="form-control rounded" style="line-height: 18px" id="FechaPedido"
-                            name="FechaPedido" value="{!! $fechaPedido == '' ? date('Y-m-d') : $fechaPedido !!}">
+                            name="FechaPedido" value="{!! $fechaPedido !!}">
                     </div>
-                </div>
-                <div id="divBuscar" style="display: {!! $selectBusqueda != 0 ? 'block' : 'none' !!}">
                     <button id="btnBuscar" class="btn btn-dark-outline">
                         @include('components.icons.search')
                     </button>
-                </div>
-            </form>
+                </form>
+            </div>
             <table>
                 <thead class="table-head">
                     <tr>
@@ -114,36 +98,7 @@
                     @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $pedidos])
         </div>
     </div>
-
-    <script>
-        const selectBusqueda = document.getElementById('selectBusqueda');
-        const divCliente = document.getElementById('divCliente');
-        const divFechaPedido = document.getElementById('divFechaPedido');
-        const divBuscar = document.getElementById('divBuscar');
-        const FechaPedido = document.getElementById('FechaPedido');
-        const txtCliente = document.getElementById('txtCliente');
-
-        selectBusqueda.addEventListener('change', function() {
-            selectBusqueda.value == 1 ? (
-                    divCliente.style.display = 'block',
-                    divFechaPedido.style.display = 'none',
-                    divBuscar.style.display = 'block',
-                    txtCliente.disabled = false,
-                    FechaPedido.disabled = true
-                ) : selectBusqueda.value == 2 ? (
-                    divCliente.style.display = 'none',
-                    divFechaPedido.style.display = 'block',
-                    divBuscar.style.display = 'block',
-                    FechaPedido.disabled = false,
-                    txtCliente.disabled = true
-                ) :
-                (
-                    divCliente.style.display = 'none',
-                    divFechaPedido.style.display = 'none',
-                    divBuscar.style.display = 'none'
-                );
-        })
-    </script>
 @endsection

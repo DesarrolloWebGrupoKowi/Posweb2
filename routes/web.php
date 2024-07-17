@@ -282,6 +282,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Enviar a Preventa (POS)
     Route::post('/EnviarAPreventa/{idPedido}', 'App\Http\Controllers\PedidosController@EnviarAPreventa');
 
+    //HistorialGuardados
+    Route::get('/HistorialGuardados', 'App\Http\Controllers\PedidosController@HistorialGuardados');
+
     //+============================================================================================================================================+//
     //Dashboard
     Route::get('/Dashboard', 'App\Http\Controllers\DashboardController@Dashboard')->name('dashboard');
