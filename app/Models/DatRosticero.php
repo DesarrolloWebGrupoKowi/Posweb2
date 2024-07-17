@@ -24,6 +24,9 @@ class DatRosticero extends Model
         'subir',
         'Anual',
         'IdUsuario',
+        'STATUS',
+        'Finalizado',
+        'FechaFinzalizado',
     ];
     public $timestamps = false;
     protected $primaryKey = 'IdDatRosticero';

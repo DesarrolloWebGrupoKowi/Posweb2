@@ -619,6 +619,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/ActivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@ActivarPaquetesLocal');
     //Dar de baja un paquete
     Route::get('/DesactivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@DesactivarPaquetesLocal');
+    //Dar de baja un paquete
+    Route::post('/Paquetes/{idPreparado}', 'App\Http\Controllers\PaquetesController@ActualizarCantidadRecepcion');
 
     //+============================================================================================================================================+//
     //TransaccionProducto
@@ -629,6 +631,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     //GuardarTransaccion
     Route::post('/GuardarTransaccion', 'App\Http\Controllers\TransaccionProductoController@GuardarTransaccion');
+
+    //GuardarTransaccion
+    Route::get('/HistorialTransaccion', 'App\Http\Controllers\TransaccionProductoController@HistorialTransaccion');
 
     //+============================================================================================================================================+//
     //TransaccionesTienda
@@ -918,6 +923,18 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Eliminar Rosticero
     Route::delete('/EliminarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarDetalleRosticero');
+
+    //Finalizar Rosticero
+    Route::post('/FinalizarRosticero/{id}', 'App\Http\Controllers\RosticeroController@FinalizarRosticero');
+
+    //Recalentar Rosticero
+    Route::post('/RecalentarRosticero', 'App\Http\Controllers\RosticeroController@RecalentarRosticero');
+
+    //Mermar Rosticero
+    Route::post('/MermarRosticero', 'App\Http\Controllers\RosticeroController@MermarRosticero');
+
+    //Historial Rosticero
+    Route::get('/HistorialRosticero', 'App\Http\Controllers\RosticeroController@HistorialRosticero');
 }); //->Termina Middleware Rosticero
 
 // pagina de error 404

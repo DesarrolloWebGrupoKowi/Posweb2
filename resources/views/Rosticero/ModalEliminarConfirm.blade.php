@@ -5,15 +5,14 @@
         <div class="modal-content border-0">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Solicitud de Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="d-flex justify-content-center">
-                    <h5>¿Seguro Desea Eliminar Este Rostizado?</h5>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <h3>{{ $rostisado->NomArticulo }}</h3>
-                </div>
+                <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
+                    ¿Estas seguro de eliminar este rostizado?
+                </p>
+                <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
+                    {{ $rostisado->NomArticulo }}
+                </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">

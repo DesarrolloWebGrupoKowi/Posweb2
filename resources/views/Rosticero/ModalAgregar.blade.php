@@ -10,7 +10,7 @@
                     @csrf
                     <div class="mb-2">
                         <label for="CodigoVenta" class="form-label">Materia venta</label>
-                        <select name="CodigoVenta" id="CodigoVenta" class="CodigoVenta form-select">
+                        <select name="CodigoVenta" id="CodigoVenta" class="CodigoVenta form-select rounded" style="line-height: 18px">
                             @foreach ($articulos as $articulo)
                                 <option value="{{ $articulo->IdCatRosticeroArticulos }}">
                                     {{ $articulo->articuloVenta }}</option>
@@ -18,8 +18,8 @@
                         </select>
                     </div>
                     <div>
-                        <label for="" class="form-label">Cantidad materia prima</label>
-                        <input class="form-control" type="number" step="any" min="0.1" name="CantidadMatPrima"
+                        <label for="" class="form-label">Cantidad materia prima (KG)</label>
+                        <input class="form-control rounded" style="line-height: 18px" type="number" step="any" min="0.1" name="CantidadMatPrima"
                             placeholder="Cantidad materia prima" required>
                     </div>
             </div>

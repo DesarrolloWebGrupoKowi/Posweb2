@@ -269,6 +269,29 @@ button[disabled] i {
     color: white;
 }
 
+.table-head-secondary {
+    background: #cbd5e1;
+    color: #1e293b;
+    /* background: #1e293b;
+    color: white; */
+    border-bottom-right-radius: .25rem !important;
+    font-size: smaller;
+}
+
+.table-head-secondary th {
+    line-height: 32px;
+}
+
+.table-head-secondary th:first-child {
+    border-top-left-radius: .25rem !important;
+    border-bottom-left-radius: .25rem !important;
+}
+
+.table-head-secondary th:last-child {
+    border-top-right-radius: .25rem !important;
+    border-bottom-right-radius: .25rem !important;
+}
+
 .content-table {
     overflow-x: auto;
 }
@@ -302,7 +325,7 @@ tbody tr:hover {
 }
 
 .puntitos {
-    max-width: 350px;
+    max-width: 250px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

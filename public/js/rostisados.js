@@ -23,3 +23,74 @@ document.addEventListener('click', e => {
         }
     }
 })
+
+document.addEventListener('change', e => {
+    if (e.target.matches('#tipoMerma')) {
+        let subTipos = document.querySelectorAll('.subtiposmerma');
+        subTipos.forEach(item => {
+            item.classList.add('d-none')
+        })
+
+        let id = 'subtipomerma' + e.target.value;
+        let subtipo = document.getElementById(id);
+        if (subtipo) {
+            subtipo.classList.remove('d-none');
+            subtipo.classList.add('d-block');
+        }
+    }
+})
+
+document.addEventListener('keyup', e => {
+    if (e.target.matches('#CodigoEtiqueta')) {
+        let codigoEtiqueta = e.target.value;
+        let IdDatDetalleRosticero = document.querySelector('input[name="IdDatDetalleRosticero"]:checked');
+        let isCodigoEtiqueta = document.getElementById(codigoEtiqueta);
+
+        if (isCodigoEtiqueta && !IdDatDetalleRosticero) {
+            isCodigoEtiqueta.classList.replace('d-none', 'd-block');
+            e.preventDefault();
+        }
+        if (!isCodigoEtiqueta) {
+            document.querySelectorAll('div[data-CodigoEtiqueta]').forEach(e => {
+                e.classList.add('d-none');
+            });
+        }
+    }
+    if (e.target.matches('#CodigoEtiquetaAnterior')) {
+        let codigoEtiqueta = e.target.value;
+        let IdDatDetalleRosticero = document.querySelector('input[name="IdDatDetalleRosticeroAN"]:checked');
+        let isCodigoEtiqueta = document.getElementById('ant' + codigoEtiqueta);
+
+        console.log(isCodigoEtiqueta);
+        if (isCodigoEtiqueta && !IdDatDetalleRosticero) {
+            isCodigoEtiqueta.classList.replace('d-none', 'd-block');
+            e.preventDefault();
+        }
+        if (!isCodigoEtiqueta) {
+            document.querySelectorAll('div[data-CodigoEtiquetaAnterior]').forEach(e => {
+                e.classList.add('d-none');
+            });
+        }
+    }
+})
+
+document.addEventListener('submit', e => {
+    if (e.target.matches('#formMermar')) {
+        let codigoEtiqueta = e.target.CodigoEtiqueta.value;
+        let IdDatDetalleRosticero = document.querySelector('input[name="IdDatDetalleRosticero"]:checked');
+        let isCodigoEtiqueta = document.getElementById(codigoEtiqueta);
+
+        if (isCodigoEtiqueta && !IdDatDetalleRosticero) {
+            e.preventDefault();
+        }
+    }
+    if (e.target.matches('#formRecalentado')) {
+        let codigoEtiqueta = e.target.CodigoEtiquetaAnterior.value;
+        let IdDatDetalleRosticero = document.querySelector('input[name="IdDatDetalleRosticeroAN"]:checked');
+        let isCodigoEtiqueta = document.getElementById('ant' + codigoEtiqueta);
+
+        if (isCodigoEtiqueta && !IdDatDetalleRosticero) {
+            e.preventDefault();
+        }
+    }
+})

@@ -1,32 +1,15 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Catálogo de Rosticero')
+@section('title', 'Historial de Rosticero')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
     <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
 
         <div class="card border-0 p-4" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo de Rosticero'])
-                <div class="d-flex gap-2">
-                    <button id="buttonAgregar" type="button" class="btn btn-dark" role="tooltip" title="Agregar rostizado"
-                        data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                        Agregar rostizado @include('components.icons.plus-circle')
-                    </button>
-                    <button type="button" class="btn btn-dark" role="tooltip" title="Recalentar rostizado"
-                        data-bs-toggle="modal" data-bs-target="#ModalRecalentado">
-                        Recalentado @include('components.icons.switch')
-                    </button>
-                    <button type="button" class="btn btn-dark" role="tooltip" title="Recalentar rostizado"
-                        data-bs-toggle="modal" data-bs-target="#ModalMermar">
-                        Mermar @include('components.icons.down')
-                    </button>
-                    <a href="/HistorialRosticero" class="btn btn-dark">
-                        Historial Rostizado @include('components.icons.text-file')
-                    </a>
-                </div>
-            </div>
-            <div>
-                @include('Alertas.Alertas')
+                @include('components.title', [
+                    'titulo' => 'Historial de Rosticero',
+                    'options' => [['name' => 'Catálogo de Rosticero', 'value' => '/VerRosticero']],
+                ])
             </div>
         </div>
 
@@ -34,7 +17,7 @@
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Id</th>
+                        <th class="rounded-start">Folio</th>
                         {{-- <th class="rounded-start">Fecha</th> --}}
                         <th>Fecha</th>
                         <th>Rostizado</th>
@@ -92,37 +75,14 @@
 
                             </td>
                             <td>
-
                                 <div class="d-flex gap-2">
-                                    {{-- /*{{ count($rostisado->Detalle) > 0 ? '' : 'disabled' }}* --}}
                                     <button
                                         class="{{ Session::get('id') == $rostisado->IdRosticero ? 'modalOpen' : '' }} btn-table"
                                         data-bs-toggle="modal"
                                         data-bs-target="#ModalMostrarDetalle{{ $rostisado->IdDatRosticero }}">
                                         @include('components.icons.list')
                                     </button>
-
-                                    {{-- @if ($rostisado->Status != 1 || $rostisado->Finalizado == 1)
-                                    @endif --}}
-
-                                    @if ($rostisado->Finalizado != 1)
-                                        <button class="btn-table btn-table-delete" data-bs-toggle="modal"
-                                            data-bs-target="#ModalEliminarConfirm{{ $rostisado->IdDatRosticero }}"
-                                            title="Eliminar rostizado">
-                                            {{-- {{ count($rostisado->Detalle) == 0 ? '' : 'disabled' }}> --}}
-                                            @include('components.icons.delete')
-                                        </button>
-
-                                        <button class="btn-table btn-table-success" data-bs-toggle="modal"
-                                            data-bs-target="#ModalFinalizar{{ $rostisado->IdDatRosticero }}"
-                                            title="Finalizar">
-                                            @include('components.icons.check')
-                                        </button>
-                                    @endif
-
                                     @include('Rosticero.ModalMostrarDetalle')
-                                    @include('Rosticero.ModalEliminarConfirm')
-                                    @include('Rosticero.ModalFinalizar')
                                 </div>
 
                             </td>
@@ -132,13 +92,5 @@
             </table>
             @include('components.paginate', ['items' => $rostisados])
         </div>
-
-        @include('Rosticero.ModalMermar')
-        @include('Rosticero.ModalRecalentado')
-        @include('Rosticero.ModalAgregar')
     </div>
-@endsection
-
-@section('scripts')
-    <script src="{{ asset('js/rostisados.js') }}"></script>
 @endsection

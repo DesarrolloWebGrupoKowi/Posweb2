@@ -14,8 +14,28 @@ class DatDetalleRosticero extends Model
         'CodigoArticulo',
         'Cantidad',
         'FechaCreacion',
-        'subir'
+        'CodigoEtiqueta',
+        'subir',
+        'STATUS',
+        'Linea',
+        'Vendida',
+        'CodigoEtiquetaRef',
+        'CantMermaRecalentado '
     ];
     public $timestamps = false;
     protected $primaryKey = 'IdDatDetalleRosticero';
+
+    public function Fechas()
+    {
+        return $this->hasMany(DatDetalleRosticero::class, 'CodigoEtiqueta', 'CodigoEtiqueta')
+            ->leftJoin('DatRosticero', 'DatRosticero.IdRosticero', 'DatDetalleRosticero.IdRosticero')
+            ->select(
+                'CodigoEtiqueta',
+                'IdDatDetalleRosticero',
+                'DatRosticero.IdRosticero',
+                'DatRosticero.Fecha'
+            )
+            ->where('DatDetalleRosticero.Status', 0)
+            ->where('DatDetalleRosticero.Vendida', 1);
+    }
 }
