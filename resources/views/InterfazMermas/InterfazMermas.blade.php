@@ -55,7 +55,8 @@
                 <table style="width: 100%;">
                     <thead class="table-head">
                         <tr>
-                            <th class="rounded-start">Código</th>
+                            <th class="rounded-start">Id</th>
+                            <th>Código</th>
                             <th>Articulo</th>
                             <th>Merma</th>
                             <th>Cantidad</th>
@@ -65,9 +66,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @include('components.table-empty', ['items' => $mermas, 'colspan' => 7])
+                        @include('components.table-empty', ['items' => $mermas, 'colspan' => 8])
                         @foreach ($mermas as $merma)
                             <tr>
+                                <td>{{ $merma->FolioMerma }}</td>
                                 <td>{{ $merma->CodArticulo }}</td>
                                 <td>{{ $merma->NomArticulo }}</td>
                                 <td>{{ $merma->NomTipoMerma }}</td>
