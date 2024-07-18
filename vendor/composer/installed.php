@@ -3,22 +3,13 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'a477c3db148fa95c6c402ef60776c1cb67e77f46',
+        'reference' => '5fc83ea434a504ccd195b1cbb670149ffcf32909',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
-        'asm89/stack-cors' => array(
-            'pretty_version' => 'v2.2.0',
-            'version' => '2.2.0.0',
-            'reference' => '50f57105bad3d97a43ec4a485eb57daf347eafea',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../asm89/stack-cors',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'barryvdh/laravel-dompdf' => array(
             'pretty_version' => 'v1.0.2',
             'version' => '1.0.2.0',
@@ -156,15 +147,6 @@
             'install_path' => __DIR__ . '/../filp/whoops',
             'aliases' => array(),
             'dev_requirement' => true,
-        ),
-        'fruitcake/laravel-cors' => array(
-            'pretty_version' => 'v2.2.0',
-            'version' => '2.2.0.0',
-            'reference' => '783a74f5e3431d7b9805be8afb60fd0a8f743534',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../fruitcake/laravel-cors',
-            'aliases' => array(),
-            'dev_requirement' => false,
         ),
         'fruitcake/php-cors' => array(
             'pretty_version' => 'v1.3.0',
@@ -439,7 +421,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'a477c3db148fa95c6c402ef60776c1cb67e77f46',
+            'reference' => '5fc83ea434a504ccd195b1cbb670149ffcf32909',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -868,8 +850,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0|2.0|3.0',
-                1 => '1.0.0 || 2.0.0 || 3.0.0',
+                0 => '1.0.0 || 2.0.0 || 3.0.0',
+                1 => '1.0|2.0|3.0',
             ),
         ),
         'psr/simple-cache' => array(
