@@ -383,15 +383,20 @@ class ReportesController extends Controller
         }
 
         $concentrado = CapMerma::select(
+            'CapMermas.FolioMerma',
             'CapMermas.CodArticulo',
             'ca.NomArticulo',
             'CapMermas.FechaCaptura',
             'tm.NomTipoMerma',
             'CapMermas.CantArticulo',
-            'CapMermas.FechaInterfaz'
+            'CapMermas.FechaInterfaz',
+            'CapMermas.Comentario',
+            'CapMermas.IdTienda',
+            'ct.NomTienda'
         )
             ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
             ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
+            ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'CapMermas.IdTienda')
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('CapMermas.IdTienda', $idTienda);
             })
