@@ -39,6 +39,7 @@ class MenuPoswebController extends Controller
             )
             ->where('a.NomMenu', 'like', '%' . $txtFiltro . '%')
             ->orWhere('b.NomTipoMenu', 'like', '%' . $txtFiltro . '%')
+            ->orWhere('a.Link', 'like', '%' . $txtFiltro . '%')
             ->orderBy('b.NomTipoMenu')
             ->orderBy('a.NomMenu')
             ->paginate(10)

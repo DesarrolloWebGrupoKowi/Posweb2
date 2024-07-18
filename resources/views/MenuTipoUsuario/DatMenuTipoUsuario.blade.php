@@ -71,7 +71,12 @@
                                     ]) --}}
                                     @foreach ($menuTipoUsuarios as $menuTipoUsuario)
                                         <tr style="font-size: small">
-                                            <td>{{ $menuTipoUsuario->cmpNomMenu }}</td>
+                                            <td>
+                                                <a href="{{ $menuTipoUsuario->cmpLink }}" target="_blank"
+                                                    class="cursor-pointer text-decoration-none" style="color: #4f5464">
+                                                    {{ $menuTipoUsuario->cmpNomMenu }}
+                                                </a>
+                                            </td>
                                             <td>{{ $menuTipoUsuario->NomTipoMenu }}</td>
                                             <td><input class="d-block form-check-input" type="checkbox"
                                                     name="chkRemoverMenu[]" id="chkRemoverMenu[]"
@@ -111,7 +116,12 @@
                                     ]) --}}
                                     @foreach ($menus as $menu)
                                         <tr style="font-size: small">
-                                            <td>{{ $menu->NomMenu }}</td>
+                                            <td>
+                                                <a href="{{ $menu->Link }}" target="_blank" class="text-decoration-none"
+                                                    style="color: #4f5464">
+                                                    {{ $menu->NomMenu }}
+                                            </td>
+                                            </a>
                                             <td>{{ $menu->NomTipoMenu }}</td>
                                             <td>
                                                 <input class="d-block form-check-input" type="checkbox"
