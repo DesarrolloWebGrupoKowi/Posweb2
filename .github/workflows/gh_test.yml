@@ -8,7 +8,7 @@ jobs:
   gh-test:
     runs-on:
       - self-hosted
-      - gh-ke-planta
+      - POSWEBNUEVO
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies
