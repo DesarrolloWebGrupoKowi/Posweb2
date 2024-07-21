@@ -4,9 +4,11 @@ namespace Illuminate\Database\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\ConfigurationUrlParser;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Process\Process;
 use UnexpectedValueException;
 
+#[AsCommand(name: 'db')]
 class DbCommand extends Command
 {
     /**
@@ -33,6 +35,14 @@ class DbCommand extends Command
     public function handle()
     {
         $connection = $this->getConnection();
+
+        if (! isset($connection['host']) && $connection['driver'] !== 'sqlite') {
+            $this->components->error('No host specified for this database connection.');
+            $this->line('  Use the <options=bold>[--read]</> and <options=bold>[--write]</> options to specify a read or write connection.');
+            $this->newLine();
+
+            return Command::FAILURE;
+        }
 
         (new Process(
             array_merge([$this->getCommand($connection)], $this->commandArguments($connection)),
@@ -67,8 +77,16 @@ class DbCommand extends Command
         }
 
         if ($this->option('read')) {
+            if (is_array($connection['read']['host'])) {
+                $connection['read']['host'] = $connection['read']['host'][0];
+            }
+
             $connection = array_merge($connection, $connection['read']);
         } elseif ($this->option('write')) {
+            if (is_array($connection['write']['host'])) {
+                $connection['write']['host'] = $connection['write']['host'][0];
+            }
+
             $connection = array_merge($connection, $connection['write']);
         }
 
@@ -115,6 +133,7 @@ class DbCommand extends Command
     {
         return [
             'mysql' => 'mysql',
+            'mariadb' => 'mysql',
             'pgsql' => 'psql',
             'sqlite' => 'sqlite3',
             'sqlsrv' => 'sqlcmd',
@@ -138,6 +157,17 @@ class DbCommand extends Command
             'unix_socket' => '--socket='.($connection['unix_socket'] ?? ''),
             'charset' => '--default-character-set='.($connection['charset'] ?? ''),
         ], $connection), [$connection['database']]);
+    }
+
+    /**
+     * Get the arguments for the MariaDB CLI.
+     *
+     * @param  array  $connection
+     * @return array
+     */
+    protected function getMariaDbArguments(array $connection)
+    {
+        return $this->getMysqlArguments($connection);
     }
 
     /**
@@ -176,6 +206,7 @@ class DbCommand extends Command
             'password' => ['-P', $connection['password']],
             'host' => ['-S', 'tcp:'.$connection['host']
                         .($connection['port'] ? ','.$connection['port'] : ''), ],
+            'trust_server_certificate' => ['-C'],
         ], $connection));
     }
 

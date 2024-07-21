@@ -1,13 +1,16 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Buscar Articulo')
+@section('title', 'Buscar Artículo')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
-            @include('components.title', [
-                'titulo' => 'Descargar Articulo',
-                'options' => [['name' => 'Catálogo de Articulos', 'value' => '/CatArticulos']],
-            ])
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', [
+                    'titulo' => 'Descargar Artículo',
+                    'options' => [['name' => 'Catálogo de Artículos', 'value' => '/CatArticulos']],
+                ])
+            </div>
         </div>
         <form id="form" action="{{ route('EnviarArticulo') }}" target="iframeArticulo">
             @csrf
@@ -26,10 +29,11 @@
                     </label>
                 </div>
                 <div class="input-group" style="max-width: 300px">
-                    <input class="form-control" type="text" name="filtroArticulo" placeholder="Busqueda" required>
+                    <input class="form-control rounded" style="line-height: 18px" type="text" name="filtroArticulo"
+                        placeholder="Busqueda" required>
                     <div class="input-group-append">
                         <button class="input-group-text Buscar">
-                            <span class="material-icons">search</span>
+                            @include('components.icons.search')
                         </button>
                     </div>
                 </div>

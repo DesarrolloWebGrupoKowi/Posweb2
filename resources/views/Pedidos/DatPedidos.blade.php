@@ -28,19 +28,15 @@
 
     .pedidoAlert {
         position: absolute;
-        /*margin-left: 60vh;*/
         margin-top: 20vh;
         border-radius: 15px;
-        /*height: 25vh;
-    width: 25vh;*/
         background-color: white;
         color: red;
-        /*box-shadow: 0 .5rem .5rem rgb(255, 0, 0);*/
     }
 </style>
 
 <body class="bg-transparent">
-    <div id="tblPedido" class="content-table content-table-full card p-4" style="border-radius: 20px">
+    <div id="tblPedido" class="content-table content-table-full card p-4 border-0" style="border-radius: 20px">
         <table>
             <thead class="table-head">
                 <tr>
@@ -73,7 +69,7 @@
             </tbody>
         </table>
     </div>
-    <div class="mt-4 card p-2" style="border-radius: 20px">
+    <div class="mt-4 card p-2  border-0" style="border-radius: 20px">
         <div class="row align-items-center" style="width: 100%">
             <div class="col-3">
                 <h5 style="text-align: center; font-size: 16px">SUBTOTAL</h5>

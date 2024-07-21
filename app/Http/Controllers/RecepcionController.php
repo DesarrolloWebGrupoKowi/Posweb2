@@ -60,7 +60,7 @@ class RecepcionController extends Controller
                 " where a.IdCapRecepcion = " . $idRecepcion . "" .
                 " and a.IdStatusRecepcion = 1" .
                 " union all" .
-                " select Referencia, '', '" . $tienda->Almacen . "', 0, 0, 0, a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo" .
+                " select Referencia, '', '" . $tienda->Almacen . "', 0, 0, '0', a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo" .
                 " from CapRecepcionManualTmp as a" .
                 " left join CatArticulos as b on b.CodArticulo=a.CodArticulo" .
                 " where a.IdTienda = '" . $tienda->IdTienda . "' "
@@ -434,8 +434,8 @@ class RecepcionController extends Controller
 
     public function ReporteRecepciones(Request $request)
     {
-        $fecha1 = $request->fecha1;
-        $fecha2 = $request->fecha2;
+        $fecha1 = $request->input('fecha1', date('Y-m-d'));
+        $fecha2 = $request->input('fecha2', date('Y-m-d'));
         $chkReferencia = $request->chkReferencia;
         $referencia = $request->referencia;
 
@@ -448,21 +448,23 @@ class RecepcionController extends Controller
                 $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
                     ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
             }, 'StatusRecepcion'])
-                ->where('Almacen', $tienda->Almacen)
-                ->whereRaw("cast(FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('PackingList', $referencia)
+                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
+                ->where('CapRecepcion.Almacen', $tienda->Almacen)
+                ->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->where('CapRecepcion.PackingList', $referencia)
                 ->get();
         } else {
             $recepciones = CapRecepcion::with(['DetalleRecepcion' => function ($query) {
                 $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
                     ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
             }, 'StatusRecepcion'])
-                ->where('Almacen', $tienda->Almacen)
-                ->whereRaw("cast(FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
+                ->where('CapRecepcion.Almacen', $tienda->Almacen)
+                ->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                 ->get();
         }
 
-        //return $recepciones;
+        // return $recepciones;
 
         return view('Recepcion.ReporteRecepciones', compact('recepciones', 'fecha1', 'fecha2', 'referencia', 'chkReferencia'));
     }

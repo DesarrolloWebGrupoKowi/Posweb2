@@ -14,7 +14,7 @@ class EmpleadosController extends Controller
 {
     public function AdeudosEmpleado(Request $request)
     {
-        $numNomina = $request->numNomina;
+        $txtFiltro = $request->input('txtFiltro', '');
 
         $adeudo = Empleado::with(['Adeudos' => function ($query) {
             $query->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatCreditos.IdTienda')
@@ -23,18 +23,16 @@ class EmpleadosController extends Controller
                 ->where('DatCreditos.StatusCredito', 0)
                 ->orderBy('DatCreditos.FechaVenta', 'desc');
         }])
-            ->where('NumNomina', $numNomina)
+            ->where('NumNomina', $txtFiltro)
             ->get();
 
-        $adeudoTotal = CreditoEmpleado::where('DatCreditos.NumNomina', $numNomina)
+        $adeudoTotal = CreditoEmpleado::where('DatCreditos.NumNomina', $txtFiltro)
             ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'DatCreditos.IdEncabezado')
             ->where('DatEncabezado.StatusVenta', 0)
             ->where('DatCreditos.StatusCredito', 0)
             ->sum('DatCreditos.ImporteCredito');
 
-        //return $adeudo;
-
-        return view('Empleados.AdeudosEmpleado', compact('adeudo', 'numNomina', 'adeudoTotal'));
+        return view('Empleados.AdeudosEmpleado', compact('adeudo', 'txtFiltro', 'adeudoTotal'));
     }
 
     public function CreditosPagados(Request $request)

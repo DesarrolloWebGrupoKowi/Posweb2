@@ -2,22 +2,31 @@
 @section('title', 'Concentrado de Ventas')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Concentrado de Ventas ' . $tienda->NomTienda])
-            <form class="d-flex align-items-center justify-content-end gap-2"action="/ConcentradoVentas">
-                <div class="input-group" style="min-width: 200px">
-                    <input type="date" name="fecha1" class="form-control" value="{{ $fecha1 }}" required>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4 flex-1" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Concentrado de Ventas ' . $tienda->NomTienda])
+
+            </div>
+        </div>
+
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/ConcentradoVentas">
+
+                <div class="d-flex align-items-center gap-2">
+                    <input type="date" name="fecha1" class="form-control rounded" style="line-height: 18px"
+                        value="{{ $fecha1 }}" required>
                 </div>
-                <div class="input-group" style="min-width: 200px">
-                    <input type="date" name="fecha2" class="form-control" value="{{ $fecha2 }}" required>
+                <div class="d-flex align-items-center gap-2">
+                    <input type="date" name="fecha2" class="form-control rounded" style="line-height: 18px"
+                        value="{{ $fecha2 }}" required>
                 </div>
-                <button class="btn btn-dark-outline">
-                    <span class="material-icons">search</span>
+                <button class="btn btn-dark-outline" title="Agregar Usuario">
+                    @include('components.icons.search')
                 </button>
             </form>
-        </div>
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+
             <table>
                 <thead class="table-head">
                     <tr>
@@ -30,22 +39,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if ($concentrado->count() == 0)
+                    @include('components.table-empty', ['items' => $concentrado, 'colspan' => 6])
+                    @foreach ($concentrado as $tConcentrado)
                         <tr>
-                            <td colspan="6">No Hay Ventas en Rango de Fechas Seleccionadas!</td>
+                            <td>{{ $tConcentrado->CodArticulo }}</td>
+                            <td>{{ $tConcentrado->NomArticulo }}</td>
+                            <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
+                            <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
+                            <td>{{ number_format($tConcentrado->Iva, 2) }}</td>
+                            <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
                         </tr>
-                    @else
-                        @foreach ($concentrado as $tConcentrado)
-                            <tr>
-                                <td>{{ $tConcentrado->CodArticulo }}</td>
-                                <td>{{ $tConcentrado->NomArticulo }}</td>
-                                <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
-                                <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
-                                <td>{{ number_format($tConcentrado->Iva, 2) }}</td>
-                                <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
-                            </tr>
-                        @endforeach
-                    @endif
+                    @endforeach
                 </tbody>
                 <tfoot>
                     <tr>

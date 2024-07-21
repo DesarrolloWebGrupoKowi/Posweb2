@@ -1,12 +1,19 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalTipoPago{{ $ticket->IdDatEncabezado }}" aria-hidden="true"
+<div class="modal fade" id="ModalTipoPago{{ $ticket->IdDatEncabezado }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-money"></i> Tipo de Pago Ticket :
-                    {{ $ticket->IdTicket }} - {{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}</h5>
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Tipo de Pago Ticket</h5>
             </div>
             <div class="modal-body">
+                <div>
+                    <p class="m-0 text-left" style="line-height: 24px">
+                        {{ strftime('%d %B %Y', strtotime($ticket->FechaVenta)) }}
+                    </p>
+                    <p class="m-0 text-left fw-bold" style="line-height: 24px">
+                        Ticket No. {{ $ticket->IdTicket }}
+                    </p>
+                </div>
                 <div>
                     <table>
                         <thead>

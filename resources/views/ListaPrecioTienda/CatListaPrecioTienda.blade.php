@@ -2,31 +2,33 @@
 @section('title', 'Catálogo Listas de Precios Tienda')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <form id="formListaP" action="/CatListaPrecioTienda">
-            <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
-                @include('components.title', ['titulo' => 'Catálogo de Lista de Precios por Tienda'])
-                <div class="d-flex align-items-center justify-content-end">
-                    <div class="form-group" style="min-width: 300px">
-                        <label class="fw-bold text-secondary">Selecciona una tienda</label>
-                        <select class="form-select" name="filtroIdTienda" onchange="mostrarListas()">
-                            <option {!! $idTienda != '' ? 'disabled' : '' !!} value="">Seleccione Tienda</option>
-                            @foreach ($tiendas as $tienda)
-                                <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                                </option>
-                            @endforeach
-                        </select>
+    <form id="formListaP" action="/CatListaPrecioTienda">
+        <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+            <div class="card border-0 p-4" style="border-radius: 10px">
+                <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                    @include('components.title', ['titulo' => 'Catálogo de Lista de Precios por Tienda'])
+                    <div class="d-flex align-items-center justify-content-end">
+                        <div class="form-group" style="min-width: 300px">
+                            <select class="form-select rounded" style="line-height: 18px" name="filtroIdTienda"
+                                onchange="mostrarListas()" autofocus>
+                                <option {!! $idTienda != '' ? 'disabled' : '' !!} value="">Seleccione Tienda</option>
+                                @foreach ($tiendas as $tienda)
+                                    <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div>
-                @include('Alertas.Alertas')
+                <div>
+                    @include('Alertas.Alertas')
+                </div>
             </div>
 
             <div class="row">
                 <div class="col-6">
-                    <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+                    <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
                         <table>
                             <thead class="table-head">
                                 <tr>
@@ -45,14 +47,15 @@
                             </tbody>
                         </table>
                         <div class="pt-2 d-flex justify-content-end">
-                            <button class="btn btn-sm btn-danger" onclick="removerLista()">
-                                <i class="fa fa-remove"></i> Remover
+                            <button class="btn btn-sm btn-danger" onclick="removerLista()"
+                                {{ count($listasPrecioTienda) == 0 ? 'disabled' : '' }}>
+                                Remover @include('components.icons.delete')
                             </button>
                         </div>
                     </div>
                 </div>
                 <div class="col-6">
-                    <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+                    <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
                         <table>
                             <thead class="table-head">
                                 <tr>
@@ -71,13 +74,14 @@
                             </tbody>
                         </table>
                         <div class="pt-2 d-flex justify-content-end">
-                            <button class="btn btn-sm btn-dark" onclick="agregarLista()">
-                                <i class="fa fa-plus"></i> Agregar
+                            <button class="btn btn-sm btn-warning" onclick="agregarLista()"
+                                {{ count($listasPrecio) == 0 ? 'disabled' : null }}>
+                                Agregar @include('components.icons.plus-circle')
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 @endsection

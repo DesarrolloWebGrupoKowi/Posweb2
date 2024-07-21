@@ -25,49 +25,60 @@
             <div class="row mb-3">
                 <div class="col-3 mb-3">
                     <label for="">Id Cliente Cloud</label>
-                    <input type="text" class="form-control" name="idClienteCloud" value="{{ $idClienteCloud }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="idClienteCloud"
+                        value="{{ $idClienteCloud }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Ciudad</label>
-                    <input type="text" class="form-control" name="ciudad" value="{{ $customer->CIUDAD }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="ciudad"
+                        value="{{ $customer->CIUDAD }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Dirección</label>
-                    <input type="text" class="form-control" name="direccion" value="{{ $customer->CALLE }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="direccion"
+                        value="{{ $customer->CALLE }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Pais</label>
-                    <input type="text" class="form-control" name="pais" value="{{ $customer->PAIS }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="pais"
+                        value="{{ $customer->PAIS }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Código Postal</label>
-                    <input type="text" class="form-control" name="codigoPostal" value="{{ $customer->CODIGO_POSTAL }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="codigoPostal"
+                        value="{{ $customer->CODIGO_POSTAL }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Locacion</label>
-                    <input type="text" class="form-control" name="locacion" value="{{ $customer->LOCACION }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="locacion"
+                        value="{{ $customer->LOCACION }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Tipo de Cliente</label>
-                    <input type="text" class="form-control" name="tipoCliente" value="{{ $customer->TIPO_CLIENTE }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="tipoCliente"
+                        value="{{ $customer->TIPO_CLIENTE }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Dirección de Envio</label>
-                    <input type="text" class="form-control" name="shipTo" value="{{ $customer->SHIP_TO }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="shipTo"
+                        value="{{ $customer->SHIP_TO }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Dirección de Facturación</label>
-                    <input type="text" class="form-control" name="billTo" value="{{ $customer->BILL_TO }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="billTo"
+                        value="{{ $customer->BILL_TO }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Código de Envio</label>
-                    <input type="text" class="form-control" name="codigoEnvio" value="{{ $customer->CODIGO_ENVIO }}" readonly required>
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="codigoEnvio"
+                        value="{{ $customer->CODIGO_ENVIO }}" readonly required>
                 </div>
                 <div class="col-3 mb-3">
                     <label for="">Lista de Precio</label>
                     <select class="form-select" name="idListaPrecio" id="idListaPrecio">
                         @foreach ($listasPrecio as $listaPrecio)
-                            <option value="{{ $listaPrecio->IdListaPrecio }}">{{ $listaPrecio->NomListaPrecio }}</option>
+                            <option value="{{ $listaPrecio->IdListaPrecio }}">{{ $listaPrecio->NomListaPrecio }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -93,9 +104,9 @@
                     <i class="fa fa-save"></i> Guardar
                 </button>
             </div>
-        </div>
-        <input type="hidden" name="idTienda" value="{{ $idTienda }}">
-        </form>
+    </div>
+    <input type="hidden" name="idTienda" value="{{ $idTienda }}">
+    </form>
 
     <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -1,30 +1,30 @@
-<div class="modal hide fade" data-bs-backdrop="static" id="ModalConfirmarSolicitudCliente" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+<div class="modal hide fade" id="ModalConfirmarSolicitudCliente" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalToggleLabel2">
                     @if (!empty($nomCliente))
-                    <i class="fa fa-info-circle"></i> ¿Desea Solicitar la Factura para el Cliente?
+                        Confirmar Solicitud
                     @else
-                    <i class="fa fa-info-circle"></i> Nuevo Cliente
+                        Confirmar Solicitud
                     @endif
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 @if (!empty($nomCliente))
-                    <h5 class="titulo">{{ $nomCliente->NomCliente }}</h5>
+                    <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
+                        {{ $nomCliente->NomCliente }}
+                    </p>
                 @else
-                    <h5 class="titulo">¿Desea Agregar el Cliente & Solicitar La Factura?</h5>
+                    <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
+                        ¿Desea agregar el cliente y solicitar la factura?
+                    </p>
                 @endif
             </div>
             <div class="modal-footer">
-                <button class="btn btn-sm btn-warning">
-                    <i class="fa fa-plus"></i> Guardar
-                </button>
-                <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
-                    <i class="fa fa-close"></i> Cerrar
-                </button>
+                <button class="btn btn-sm btn-warning"> Confirmar </button>
+                <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal"> Cerrar </button>
             </div>
         </div>
     </div>

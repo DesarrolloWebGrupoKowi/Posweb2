@@ -13,7 +13,7 @@ class ArticulosController extends Controller
 {
     public function CatArticulos(Request $request)
     {
-        $filtroArticulo = $request->txtFiltroArticulo;
+        $txtFiltro = $request->txtFiltro;
 
         $articulos = DB::table('CatArticulos as a')
             ->leftJoin('CatGrupos as b', 'b.IdGrupo', 'a.IdGrupo')
@@ -21,7 +21,7 @@ class ArticulosController extends Controller
             ->leftJoin('CatTipoArticulos as d', 'd.IdTipoArticulo', 'a.IdTipoArticulo')
             ->select('a.*', 'b.NomGrupo', 'c.NomFamilia', 'd.NomTipoArticulo')
             ->where('a.Status', 0)
-            ->where('a.NomArticulo', 'like', '%' . $filtroArticulo . '%')
+            ->where('a.NomArticulo', 'like', '%' . $txtFiltro . '%')
             ->orderBy('a.CodArticulo')
             ->paginate(10)->withQueryString();
 
@@ -34,7 +34,7 @@ class ArticulosController extends Controller
         $tiposArticulo = TipoArticulo::where('Status', 0)
             ->get();
 
-        return view('Articulos.CatArticulos', compact('articulos', 'filtroArticulo', 'familias', 'grupos', 'tiposArticulo'));
+        return view('Articulos.CatArticulos', compact('articulos', 'txtFiltro', 'familias', 'grupos', 'tiposArticulo'));
     }
 
     public function EditarArticulo(Request $request, $id)

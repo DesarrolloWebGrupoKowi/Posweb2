@@ -11,9 +11,11 @@ use App\Models\CorteTienda;
 use App\Models\DatAsignacionPreparadosLocal;
 use App\Models\DatCaja;
 use App\Models\DatDetalle;
+use App\Models\DatDetalleRosticero;
 use App\Models\DatEncabezado;
 use App\Models\DatEncPedido;
 use App\Models\DatMonederoAcumulado;
+use App\Models\DatRosticero;
 use App\Models\DatTipoPago;
 use App\Models\Empleado;
 use App\Models\Grupo;
@@ -155,6 +157,22 @@ class PoswebController extends Controller
             ->whereDate('FechaRecoger', date('Y-m-d'))
             ->count();
 
+        // TODO:: POS
+        $codigosEtiqueta = DatDetalleRosticero::select('CodigoEtiqueta')
+            ->with('Fechas')
+            ->where('Status', 0)
+            ->where('Vendida', 1)
+            ->groupBy('CodigoEtiqueta')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
+
+        // $codigosEtiqueta = DatDetalleRosticero::whereIn('CodigoEtiqueta', $codigosEtiqueta)
+        //     ->where('Status', 0)
+        //     ->where('Vendida', 1)
+        //     ->orderBy('CodigoEtiqueta')
+        //     ->get();
+
+
         return view('Posweb.Pos', compact(
             'usuario',
             'fechaHoy',
@@ -177,7 +195,8 @@ class PoswebController extends Controller
             'monederoDescuento',
             'paquetes',
             'pedidosPendientes',
-            'frecuenteSocio'
+            'frecuenteSocio',
+            'codigosEtiqueta'
         ));
     }
 
@@ -705,9 +724,11 @@ class PoswebController extends Controller
         return redirect('Pos');
     }
 
+    // Funcion para cuando escaneas un articulo
     public function CalculosPreventa(Request $request)
     {
-        //return $request->all();
+        // TODO:: Preventa
+        // return $request->all();
         $numNomina = TemporalPos::where('TemporalPos', 1)
             ->value('NumNomina');
 
@@ -716,6 +737,13 @@ class PoswebController extends Controller
         $cantidad = $request->txtCantidad;
         $recorte = $request->recorte;
         $codigo = $request->txtCodigo;
+        $IdDatDetalleRosticero = $request->IdDatDetalleRosticero;
+
+        if (!$IdDatDetalleRosticero)
+            $IdDatDetalleRosticero = DatDetalleRosticero::where('CodigoEtiqueta',  $codigo)
+                ->where('Status', 0)
+                ->where('Vendida', 1)
+                ->value('IdDatDetalleRosticero');
 
         //Extraer codigo de etiqueta
         $inicio = substr($codigo, 0, 3);
@@ -897,6 +925,9 @@ class PoswebController extends Controller
             ->where('CodArticulo', $articulo->CodArticulo)
             ->sum('StockArticulo');
 
+        $pesoAcumulado = round($pesoAcumulado, 3);
+        $stockArticulo = round($stockArticulo, 3);
+
         if ($stockArticulo < $pesoAcumulado) {
             return redirect()->route('Pos')->with('Pos', 'Inventario Insuficiente Para el Articulo: ' . $articulo->NomArticulo);
         }
@@ -951,6 +982,7 @@ class PoswebController extends Controller
                 'IdDatPrecios' => $articulo->IdDatPrecios,
                 'Recorte' => $recorte == 1 ? 0 : 1,
                 'IdEncDescuento' => isset($IdEncDescuento) && $IdEncDescuento != 0 ? $IdEncDescuento : null,
+                'CodigoEtiqueta' => $IdDatDetalleRosticero,
             ]);
 
         return redirect()->route('Pos');
@@ -1023,6 +1055,7 @@ class PoswebController extends Controller
         return redirect()->route('Pos');
     }
 
+    // Funcion para cuando se da al boton de pagar
     public function GuardarVenta(Request $request)
     {
         Log::info('===============================================================================================================');
@@ -1064,9 +1097,9 @@ class PoswebController extends Controller
                 $clienteCloud = ClienteCloudTienda::where('IdListaPrecio', $item->IdListaPrecio)
                     ->where('IdTipoPago', $request->tipoPago)
                     ->first();
-                if (empty($clienteCloud)) {
+                if (empty($clienteCloud) && $request->tipoPago != 7) {
                     $listaprecio = ListaPrecio::where('IdListaPrecio', $item->IdListaPrecio)->first();
-                    return redirect('Pos')->with('msjupdate', 'La lista de precios ' . $listaprecio->NomListaPrecio . ' no esta asignada para este usuario.');
+                    return redirect('Pos')->with('msjupdate', 'La lista de precios ' . $listaprecio->NomListaPrecio . ' no tiene cliente para este tipo de pago.');
                 }
             }
 
@@ -1106,7 +1139,6 @@ class PoswebController extends Controller
                 Log::info('Total de venta:');
                 Log::info($totalVenta);
 
-                // TODO:: Tickets
                 $fechaActual = date("Y-m-d");
                 $mycaja = DatCaja::select('IdTicket', 'FechaVenta')
                     ->where('IdTienda', $idTienda)
@@ -1199,6 +1231,7 @@ class PoswebController extends Controller
                         ->update([
                             'MonederoDescuento' => $pagoMonedero,
                         ]);
+                    $temporalPos = TemporalPos::first();
                 }
 
                 if ($idTipoPago != 1 && $pago > $totalVenta) {
@@ -1209,7 +1242,6 @@ class PoswebController extends Controller
                 Log::info('-->');
                 Log::info('Guardando dat encabezado');
 
-                // TODO:: DatEncabezado
                 DB::table('DatEncabezado')
                     ->insert([
                         'IdEncabezado' => -2,
@@ -1260,6 +1292,15 @@ class PoswebController extends Controller
                     Log::info('----------');
                     Log::info($detalle->IdArticulo);
                     Log::info($detalle->CantArticulo);
+                    // return $detalle->CodigoEtiqueta;
+
+                    // $idRostisado = $detRostisado = DatDetalleRosticero::where('CodigoEtiqueta', $detalle->CodigoEtiqueta)
+                    //     ->where('Status', 0)
+                    //     ->where('Vendida', 1)
+                    //     ->value('IdDatDetalleRosticero');
+
+                    $idRostisado = $detalle->CodigoEtiqueta;
+
                     DatDetalle::insert([
                         'IdEncabezado' => $idEncabezado,
                         'IdArticulo' => $detalle->IdArticulo,
@@ -1277,6 +1318,7 @@ class PoswebController extends Controller
                         'Linea' => $index + 1,
                         'Recorte' => $detalle->Recorte == '0' ? 0 : 1,
                         'IdEncDescuento' => $detalle->IdEncDescuento,
+                        'IdRosticero' => $idRostisado,
                     ]);
                 }
 
@@ -1306,7 +1348,39 @@ class PoswebController extends Controller
                     Log::info('-->');
                     Log::info('El pago es completado sin multipago');
 
-                    // Obtenemos los paquetes de la venta
+                    // Validamos los rosticeros y descontamos las cantidades vendidas
+                    $rostisados = PreventaTmp::select('DatVentaTmp.*')
+                        ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', '=', 'DatVentaTmp.IdArticulo')
+                        ->leftJoin('CatRosticeroArticulos', 'CatRosticeroArticulos.CodigoVenta', '=', 'CatArticulos.CodArticulo')
+                        ->whereNotNull('CatRosticeroArticulos.IdCatRosticeroArticulos')
+                        ->get();
+
+                    foreach ($rostisados as $rostisado) {
+                        // return $rostisado;
+                        $detRostisado = DatDetalleRosticero::where('IdDatDetalleRosticero', $rostisado->CodigoEtiqueta)
+                            ->where('Status', 0)
+                            ->where('Vendida', 1)
+                            ->first();
+
+                        // Validamos que la etiqueta se encuentre activa
+                        if (!$detRostisado) {
+                            return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
+                        }
+
+                        $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
+                        $rotisado->update([
+                            'Disponible' => $rotisado->Disponible - $detRostisado->Cantidad,
+                            'subir' => 0
+                        ]);
+
+                        // Actualizamos la etiqueta para que no se pueda volver a usar
+                        $detRostisado->update([
+                            'subir' => 0,
+                            'Vendida' => 0,
+                        ]);
+                    }
+
+                    // Validamos que los preparados sean validos, descontamos la cantidad vendida y actualizamos el valores
                     $paquetesPreparados = PreventaTmp::select(
                         'DatVentaTmp.IdPaquete',
                         DB::raw('COUNT(DatVentaTmp.CantArticulo) as Cantidad')
@@ -1317,7 +1391,6 @@ class PoswebController extends Controller
                         ->distinct()
                         ->get();
 
-                    // Iteramos la lista de paquetes
                     foreach ($paquetesPreparados as $pp) {
                         $paquetesConPreparado = CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
                             ->whereNotNull('CatPaquetes.IdPreparado')
@@ -1462,8 +1535,8 @@ class PoswebController extends Controller
                         ->sum('a.ImporteArticulo');
 
                     // guardar monedero, si genero el empleado
-                    if (!empty($numNomina) && $importeProcesado >= $monederoE->MonederoMultiplo) {
-                        $puntosGenerados = $importeProcesado / $monederoE->MonederoMultiplo;
+                    if (!empty($numNomina) && $importeProcesado - $temporalPos->MonederoDescuento >= $monederoE->MonederoMultiplo) {
+                        $puntosGenerados = ($importeProcesado - $temporalPos->MonederoDescuento) / $monederoE->MonederoMultiplo;
                         $puntosTotales = intval($puntosGenerados);
 
                         $monederoGenerado = $puntosTotales * $monederoE->PesosPorMultiplo;
@@ -1710,6 +1783,41 @@ class PoswebController extends Controller
             ]);
 
             if ($restante >= 0) {
+                Log::info('-->');
+                Log::info('El pago es completado con multipago');
+
+                // Validamos los rosticeros y descontamos las cantidades vendidas
+                $rostisados = PreventaTmp::select('DatVentaTmp.*')
+                    ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', '=', 'DatVentaTmp.IdArticulo')
+                    ->leftJoin('CatRosticeroArticulos', 'CatRosticeroArticulos.CodigoVenta', '=', 'CatArticulos.CodArticulo')
+                    ->whereNotNull('CatRosticeroArticulos.IdCatRosticeroArticulos')
+                    ->get();
+
+                foreach ($rostisados as $rostisado) {
+                    // return $rostisado;
+                    $detRostisado = DatDetalleRosticero::where('IdDatDetalleRosticero', $rostisado->CodigoEtiqueta)
+                        ->where('Status', 0)
+                        ->where('Vendida', 1)
+                        ->first();
+
+                    // Validamos que la etiqueta se encuentre activa
+                    if (!$detRostisado) {
+                        return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
+                    }
+
+                    $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
+                    $rotisado->update([
+                        'Disponible' => $rotisado->Disponible - $detRostisado->Cantidad,
+                        'subir' => 0
+                    ]);
+
+                    // Actualizamos la etiqueta para que no se pueda volver a usar
+                    $detRostisado->update([
+                        'subir' => 0,
+                        'Vendida' => 0,
+                    ]);
+                }
+
                 $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
                 // Obtenemos los paquetes de la venta
@@ -1851,9 +1959,13 @@ class PoswebController extends Controller
                     ->where('b.IdGrupo', $monederoE->IdGrupo)
                     ->sum('a.ImporteArticulo');
 
+                // return $monederoE->MonederoMultiplo;
+                // return ;
+                // return !empty($temporalPos->NumNomina) && $importeProcesado - $temporalPos->MonederoDescuento >= $monederoE->MonederoMultiplo;
+
                 // guardar monedero, si genero el empleado
-                if (!empty($temporalPos->NumNomina) && $importeProcesado >= $monederoE->MonederoMultiplo) {
-                    $puntosGenerados = $importeProcesado / $monederoE->MonederoMultiplo;
+                if (!empty($temporalPos->NumNomina) && $importeProcesado - $temporalPos->MonederoDescuento >= $monederoE->MonederoMultiplo) {
+                    $puntosGenerados = ($importeProcesado - $temporalPos->MonederoDescuento) / $monederoE->MonederoMultiplo;
                     $puntosTotales = intval($puntosGenerados);
 
                     $monederoGenerado = $puntosTotales * $monederoE->PesosPorMultiplo;
@@ -2709,7 +2821,7 @@ class PoswebController extends Controller
 
         empty($fecha) ? $fecha = date('Y-m-d') : $fecha = $fecha;
 
-        $tickets = DatEncabezado::with(['detalle' => function ($detalle) {
+        $tickets = DatEncabezado::with(['SolicitudCancelacionTicket', 'detalle' => function ($detalle) {
             $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
                 ->leftJoin('CatPaquetes', 'CatPaquetes.IdPaquete', 'DatDetalle.IdPaquete')
                 ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
@@ -2914,6 +3026,11 @@ class PoswebController extends Controller
                 $stockArticulo = InventarioTienda::where('IdTienda', Auth::user()->UsuarioTienda->IdTienda)
                     ->where('CodArticulo', $articulo->CodArticulo)
                     ->sum('StockArticulo');
+
+
+                $pesoAcumulado = round($pesoAcumulado, 3);
+                $stockArticulo = round($stockArticulo, 3);
+
 
                 if ($stockArticulo < $pesoAcumulado) {
                     return redirect()->route('Pos')->with('Pos', 'Inventario Insuficiente Para el Articulo: ' . $articulo->NomArticulo);

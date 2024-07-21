@@ -2,14 +2,17 @@
 @section('title', 'Monedero Electrónico')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
-            @include('components.title', ['titulo' => 'Monedero Electrónico'])
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Monedero Electrónico'])
+            </div>
+            <div>
+                @include('Alertas.Alertas')
+            </div>
         </div>
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <table>
                 <thead class="table-head">
                     <tr>
@@ -29,7 +32,7 @@
                             <td>${{ number_format($monedero->PesosPorMultiplo, 2) }}</td>
                             <td>{{ $monedero->VigenciaMonedero }} dias</td>
                             <td>
-                                <select class="form-select" name="idGrupo" id="idGrupo">
+                                <select class="form-select rounded" style="line-height: 18px" name="idGrupo" id="idGrupo">
                                     @foreach ($grupos as $grupo)
                                         <option {!! $grupo->IdGrupo == $monedero->IdGrupo ? 'selected' : '' !!} value="{{ $grupo->IdGrupo }}">{{ $grupo->NomGrupo }}
                                         </option>
@@ -37,9 +40,9 @@
                                 </select>
                             </td>
                             <td>
-                                <button class="btn" data-bs-toggle="modal"
+                                <button class="btn-table" data-bs-toggle="modal"
                                     data-bs-target="#ModalEditar{{ $monedero->IdCatMonederoElectronico }}">
-                                    <span class="material-icons">edit</span>
+                                    @include('components.icons.edit')
                                 </button>
                                 @include('MonederoElectronico.ModalEditarMonedero')
                             </td>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="img/logokowi.png">
+    <link rel="icon" href="img/logokowi-v2.png">
     <link href="material-icon/material-icon.css" rel="stylesheet">
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="Icons/font-awesome.min.css">
@@ -26,7 +26,7 @@
             <div class="col-3">
                 <div class="d-flex">
                     <a href="/Dashboard">
-                        <img src="img/logokowi.png" width="50" height="50">
+                        <img src="img/logokowi-v2.png" width="50" height="50">
                     </a>
                     <div class="ps-2" style="height: 50px">
                         <h6>{{ $usuario->NomCiudad }}</h6>
@@ -185,6 +185,9 @@
                         </div>
                         <input hidden id="hacerSubmit" type="submit" />
                     </div>
+                    @include('Posweb.ModalRostisado')
+                    <button class="d-none" id="abrirModalRosticero" data-bs-toggle="modal"
+                        data-bs-target="#ModalRostisado">Abrir Modal</button>
                 </form>
             </div>
 
@@ -291,6 +294,11 @@
                 document.getElementById('frmPaquetes').submit();
             }
         })
+
+        // document.getElementById('formPos').addEventListener('submit', (e) => {
+        //     console.log('Andamos enviando');
+        //     e.target.preventDefault();
+        // })
     </script>
 </body>
 

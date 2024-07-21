@@ -2,20 +2,24 @@
 @section('title', 'Catálogo de Tipos de Articulo')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Tipos de Articulo'])
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Catálogo de Tipos de Articulo'])
+                <div>
+                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarTipoArticulo">
+                        Agregar tipo @include('components.icons.plus-circle')
+                    </button>
+                </div>
+            </div>
             <div>
-                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregarTipoArticulo">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar tipo
-                </button>
+                @include('Alertas.Alertas')
             </div>
         </div>
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <table>
                 <thead class="table-head">
                     <tr>
@@ -35,9 +39,9 @@
                                 <td>{{ $tipoArticulo->IdTipoArticulo }}</td>
                                 <td>{{ $tipoArticulo->NomTipoArticulo }}</td>
                                 <td>
-                                    <button class="btn" data-bs-toggle="modal"
+                                    <button class="btn-table btn-table-delete" data-bs-toggle="modal"
                                         data-bs-target="#ModalEliminarTipoArticulo{{ $tipoArticulo->IdCatTipoArticulo }}">
-                                        <span style="color: red" class="material-icons">delete_forever</span>
+                                        @include('components.icons.delete')
                                     </button>
                                 </td>
                                 @include('TipoArticulos.ModalEliminarTipoArticulo')

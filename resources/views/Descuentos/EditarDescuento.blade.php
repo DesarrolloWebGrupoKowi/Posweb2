@@ -2,96 +2,106 @@
 @section('title', 'Editar Descuento')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', [
-                'titulo' => $descuento->NomDescuento,
-                'options' => [['name' => 'Descuentos', 'value' => '/VerDescuentos']],
-            ])
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', [
+                    'titulo' => $descuento->NomDescuento,
+                    'options' => [['name' => 'CATÁLOGO DE DESCUENTOS', 'value' => '/VerDescuentos']],
+                ])
+                <div>
+                    <a href="/VerDescuentos" class="btn btn-sm btn-dark" title="Ver descuentos">
+                        Ver descuentos @include('components.icons.list')
+                    </a>
+                </div>
+            </div>
+
             <div>
-                <a href="/VerDescuentos" class="btn btn-sm btn-dark" title="Ver descuentos">
-                    <i class="fa fa-eye"></i> Ver descuentos
-                </a>
+                @include('Alertas.Alertas')
             </div>
         </div>
 
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
-            <form class="d-flex flex-wrap align-items-top justify-content-around gap-2" action="/GuardarDescuento"
-                method="POST">
+        <div class="w-auto card border-0 p-4" style="border-radius: 10px">
+            <form action="/GuardarDescuento" method="POST">
                 <input type="hidden" name="IdEncDescuento" value="{{ $descuento->IdEncDescuento }}">
                 @csrf
-                <div class="col-12 col-sm-5 form-group">
-                    <label class="form-label fw-bold text-secondary">Nombre del descuento</label>
-                    <input class="form-control" type="text" name="nomDescuento" id="nomDescuento"
-                        placeholder="Nombre de descuento" required value="{{ $descuento->NomDescuento }}" autofocus>
+                <div class="d-flex flex-wrap gap-2 gap-md-3">
+                    <div style="flex: 1; width: 25%; min-width: 290px;">
+                        <label class="text-secondary" style="font-weight:500">Nombre del descuento</label>
+                        <input class="form-control rounded" style="line-height: 18px" type="text" name="nomDescuento"
+                            id="nomDescuento" placeholder="Nombre de descuento" required
+                            value="{{ $descuento->NomDescuento }}">
+                    </div>
+                    <div style="flex: 1; width: 25%; min-width: 290px;">
+                        <label class="text-secondary" style="font-weight:500">Tipo descuento</label>
+                        <select class="form-select rounded" style="line-height: 18px" name="tipoDescuento"
+                            id="tipoDescuento" required value="{{ old('tipoDescuento') }}">
+                            <option value="">Seleccione tipo descuento</option>
+                            @foreach ($tiposdescuentos as $td)
+                                <option value="{{ $td->IdTipoDescuento }}"
+                                    {{ $td->IdTipoDescuento == $descuento->TipoDescuento ? 'selected' : '' }}>
+                                    {{ $td->NomTipoDescuento }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div style="flex: 1; width: 25%; min-width: 290px;">
+                        <label class="text-secondary" style="font-weight:500">Tiendas</label>
+                        <select class="form-select rounded" style="line-height: 18px" name="idTienda" id="idTienda"
+                            value="{{ old('idTienda') }}">
+                            <option value="">Seleccione una tienda</option>
+                            @foreach ($tiendas as $tienda)
+                                <option value="{{ $tienda->IdTienda }}"
+                                    {{ $tienda->IdTienda == $descuento->IdTienda ? 'selected' : '' }}>
+                                    {{ $tienda->NomTienda }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div style="flex: 1; width: 25%; min-width: 290px;">
+                        <label class="text-secondary" style="font-weight:500">Plazas</label>
+                        <select class="form-select rounded" style="line-height: 18px" name="idPlaza" id="idPlaza"
+                            value="{{ old('idPlaza') }}">
+                            <option value="">Seleccione una plaza</option>
+                            @foreach ($plazas as $plaza)
+                                <option value="{{ $plaza->IdPlaza }}"
+                                    {{ $plaza->IdPlaza == $descuento->IdPlaza ? 'selected' : '' }}>
+                                    {{ $plaza->NomPlaza }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div style="flex: 1; width: 25%; min-width: 290px;">
+                        <label class="text-secondary" style="font-weight:500">Fecha inicio</label>
+                        <input class="form-control rounded" style="line-height: 18px" type="date" name="fechaInicio"
+                            id="fechaInicio"required value="{{ $descuento->FechaInicio }}"
+                            {{ count($detalle) != 0 ? 'disabled' : '' }}>
+                        @if (count($detalle) != 0)
+                            <input type="hidden" name="fechaInicio" id="fechaInicio"
+                                value="{{ $descuento->FechaInicio }}">
+                        @endif
+                    </div>
+                    <div style="flex: 1; width: 25%; min-width: 290px;">
+                        <label class="text-secondary" style="font-weight:500">Fecha fin</label>
+                        <input class="form-control rounded" style="line-height: 18px" type="date" name="fechaFin"
+                            id="fechaFin" required value="{{ $descuento->FechaFin }}"
+                            {{ count($detalle) != 0 ? 'disabled' : '' }}>
+                        @if (count($detalle) != 0)
+                            <input type="hidden" name="fechaFin" id="fechaFin" value="{{ $descuento->FechaFin }}">
+                        @endif
+                    </div>
                 </div>
-                <div class="col-12 col-sm-5 form-group">
-                    <label class="form-label fw-bold text-secondary">Tipo descuento</label>
-                    <select class="form-select" name="tipoDescuento" id="tipoDescuento" required
-                        value="{{ old('tipoDescuento') }}">
-                        <option value="">Seleccione tipo descuento</option>
-                        @foreach ($tiposdescuentos as $td)
-                            <option value="{{ $td->IdTipoDescuento }}"
-                                {{ $td->IdTipoDescuento == $descuento->TipoDescuento ? 'selected' : '' }}>
-                                {{ $td->NomTipoDescuento }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 col-sm-5 form-group">
-                    <label class="form-label fw-bold text-secondary">Tiendas</label>
-                    <select class="form-select" name="idTienda" id="idTienda" value="{{ old('idTienda') }}">
-                        <option value="">Seleccione una tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option value="{{ $tienda->IdTienda }}"
-                                {{ $tienda->IdTienda == $descuento->IdTienda ? 'selected' : '' }}>
-                                {{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 col-sm-5 form-group">
-                    <label class="form-label fw-bold text-secondary">Plazas</label>
-                    <select class="form-select" name="idPlaza" id="idPlaza" value="{{ old('idPlaza') }}">
-                        <option value="">Seleccione una plaza</option>
-                        @foreach ($plazas as $plaza)
-                            <option value="{{ $plaza->IdPlaza }}"
-                                {{ $plaza->IdPlaza == $descuento->IdPlaza ? 'selected' : '' }}>
-                                {{ $plaza->NomPlaza }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 col-sm-5 form-group">
-                    <label class="form-label fw-bold text-secondary">Fecha inicio</label>
-                    <input class="form-control" type="date" name="fechaInicio" id="fechaInicio"required
-                        value="{{ $descuento->FechaInicio }}" {{ count($detalle) != 0 ? 'disabled' : '' }}>
-                    @if (count($detalle) != 0)
-                        <input type="hidden" name="fechaInicio" id="fechaInicio" value="{{ $descuento->FechaInicio }}">
-                    @endif
-                </div>
-                <div class="col-12 col-sm-5 form-group">
-                    <label class="form-label fw-bold text-secondary">Fecha fin</label>
-                    <input class="form-control" type="date" name="fechaFin" id="fechaFin" required
-                        value="{{ $descuento->FechaFin }}" {{ count($detalle) != 0 ? 'disabled' : '' }}>
-                    @if (count($detalle) != 0)
-                        <input type="hidden" name="fechaFin" id="fechaFin" value="{{ $descuento->FechaFin }}">
-                    @endif
-                </div>
-                <div class="col-11 d-flex justify-content-end">
+                <div class="d-flex mt-4 justify-content-end">
                     <button id="btnGenerarObject" class="btn btn-warning">
-                        <i class="fa fa-save"></i> Guardar cambios
+                        Guardar cambios
                     </button>
                 </div>
             </form>
         </div>
 
-        <div class="mt-4 content-table content-table-full card p-4" style="border-radius: 20px">
-            <div class="row mb-4">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <div class="row mb-2">
                 <div class="container">
                     <form id="formPaquete" action="/EditarDescuentoExistente/{{ $descuento->IdEncDescuento }}"
                         method="POST">
@@ -102,9 +112,9 @@
                     </form>
                 </div>
                 <div class="col-auto">
-                    <label class="form-label fw-bold text-secondary">Codigo de articulo</label>
-                    <input class="form-control" type="text" name="codArticulo" id="codArticulo"
-                        placeholder="Código del articulo" autofocus>
+                    <label class="text-secondary" style="font-weight:500">Codigo de articulo</label>
+                    <input class="form-control rounded" style="line-height: 18px" type="text" name="codArticulo"
+                        id="codArticulo" placeholder="Código del articulo" autofocus>
                 </div>
                 <div class="col-auto d-flex align-items-end">
                     <h4 class="nomArticulo"></h4>
@@ -142,8 +152,8 @@
                                     id="precioArticulo" value="{{ number_format($item->PrecioDescuento, 2) }}" required>
                             </td>
                             <td>
-                                <button class="btn btnEliminarArticulo">
-                                    <span style="color: red" class="material-icons">delete_forever</span>
+                                <button class="btn-table btn-table-delete btnEliminarArticulo" title="Eliminar articulo">
+                                    @include('components.icons.delete')
                                 </button>
                             </td>
                         </tr>
@@ -217,13 +227,17 @@
                 if (codArticulo.value != '' && nomArticulo.textContent != '' && nomArticuloValid.textContent !=
                     '') {
                     let select = document.querySelector('#ulListaPrecios').innerHTML;
-                    document.querySelector('tbody').insertRow(-1).innerHTML = '<tr>' +
-                        '<td>' + codArticulo.value + '</td>' +
-                        '<td>' + nomArticulo.textContent + '</td>' +
-                        '<td>' + select + '</td>' +
-                        '<td><input class="form-control form-control-sm" type="number" name="precioArticulo[]" id="precioArticulo" placeholder="Precio" required></td>' +
-                        '<td><button class="btn btnEliminarArticulo"><span style="color: red" class="material-icons">delete_forever</span></button></td>' +
-                        '</tr>';
+                    document.querySelector('tbody').insertRow(-1).innerHTML = `<tr>
+                            <td> ${codArticulo.value}</td>
+                            <td> ${nomArticulo.textContent}</td>
+                            <td> ${select}</td>
+                            <td><input class="form-control form-control-sm" type="number" name="precioArticulo[]" id="precioArticulo" placeholder="Precio" required></td>
+                            <td>
+                                <button class="btn-table btn-table-delete btnEliminarArticulo">
+                                    @php echo view('components.icons.delete')->render(); @endphp
+                                </button>
+                            </td>
+                        </tr>`;
                     codArticulo.value = '';
                     nomArticulo.textContent = '';
                 }

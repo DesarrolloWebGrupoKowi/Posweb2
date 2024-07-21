@@ -29,7 +29,8 @@ class TiendasController extends Controller
                     'CatEstados.IdEstado as ceIdEstado',
                     'CatEstados.NomEstado as ceNomEstado',
                 )
-                ->paginate(15);
+                ->paginate(10)
+                ->withQueryString();
         } else {
             $tiendas = DB::table('CatTiendas')
                 ->leftJoin('CatCiudades', 'CatCiudades.IdCiudad', 'CatTiendas.IdCiudad')
@@ -45,7 +46,8 @@ class TiendasController extends Controller
                     'CatEstados.IdEstado as ceIdEstado',
                     'CatEstados.NomEstado as ceNomEstado',
                 )
-                ->paginate(15);
+                ->paginate(10)
+                ->withQueryString();
         }
         //return $tiendas;
 
