@@ -1,47 +1,51 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Bloqueo de Empleados')
-@section('dashboardWidth', 'width-95')
+@section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Bloqueo de Empleados'])
-            <div>
-                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar bloqueo"
-                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#AgregarBloqueo">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar menú
-                </button>
-                <a href="/BloqueoEmpleados" class="btn btn-dark-outline">
-                    <span class="material-icons">refresh</span>
-                </a>
-            </div>
-        </div>
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-        <form class="d-flex align-items-center justify-content-end pb-4 gap-2" action="/BloqueoEmpleados" method="GET">
-            <div class="input-group d-flex justify-content-end" style="max-width: 300px">
-                <span class="input-group-text">
-                    <input {!! $radioFiltro == 'numNomina' ? 'checked' : '' !!} checked class="form-check-input mt-0" type="radio" name="radioFiltro"
-                        id="numNomina" value="numNomina">
-                </span>
-                <span class="input-group-text card">Nómina</span>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
-                <span class="input-group-text">
-                    <input {!! $radioFiltro == 'nomEmpleado' ? 'checked' : '' !!} class="form-check-input mt-0" type="radio" name="radioFiltro"
-                        id="nomEmpleado" value="nomEmpleado">
-                </span>
-                <span class="input-group-text card ">Nombre</span>
-            </div>
-            <div class="input-group" style="max-width: 300px">
-                <input type="text" class="form-control" name="filtroBusqueda" id="filtroBusqueda"
-                    placeholder="Buscar empleado..." value="{{ $filtroBusqueda }}" required>
-                <div class="input-group-append">
-                    <button class="input-group-text"><span class="material-icons">search</span></button>
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Bloqueo de Empleados'])
+                <div>
+                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar bloqueo"
+                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#AgregarBloqueo">
+                        Bloquear usuario @include('components.icons.plus-circle')
+                    </button>
                 </div>
             </div>
-        </form>
+            <div>
+                @include('Alertas.Alertas')
+            </div>
+        </div>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/BloqueoEmpleados"
+                method="GET">
+                <div class="input-group d-flex justify-content-end" style="max-width: 300px">
+                    <span class="input-group-text">
+                        <input {!! $radioFiltro == 'numNomina' ? 'checked' : '' !!} checked class="form-check-input mt-0" type="radio"
+                            name="radioFiltro" id="numNomina" value="numNomina">
+                    </span>
+                    <span class="input-group-text card" style="line-height: 18px">Nómina</span>
+
+                    <span class="input-group-text">
+                        <input {!! $radioFiltro == 'nomEmpleado' ? 'checked' : '' !!} class="form-check-input mt-0" type="radio" name="radioFiltro"
+                            id="nomEmpleado" value="nomEmpleado">
+                    </span>
+                    <span class="input-group-text card " style="line-height: 18px">Nombre</span>
+                </div>
+                <div class="col-auto">
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="filtroBusqueda"
+                        id="filtroBusqueda" placeholder="Buscar empleado..." value="{{ $filtroBusqueda }}" required>
+                </div>
+                <button class="btn btn-dark-outline" title="Buscar">
+                    @include('components.icons.search')
+                </button>
+                <a href="/BloqueoEmpleados" class="btn btn-dark-outline" title="Limpiar busqueda">
+                    @include('components.icons.switch')
+                </a>
+            </form>
             <table>
                 <thead class="table-head">
                     <tr>
@@ -54,32 +58,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if ($bloqueos->count() == 0)
+                    @include('components.table-empty', ['items' => $bloqueos, 'colspan' => 6])
+                    @foreach ($bloqueos as $bloqueo)
                         <tr>
-                            <th colspan="6">No hay bloqueos</th>
+                            <td>{{ $bloqueo->NumNomina }}</td>
+                            <td>{{ $bloqueo->Empleado->Nombre }} {{ $bloqueo->Empleado->Apellidos }}</td>
+                            <td>{{ $bloqueo->MotivoBloqueo }}</td>
+                            <td>{{ strftime('%d %B %Y, %H:%M', strtotime($bloqueo->FechaBloqueo)) }}</td>
+                            <td>{{ $bloqueo->Usuario->NomUsuario }}</td>
+                            <td>
+                                <button class="btn-table" data-bs-toggle="modal"
+                                    data-bs-target="#DesbloquearEmpleado{{ $bloqueo->NumNomina }}"
+                                    title="Desbloquear empleado">
+                                    @include('components.icons.user-less')
+                                </button>
+                            </td>
+                            @include('BloqueoEmpleados.ModalDesbloquearEmpleado')
                         </tr>
-                    @else
-                        @foreach ($bloqueos as $bloqueo)
-                            <tr>
-                                <td>{{ $bloqueo->NumNomina }}</td>
-                                <td>{{ $bloqueo->Empleado->Nombre }} {{ $bloqueo->Empleado->Apellidos }}</td>
-                                <td>{{ $bloqueo->MotivoBloqueo }}</td>
-                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($bloqueo->FechaBloqueo)) }}</td>
-                                <td>{{ $bloqueo->Usuario->NomUsuario }}</td>
-                                <td>
-                                    <i style="font-size: 20px; cursor: pointer;" class="fa fa-user-plus"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#DesbloquearEmpleado{{ $bloqueo->NumNomina }}"></i>
-                                </td>
-                                @include('BloqueoEmpleados.ModalDesbloquearEmpleado')
-                            </tr>
-                        @endforeach
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
-        </div>
-        <div class="d-flex justify-content-center">
-            {{ $bloqueos->links() }}
+            @include('components.paginate', ['items' => $bloqueos])
         </div>
     </div>
 

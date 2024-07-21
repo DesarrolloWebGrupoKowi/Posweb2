@@ -1,10 +1,9 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalSolicitudFe{{ $ticket->IdTicket }}" aria-hidden="true"
+<div class="modal fade" id="ModalSolicitudFe{{ $ticket->IdTicket }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-id-badge"></i> Solicitud de Factura
-                </h5>
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Solicitud de Factura </h5>
             </div>
             <div class="modal-body">
                 @foreach ($ticket->SolicitudFactura as $factura)
@@ -24,9 +23,7 @@
                 @endforeach
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">
-                    <i class="fa fa-close"></i> Cerrar
-                </button>
+                <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">Cerrar </button>
             </div>
         </div>
     </div>

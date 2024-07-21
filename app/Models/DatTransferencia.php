@@ -23,4 +23,10 @@ class DatTransferencia extends Model
         'Anual',
         'Batch',
     ];
+
+    public function Detalle()
+    {
+        return $this->hasMany(DatTransferenciaDetalle::class, 'IdTransferencia', 'IdTransferencia')
+            ->leftjoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatTransferenciaDetalle.CodArticulo');
+    }
 }

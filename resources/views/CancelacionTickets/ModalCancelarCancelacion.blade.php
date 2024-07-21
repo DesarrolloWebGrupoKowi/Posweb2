@@ -1,11 +1,10 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalCancelarCancelacion{{ $solicitud->IdEncabezado }}"
-    aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+<div class="modal fade" id="ModalCancelarCancelacion{{ $solicitud->IdEncabezado }}" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog    ">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
                 <h5 class="modal-title">¿Desea cancelar la solicitud del Ticket #{{ $solicitud->Encabezado->IdTicket }}?
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/CancelarTicket/Cancelar/{{ $solicitud->IdEncabezado }}" method="POST">
                 @csrf
@@ -19,12 +18,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">
-                        <i class="fa fa-close"></i> Cerrar
-                    </button>
-                    <button type="submit" class="btn btn-sm btn-danger">
-                        <i class="fa fa-ban"></i> Cancelar Solicitud
-                    </button>
+                    <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">Cerrar </button>
+                    <button type="submit" class="btn btn-sm btn-danger"> Cancelar Solicitud </button>
                 </div>
             </form>
         </div>

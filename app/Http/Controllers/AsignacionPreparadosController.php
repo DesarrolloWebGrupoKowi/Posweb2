@@ -28,14 +28,16 @@ class AsignacionPreparadosController extends Controller
                     'CatPreparado.Nombre',
                     'CatPreparado.Fecha',
                     'CatTiendas.NomTienda',
-                    'DatAsignacionPreparados.CantidadEnvio'
+                    'DatAsignacionPreparados.CantidadEnvio',
+                    'CatPreparado.Subir',
                 )
                 ->leftJoin('CatPreparado', 'CatPreparado.preparado', 'DatAsignacionPreparados.IdPreparado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->whereDate('CatPreparado.Fecha', $fecha)
                 ->orderBy('CatPreparado.Fecha', 'DESC')
-                ->paginate(10);
+                ->paginate(10)
+                ->withQueryString();
         } else {
             $asignados = DatAsignacionPreparados::with('Detalle')
                 ->select(
@@ -45,13 +47,15 @@ class AsignacionPreparadosController extends Controller
                     'CatPreparado.Nombre',
                     'CatPreparado.Fecha',
                     'CatTiendas.NomTienda',
-                    'DatAsignacionPreparados.CantidadEnvio'
+                    'DatAsignacionPreparados.CantidadEnvio',
+                    'CatPreparado.Subir',
                 )
                 ->leftJoin('CatPreparado', 'CatPreparado.preparado', 'DatAsignacionPreparados.IdPreparado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'DatAsignacionPreparados.IdTienda')
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->orderBy('CatPreparado.Fecha', 'DESC')
-                ->paginate(10);
+                ->paginate(10)
+                ->withQueryString();
         }
 
         return view('AsignacionPreparados.index', compact('asignados', 'fecha'));

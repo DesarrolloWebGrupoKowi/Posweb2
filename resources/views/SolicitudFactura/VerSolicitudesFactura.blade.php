@@ -1,45 +1,43 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Ver Solicitudes de Factura')
 @section('dashboardWidth', 'width-95')
-<style>
-    #constancia {
-        font-size: 20px;
-        color: black;
-    }
-
-    #constancia:hover {
-        color: orange;
-    }
-
-    i {
-        cursor: pointer;
-    }
-
-    i:hover {
-        color: orange;
-    }
-</style>
 @section('contenido')
-    <div class="container-fluid pt-4 width-95">
-        <div class="d-flex justify-content-sm-between align-items-center flex-column flex-sm-row pb-4">
-            @include('components.title', ['titulo' => 'Solicitudes de Factura'])
-            <form class="d-flex align-items-end justify-content-end gap-2" action="/VerSolicitudesFactura">
-                <div class="form-group" style="min-width: 300px">
-                    <label class="fw-bold text-secondary">Selecciona una fecha</label>
-                    <input type="date" class="form-control" name="fechaSolicitud" value="{{ $fechaSolicitud }}" required>
-                </div>
+    <div class="container-fluid pt-4 width-95 d-flex flex-column gap-4">
 
-                <div class="input-group-append">
-                    <button class="input-group-text"><span class="material-icons">search</span></button>
-                </div>
-            </form>
+        <div class="card border-0 p-4 flex-1" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', [
+                    'titulo' => 'Solicitudes de Factura',
+                    'options' => [['name' => 'Solicitar factura', 'value' => '/SolicitudFactura']],
+                ])
+            </div>
         </div>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <form class="d-flex align-items-end justify-content-end gap-2 pb-2" action="/VerSolicitudesFactura">
+                {{-- <div class="d-flex align-items-center gap-2">
+                    <label for="fechaSolicitud" class="text-secondary" style="font-weight: 500">Buscar:</label>
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fechaSolicitud"
+                        id="fechaSolicitud" value="{{ $fechaSolicitud }}" autofocus>
+                </div> --}}
+                <div class="col-auto">
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="txtFecha1"
+                        id="fecha1" value="{{ $fecha1 }}" autofocus>
+                </div>
+                <div class="col-auto">
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="txtFecha2"
+                        id="fecha2" value="{{ $fecha2 }}">
+                </div>
+                <button class="btn btn-dark-outline" title="Buscar">
+                    @include('components.icons.search')
+                </button>
+                {{-- <button class="d-none input-group-text"><span class="material-icons">search</span></button> --}}
+            </form>
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Fecha</th>
+                        <th class="rounded-start">Folio</th>
+                        <th>Fecha</th>
                         <th>Nombre</th>
                         <th>RFC</th>
                         <th>Correo</th>
@@ -49,50 +47,51 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if ($solicitudesFactura->count() > 0)
-                        @foreach ($solicitudesFactura as $solicitudFactura)
-                            <tr>
-                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($solicitudFactura->FechaSolicitud)) }}</td>
-                                <td>{{ $solicitudFactura->NomCliente }}</td>
-                                <td>{{ $solicitudFactura->RFC }}</td>
-                                <td>{{ $solicitudFactura->Email }}</td>
-                                <td style="text-align: center">
-                                    @if (empty($solicitudFactura->ConstanciaSituacionFiscal))
-                                        No Tiene Constancia
-                                    @else
-                                        <a id="constancia"
-                                            href="/VerConstanciaCliente/{{ $solicitudFactura->IdSolicitudFactura }}"
-                                            target="_blank"><i class="fa fa-book"></i></a>
-                                    @endif
-                                </td>
-                                <td style="text-align: center">
-                                    @if (empty($solicitudFactura->IdClienteCloud))
-                                        <strong><i style="color: red" class="fa fa-exclamation-triangle"></i> Falta Ligar
-                                            Cliente</strong>
-                                    @else
-                                        <strong><i class="fa fa-clock-o"></i> En Proceso de Facturación</strong>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if (empty($solicitudFactura->ConstanciaSituacionFiscal) &&
-                                            empty($solicitudFactura->IdClienteCloud) &&
-                                            empty($solicitudFactura->Bill_To))
-                                        <button class="btn" data-bs-toggle="modal"
-                                            data-bs-target="#ModalEditarSolicitud{{ $solicitudFactura->IdSolicitudFactura }}">
-                                            <i style="font-size: 20px;" class="fa fa-upload"></i>
-                                        </button>
-                                        @include('SolicitudFactura.ModalEditarSolicitud')
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    @else
+                    @include('components.table-empty', ['items' => $solicitudesFactura, 'colspan' => 7])
+                    @foreach ($solicitudesFactura as $solicitudFactura)
                         <tr>
-                            <td colspan="7">No Hay Solicitudes!</td>
+                            <td>{{ $solicitudFactura->IdSolicitudFactura }}</td>
+                            <td>{{ strftime('%d %B %Y, %H:%M', strtotime($solicitudFactura->FechaSolicitud)) }}</td>
+                            <td class="puntitos" title="{{ $solicitudFactura->NomCliente }}">
+                                {{ $solicitudFactura->NomCliente }}
+                            </td>
+                            <td>{{ $solicitudFactura->RFC }}</td>
+                            <td>{{ $solicitudFactura->Email }}</td>
+                            <td style="text-align: center">
+                                @if (empty($solicitudFactura->ConstanciaSituacionFiscal))
+                                    No Tiene Constancia
+                                @else
+                                    <a href="/VerConstanciaCliente/{{ $solicitudFactura->IdSolicitudFactura }}"
+                                        target="_blank" class="btn-table text-dark" style="width: fit-content">
+                                        @include('components.icons.list')
+                                    </a>
+                                @endif
+                            </td>
+                            <td style="text-align: center">
+                                @if (empty($solicitudFactura->IdClienteCloud))
+                                    <strong>
+                                        <span style="color: red">@include('components.icons.info')</span> Falta Ligar Cliente
+                                    </strong>
+                                @else
+                                    <strong>@include('components.icons.clock') En Proceso de Facturación</strong>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if (empty($solicitudFactura->ConstanciaSituacionFiscal) &&
+                                        empty($solicitudFactura->IdClienteCloud) &&
+                                        empty($solicitudFactura->Bill_To))
+                                    <button class="btn-table" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEditarSolicitud{{ $solicitudFactura->IdSolicitudFactura }}">
+                                        @include('components.icons.upload')
+                                    </button>
+                                    @include('SolicitudFactura.ModalEditarSolicitud')
+                                @endif
+                            </td>
                         </tr>
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $solicitudesFactura])
         </div>
 
     </div>

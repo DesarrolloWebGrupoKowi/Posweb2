@@ -1,17 +1,17 @@
-<div class="modal fade" data-bs-backdrop="static" id="mensajeError{{ $detalleCorte->IdCortesTienda }}" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+<div class="modal fade" id="mensajeError{{ $detalleCorte->IdCortesTienda }}" aria-hidden="true"
+    aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-info-circle"></i> Mensaje de Error</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Mensaje de Error</h5>
             </div>
             <div class="modal-body">
-                <h6 class="p-1 bg-danger text-white rounded-3">{{ $detalleCorte->MENSAJE_ERROR }}</h6> 
+                <p class="fs-6 fw-normal m-0 text-danger" style="line-height: 24px; text-wrap: wrap;">
+                    {{ $detalleCorte->MENSAJE_ERROR }}
+                </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">
-                    <i class="fa fa-close"></i> Cerrar
-                </button>
+                <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal"> Cerrar </button>
             </div>
         </div>
     </div>

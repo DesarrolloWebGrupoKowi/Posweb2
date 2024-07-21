@@ -1,14 +1,13 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalLotes{{ $merma->CodArticulo }}"
-    aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+<div class="modal fade" id="ModalLotes{{ $merma->CodArticulo }}" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalToggleLabel2">Lotes Disponibles</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <span class="bg-dark text-white rounded-2 p-1">{{ $merma->NomArticulo }} -
-                    {{ number_format($merma->CantArticulo, 3) }}</span>
+                <p class="m-0 text-left fw-bold" style="line-height: 24px">
+                    {{ $merma->NomArticulo }} - {{ number_format($merma->CantArticulo, 3) }}
+                </p>
                 <table class="">
                     <thead>
                         <tr>
@@ -41,16 +40,15 @@
                 @if ($merma->CantArticulo >= $totalLote)
                     <div class="d-flex justify-content-center">
                         <div class="col-auto">
-                            <span class="bg-danger text-white rounded-2 p-1"><i class="fa fa-exclamation-circle"></i>
-                                <strong>Inventario Insuficiente</strong> <i class="fa fa-exclamation-circle"></i></span>
+                            <span class="tags-red">
+                                <strong>Inventario Insuficiente</strong>
+                            </span>
                         </div>
                     </div>
                 @endif
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
-                    <i class="fa fa-close"></i> Cerrar
-                </button>
+                <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal"> Cerrar </button>
             </div>
         </div>
     </div>

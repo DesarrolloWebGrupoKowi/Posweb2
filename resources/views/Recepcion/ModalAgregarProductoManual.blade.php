@@ -1,8 +1,8 @@
 <!-- Modal Agregar Producto Manual-->
-<div class="modal fade" data-bs-backdrop="static" id="ModalAgregarProductoManual" tabindex="-1"
-    aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="ModalAgregarProductoManual" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="margin-bottom: 64px">
+        <div class="modal-content border-0" style="margin-bottom: 64px">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Agregar Producto Manual</h5>
                 <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
@@ -26,12 +26,15 @@
                         </div>
                         <div class="col-auto">
                             <div class="mb-3">
-                                <input class="form-control" id="filtroArticulo" type="text" name="filtroArticulo"
-                                    placeholder="Buscar Articulo" autocomplete="off" required>
+                                <input class="form-control rounded" style="line-height: 18px" id="filtroArticulo"
+                                    type="text" name="filtroArticulo" placeholder="Buscar Articulo"
+                                    autocomplete="off" required>
                             </div>
                         </div>
                         <div class="col-auto">
-                            <button class="btn"><span class="material-icons">search</span></button>
+                            <button class="btn-table">
+                                @include('components.icons.search')
+                            </button>
                         </div>
                     </div>
                     <iframe name="ifrProductoManual" width="100%" height="200vh" frameborder="0"></iframe>

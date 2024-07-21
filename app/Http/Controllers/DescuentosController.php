@@ -22,17 +22,24 @@ class DescuentosController extends Controller
             $articulos->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetDescuentos.IdArticulo');
             $articulos->leftJoin('CatListasPrecio', 'CatListasPrecio.IdListaPrecio', 'DatDetDescuentos.IdListaPrecio');
         }])
+            ->select(
+                'DatEncDescuentos.*',
+                'CatTipoDescuento.NomTipoDescuento',
+                'CatTiendas.NomTienda',
+                'CatPlazas.NomPlaza'
+            )
             ->leftjoin('CatTipoDescuento', 'CatTipoDescuento.IdTipoDescuento', 'DatEncDescuentos.TipoDescuento')
             ->leftjoin('CatPlazas', 'CatPlazas.IdPlaza', 'DatEncDescuentos.IdPlaza')
             ->leftjoin('CatTiendas', 'CatTiendas.IdTienda', 'DatEncDescuentos.IdTienda')
             ->where('NomDescuento', 'like', '%' . $nomDescuento . '%')
             ->where('DatEncDescuentos.Status', 0)
-            ->get();
+            ->orderBy('DatEncDescuentos.FechaCreacion', 'DESC')
+            ->paginate(10);
 
         $descuentosActivos = DatEncDescuentos::where('Status', 0)
             ->count();
 
-        //return $paquetes;
+        // return $descuentos;
 
         return view('Descuentos.VerDescuentos', compact('descuentos', 'nomDescuento', 'descuentosActivos'));
     }

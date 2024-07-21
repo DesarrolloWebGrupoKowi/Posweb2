@@ -101,19 +101,25 @@ class SolicitudFacturaController extends Controller
     public function VerSolicitudesFactura(Request $request)
     {
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $fecha1 = $request->txtFecha1;
+        $fecha2 = $request->txtFecha2;
 
-        $fechaSolicitud = empty($request->fechaSolicitud) ? date('Y-m-d') : $request->fechaSolicitud;
-
-        //empty($fechaSolicitud) ? $fechaSolicitud = date('Y-m-d') : $fechaSolicitud = $request->fechaSolicitud;
-
-        $solicitudesFactura = SolicitudFactura::with('ConstanciaSituacionFiscal')
+       $solicitudesFactura = SolicitudFactura::with('ConstanciaSituacionFiscal')
             ->where('IdTienda', $idTienda)
-            ->whereDate('FechaSolicitud', $fechaSolicitud)
-            ->get();
+            ->when(isset($fecha1) && !isset($fecha2), function ($q) use ($fecha1) {
+                return $q->whereDate('FechaSolicitud', '>=', $fecha1);
+            })
+            ->when(!isset($fecha1) && isset($fecha2), function ($q) use ($fecha2) {
+                return $q->whereDate('FechaSolicitud', '<=', $fecha2);
+            })
+            ->when(isset($fecha1) && isset($fecha2), function ($q) use ($fecha1, $fecha2) {
+                return $q->whereRaw("cast(FechaSolicitud as date) between '" . $fecha1 . "' and '" . $fecha2 . "'");
+            })
+            ->orderBy('FechaSolicitud', 'DESC')
+            ->paginate(10)
+            ->withQueryString();
 
-        //return $solicitudesFactura;
-
-        return view('SolicitudFactura.VerSolicitudesFactura', compact('solicitudesFactura', 'fechaSolicitud'));
+        return view('SolicitudFactura.VerSolicitudesFactura', compact('solicitudesFactura', 'fecha1', 'fecha2'));
     }
 
     public function VerificarSolicitudFactura($idTicket, $rfcCliente, $bill_To, $correo)

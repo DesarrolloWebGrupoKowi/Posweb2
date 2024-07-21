@@ -2,35 +2,26 @@
 @section('title', 'Catálogo de Listas de Precio')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Listas de Precio'])
-            <div>
-                <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                    class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar lista de precio
-                </button>
-                <a href="/CatListasPrecio" class="btn btn-dark-outline">
-                    <span class="material-icons">refresh</span>
-                </a>
-            </div>
-        </div>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-
-        <form class="d-flex align-items-center justify-content-end pb-4 gap-4" action="/CatListasPrecio">
-            <div class="input-group" style="max-width: 300px">
-                <input type="text" name="txtListaPrecio" id="txtListaPrecio" class="form-control"
-                    placeholder="Lista de Precios" value="{{ $filtroListaPrecio }}" autofocus>
-                <div class="input-group-append">
-                    <button class="input-group-text"><span class="material-icons">search</span></button>
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Catálogo de Listas de Precio'])
+                <div>
+                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
+                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                        Agregar lista de precio @include('components.icons.plus-circle')
+                    </button>
                 </div>
             </div>
-        </form>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <div>
+                @include('Alertas.Alertas')
+            </div>
+        </div>
+
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            @include('components.table-search')
             <table>
                 <thead class="table-head">
                     <tr>
@@ -56,9 +47,10 @@
                                 <td>{{ $listaPrecio->PesoMaximo }}</td>
                                 <td>{{ $listaPrecio->PorcentajeIva }}</td>
                                 <td>
-                                    <button class="btn btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEditar{{ $listaPrecio->IdListaPrecio }}">
-                                        <span class="material-icons">edit</span>
+                                    <button class="btn-table" data-bs-toggle="modal"
+                                        data-bs-target="#ModalEditar{{ $listaPrecio->IdListaPrecio }}"
+                                        title="Editar lista de precio">
+                                        @include('components.icons.list')
                                     </button>
                                 </td>
                             </tr>

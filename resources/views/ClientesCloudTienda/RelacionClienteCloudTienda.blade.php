@@ -15,7 +15,7 @@
 <body>
     <form action="/GuardarRelacionClienteCloud" target="ifrGuardarRelacionClienteCloud">
 
-        <div class="content-table content-table-full card p-4 mb-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4 mb-4" style="border-radius: 10px">
             <h5>Direcciones de Envío</h5>
             <table>
                 <thead class="table-head">
@@ -41,7 +41,7 @@
             </table>
         </div>
 
-        <div class="content-table content-table-full card p-4 mb-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <h5>Direcciones de Facturación</h5>
             <table>
                 <thead class="table-head">

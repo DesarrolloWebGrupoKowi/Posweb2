@@ -64,6 +64,7 @@ class InterfazMermasController extends Controller
                 ->leftJoin('CatTiendas as d', 'd.IdTienda', 'a.IdTienda')
                 ->leftJoin('CatArticulos as e', 'e.CodArticulo', 'a.CodArticulo')
                 ->select(
+                    'a.FolioMerma',
                     'd.Almacen',
                     'a.CodArticulo',
                     'e.NomArticulo',
@@ -80,6 +81,7 @@ class InterfazMermasController extends Controller
                 ->where('a.IdTienda', $idTienda)
                 ->whereRaw("CAST(a.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                 ->groupBy(
+                    'a.FolioMerma',
                     'a.CodArticulo',
                     'b.NomTipoMerma',
                     'c.Libro',

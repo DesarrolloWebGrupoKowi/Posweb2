@@ -3,52 +3,52 @@
 @section('dashboardWidth', 'width-95')
 <link rel="stylesheet" href="{{ asset('css/stylePrecios.css') }}">
 @section('contenido')
-    <div class="container-fluid pt-4 width-95">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Módulo de Precios'])
+    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Módulo de Precios'])
+                <div>
+                    <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none btn-excel">
+                        Exportar precios @include('components.icons.excel')
+                    </a>
+                </div>
+            </div>
             <div>
-                <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none btn-excel">
-                    <i class="fa fa-file-excel-o pe-2"></i> Exportar precios
-                </a>
+                @include('Alertas.Alertas')
             </div>
         </div>
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-        <div class="d-flex justify-content-start mb-3">
-            <form id="formPrecios" action="/Precios">
-                <div class="row">
-                    <div class="col-auto">
-                        <select class="form-select" name="IdListaPrecio" id="IdListaPrecio">
-                            <option {!! $idListaPrecio != null ? 'disabled' : '' !!} value="">Seleccione Lista de Precios</option>
-                            @foreach ($listaPrecios as $listaPrecio)
-                                <option {!! $listaPrecio->IdListaPrecio == $idListaPrecio ? 'selected' : '' !!} value="{{ $listaPrecio->IdListaPrecio }}">
-                                    {{ $listaPrecio->NomListaPrecio }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <select class="form-select" name="IdGrupo" id="IdGrupo">
-                            <option value="">TODOS</option>
-                            @foreach ($grupos as $grupo)
-                                <option {!! $idGrupo == $grupo->IdGrupo ? 'selected' : '' !!} value="{{ $grupo->IdGrupo }}">{{ $grupo->NomGrupo }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-dark-outline"><span class="material-icons">search</span></button>
-                    </div>
-                </div>
-            </form>
-        </div>
+
+        <form id="formPrecios" class="d-flex flex-wrap align-items-center justify-content-end gap-2 pb-2" action="/Precios">
+            <div class="col-auto">
+                <select class="form-select rounded" style="line-height: 18px" name="IdListaPrecio" id="IdListaPrecio">
+                    <option {!! $idListaPrecio != null ? 'disabled' : '' !!} value="">Seleccione Lista de Precios</option>
+                    @foreach ($listaPrecios as $listaPrecio)
+                        <option {!! $listaPrecio->IdListaPrecio == $idListaPrecio ? 'selected' : '' !!} value="{{ $listaPrecio->IdListaPrecio }}">
+                            {{ $listaPrecio->NomListaPrecio }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-auto">
+                <select class="form-select rounded" style="line-height: 18px" name="IdGrupo" id="IdGrupo">
+                    <option value="">TODOS</option>
+                    @foreach ($grupos as $grupo)
+                        <option {!! $idGrupo == $grupo->IdGrupo ? 'selected' : '' !!} value="{{ $grupo->IdGrupo }}">{{ $grupo->NomGrupo }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <button class="btn btn-dark-outline">
+                @include('components.icons.search')
+            </button>
+        </form>
 
         <form id="formActualizarPrecios" action="/ActualizarPrecios" method="POST">
             <input type="hidden" name="idListaPrecioHidden" value="{{ $idListaPrecio }}">
             @csrf
             <div class="col-6" style="float: left;">
-                <div class="content-table content-table-full card p-4" style="border-radius: 20px; height: 70%;">
+                <div class="content-table content-table-full card border-0 p-4" style="height: 70%; border-radius: 10px">
                     <div>
                         <div class="row mb-2">
                             @if (!empty($idListaPrecio))

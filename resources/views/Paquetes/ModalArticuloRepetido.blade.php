@@ -1,15 +1,14 @@
 <!-- Modal Articulo Repetido-->
 <div class="modal fade" id="ModalArticuloRpetido" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-exclamation-circle"></i> Articulo Repetido</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="exampleModalLabel">Artículo Repetido </h5>
             </div>
             <div class="modal-body">
-                <div class="col-auto">
-                    <h4 class="titulo">No Puede Agregar un Articulo Repetido</h4>
-                </div>
+                <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
+                    No Puede Agregar un Artículo Repetido
+                </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">

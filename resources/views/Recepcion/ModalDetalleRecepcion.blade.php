@@ -1,8 +1,8 @@
 <!-- Modal Detalle Recepcion-->
-<div class="modal fade" data-bs-backdrop="static" id="ModalDetalleRecepcion{{ $recepcion->IdCapRecepcion }}" tabindex="-1"
+<div class="modal fade" id="ModalDetalleRecepcion{{ $recepcion->IdCapRecepcion }}" tabindex="-1"
     aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Detalle Recepción - {{ $recepcion->PackingList }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -30,7 +30,15 @@
                                 <td>{{ number_format($dRecepcion->CantEnviada, 2) }}</td>
                                 <td style="color: {!! $dRecepcion->CantRecepcionada == 0 ? 'red; font-weight:bold;' : '' !!}">
                                     {{ number_format($dRecepcion->CantRecepcionada, 2) }}</td>
-                                <th style="color: {!! $dRecepcion->IdStatusRecepcion != 2 ? 'red; font-weight:bold;' : '' !!}">{{ $dRecepcion->NomStatusRecepcion }}</th>
+                                <th>
+                                    @if ($dRecepcion->IdStatusRecepcion == 2)
+                                        <span class="tags-green">{{ $dRecepcion->NomStatusRecepcion }}</span>
+                                    @elseif ($dRecepcion->IdStatusRecepcion == 3)
+                                        <span class="tags-red">{{ $dRecepcion->NomStatusRecepcion }}</span>
+                                    @else
+                                        <span class="tags-yellow">{{ $dRecepcion->NomStatusRecepcion }}</span>
+                                    @endif
+                                </th>
                             </tr>
                             @php
                                 $cRecibida = $cRecibida + $dRecepcion->CantEnviada;

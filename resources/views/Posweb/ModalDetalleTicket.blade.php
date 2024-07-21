@@ -1,15 +1,22 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalDetalleTicket{{ $ticket->IdTicket }}" aria-hidden="true"
+<div class="modal fade" id="ModalDetalleTicket{{ $ticket->IdTicket }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-xl">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-info-circle"></i> Detalle Ticket :
-                    {{ $ticket->IdTicket }}</h5>
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Detalle Ticket</h5>
             </div>
             <div class="modal-body">
                 <div>
+                    <div>
+                        <p class="m-0 text-left" style="line-height: 24px">
+                            {{ strftime('%d %B %Y', strtotime($ticket->FechaVenta)) }}
+                        </p>
+                        <p class="m-0 text-left fw-bold" style="line-height: 24px">
+                            Ticket No. {{ $ticket->IdTicket }}
+                        </p>
+                    </div>
                     <table>
-                        <thead>
+                        <thead class="table-head-secondary">
                             <tr>
                                 <th>Código</th>
                                 <th>Articulo</th>
