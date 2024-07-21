@@ -1,34 +1,53 @@
-<div class="modal fade" data-bs-backdrop="static" id="ModalTipoPago{{ $ticket->IdTicket }}" aria-hidden="true"
+<div class="modal fade" id="ModalTipoPago{{ $ticket->IdTicket }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel2"><i class="fa fa-money"></i> Tipo de Pago Ticket :
-                    {{ $ticket->IdTicket }}</h5>
+                <h5 class="modal-title" id="exampleModalToggleLabel2">Tipo de Pago Ticket</h5>
             </div>
             <div class="modal-body">
                 <div>
+                    <div>
+                        <p class="m-0 text-left" style="line-height: 24px">
+                            {{ strftime('%d %B %Y', strtotime($ticket->FechaVenta)) }}
+                        </p>
+                        <p class="m-0 text-left fw-bold" style="line-height: 24px">
+                            Ticket No. {{ $ticket->IdTicket }}
+                        </p>
+                    </div>
                     <table>
-                        <thead>
-                            <th>Tipo de Pago</th>
-                            <th>Pago</th>
-                            <th>Por Pagar</th>
+                        <thead class="table-head-secondary">
+                            <tr>
+                                <th>Tipo de Pago</th>
+                                <th class="text-center">Pago</th>
+                                <th class="text-center">Por Pagar</th>
+                            </tr>
                         </thead>
-                        <tbody>
+                        <tbody style="font-size: smaller">
                             @foreach ($ticket->TipoPago as $tipoPago)
                                 <tr>
                                     <td>{{ $tipoPago->NomTipoPago }}</td>
-                                    <td>${{ number_format($tipoPago->PivotPago->Pago, 2) }}</td>
-                                    <td>
+                                    <td class="text-end">${{ number_format($tipoPago->PivotPago->Pago, 2) }}</td>
+                                    <td class="text-end">
                                         @if ($tipoPago->PivotPago->Restante < 0)
                                             {{ number_format($tipoPago->PivotPago->Restante, 2) }}
                                         @endif
                                     </td>
                                 </tr>
                             @endforeach
+                            @foreach ($ticket->TipoPago as $tipoPago)
+                                @if ($tipoPago->PivotPago->Restante >= 0)
+                                    <tr>
+                                        <td></td>
+                                        <td class="text-end">Total: ${{ number_format($ticket->ImporteVenta, 2) }}</t>
+                                        <td class="text-end">Cambio:
+                                            ${{ number_format($tipoPago->PivotPago->Restante, 2) }}</t>
+                                    </tr>
+                                @endif
+                            @endforeach
                         </tbody>
                         <tfoot>
-                            @foreach ($ticket->TipoPago as $tipoPago)
+                            {{-- @foreach ($ticket->TipoPago as $tipoPago)
                                 @if ($tipoPago->PivotPago->Restante >= 0)
                                     <tr>
                                         <th style="text-align: center">Total:
@@ -37,7 +56,7 @@
                                         <th>${{ number_format($tipoPago->PivotPago->Restante, 2) }}</th>
                                     </tr>
                                 @endif
-                            @endforeach
+                            @endforeach --}}
                         </tfoot>
                     </table>
                 </div>

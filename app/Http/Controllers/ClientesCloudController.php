@@ -17,10 +17,10 @@ class ClientesCloudController extends Controller
 
     public function BuscarCustomer(Request $request){
 
-        $sqlSelect = "select distinct ID_CLIENTE, NOMBRE, TIPO_CLIENTE". 
-                     " from CLOUD_TABLES..XXKW_CUSTOMERS".
+        $sqlSelect = "select distinct ID_CLIENTE, NOMBRE, TIPO_CLIENTE".
+                     " from SERVER.CLOUD_TABLES.dbo.XXKW_CUSTOMERS".
                      " where ID_CLIENTE not in (select IdClienteCloud".
-                     " from CatClientesCloud)". 
+                     " from CatClientesCloud)".
                      " and NOMBRE like '%".$request->txtFiltro."%'".
                      " and LOCATION_STATUS = 'A'";
 

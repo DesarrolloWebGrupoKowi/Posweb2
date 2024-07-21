@@ -1,17 +1,15 @@
 <!-- Modal Agregar Bloqueo -->
-<div class="modal fade" data-bs-backdrop="static" id="AgregarBloqueo" aria-labelledby="exampleModalToggleLabel2"
-    tabindex="-1">
+<div class="modal fade" id="AgregarBloqueo" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalToggleLabel2">Agregar Nuevo Bloqueo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/AgregarBloqueoEmpleado" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-auto">
+                        <div class="col-lg">
                             <div class="form-floating mb-2">
                                 <input type="number" class="form-control validInput" id="numNominaEmpleado"
                                     placeholder="# Nomina" name="numNomina" required>
@@ -20,7 +18,7 @@
                         </div>
                         <div class="col-auto">
                             <button id="btnBuscarEmpleado" type="button" class="btn btn-warning mt-2">
-                                <i class="fa fa-search"></i> Buscar
+                                @include('components.icons.search') Buscar
                             </button>
                         </div>
                     </div>
@@ -39,12 +37,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                        <i class="fa fa-close"></i> Cerrar
-                    </button>
-                    <button hidden id="btnBloquear" class="btn btn-warning">
-                        <i class="fa fa-user-times"></i> Bloquear Empleado
-                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar </button>
+                    <button hidden id="btnBloquear" class="btn btn-warning">Bloquear Empleado </button>
                 </div>
             </form>
         </div>

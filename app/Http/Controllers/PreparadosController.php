@@ -80,7 +80,7 @@ class PreparadosController extends Controller
         $preparado->IdTienda = Auth::user()->usuarioTienda->IdTienda;
         $preparado->IdCaja = $idcaja;
         $preparado->Fecha = Carbon::now()->format('Y-d-m');
-        $preparado->IdCatStatusPreparado = 1;
+        $preparado->IdCatStatusPreparado = 2;
         $preparado->save();
 
         return back()->with('msjAdd', 'Preparado agregado correctamente');
@@ -96,7 +96,7 @@ class PreparadosController extends Controller
         ]);
 
         DB::update("UPDATE [dbo].[DatPreparados]
-            SET CantidadFormula=CantidadPaquete / $request->cantidad
+            SET CantidadFormula=ROUND(CantidadPaquete / $request->cantidad,2)
             WHERE [IdPreparado]=$idPreparado");
 
         return back();
@@ -115,11 +115,10 @@ class PreparadosController extends Controller
                 return back()->with('msjdelete', 'Error: El articulo con el código ' . $codArticulo . ' no cuenta con precio en esa lista de precios');
             }
         }
-
         DatPreparados::where('IdPreparado', $idPreparado)->update([
             'IDLISTAPRECIO' => $request->IdListaPrecio,
         ]);
-        return back();
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $idPreparado]);
     }
 
     public function EnviarPreparados($idPreparado)
@@ -148,7 +147,7 @@ class PreparadosController extends Controller
 
         $preparado->delete();
 
-        return redirect()->route('Preparados.index');
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente']);
     }
 
     public function AgregarArticulo($idPreparado, Request $request)
@@ -168,20 +167,21 @@ class PreparadosController extends Controller
         // Validamos que el articulo tenga stock
         $stock = InventarioTienda::where('CodArticulo', $request->codigo)->first();
         if ($stock == null || $stock->StockArticulo < $request->cantidad) {
-            return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');;
+            return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');
         }
 
         $cantidad = CatPreparado::where('IdPreparado', $idPreparado)->value('Cantidad');
+        $formula = $cantidad ? round($request->cantidad / $cantidad, 2) : null;
 
         $preparado = new DatPreparados();
         $preparado->IdPreparado = $idPreparado;
         $preparado->IdArticulo = $idArticulo;
         $preparado->CantidadPaquete = $request->cantidad;
-        $preparado->CantidadFormula = $cantidad ? $request->cantidad / $cantidad : null;
+        $preparado->CantidadFormula = $formula;
         $preparado->IDLISTAPRECIO = $idListaPrecio ? $idListaPrecio : 4;
         $preparado->save();
 
-        return back();
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $idPreparado]);
     }
 
     public function EliminarArticulo($id)
@@ -190,6 +190,7 @@ class PreparadosController extends Controller
 
         $preparado->delete();
 
-        return back();
+        // return back();
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $preparado->IdPreparado]);
     }
 }

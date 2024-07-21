@@ -1,4 +1,4 @@
-$("#alerta").fadeTo(4000, 1000).slideUp(1000, function() {
+$("#alerta").fadeTo(4000, 1000).slideUp(1000, function () {
     $("alerta").slideUp(3000);
 });
 
@@ -51,47 +51,6 @@ function agregarLista() {
     document.getElementById("formListaP").action = "/AgregarLista";
     document.getElementById("formListaP").submit();
 }
-/*Funciones No Usadas/++==========================================================++
-function disableSelect() {
-    var check = document.getElementById('chkTodo');
-
-    if (check.checked) {
-        document.getElementById("divTienda").style.display = 'none';
-        document.getElementById("divPlaza").style.display = 'none';
-    } else {
-        document.getElementById("divTienda").style.display = 'block';
-        document.getElementById("divPlaza").style.display = 'block';
-    }
-
-}
-
-function disableSelectEdit(id) {
-    var checkbox = document.getElementById('chkTodoEdit' + id);
-    //alert(checkbox);
-
-    if (checkbox.checked) {
-        document.getElementById("divTiendaEdit" + id).style.display = 'none';
-        document.getElementById("divPlazaEdit" + id).style.display = 'none';
-    } else {
-        document.getElementById("divTiendaEdit" + id).style.display = 'block';
-        document.getElementById("divPlazaEdit" + id).style.display = 'block';
-    }
-}
-
-
-function firstMayus(e) {
-    const longitud = e.value.length;
-    const txt = e.value;
-    //alert(txt);
-    if (longitud == 1) {
-        e.value = e.value.charAt(0).toUpperCase();
-    } else {
-        for (i = 2; i < txt.length; i++) {
-            e.value.charAt(i) = e.value.charAt(i).toLowerCase();
-        }
-    }
-}
-Funciones No Usadas/++==========================================================++*/
 
 function Opciones() {
     var radioTodas = document.getElementById("radioTodas");
@@ -130,3 +89,18 @@ function OpcionesEdit(id) {
         document.getElementById("divTiendaEdit" + id).style.display = 'none';
     }
 }
+
+// Ayuda a abrir el modal de manera dinámica
+// y a poner automáticamente el foco en el input con la clase form-control-codigo
+document.addEventListener('DOMContentLoaded', () => {
+    let button = document.querySelector('.modalOpen');
+    if (button) {
+        button.click();
+
+        let id = button.getAttribute('data-bs-target').substring(1);
+        let modal = document.getElementById(id);
+        let input = modal.querySelector('.form-control-codigo');
+        setTimeout(() => input.focus(), 500);
+
+    }
+});

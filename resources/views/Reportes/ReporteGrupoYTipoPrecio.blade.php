@@ -2,41 +2,40 @@
 @section('title', 'Concentrado por Grupo y Tipo de Precio')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <!--TITULO-->
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Concentrado por Grupo y Tipo de Precio'])
-            <div>
-                <form action="/ExportReporteGrupoYTipoPrecio" method="GET">
-                    <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-                    <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                    <button type="submit" class="input-group-text text-decoration-none btn-excel">
-                        <i class="fa fa-file-excel-o pe-2"></i> Exportar
-                    </button>
-                </form>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Concentrado por Grupo y Tipo de Precio'])
+                <div>
+                    <form action="/ExportReporteGrupoYTipoPrecio" method="GET">
+                        <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                        <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                        <button type="submit" class="input-group-text text-decoration-none btn-excel">
+                            Exportar @include('components.icons.excel')
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!--CONTAINER FILTROS-->
-        <form class="d-flex align-items-center justify-content-end flex-wrap pb-2 gap-2" action="/ReporteGrupoYTipoPrecio"
-            method="GET">
-            <div class="col-auto">
-                <input class="form-control" type="date" name="fecha1" id="fecha1"
-                    value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-            </div>
-            <div class="col-auto">
-                <input class="form-control" type="date" name="fecha2" id="fech2"
-                    value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-            </div>
-            <div class="col-auto">
-                <button class="btn card">
-                    <span class="material-icons">search</span>
-                </button>
-            </div>
-        </form>
-
         <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <!--CONTAINER FILTROS-->
+            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/ReporteGrupoYTipoPrecio"
+                method="GET">
+                <div class="col-auto">
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha1"
+                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" autofocus>
+                </div>
+                <div class="col-auto">
+                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha2"
+                        id="fech2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                </div>
+                <button class="btn btn-dark-outline" title="Buscar">
+                    @include('components.icons.search')
+                </button>
+            </form>
             <table>
                 <thead class="table-head">
                     <tr>

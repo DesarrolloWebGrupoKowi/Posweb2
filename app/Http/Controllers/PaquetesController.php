@@ -8,48 +8,48 @@ use Illuminate\Support\Facades\DB;
 use App\Models\CatPaquete;
 use App\Models\DatPaquete;
 use App\Models\Articulo;
+use App\Models\DatAsignacionPreparados;
 
 class PaquetesController extends Controller
 {
     public function VerPaquetes(Request $request)
     {
-        $nomPaquete = $request->nomPaquete;
+        $txtFiltro  = $request->txtFiltro;
 
         $paquetes = CatPaquete::with(['Usuario' => function ($empleado) {
             $empleado->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina');
         }, 'ArticulosPaquete' => function ($articulos) {
             $articulos->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatPaquetes.CodArticulo');
         }])
-            ->where('NomPaquete', 'like', '%' . $nomPaquete . '%')
+            ->where('NomPaquete', 'like', '%' . $txtFiltro  . '%')
             ->where('Status', 0)
-            ->get();
+            ->paginate(10);
 
         $paquetesActivos = CatPaquete::where('Status', 0)
             ->count();
 
-        //return $paquetes;
-
-        return view('Paquetes.VerPaquetes', compact('paquetes', 'nomPaquete', 'paquetesActivos'));
+        return view('Paquetes.VerPaquetes', compact('paquetes', 'txtFiltro', 'paquetesActivos'));
     }
 
     public function PaquetesLocal(Request $request)
     {
         $txtFiltro = $request->txtFiltro;
 
-        $paquetes = CatPaquete::select('CatPaquetes.*')
-            ->with(['Usuario' => function ($empleado) {
-                $empleado->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina');
-            }, 'ArticulosPaquete' => function ($articulos) {
-                $articulos->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatPaquetes.CodArticulo');
-            }])
+        $paquetes = CatPaquete::with(['ArticulosPaquete' => function ($articulos) {
+            $articulos->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatPaquetes.CodArticulo');
+        }])
             ->leftJoin('DatAsignacionPreparados as da', 'da.IdPreparado', 'CatPaquetes.IdPreparado')
             ->where('da.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-            ->WhereNotNull('da.IdPreparado')
-            ->orWhereNull('CatPaquetes.IdPreparado')
             ->where('NomPaquete', 'like', '%' . $txtFiltro . '%')
-            ->paginate(10)->withQueryString();
+            ->whereNotNull('da.IdPreparado')
+            ->paginate(10)
+            ->withQueryString();
 
-        $paquetesActivos = CatPaquete::where('Status', 0)
+        $paquetesActivos = CatPaquete::leftJoin('DatAsignacionPreparados as da', 'da.IdPreparado', 'CatPaquetes.IdPreparado')
+            ->where('da.IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            ->where('NomPaquete', 'like', '%' . $txtFiltro . '%')
+            ->whereNotNull('da.IdPreparado')
+            ->where('Status', 0)
             ->count();
 
         return view('Paquetes.VerPaquetesLocal', compact('paquetes', 'txtFiltro', 'paquetesActivos'));
@@ -267,6 +267,30 @@ class PaquetesController extends Controller
             DB::commit();
 
             return back()->with('msjdelete', 'Paquete desactivado correctamente: ' . $nomPaquete);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+    }
+
+    public function ActualizarCantidadRecepcion(Request $request, $idPreparado)
+    {
+        // return $request;
+        // return $idPaquete;
+        try {
+            DB::beginTransaction();
+            $datasinado = DatAsignacionPreparados::where('IdPreparado', $idPreparado)
+                ->first();
+
+            if (!$datasinado) {
+                return back()->with('msjdelete', 'Error al actualizar la cantidad');
+            }
+            DatAsignacionPreparados::where('IdPreparado', $idPreparado)
+                ->update([
+                    'CantidadEnvio' => $request->cantidad
+                ]);
+            DB::commit();
+            return back()->with('msjAdd', 'Paquete actualizado correctamente');
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());

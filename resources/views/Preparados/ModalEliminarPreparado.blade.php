@@ -1,14 +1,13 @@
 <div class="modal fade" id="ModalEliminarPreparado{{ $preparado->IdPreparado }}" aria-hidden="true"
     aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
-                <h5 class="modal-title" style="white-space: wrap">¿Desea eliminar el preparado y sus articulos agregados?
-                </h5>
+                <h5 class="modal-title" style="white-space: wrap">Eliminar preparado </h5>
             </div>
             <div class="modal-body">
-                <p class="titulo">Preparado: {{ $preparado->Nombre }}</p>
-                <p class="titulo">Cantidad: {{ number_format($preparado->Cantidad, 2) }} piezas</p>
+                <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">¿Estas seguro de eliminar el preparado?</p>
+                <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">{{$preparado->Nombre}}</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">

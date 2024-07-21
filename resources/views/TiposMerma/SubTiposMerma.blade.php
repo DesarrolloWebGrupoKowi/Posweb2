@@ -2,30 +2,46 @@
 @section('title', 'Catálogo de Sub Tipos de Merma')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Sub Tipos de Merma'])
-            @if (!empty($idTipoMerma))
-                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#ModalAgregarSubTipoMerma">
-                    <i class="fa fa-plus-circle"></i> Agregar subtipo
-                </button>
-            @endif
-        </div>
-        <form class="d-flex align-items-center justify-content-between pb-4 gap-4" id="formTipoMerma" action="/SubTiposMerma "
-            method="GET">
-            <div class="input-group" style="max-width: 350px">
-                <select class="form-select" name="idTipoMerma" id="idTipoMerma">
-                    <option value="">Seleccione Tipo de Merma</option>
-                    @foreach ($tiposMerma as $tipoMerma)
-                        <option {!! $idTipoMerma == $tipoMerma->IdTipoMerma ? 'selected' : '' !!} value="{{ $tipoMerma->IdTipoMerma }}">
-                            {{ $tipoMerma->NomTipoMerma }}</option>
-                    @endforeach
-                </select>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Catálogo de Sub Tipos de Merma'])
+                <form class="d-flex align-items-center justify-content-end" id="formTipoMerma" action="/SubTiposMerma "
+                    method="GET">
+                    <div class="form-group">
+                        <label class="fw-bold text-secondary">Tipo de merma</label>
+                        <select class="form-select rounded" style="line-height: 18px" name="idTipoMerma" id="idTipoMerma">
+                            <option value="">Seleccione Tipo de Merma</option>
+                            @foreach ($tiposMerma as $tipoMerma)
+                                <option {!! $idTipoMerma == $tipoMerma->IdTipoMerma ? 'selected' : '' !!} value="{{ $tipoMerma->IdTipoMerma }}">
+                                    {{ $tipoMerma->NomTipoMerma }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
+
+        {{-- @if (!empty($idTipoMerma))
+                    <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#ModalAgregarSubTipoMerma">
+                        <i class="fa fa-plus-circle"></i> Agregar subtipo
+                    </button>
+                @endif --}}
+
+        @if (empty($idTipoMerma))
+            <h2 class="text-center">Selecciona un tipo de merma</h2>
+        @endif
 
         @if (!empty($idTipoMerma))
-            <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+            <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+                <div class="d-flex justify-content-end mb-2">
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#ModalAgregarSubTipoMerma">
+                        <i class="fa fa-plus-circle"></i> Agregar subtipo
+                    </button>
+                </div>
+
                 <table>
                     <thead class="table-head">
                         <tr>
@@ -45,9 +61,9 @@
                                     <td>{{ $subTipoMerma->NomTipoMerma }}</td>
                                     <td>{{ $subTipoMerma->NomSubTipoMerma }}</td>
                                     <td>
-                                        <button class="btn" data-bs-toggle="modal"
+                                        <button class="btn-table btn-table-delete" data-bs-toggle="modal"
                                             data-bs-target="#ModalEliminarSubTipoMerma{{ $subTipoMerma->IdSubTipoMerma }}">
-                                            <span style="color: red" class="material-icons">delete_forever</span>
+                                            @include('components.icons.delete')
                                         </button>
                                     </td>
                                     @include('TiposMerma.ModalEliminarSubTipoMerma')

@@ -1,8 +1,8 @@
 <!--Modal Precios-->
-<div class="modal fade" data-bs-backdrop="static" id="ModalPrecios{{ $listaCodEtiqueta->IdArticulo }}" tabindex="-1"
+<div class="modal fade" id="ModalPrecios{{ $listaCodEtiqueta->IdArticulo }}" tabindex="-1"
     aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content border-0">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Precios del Articulo: {{ $listaCodEtiqueta->NomArticulo }}
                 </h5>

@@ -10,32 +10,31 @@ use App\Models\Empleado;
 
 class BloqueoEmpleadosController extends Controller
 {
-    public function BloqueoEmpleados(Request $request){
+    public function BloqueoEmpleados(Request $request)
+    {
         $radioFiltro = $request->radioFiltro;
         $filtroBusqueda = $request->filtroBusqueda;
 
         // cuando entras por primera vez
         $bloqueos = BloqueoEmpleado::with('Empleado')
             ->where('Status', 0)
-            ->paginate(15);
+            ->paginate(12);
 
-        if($radioFiltro == 'numNomina'){
+        if ($radioFiltro == 'numNomina') {
             $bloqueos = BloqueoEmpleado::with('Empleado')
                 ->where('Status', 0)
                 ->where('NumNomina', $filtroBusqueda)
-                ->paginate(15);
+                ->paginate(12);
         }
-        if($radioFiltro == 'nomEmpleado'){
-            $numsNomina = Empleado::where('Status', 0)
-                ->where('Nombre', 'like', '%' . $filtroBusqueda . '%')
-                ->orWhere('Apellidos', 'like', '%' . $filtroBusqueda . '%')
-                ->pluck('NumNomina');
-
+        if ($radioFiltro == 'nomEmpleado') {
             $bloqueos = BloqueoEmpleado::with('Empleado')
-                ->where('Status', 0)
-                ->whereIn('NumNomina', $numsNomina)
-                ->paginate(15);
-            
+                ->leftjoin('CatEmpleados', 'CatEmpleados.NumNomina', 'DatBloqueoEmpleado.NumNomina')
+                ->where('DatBloqueoEmpleado.Status', 0)
+                ->where(function ($query) use ($filtroBusqueda) {
+                    $query->where('Nombre', 'like', '%' . $filtroBusqueda . '%');
+                    $query->orWhere('Apellidos', 'like', '%' . $filtroBusqueda . '%');
+                })
+                ->paginate(12);
         }
 
         //return $bloqueos;
@@ -43,17 +42,18 @@ class BloqueoEmpleadosController extends Controller
         return view('BloqueoEmpleados.BloqueoEmpleados', compact('bloqueos', 'radioFiltro', 'filtroBusqueda'));
     }
 
-    public function AgregarBloqueoEmpleado(Request $request){
+    public function AgregarBloqueoEmpleado(Request $request)
+    {
         $numNomina = $request->numNomina;
         $motivoBloqueo = $request->motivoBloqueo;
 
         try {
-            
-            if(!Empleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()){
+
+            if (!Empleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()) {
                 return back()->with('msjdelete', 'El empleado no existe o esta dado de baja!');
             }
 
-            if(BloqueoEmpleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()){
+            if (BloqueoEmpleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()) {
                 return back()->with('msjdelete', 'El empleado ya se encuentra bloqueado actualmente!');
             }
 
@@ -65,7 +65,6 @@ class BloqueoEmpleadosController extends Controller
                 'IdUsuario' => Auth::user()->IdUsuario,
                 'Status' => 0
             ]);
-
         } catch (\Throwable $th) {
             DB::rollback(); // algo salio mal
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
@@ -80,7 +79,8 @@ class BloqueoEmpleadosController extends Controller
         return back()->with('msjAdd', 'Se bloqueo el empleado: ' . $nomEmpleado);
     }
 
-    public function DesbloquearEmpleado($numNomina){
+    public function DesbloquearEmpleado($numNomina)
+    {
         try {
             DB::beginTransaction();
 
@@ -88,8 +88,7 @@ class BloqueoEmpleadosController extends Controller
                 ->update([
                     'Status' => 1,
                     'FechaDesbloqueo' => date('d-m-Y H:i:s')
-                ]); 
-
+                ]);
         } catch (\Throwable $th) {
             DB::rollback(); // algo salio mal
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
@@ -100,16 +99,17 @@ class BloqueoEmpleadosController extends Controller
 
         $nomEmpleado = $empleado->Nombre . ' ' . $empleado->Apellidos;
 
-        DB::commit();   
+        DB::commit();
         return back()->with('msjAdd', 'Se ha desbloqueado al empleado: ' . $nomEmpleado);
     }
 
-    public function BuscarEmpleadoParaBloqueo($numNomina){
-        if(!Empleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()){
+    public function BuscarEmpleadoParaBloqueo($numNomina)
+    {
+        if (!Empleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()) {
             return 'bajaOrNotExists';
         }
 
-        if(BloqueoEmpleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()){
+        if (BloqueoEmpleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()) {
             return 'bloqueado';
         }
 

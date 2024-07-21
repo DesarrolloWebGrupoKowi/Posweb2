@@ -208,4 +208,27 @@ class TransaccionProductoController extends Controller
             //return $th;
         }
     }
+
+    public function HistorialTransaccion(Request $request)
+    {
+        $paginate = $request->input('paginate', 10);
+        $fecha1 = $request->input('fecha1');
+        $fecha2 = $request->input('fecha2', date('Y-m-d'));
+
+        $transferencias = DatTransferencia::with('Detalle')->select(
+            'DatTransferencia.*',
+            'a.NomTienda as tiendaOrigen',
+            'b.NomTienda as tiendaDestino',
+            'c.NomUsuario'
+        )
+            ->leftjoin('CatTiendas as a', 'a.IdTienda', 'DatTransferencia.IdTiendaOrigen')
+            ->leftjoin('CatTiendas as b', 'b.IdTienda', 'DatTransferencia.IdTiendaDestino')
+            ->leftjoin('CatUsuarios as c', 'c.IdUsuario', 'DatTransferencia.IdUsuario')
+            ->whereRaw("cast(FechaTransferencia as date) between '" . $fecha1 . "' and '" . $fecha2 . "' ")
+            ->orderBy('FechaTransferencia', 'DESC')
+            ->paginate($paginate)
+            ->withQueryString();
+
+        return view('TransaccionProducto.ReporteTransaccionProducto', compact('transferencias', 'fecha1', 'fecha2'));
+    }
 }

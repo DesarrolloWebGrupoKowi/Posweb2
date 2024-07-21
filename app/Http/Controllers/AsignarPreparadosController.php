@@ -11,6 +11,7 @@ use App\Models\DatPreparados;
 use App\Models\DatRecepcionLocal;
 use App\Models\HistorialMovimientoProductoLocal;
 use App\Models\InventarioTienda;
+use App\Models\ListaPrecio;
 use App\Models\Tienda;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -58,9 +59,13 @@ class AsignarPreparadosController extends Controller
                     'CatPreparado.Cantidad',
                     'CatPreparado.IdCatStatusPreparado',
                     'CatPreparado.preparado',
-                    DB::raw('SUM(DatAsignacionPreparados.CantidadEnvio) as CantidadAsignada')
+                    DB::raw('SUM(DatAsignacionPreparados.CantidadEnvio) as CantidadAsignada'),
+                    DB::raw('SUM(DatPrecios.PrecioArticulo * DatPreparados.CantidadFormula) AS Total')
                 )
                 ->leftJoin('DatAsignacionPreparados', 'DatAsignacionPreparados.IdPreparado', 'CatPreparado.preparado')
+                ->leftJoin('DatPreparados', 'CatPreparado.IdPreparado', 'DatPreparados.IdPreparado')
+                ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo')
+                ->leftJoin('DatPrecios', [['CatArticulos.CodArticulo', 'DatPrecios.CodArticulo'], ['DatPreparados.IDLISTAPRECIO', 'DatPrecios.IdListaPrecio']])
                 ->where('CatPreparado.IdUsuario', Auth::user()->IdUsuario)
                 ->where('IdCatStatusPreparado', '=', 2)
                 // ->orWhere('IdCatStatusPreparado', 3)
@@ -70,8 +75,10 @@ class AsignarPreparadosController extends Controller
         }
 
         $tiendas = Tienda::select('IdTienda', 'NomTienda')->get();
+        $articulos = Articulo::get();
+        $listaPrecios = ListaPrecio::get();
 
-        return view('AsignarPreparados.indexNewDesign', compact('preparados', 'tiendas', 'fecha'));
+        return view('AsignarPreparados.indexNewDesign', compact('preparados', 'tiendas', 'fecha', 'articulos', 'listaPrecios'));
     }
 
     public function RegresarPreparado($idPreparado)
@@ -125,29 +132,30 @@ class AsignarPreparadosController extends Controller
     // La asignacion de tienda, se hace de tienda a tienda
     public function AsignarTienda($idPreparado, Request $request)
     {
-        // Creando asignacion de preparados
-        $asignacion = new DatAsignacionPreparados();
-        // Aqui pones el idPreparado generado manualmente al crear el preparado
-        $asignacion->IdPreparado = $request->preparado;
-        $asignacion->IdTienda = $request->idTienda;
-        $asignacion->CantidadEnvio = $request->cantidad;
-        $asignacion->save();
-
-        // // Traemos el detalle de los productos del preparado
-        $detalleArticulos = DatPreparados::select('DatPreparados.IdArticulo', 'CatArticulos.CodArticulo', 'DatPreparados.CantidadFormula')
-            ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo')
-            ->where('IdPreparado', $idPreparado)
-            ->get();
-
-        if (!count($detalleArticulos)) {
-            return back()->with('msjdelete', 'El preparado esta vacio.');
-        }
-
-        // Creando transaccion de productos
-        $idTiendaDestino = $request->idTienda;
-        $cantidadEnviada = $request->cantidad;
-
         try {
+            DB::beginTransaction();
+            // Creando asignacion de preparados
+            $asignacion = new DatAsignacionPreparados();
+            // Aqui pones el idPreparado generado manualmente al crear el preparado
+            $asignacion->IdPreparado = $request->preparado;
+            $asignacion->IdTienda = $request->idTienda;
+            $asignacion->CantidadEnvio = $request->cantidad;
+            $asignacion->save();
+
+            // // Traemos el detalle de los productos del preparado
+            $detalleArticulos = DatPreparados::select('DatPreparados.IdArticulo', 'CatArticulos.CodArticulo', 'DatPreparados.CantidadFormula')
+                ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatPreparados.IdArticulo')
+                ->where('IdPreparado', $idPreparado)
+                ->get();
+
+            if (!count($detalleArticulos)) {
+                return back()->with('msjdelete', 'El preparado esta vacio.');
+            }
+
+            // Creando transaccion de productos
+            $idTiendaDestino = $request->idTienda;
+            $cantidadEnviada = $request->cantidad;
+
             // Seleccionamos el nombre del preparado
             $nombrePreparado = CatPreparado::where('IdPreparado', $idPreparado)
                 ->value('Nombre');
@@ -179,7 +187,6 @@ class AsignarPreparadosController extends Controller
             $idRecepcion = Auth::user()->usuarioTienda->IdTienda . $numCaja . $idCapRecepcion;
 
             // Aqui realizamos la transaccion del producto
-            DB::beginTransaction();
             // DB::connection()->beginTransaction();
             // DB::connection('server')->beginTransaction();
 
@@ -248,12 +255,13 @@ class AsignarPreparadosController extends Controller
             DB::commit();
             // DB::connection()->commit();
             // DB::connection('server')->commit();
-            return back();
+            // return back();
+            return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'id' => $request->preparado]);
         } catch (\Throwable $th) {
             DB::rollback();
             // DB::connection('server')->rollback();
             // DB::connection()->rollback();
-            DB::rollback();
+            // DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
     }
@@ -263,7 +271,7 @@ class AsignarPreparadosController extends Controller
         $asignado = DatAsignacionPreparados::where('IdDatAsignacionPreparado', $idAsignacion)
             ->first();
 
-        //return CapRecepcionLocal::get();
+        // return CapRecepcionLocal::get();
         $recepcion = CapRecepcionLocal::where('IdPreparado', $asignado->IdPreparado)
             ->where('IdTiendaDestino', $asignado->IdTienda)->first();
 
@@ -275,6 +283,9 @@ class AsignarPreparadosController extends Controller
         $recepcion->delete();
         $asignacion->delete();
 
-        return back();
+        $cantidad = CapRecepcionLocal::where('IdPreparado', $asignado->IdPreparado)
+            ->where('IdTiendaDestino', $asignado->IdTienda)->count();
+
+        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'id' => $cantidad > 0 ? $asignado->IdPreparado : -1]);
     }
 }

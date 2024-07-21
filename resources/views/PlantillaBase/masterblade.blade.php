@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <style>
-    .material-icons:active{
+    .material-icons:active {
         transform: scale(1.5);
     }
 </style>
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -89,17 +90,17 @@
             @if (request()->routeIs('index') or request()->routeIs('login') or request()->routeIs('dashboard'))
             @else
                 <a class="bAtras" style="margin-left: 10px;" href="/Dashboard">
-                    <span style="font-size: 28px; color:black" class="material-icons my-2 card shadow bg-warning">keyboard_return</span>
+                    <span style="font-size: 28px; color:black"
+                        class="material-icons my-2 card shadow bg-warning">keyboard_return</span>
                 </a>
             @endif
         </div>
-        <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
+
         @yield('contenido')
 
+        <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
         <script src="{{ asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('js/script.js') }}"></script>
-
-        @yield('scriptTiendas')
         <script src="{{ asset('js/tiendasScript.js') }}"></script>
     </body>
 

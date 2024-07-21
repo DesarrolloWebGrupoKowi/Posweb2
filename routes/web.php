@@ -282,6 +282,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Enviar a Preventa (POS)
     Route::post('/EnviarAPreventa/{idPedido}', 'App\Http\Controllers\PedidosController@EnviarAPreventa');
 
+    //HistorialGuardados
+    Route::get('/HistorialGuardados', 'App\Http\Controllers\PedidosController@HistorialGuardados');
+
     //+============================================================================================================================================+//
     //Dashboard
     Route::get('/Dashboard', 'App\Http\Controllers\DashboardController@Dashboard')->name('dashboard');
@@ -619,6 +622,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/ActivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@ActivarPaquetesLocal');
     //Dar de baja un paquete
     Route::get('/DesactivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@DesactivarPaquetesLocal');
+    //Dar de baja un paquete
+    Route::post('/Paquetes/{idPreparado}', 'App\Http\Controllers\PaquetesController@ActualizarCantidadRecepcion');
 
     //+============================================================================================================================================+//
     //TransaccionProducto
@@ -629,6 +634,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     //GuardarTransaccion
     Route::post('/GuardarTransaccion', 'App\Http\Controllers\TransaccionProductoController@GuardarTransaccion');
+
+    //GuardarTransaccion
+    Route::get('/HistorialTransaccion', 'App\Http\Controllers\TransaccionProductoController@HistorialTransaccion');
 
     //+============================================================================================================================================+//
     //TransaccionesTienda
@@ -716,7 +724,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/CuentasMerma', 'App\Http\Controllers\CuentasMermaController@CuentasMerma')->name('CuentasMerma');
 
     //AgregarCuentaMerma
-    Route::post('/AgregarCuentaMerma/{idTipoMerma}', 'App\Http\Controllers\CuentasMermaController@AgregarCuentaMerma')->name('AgregarCuentaMerma');
+    Route::post('/AgregarCuentaMerma', 'App\Http\Controllers\CuentasMermaController@AgregarCuentaMerma')->name('AgregarCuentaMerma');
 
     //+============================================================================================================================================+//
     //CapMermas
@@ -876,14 +884,61 @@ Route::group(['middleware' => 'auth'], function () {
 
     //EliminarCatProdDiez
     Route::delete('/EliminarCatProdDiez/{id}', 'App\Http\Controllers\CatProdDiezController@destroy');
+}); //->Termina Middleware Auth
+
+// GRUPO ROSTICERO
+Route::group(['middleware' => 'auth'], function () {
+    //+============================================================================================================================================+//
+    // Rutas de rosticero para los administrativos
+    //+============================================================================================================================================+//
+    //BajaRosticero
+    Route::get('/InterfazarRosticero', 'App\Http\Controllers\InterfazRosticeroController@index');
+
+    //InterfazarRosticero
+    Route::post('/InterfazarRosticeroBaja/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazRosticeroController@InterfazarBaja');
+
+    //InterfazarRosticero
+    Route::post('/InterfazarRosticeroAlta/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazRosticeroController@InterfazarAlta');
 
     //+============================================================================================================================================+//
-    //CatRosticero
-    Route::get('/CatRosticero', 'App\Http\Controllers\RosticeroController@CatRosticero');
-
+    // Rutas de rosticero para el cajero
+    //+============================================================================================================================================+//
     //VerRosticero
     Route::get('/VerRosticero', 'App\Http\Controllers\RosticeroController@VerRosticero');
-}); //->Termina Middleware Auth
+
+    //Crear Rosticero
+    Route::post('/CrearRosticero', 'App\Http\Controllers\RosticeroController@CrearRosticero');
+
+    //Editar Rosticero
+    Route::post('/EditarRosticero/{id}', 'App\Http\Controllers\RosticeroController@EditarRosticero');
+
+    //Agregar Detalle De Rosticero
+    Route::post('/AgregarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@AgregarDetalleRosticero');
+
+    //Agregar Detalle De Rosticero
+    Route::post('/Api/AgregarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@ApiAgregarDetalleRosticero');
+
+    //Agregar Detalle De Rosticero
+    Route::post('/RecalentadoRosticero/{id}', 'App\Http\Controllers\RosticeroController@RecalentadoRosticero');
+
+    //Eliminar Rosticero
+    Route::delete('/EliminarRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarRosticero');
+
+    //Eliminar Rosticero
+    Route::delete('/EliminarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarDetalleRosticero');
+
+    //Finalizar Rosticero
+    Route::post('/FinalizarRosticero/{id}', 'App\Http\Controllers\RosticeroController@FinalizarRosticero');
+
+    //Recalentar Rosticero
+    Route::post('/RecalentarRosticero', 'App\Http\Controllers\RosticeroController@RecalentarRosticero');
+
+    //Mermar Rosticero
+    Route::post('/MermarRosticero', 'App\Http\Controllers\RosticeroController@MermarRosticero');
+
+    //Historial Rosticero
+    Route::get('/HistorialRosticero', 'App\Http\Controllers\RosticeroController@HistorialRosticero');
+}); //->Termina Middleware Rosticero
 
 // pagina de error 404
 Route::fallback(function () {

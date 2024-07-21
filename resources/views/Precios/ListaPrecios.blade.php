@@ -2,26 +2,28 @@
 @section('title', 'Módulo de Precios')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-4">
-            @include('components.title', ['titulo' => 'Módulo de Precios'])
-            <div class="d-flex align-items-center justify-content-end gap-4">
-                <form class="d-flex align-items-center justify-content-end gap-4" action="/DetallePrecios" method="get">
-                    <div class="input-group" style="max-width: 300px">
-                        <input class="form-control" type="text" name="txtFiltro" id="txtFiltro"
-                            placeholder="Escribre el nombre de la ciudad" value="{{ $txtFiltro }}" autofocus>
-                        <div class="input-group-append">
-                            <button class="input-group-text"><span class="material-icons">search</span></button>
-                        </div>
-                    </div>
-                </form>
-                <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none btn-excel">
-                    <i class="fa fa-file-excel-o pe-2"></i> Exportar
-                </a>
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Módulo de Precios'])
+                <div class="d-flex align-items-center justify-content-end gap-4">
+                    <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none btn-excel">
+                        @include('components.icons.excel') Exportar
+                    </a>
+                </div>
             </div>
         </div>
 
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <form class="d-flex align-items-center justify-content-end gap-4 pb-2" action="/DetallePrecios" method="get">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Buscar:</label>
+                    <input class="form-control rounded" style="line-height: 18px" type="text" name="txtFiltro"
+                        id="txtFiltro" value="{{ $txtFiltro }}" autofocus>
+                </div>
+            </form>
+
             <table>
                 <thead class="table-head">
                     <tr>
@@ -34,29 +36,20 @@
                     </tr>
                 </thead>
                 <tbody style="vertical-align: middle">
-                    @if ($precios->count() == 0)
+                    @include('components.table-empty', ['items' => $precios, 'colspan' => 7])
+                    @foreach ($precios as $precio)
                         <tr>
-                            <td colspan="7">No hay productos <i class="fa fa-exclamation-circle"></i></td>
+                            <td>{{ $precio->CodArticulo }}</td>
+                            <td>{{ $precio->NomArticulo }}</td>
+                            <td>{{ number_format($precio->Menudeo, 2) }}</td>
+                            <td>{{ number_format($precio->Minorista, 2) }}</td>
+                            <td>{{ number_format($precio->Detalle, 2) }}</td>
+                            <td>{{ number_format($precio->EmpySoc, 2) }}</td>
                         </tr>
-                    @else
-                        @foreach ($precios as $precio)
-                            <tr>
-                                <td>{{ $precio->CodArticulo }}</td>
-                                <td>{{ $precio->NomArticulo }}</td>
-                                <td>{{ number_format($precio->Menudeo, 2) }}</td>
-                                <td>{{ number_format($precio->Minorista, 2) }}</td>
-                                <td>{{ number_format($precio->Detalle, 2) }}</td>
-                                <td>{{ number_format($precio->EmpySoc, 2) }}</td>
-                            </tr>
-                        @endforeach
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $precios])
         </div>
     </div>
-
-    <div class="mt-5 d-flex justify-content-center">
-        {!! $precios->links() !!}
-    </div>
-
 @endsection

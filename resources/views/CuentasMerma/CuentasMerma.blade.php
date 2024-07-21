@@ -2,76 +2,59 @@
 @section('title', 'Cuentas Mermas Por Tienda')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Cuentas Merma'])
-            @if ($cuentasMerma->count() == 0 && !empty($idTipoMerma))
-                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#ModalAgregarCuentaMerma">
-                    <i class="fa fa-plus-circle"></i> Agregar catálogo
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Catálogo de Cuentas Merma'])
+                <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#ModalAgregarCuentaMerma"
+                    {{ count($tiposMerma) == 0 ? 'disabled' : '' }}>
+                    Agregar cuenta @include('components.icons.plus-circle')
                 </button>
-            @endif
-        </div>
-
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-
-        <form class="d-flex align-items-center justify-content-between pb-4 gap-4" id="formCuentasMerma" action="/CuentasMerma"
-            method="GET">
-            <div class="input-group" style="max-width: 350px">
-                <select class="form-select" name="idTipoMerma" id="idTipoMerma" required>
-                    <option value="">Seleccione Tipo Merma</option>
-                    @foreach ($tiposMerma as $tipoMerma)
-                        <option {!! $idTipoMerma == $tipoMerma->IdTipoMerma ? 'selected' : '' !!} value="{{ $tipoMerma->IdTipoMerma }}">
-                            {{ $tipoMerma->NomTipoMerma }}</option>
-                    @endforeach
-                </select>
             </div>
-        </form>
 
-        @if (!empty($idTipoMerma))
-            <div class="content-table content-table-full card p-4" style="border-radius: 20px">
-                <table>
-                    <thead class="table-head">
+            <div>
+                @include('Alertas.Alertas')
+            </div>
+        </div>
+
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+            <table>
+                <thead class="table-head">
+                    <tr>
+                        <th class="rounded-start">Tipo Merma</th>
+                        <th>Libro</th>
+                        <th>Cuenta</th>
+                        <th>Subcuenta</th>
+                        <th>Intercosto</th>
+                        <th>Futuro</th>
+                        <th class="rounded-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody style="vertical-align: middle">
+                    @include('components.table-empty', ['items' => $cuentasMerma, 'colspan' => 7])
+                    @foreach ($cuentasMerma as $cuentaMerma)
                         <tr>
-                            <th class="rounded-start">Tipo Merma</th>
-                            <th>Libro</th>
-                            <th>Cuenta</th>
-                            <th>Subcuenta</th>
-                            <th>Intercosto</th>
-                            <th>Futuro</th>
-                            <th class="rounded-end">Acciones</th>
+                            {{-- <td>@dump($cuentaMerma)</td> --}}
+                            <td>{{ $cuentaMerma->NomTipoMerma }}</td>
+                            <td>{{ $cuentaMerma->Libro }}</td>
+                            <td>{{ $cuentaMerma->Cuenta }}</td>
+                            <td>{{ $cuentaMerma->SubCuenta }}</td>
+                            <td>{{ $cuentaMerma->InterCosto }}</td>
+                            <td>{{ $cuentaMerma->Futuro }}</td>
+                            <td>
+                                {{-- IdTipoMerma --}}
+                                <button class="btn-table" data-bs-toggle="modal"
+                                    data-bs-target="#ModalEditarCuentaMerma{{ $cuentaMerma->IdCatCuentaMerma }}">
+                                    @include('components.icons.edit')
+                                </button>
+                            </td>
+                            @include('CuentasMerma.ModalEditarCuentaMerma')
                         </tr>
-                    </thead>
-                    <tbody style="vertical-align: middle">
-                        @if ($cuentasMerma->count() == 0)
-                            <tr>
-                                <td colspan="7">No hay cuentas para este tipo de merma <i
-                                        class="fa fa-exclamation-circle"></i></td>
-                            </tr>
-                        @else
-                            @foreach ($cuentasMerma as $cuentaMerma)
-                                <tr>
-                                    <td>{{ $cuentaMerma->NomTipoMerma }}</td>
-                                    <td>{{ $cuentaMerma->Libro }}</td>
-                                    <td>{{ $cuentaMerma->Cuenta }}</td>
-                                    <td>{{ $cuentaMerma->SubCuenta }}</td>
-                                    <td>{{ $cuentaMerma->InterCosto }}</td>
-                                    <td>{{ $cuentaMerma->Futuro }}</td>
-                                    <td>
-                                        <button class="btn" data-bs-toggle="modal"
-                                            data-bs-target="#ModalEditarCuentaMerma{{ $cuentaMerma->IdCatCuentaMerma }}">
-                                            <span class="material-icons">edit</span>
-                                        </button>
-                                    </td>
-                                    @include('CuentasMerma.ModalEditarCuentaMerma')
-                                </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
-            </div>
-        @endif
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 
     @include('CuentasMerma.ModalAgregarCuentaMerma')

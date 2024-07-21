@@ -1,83 +1,144 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Rosticero')
-@section('dashboardWidth', 'width-general')
+@section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="container-fluid pt-4 width-general">
-        <div class="d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row pb-2">
-            @include('components.title', ['titulo' => 'Catálogo de Rosticero'])
+    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+
+        <div class="card border-0 p-4" style="border-radius: 10px">
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+                @include('components.title', ['titulo' => 'Catálogo de Rosticero'])
+                <div class="d-flex gap-2">
+                    <button id="buttonAgregar" type="button" class="btn btn-dark" role="tooltip" title="Agregar rostizado"
+                        data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                        Agregar rostizado @include('components.icons.plus-circle')
+                    </button>
+                    <button type="button" class="btn btn-dark" role="tooltip" title="Recalentar rostizado"
+                        data-bs-toggle="modal" data-bs-target="#ModalRecalentado">
+                        Recalentado @include('components.icons.switch')
+                    </button>
+                    <button type="button" class="btn btn-dark" role="tooltip" title="Recalentar rostizado"
+                        data-bs-toggle="modal" data-bs-target="#ModalMermar">
+                        Mermar @include('components.icons.down')
+                    </button>
+                    <a href="/HistorialRosticero" class="btn btn-dark">
+                        Historial Rostizado @include('components.icons.text-file')
+                    </a>
+                </div>
+            </div>
             <div>
-                <a href="/CatRosticero" class="btn btn-sm btn-dark" title="Agregar rosticero">
-                    <i class="fa fa-plus-circle pe-1"></i> Agregar rosticero
-                </a>
-                <a class="btn btn-dark-outline" href="/VerRosticero">
-                    <span class="material-icons">refresh</span>
-                </a>
+                @include('Alertas.Alertas')
             </div>
         </div>
 
-        <div>
-            @include('Alertas.Alertas')
-        </div>
-
-        <div class="content-table content-table-full card p-4" style="border-radius: 20px">
-            <h6 class="text-end pb-2">Rosticeros Activos: ({{ $descuentosActivos }})</h6>
+        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <table>
                 <thead class="table-head">
                     <tr>
                         <th class="rounded-start">Id</th>
-                        <th>Descuento</th>
-                        <th>Tipo</th>
-                        <th>Fecha Inicio</th>
-                        <th>Fecha Fin</th>
-                        <th>Tienda</th>
-                        <th>Plaza</th>
-                        <th>Articulos</th>
-                        <th>Editar</th>
-                        <th class="rounded-end">Eliminar</th>
+                        {{-- <th class="rounded-start">Fecha</th> --}}
+                        <th>Fecha</th>
+                        <th>Rostizado</th>
+                        <th>Materia prima</th>
+                        <th>Cantidad venta</th>
+                        <th>Merma estandar</th>
+                        <th>Merma real</th>
+                        <th>Recalentado</th>
+                        <th>Disponible</th>
+                        <th></th>
+                        <th class="rounded-end"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if ($descuentos->count() == 0)
-                        <tr>
-                            <td colspan="7">No Hay Coincidencias!</td>
+                    @include('components.table-empty', ['items' => $rostisados, 'colspan' => 11])
+                    @foreach ($rostisados as $rostisado)
+                        <tr style="vertical-align: middle">
+                            <td>{{ $rostisado->IdRosticero }}</td>
+                            <td>{{ strftime('%d %B %Y, %H:%M', strtotime($rostisado->Fecha)) }}</td>
+                            <td>{{ $rostisado->NomArticulo }}</td>
+                            <td>{{ $rostisado->CantidadMatPrima }}</td>
+                            <td>{{ $rostisado->CantidadVenta }}</td>
+                            <td>{{ $rostisado->MermaStnd }}</td>
+                            <td>
+                                <span class="{{ $rostisado->MermaReal > $rostisado->MermaStnd ? 'text-danger' : '' }}">
+                                    {{ $rostisado->MermaReal }}
+                                </span>
+                            </td>
+                            <td>
+                                @php
+                                    // Obtener un arreglo con todos los valores de CantMermaRecalentado
+                                    $cantidades = array_column($rostisado->newdetalle, 'CantMermaRecalentado');
+
+                                    // Obtener la suma de los valores en $cantidades
+                                    $sumaCantMermaRecalentado = array_sum($cantidades);
+                                @endphp
+                                <span class="{{ $sumaCantMermaRecalentado > 0 ? 'text-danger' : '' }}">
+                                    {{ number_format($sumaCantMermaRecalentado, 3) }}
+                                </span>
+                            </td>
+                            <td>{{ $rostisado->Disponible }}</td>
+                            <td>
+                                @if ($rostisado->subir == 0)
+                                    <span class="tags-red" title="Fuera de linea"> @include('components.icons.cloud-slash') </span>
+                                @else
+                                    <span class="tags-green" title="En linea"> @include('components.icons.cloud-check') </span>
+                                @endif
+
+                                @if ($rostisado->Status == 1)
+                                    <span class="tags-red ms-2" title="Cancelado"> @include('components.icons.x') </span>
+                                @endif
+                                @if ($rostisado->Status == 0 && $rostisado->Finalizado == 1)
+                                    <span class="tags-blue ms-2" title="Finalizado"> @include('components.icons.check') </span>
+                                @endif
+
+                            </td>
+                            <td>
+
+                                <div class="d-flex gap-2">
+                                    {{-- /*{{ count($rostisado->Detalle) > 0 ? '' : 'disabled' }}* --}}
+                                    <button
+                                        class="{{ Session::get('id') == $rostisado->IdRosticero ? 'modalOpen' : '' }} btn-table"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ModalMostrarDetalle{{ $rostisado->IdDatRosticero }}">
+                                        @include('components.icons.list')
+                                    </button>
+
+                                    {{-- @if ($rostisado->Status != 1 || $rostisado->Finalizado == 1)
+                                    @endif --}}
+
+                                    @if ($rostisado->Finalizado != 1)
+                                        <button class="btn-table btn-table-delete" data-bs-toggle="modal"
+                                            data-bs-target="#ModalEliminarConfirm{{ $rostisado->IdDatRosticero }}"
+                                            title="Eliminar rostizado">
+                                            {{-- {{ count($rostisado->Detalle) == 0 ? '' : 'disabled' }}> --}}
+                                            @include('components.icons.delete')
+                                        </button>
+
+                                        <button class="btn-table btn-table-success" data-bs-toggle="modal"
+                                            data-bs-target="#ModalFinalizar{{ $rostisado->IdDatRosticero }}"
+                                            title="Finalizar">
+                                            @include('components.icons.check')
+                                        </button>
+                                    @endif
+
+                                    @include('Rosticero.ModalMostrarDetalle')
+                                    @include('Rosticero.ModalEliminarConfirm')
+                                    @include('Rosticero.ModalFinalizar')
+                                </div>
+
+                            </td>
                         </tr>
-                    @else
-                        @foreach ($descuentos as $descuento)
-                            <tr style="vertical-align: middle">
-                                <td>{{ $descuento->IdEncDescuento }}</td>
-                                <td>{{ $descuento->NomDescuento }}</td>
-                                <td>{{ $descuento->NomTipoDescuento }}</td>
-                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($descuento->FechaInicio)) }}</td>
-                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($descuento->FechaFin)) }}</td>
-                                <td>{{ $descuento->NomTienda }}</td>
-                                <td>{{ $descuento->NomPlaza }}</td>
-                                <td>
-                                    <button class="btn" data-bs-toggle="modal"
-                                        data-bs-target="#ModalArticulos{{ $descuento->IdEncDescuento }}">
-                                        <span style="color: rgb(0, 0, 0)" class="material-icons">description</span>
-                                    </button>
-                                    @include('Descuentos.ModalArticulos')
-                                </td>
-                                <td>
-                                    <a href="/EditarDescuento/{{ $descuento->IdEncDescuento }}" class="btn">
-                                        <span class="material-icons">edit</span>
-                                    </a>
-                                </td>
-                                {{-- <td>${{ number_format($paquete->ImportePaquete, 2) }}</td>
-                                <td>{{ strtoupper($paquete->Usuario->NomUsuario) }}</td>
-                                --}}
-                                <td>
-                                    <button class="btn" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEliminarConfirm{{ $descuento->IdEncDescuento }}">
-                                        <span style="color: red" class="material-icons">delete_forever</span>
-                                    </button>
-                                    @include('Descuentos.ModalEliminarConfirm')
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $rostisados])
         </div>
+
+        @include('Rosticero.ModalMermar')
+        @include('Rosticero.ModalRecalentado')
+        @include('Rosticero.ModalAgregar')
     </div>
+@endsection
+
+@section('scripts')
+    <script src="{{ asset('js/rostisados.js') }}"></script>
 @endsection
