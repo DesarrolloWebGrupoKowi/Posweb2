@@ -2518,7 +2518,7 @@ class PoswebController extends Controller
             $connector = new WindowsPrintConnector($nombreImpresora);
             $impresora = new Printer($connector);
             $impresora->setJustification(Printer::JUSTIFY_CENTER);
-            $impresora->bitImage($logoKowi);
+            // $impresora->bitImage($logoKowi);
 
             $impresora->text("ALIMENTOS KOWI SA DE CV\n");
             $impresora->text("AKO971007558\n");
