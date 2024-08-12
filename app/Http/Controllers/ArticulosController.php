@@ -21,9 +21,14 @@ class ArticulosController extends Controller
             ->leftJoin('CatTipoArticulos as d', 'd.IdTipoArticulo', 'a.IdTipoArticulo')
             ->select('a.*', 'b.NomGrupo', 'c.NomFamilia', 'd.NomTipoArticulo')
             ->where('a.Status', 0)
-            ->where('a.NomArticulo', 'like', '%' . $txtFiltro . '%')
+            ->when($txtFiltro, function ($q) use ($txtFiltro) {
+                $q->where('a.NomArticulo', 'like', '%' . $txtFiltro . '%');
+                $q->orWhere('a.IdArticulo', 'like', '%' . $txtFiltro . '%');
+                $q->orWhere('a.CodArticulo', 'like', '%' . $txtFiltro . '%');
+            })
             ->orderBy('a.CodArticulo')
-            ->paginate(10)->withQueryString();
+            ->paginate(10)
+            ->withQueryString();
 
         //return $articulos;
 

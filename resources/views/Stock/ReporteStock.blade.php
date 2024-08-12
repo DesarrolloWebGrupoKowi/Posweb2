@@ -29,6 +29,7 @@
                     <tr>
                         <th class="rounded-start">Código</th>
                         <th>Articulo</th>
+                        <th>Código etiqueta</th>
                         <th class="rounded-end">Stock</th>
                     </tr>
                 </thead>
@@ -36,16 +37,16 @@
                     @include('components.table-empty', ['items' => $stocks, 'colspan' => 3])
                     @foreach ($stocks as $stock)
                         <tr>
-                            <td>{{ $stock->CodArticulo }}</td>
-                            <td>
-                                {{ $stock->NomArticulo }}
-                            </td>
+                            <td> {{ $stock->CodArticulo }} </td>
+                            <td> {{ $stock->NomArticulo }} </td>
+                            <td> {{ $stock->CodEtiqueta }} </td>
                             <td style="color: {!! $stock->StockArticulo == 0 ? 'red; font-weight:bold;' : '' !!}">{{ $stock->StockArticulo }}</td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr>
+                        <th></th>
                         <th></th>
                         <th style="text-align: center">Total: </th>
                         <th>{{ number_format($totalStock, 2) }}</th>
