@@ -24,7 +24,7 @@
         </div>
 
         <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/AsignarPreparados">
+            {{-- <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/AsignarPreparados">
                 <div class="d-flex align-items-center gap-2">
                     <label for="fecha" class="text-secondary" style="font-weight: 500">Buscar:</label>
                     <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha"
@@ -33,16 +33,16 @@
                 <button type="submit" class="btn btn-dark-outline">
                     @include('components.icons.search')
                 </button>
-            </form>
+            </form> --}}
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Id</th>
+                        <th class="rounded-start">Folio</th>
                         <th>Nombre</th>
                         <th>Fecha</th>
                         <th>Cantidad</th>
                         <th>Cantidad libre</th>
-                        <th>Costo</th>
+                        {{-- <th>Costo</th> --}}
                         <th>Detalle</th>
                         <th class="rounded-end text-center"></th>
                     </tr>
@@ -51,15 +51,23 @@
                     @include('components.table-empty', ['items' => $preparados, 'colspan' => 8])
                     @foreach ($preparados as $preparado)
                         <tr>
-                            <td>{{ $preparado->IdPreparado }}</td>
-                            <td>{{ $preparado->Nombre }}</td>
+                            <td>{{ $preparado->Preparado }}</td>
+                            <td>{{ substr($preparado->Nombre, 0, -15) }} </td>
                             <td>{{ ucfirst(\Carbon\Carbon::parse($preparado->Fecha)->locale('es')->isoFormat('dddd D \d\e MMMM \d\e\l Y')) }}
                             </td>
                             <td>{{ $preparado->Cantidad }} piezas</td>
                             <td>{{ $preparado->Cantidad - $preparado->CantidadAsignada }} piezas</td>
-                            <td>${{ round($preparado->Total, 2) }}</td>
+                            {{-- <td>${{ round($preparado->PrecioArticulo * $preparado->CantidadFormula, 2) }}</td> --}}
+                            {{-- <td>${{ round($preparado->Total, 2) }}</td> --}}
+
                             <td>{{ count($preparado->Detalle) }} productos</td>
                             <td>
+                                <a href="/AsignarPreparados/{{ $preparado->IdPreparado }}" class="btn-table"
+                                    title="Detalle de preparado">
+                                    @include('components.icons.list')
+                                </a>
+                            </td>
+                            {{-- <td>
                                 <div class="d-flex justify-content-center gap-2">
                                     <button class="btn-table" data-bs-toggle="modal"
                                         data-bs-target="#ModalEditar{{ $preparado->IdPreparado }}"
@@ -96,12 +104,12 @@
                                 @include('AsignarPreparados.ModalAsignar')
                                 @include('Preparados.ModalEliminarPreparado')
                                 @include('AsignarPreparados.ModalFinalizar')
-                            </td>
+                            </td> --}}
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-            @include('components.paginate', ['items' => $preparados])
+            {{-- @include('components.paginate', ['items' => $preparados]) --}}
         </div>
     </div>
     @include('Preparados.ModalAgregarPreparado')

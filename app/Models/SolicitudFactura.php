@@ -63,9 +63,9 @@ class SolicitudFactura extends Model
                     DB::raw("DatCortesTienda.IdListaPrecio"),
                     DB::raw("DatCortesTienda.IdTipoPago"),
                     DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
-                    // DB::raw("XXH2.STATUS as STATUS"),
-                    // DB::raw("XXH2.MENSAJE_ERROR as MENSAJE_ERROR"),
-                    // DB::raw("XXH2.Batch_Name as Batch_Name"),
+                    DB::raw("XXH2.STATUS as STATUS"),
+                    DB::raw("XXH2.MENSAJE_ERROR as MENSAJE_ERROR"),
+                    DB::raw("XXH2.Batch_Name as Batch_Name"),
                 ]
             )
             ->where('DatCortesTienda.StatusVenta', 0)

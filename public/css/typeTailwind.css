@@ -66,6 +66,10 @@ h2 {
     margin-bottom: 0;
 }
 
+.fw-500 {
+    font-weight: 500;
+}
+
 /* Botones */
 .btn {
     transition: all .3s ease;
@@ -207,6 +211,16 @@ button[disabled] i {
     border-radius: .5rem;
 }
 
+.btn-table[disabled],
+button[disabled] span,
+button[disabled] i {
+    background-color: #f1f5f9;
+    color: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.4;
+}
+
 .first-upper::first-letter {
     text-transform: uppercase !important;
 }
@@ -259,6 +273,13 @@ button[disabled] i {
     line-height: 21px;
 }
 
+.alert {
+    position: absolute;
+    right: 0;
+    z-index: 999;
+    font-weight: 500;
+}
+
 .dp-none {
     display: none;
 }
@@ -267,6 +288,10 @@ button[disabled] i {
 .table-head {
     background: #1e293b;
     color: white;
+}
+
+.table-head th {
+    font-weight: 500;
 }
 
 .table-head-secondary {
@@ -298,6 +323,7 @@ button[disabled] i {
 
 .content-table tr {
     line-height: 2.5rem;
+    font-size: small;
 }
 
 .content-table th,
@@ -317,7 +343,8 @@ tbody tr {
 }
 
 tbody tr:hover {
-    background-color: #f1f5f9;
+    /* background-color: #f1f5f9; */
+    background-color: #e5e5e5;
 }
 
 .table-active {

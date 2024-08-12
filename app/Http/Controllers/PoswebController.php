@@ -2051,19 +2051,10 @@ class PoswebController extends Controller
 
     public function CorteDiario(Request $request)
     {
-        // $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $fecha = $request->input('fecha', date('Y-m-d'));
         $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
-
-        $tienda = Tienda::where('IdTienda', $idTienda)
-            ->first();
-
-        $idDatCaja = DatCaja::where('IdTienda', $idTienda)
-            ->where('Status', 0)
-            ->where('Activa', 0)
-            ->value('IdDatCajas');
-
-        $fecha = $request->fecha;
-        empty($fecha) ? $fecha = date('Y-m-d') : $fecha = $fecha;
+        $tienda = Tienda::where('IdTienda', $idTienda)->first();
+        $idDatCaja = DatCaja::where('IdTienda', $idTienda)->where('Status', 0)->where('Activa', 0)->value('IdDatCajas');
 
         $billsTo = CorteTienda::where('IdTienda', $idTienda)
             ->distinct('Bill_To')
@@ -2087,25 +2078,24 @@ class PoswebController extends Controller
             ->whereIn('Bill_To', $billsTo)
             ->get();
 
-        $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
-            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 7)
-            ->where('IdListaPrecio', 4)
-            ->where('b.TipoNomina', 4)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
-
-        $totalMonederoSemanal = DB::table('DatCortesTienda as a')
-            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 7)
-            ->where('IdListaPrecio', 4)
-            ->where('b.TipoNomina', 3)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
+        $totalMonedero = DB::table('DatCortesTienda as a')
+            ->leftjoin(
+                'DatClientesCloudTienda as b',
+                function ($join) {
+                    $join->on('b.Bill_To', 'a.Bill_To')
+                        ->on('b.IdListaPrecio', 'a.IdListaPrecio')
+                        ->on('b.IdTipoPago', 'a.IdTipoPago');
+                }
+            )
+            ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
+            ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+            ->where('a.IdTienda', $idTienda)
+            ->whereDate('a.FechaVenta', $fecha)
+            ->where('a.IdTipoPago', 7)
+            ->where('a.IdListaPrecio', 4)
+            ->where('a.StatusVenta', 0)
+            ->groupBy('a.Bill_To', 'NomClienteCloud')
+            ->get();
 
         $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
             ->whereDate('FechaVenta', $fecha)
@@ -2178,8 +2168,9 @@ class PoswebController extends Controller
             'totalTarjetaCredito',
             'totalTransferencia',
             'totalFactura',
-            'totalMonederoQuincenal',
-            'totalMonederoSemanal',
+            // 'totalMonederoQuincenal',
+            // 'totalMonederoSemanal',
+            'totalMonedero',
             'idDatCaja'
         ));
     }

@@ -45,7 +45,7 @@
                     @foreach ($asignados as $asignado)
                         <tr>
                             <td>{{ $asignado->IdPreparado }}</td>
-                            <td>{{ $asignado->Nombre }}</td>
+                            <td>{{ substr($asignado->Nombre, 0, -15) }} </td>
                             <td>{{ $asignado->NomTienda }}</td>
                             <td>{{ ucfirst(\Carbon\Carbon::parse($asignado->Fecha)->locale('es')->isoFormat('dddd D \d\e MMMM \d\e\l Y')) }}
                             </td>

@@ -30,6 +30,7 @@ class ReportesController extends Controller
         $idTienda = $request->idTienda;
         $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
         $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+        $txtFiltro = $request->txtFiltro;
 
         $usuarioTienda = Auth::user()->usuarioTienda;
 
@@ -65,11 +66,15 @@ class ReportesController extends Controller
             })
             ->where('a.StatusVenta', 0)
             ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->when($txtFiltro, function ($query) use ($txtFiltro) {
+                $query->where('c.CodArticulo', 'like', '%' . $txtFiltro . '%');
+                $query->orWhere('c.NomArticulo', 'like', '%' . $txtFiltro . '%');
+            })
             ->groupBy('g.NomCiudad', 'f.NomTienda', 'c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'e.NomGrupo')
             ->orderBy('c.CodArticulo')
             ->get();
 
-        return view('Reportes.ConcentradoDeArticulos', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+        return view('Reportes.ConcentradoDeArticulos', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado', 'txtFiltro'));
     }
 
     public function ExportReporteConcentradoDeArticulos(Request $request)
