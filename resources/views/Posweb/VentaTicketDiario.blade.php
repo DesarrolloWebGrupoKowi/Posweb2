@@ -22,7 +22,9 @@
                     <input type="date" class="form-control rounded" style="line-height: 18px" name="txtFecha"
                         id="txtFecha" value="{{ $fecha }}" required autofocus>
                 </div>
-                <button class="d-none input-group-text"><span class="material-icons">search</span></button>
+                <button type="submit" class="btn btn-dark-outline">
+                    @include('components.icons.search')
+                </button>
             </form>
             <table>
                 <thead class="table-head">
@@ -116,6 +118,7 @@
                 @if ($tickets->count() > 0)
                     <tfoot>
                         <tr>
+                            <td></td>
                             <td></td>
                             <td style="text-align: right; font-weight: bold;">Totales: </td>
                             <td style="font-weight: bold;">${{ number_format($total, 2) }}</td>

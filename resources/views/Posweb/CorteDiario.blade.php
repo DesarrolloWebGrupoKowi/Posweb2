@@ -14,7 +14,9 @@
                             <input class="form-control rounded" style="line-height: 18px" name="fecha" id="fecha"
                                 type="date" value="{{ $fecha }}" autofocus>
                         </div>
-                        <input type="submit" class="d-none">
+                        <button type="submit" class="btn btn-dark-outline">
+                            @include('components.icons.search')
+                        </button>
                     </form>
                     <a href="/GenerarCortePDF/{{ $fecha }}/{{ $tienda->IdTienda }}/{{ $idDatCaja }}"
                         class="btn btn-dark-outline">
@@ -25,30 +27,33 @@
         </div>
 
         <!--SUMATORIAS FINALES-->
-        <div class="row">
+        <div class="row" style="font-size: small">
             {{-- Dinero Electrónico --}}
-            <div class="col-12 col-md-6 col-lg-3 mb-4 mb-lg-0">
+            <div class="col-12 col-md-6 col-lg-6 mb-4 mb-lg-0">
                 <div class="card p-4 border-0" style="border-radius: 10px;">
                     <h6 class="text-dark">Dinero Electrónico</h6>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-secondary">Crédito Quincenal: </span>
-                        <span>${{ number_format($totalMonederoQuincenal, 2) }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-secondary">Crédito Semanal: </span>
-                        <span>${{ number_format($totalMonederoSemanal, 2) }}</span>
-                    </div>
+                    @php
+                        $totalImporte = 0;
+                    @endphp
+                    @foreach ($totalMonedero as $monedero)
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">{{ $monedero->NomClienteCloud }}: </span>
+                            <span>${{ number_format($monedero->importe, 2) }}</span>
+                        </div>
+                        @php
+                            $totalImporte += $monedero->importe;
+                        @endphp
+                    @endforeach
                     <div class="d-flex justify-content-between">
                         <span class="text-secondary">Total: </span>
-                        <b class="{{ number_format($totalMonederoQuincenal + $totalMonederoSemanal, 2) == 0 ? 'eliminar' : 'send' }}"
-                            style="font-size: 16px">
-                            ${{ number_format($totalMonederoQuincenal + $totalMonederoSemanal, 2) }}
+                        <b class="{{ number_format($totalImporte, 2) == 0 ? 'eliminar' : 'send' }}" style="font-size: 16px">
+                            ${{ number_format($totalImporte, 2) }}
                         </b>
                     </div>
                 </div>
             </div>
             {{-- Crédito  --}}
-            <div class="col-12 col-md-6 col-lg-3 mb-4 mb-md-0">
+            <div class="col-12 col-md-6 col-lg-2 mb-4 mb-md-0">
                 <div class="card p-4 border-0" style="border-radius: 10px;">
                     <h6 class="text-dark">Crédito</h6>
                     <div class="d-flex justify-content-between">
@@ -69,7 +74,7 @@
                 </div>
             </div>
             {{-- Tarjeta  --}}
-            <div class="col-12 col-md-6 col-lg-3 mb-4 mb-md-0">
+            <div class="col-12 col-md-6 col-lg-2 mb-4 mb-md-0">
                 <div class="card p-4 border-0" style="border-radius: 10px;">
                     <h6 class="text-dark">Tarjeta</h6>
                     <div class="d-flex justify-content-between">
@@ -90,7 +95,7 @@
                 </div>
             </div>
             {{-- Totales --}}
-            <div class="col-12 col-md-6 col-lg-3">
+            <div class="col-12 col-md-6 col-lg-2">
                 <div class="card p-4 border-0" style="border-radius: 10px;">
                     <h6 class="text-dark">Totales</h6>
                     <div class="d-flex justify-content-between">
@@ -116,18 +121,18 @@
         <!--CLIENTES DE TIENDA (SIN SOLICITUD DE FACTURA)-->
         @foreach ($cortesTienda as $corteTienda)
             <div class="content-table content-table-flex-none content-table-full card border-0 p-4"
-                style="border-radius: 10px">
+                style="border-radius: 10px;">
                 @foreach ($corteTienda->Customer as $customer)
-                    <div class="d-flex justify-content-between">
-                        <h6 class="">{{ $customer->NomClienteCloud }}</h6>
+                    <div class="d-flex justify-content-between" style="font-size: small;">
+                        <h6 style="font-size: .9rem;">{{ $customer->NomClienteCloud }}</h6>
                         <div class="d-flex gap-4">
                             <span class="d-flex">
                                 <p>Cliente: </p>
-                                <h6 class="ps-1">{{ $corteTienda->IdClienteCloud }}</h6>
+                                <h6 class="ps-1" style="font-size: small;">{{ $corteTienda->IdClienteCloud }}</h6>
                             </span>
                             <span class="d-flex">
                                 <p>Bill to: </p>
-                                <h6 class="ps-1">{{ $corteTienda->Bill_To }}</h6>
+                                <h6 class="ps-1" style="font-size: small;">{{ $corteTienda->Bill_To }}</h6>
                             </span>
                         </div>
                     </div>
@@ -139,6 +144,7 @@
                             <th>Articulo</th>
                             <th>Cantidad</th>
                             <th>Precio</th>
+                            <th>Subtotal</th>
                             <th>Iva</th>
                             <th class="rounded-end">Importe</th>
                         </tr>
@@ -153,9 +159,10 @@
                                 <td style="width: 10vh">{{ $detalleCorte->CodArticulo }}</td>
                                 <td style="width: 60vh">{{ $detalleCorte->NomArticulo }}</td>
                                 <td style="width: 15vh">{{ number_format($detalleCorte->CantArticulo, 4) }}</td>
-                                <td style="width: 15vh">{{ number_format($detalleCorte->PrecioArticulo, 2) }}</td>
-                                <td>{{ number_format($detalleCorte->IvaArticulo, 2) }}</td>
-                                <td style="width: 15vh">{{ number_format($detalleCorte->ImporteArticulo, 2) }}</td>
+                                <td style="width: 15vh">${{ number_format($detalleCorte->PrecioArticulo, 2) }}</td>
+                                <td>${{ number_format($detalleCorte->SubTotalArticulo, 2) }}</td>
+                                <td>${{ number_format($detalleCorte->IvaArticulo, 2) }}</td>
+                                <td style="width: 15vh">${{ number_format($detalleCorte->ImporteArticulo, 2) }}</td>
                             </tr>
                             @php
                                 $sumCantArticulo = $sumCantArticulo + $detalleCorte->CantArticulo;
@@ -166,55 +173,38 @@
                 </table>
 
                 <table style="font-size: 13px">
-                    <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
-                    @if ($corteTienda->IdTipoNomina == 4)
-                        <tr>
-                            <th style="width: 10vh"></th>
-                            <th style="width: 60vh; text-align:center">
-                                <h6 style="color: red">Dinero Electrónico :</h6>
-                            </th>
-                            <th style="width: 15vh">
-                                <h6></h6>
-                            </th>
-                            <th style="width: 15vh"></th>
-                            <th></th>
-                            <th style="width: 15vh; color: red;">
-                                <h6>$ {{ number_format($totalMonederoQuincenal, 2) }}</h6>
-                            </th>
-                        </tr>
-                    @endif
-                    <!--TERMINA MONEDERO ELECTRONICO QUINCENALES-->
-
-                    <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS SEMANALES-->
-                    @if ($corteTienda->IdTipoNomina == 3)
-                        <tr>
-                            <th style="width: 10vh"></th>
-                            <th style="width: 60vh; text-align:center">
-                                <h6 style="color: red">Dinero Electrónico :</h6>
-                            </th>
-                            <th style="width: 15vh">
-                                <h6></h6>
-                            </th>
-                            <th style="width: 15vh"></th>
-                            <th></th>
-                            <th style="width: 15vh; color: red;">
-                                <h6>$ {{ number_format($totalMonederoSemanal, 2) }}</h6>
-                            </th>
-                        </tr>
-                    @endif
-                    <!--TERMINA MONEDERO ELECTRONICO SEMANALES-->
+                    <!--INICIA MONEDERO ELECTRONICO-->
+                    @foreach ($totalMonedero as $monedero)
+                        @if ($corteTienda->Bill_To == $monedero->Bill_To)
+                            <tr>
+                                <th style="width: 10vh"></th>
+                                <th style="width: 60vh; text-align:center">
+                                    <h6 style="color: red; font-size: small;">Dinero Electrónico :</h6>
+                                </th>
+                                <th style="width: 15vh">
+                                    <h6></h6>
+                                </th>
+                                <th style="width: 15vh"></th>
+                                <th></th>
+                                <th style="width: 15vh; color: red;">
+                                    <h6 style="font-size: small;">$ {{ number_format($monedero->importe, 2) }}</h6>
+                                </th>
+                            </tr>
+                        @endif
+                    @endforeach
+                    <!--TERMINA MONEDERO ELECTRONICO-->
                     <tr>
                         <th style="width: 10vh"></th>
                         <th style="width: 60vh; text-align:center">
-                            <h6>SubTotales :</h6>
+                            <h6 style="font-size: small;">SubTotales :</h6>
                         </th>
                         <th style="width: 15vh">
-                            <h6>{{ number_format($sumCantArticulo, 3) }}</h6>
+                            <h6 style="font-size: small;">{{ number_format($sumCantArticulo, 3) }}</h6>
                         </th>
                         <th style="width: 15vh"></th>
                         <th></th>
                         <th style="width: 15vh">
-                            <h6>$ {{ number_format($sumImporte, 2) }}</h6>
+                            <h6 style="font-size: small;">$ {{ number_format($sumImporte, 2) }}</h6>
                         </th>
                     </tr>
                 </table>
@@ -229,7 +219,8 @@
                 <div class="content-table  content-table-flex-none content-table-full card border-0 p-4"
                     style="border-radius: 10px">
                     <div class="d-flex justify-content-left">
-                        <h6 class="p-1 bg-dark text-white rounded-3">{{ $factura->NomCliente }}</h6>
+                        <h6 class="p-1 bg-dark text-white rounded-3" style="font-size: small;">{{ $factura->NomCliente }}
+                        </h6>
                     </div>
                     <table style="font-size: 13px">
                         <thead class="table-head">
@@ -273,15 +264,15 @@
                         <tr>
                             <th style="width: 10vh"></th>
                             <th style="width: 60vh; text-align:center">
-                                <h6>SubTotales :</h6>
+                                <h6 style="font-size: small;">SubTotales :</h6>
                             </th>
                             <th style="width: 15vh">
-                                <h6>{{ number_format($sumCantArticulo, 3) }}</h6>
+                                <h6 style="font-size: small;">{{ number_format($sumCantArticulo, 3) }}</h6>
                             </th>
                             <th style="width: 15vh"></th>
                             <th></th>
                             <th style="width: 15vh">
-                                <h6>$ {{ number_format($sumImporte, 2) }}</h6>
+                                <h6 style="font-size: small;">$ {{ number_format($sumImporte, 2) }}</h6>
                             </th>
                         </tr>
                     </table>
@@ -291,13 +282,4 @@
         <!--TERMINA SOLICITUDES DE FACTURA-->
 
     </div>
-
-    <script>
-        const fecha = document.getElementById('fecha');
-        const formCorte = document.getElementById('formCorte');
-
-        fecha.addEventListener('change', function() {
-            formCorte.submit();
-        });
-    </script>
 @endsection
