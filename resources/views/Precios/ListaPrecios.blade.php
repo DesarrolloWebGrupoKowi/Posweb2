@@ -27,7 +27,8 @@
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Codigo</th>
+                        <th class="rounded-start">Id</th>
+                        <th>Codigo</th>
                         <th>Nombre articulo</th>
                         <th>Menudeo</th>
                         <th>Minorista</th>
@@ -39,6 +40,7 @@
                     @include('components.table-empty', ['items' => $precios, 'colspan' => 7])
                     @foreach ($precios as $precio)
                         <tr>
+                            <td>{{ $precio->IdArticulo }}</td>
                             <td>{{ $precio->CodArticulo }}</td>
                             <td>{{ $precio->NomArticulo }}</td>
                             <td>{{ number_format($precio->Menudeo, 2) }}</td>

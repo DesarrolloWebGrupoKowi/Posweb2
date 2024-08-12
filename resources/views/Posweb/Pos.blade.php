@@ -115,7 +115,9 @@
                             </option>
                             @foreach ($paquetes as $paquete)
                                 <option style="color: black; background-color: white;"
-                                    value="{{ $paquete->IdPaquete }}">{{ $paquete->NomPaquete }}</option>
+                                    value="{{ $paquete->IdPaquete }}">
+                                    {{ $paquete->IdPreparado ? substr($paquete->NomPaquete, 0, -15) : $paquete->NomPaquete }}
+                                </option>
                             @endforeach
                         </select>
                     </form>

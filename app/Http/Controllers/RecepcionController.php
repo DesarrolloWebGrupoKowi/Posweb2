@@ -38,6 +38,8 @@ class RecepcionController extends Controller
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
             ->where('CapRecepcion.Almacen', $tienda->Almacen)
             ->where('CapRecepcion.IdStatusRecepcion', 1)
+            ->whereNull('CapRecepcion.FechaRecepcion')
+            ->whereNull('CapRecepcion.FechaCancelacion')
             ->where(function ($query) {
                 $query->whereNull('CapRecepcion.IdTiendaDestino');
                 $query->orWhere('CapRecepcion.IdTiendaDestino', Auth::user()->usuarioTienda->IdTienda);
@@ -434,8 +436,10 @@ class RecepcionController extends Controller
 
     public function ReporteRecepciones(Request $request)
     {
-        $fecha1 = $request->input('fecha1', date('Y-m-d'));
-        $fecha2 = $request->input('fecha2', date('Y-m-d'));
+        // $fecha1 = $request->input('fecha1', date('Y-m-d'));
+        // $fecha2 = $request->input('fecha2', date('Y-m-d'));
+        $fecha1 = $request->fecha1;
+        $fecha2 = $request->fecha2;
         $chkReferencia = $request->chkReferencia;
         $referencia = $request->referencia;
 
@@ -443,26 +447,37 @@ class RecepcionController extends Controller
         $tienda = Tienda::where('IdTienda', $idTienda)
             ->first();
 
-        if (!empty($chkReferencia)) {
-            $recepciones = CapRecepcion::with(['DetalleRecepcion' => function ($query) {
-                $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
-                    ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
-            }, 'StatusRecepcion'])
-                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
-                ->where('CapRecepcion.Almacen', $tienda->Almacen)
-                ->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('CapRecepcion.PackingList', $referencia)
-                ->get();
-        } else {
-            $recepciones = CapRecepcion::with(['DetalleRecepcion' => function ($query) {
-                $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
-                    ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
-            }, 'StatusRecepcion'])
-                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
-                ->where('CapRecepcion.Almacen', $tienda->Almacen)
-                ->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->get();
-        }
+        $recepciones = CapRecepcion::with(['DetalleRecepcion' => function ($query) {
+            $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
+                ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
+        }, 'StatusRecepcion'])
+            ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
+            ->where('CapRecepcion.Almacen', $tienda->Almacen)
+            ->where('CapRecepcion.IdStatusRecepcion', '<>', 1)
+            ->when(!empty($chkReferencia), function ($q) use ($referencia) {
+                return $q->where('CapRecepcion.PackingList', 'like', '%' . $referencia . '%');
+            })
+            ->when(isset($fecha1) && !isset($fecha2), function ($q) use ($fecha1) {
+                return $q->whereDate('CapRecepcion.FechaLlegada', '>=', $fecha1);
+            })
+            ->when(!isset($fecha1) && isset($fecha2), function ($q) use ($fecha2) {
+                return $q->whereDate('CapRecepcion.FechaLlegada', '<=', $fecha2);
+            })
+            ->when(isset($fecha1) && isset($fecha2), function ($q) use ($fecha1, $fecha2) {
+                return $q->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'");
+            })
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->where('CapRecepcion.IdStatusRecepcion', 2)
+                        ->whereNotNull('CapRecepcion.FechaRecepcion');
+                })->orWhere(function ($q) {
+                    $q->where('CapRecepcion.IdStatusRecepcion', 3)
+                        ->whereNotNull('CapRecepcion.FechaCancelacion');
+                });
+            })
+            ->orderBy('CapRecepcion.IdCapRecepcion', 'DESC')
+            ->paginate(10)
+            ->withQueryString();
 
         // return $recepciones;
 

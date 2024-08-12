@@ -17,10 +17,10 @@
     </style>
 @endif
 @section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row gap-2">
+        <div class="p-4 border-0 card" style="border-radius: 10px">
+            <div class="gap-2 d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Cortes de Tienda'])
                 <div>
                     <a href="/GenerarCorteOraclePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
@@ -32,11 +32,11 @@
             {{-- </div> --}}
 
             <!--CONTAINER FILTROS-->
-            {{-- <div class="card border-0 p-4" style="border-radius: 10px"> --}}
-            <form class="d-flex align-items-center justify-content-end gap-2 pb-0 m-0 mt-2 flex-wrap"
+            {{-- <div class="p-4 border-0 card" style="border-radius: 10px"> --}}
+            <form class="flex-wrap gap-2 pb-0 m-0 mt-2 d-flex align-items-center justify-content-end"
                 action="/VerCortesTienda" method="GET">
                 <div class="col-auto">
-                    <select class="form-select rounded" style="line-height: 18px" name="idTienda" id="idTienda" required>
+                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda" required>
                         <option value="">Seleccione Tienda</option>
                         @foreach ($tiendas as $tienda)
                             <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
@@ -45,7 +45,7 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select rounded" style="line-height: 18px" name="idCaja" id="idCaja" required>
+                    <select class="rounded form-select" style="line-height: 18px" name="idCaja" id="idCaja" required>
                         <option value="">Seleccione Caja</option>
                         @if ($cajasTienda->count() >= 2)
                             <option {!! $idCaja == 0 ? 'selected' : '' !!} value="0">Todas las cajas</option>
@@ -57,7 +57,7 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select rounded" style="line-height: 18px" name="idReporte" id="idReporte" required>
+                    <select class="rounded form-select" style="line-height: 18px" name="idReporte" id="idReporte" required>
                         <option value="">Seleccione Reporte</option>
                         @foreach ($opcionesReporte as $opcionReporte)
                             <option {!! $idReporte == $opcionReporte->IdReporte ? 'selected' : '' !!} value="{{ $opcionReporte->IdReporte }}">
@@ -66,11 +66,11 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha1"
+                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" autofocus>
                 </div>
                 <div class="col-auto">
-                    <input {{ empty($fecha2) ? 'hidden disabled' : '' }} class="form-control rounded"
+                    <input {{ empty($fecha2) ? 'hidden disabled' : '' }} class="rounded form-control"
                         style="line-height: 18px" type="date" name="fecha2" id="fecha2"
                         value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
                 </div>
@@ -84,14 +84,14 @@
 
         @if ($idReporte == 1)
             <!--CORTE DIARIO DE TIENDA-->
-            <span class="fs-5 text-sm text-center mb-0" style="font-weight: 500; font-family: sans-serif; color: #334155">
+            <span class="mb-0 text-sm text-center fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
                 Corte diario - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'TODAS' : $numCaja }}
             </span>
 
-            <div class="row">
+            <div class="row" style="font-size: small">
                 {{-- Dinero Electrónico --}}
-                <div class="col-12 col-md-6 col-lg-3 pb-4 pb-md-0">
-                    <div class="card border-0 p-4" style="border-radius: 10px">
+                {{-- <div class="pb-4 col-12 col-md-6 col-lg-3 pb-md-0">
+                    <div class="p-4 border-0 card" style="border-radius: 10px">
                         <h6 class="text-dark">Dinero Electrónico</h6>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Monedero Quincenal: </span>
@@ -109,10 +109,34 @@
                             </b>
                         </div>
                     </div>
+                </div> --}}
+                <div class="mb-4 col-12 col-md-6 col-lg-6 mb-lg-0">
+                    <div class="p-4 border-0 card" style="border-radius: 10px;">
+                        <h6 class="text-dark">Dinero Electrónico</h6>
+                        @php
+                            $totalImporte = 0;
+                        @endphp
+                        @foreach ($totalMonedero as $monedero)
+                            <div class="d-flex justify-content-between">
+                                <span class="text-secondary">{{ $monedero->NomClienteCloud }}: </span>
+                                <span>${{ number_format($monedero->importe, 2) }}</span>
+                            </div>
+                            @php
+                                $totalImporte += $monedero->importe;
+                            @endphp
+                        @endforeach
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Total: </span>
+                            <b class="{{ number_format($totalImporte, 2) == 0 ? 'eliminar' : 'send' }}"
+                                style="font-size: 16px">
+                                ${{ number_format($totalImporte, 2) }}
+                            </b>
+                        </div>
+                    </div>
                 </div>
                 {{-- Crédito  --}}
-                <div class="col-12 col-md-6 col-lg-3 pb-4 pb-lg-0">
-                    <div class="card border-0 p-4" style="border-radius: 10px">
+                <div class="pb-4 col-12 col-md-6 col-lg-2 pb-lg-0" >
+                    <div class="p-4 border-0 card" style="border-radius: 10px">
                         <h6 class="text-dark">Crédito</h6>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Crédito Quincenal: </span>
@@ -132,8 +156,8 @@
                     </div>
                 </div>
                 {{-- Tarjeta  --}}
-                <div class="col-12 col-md-6 col-lg-3 pb-4 pb-md-0">
-                    <div class="card border-0 p-4" style="border-radius: 10px">
+                <div class="pb-4 col-12 col-md-6 col-lg-2 pb-md-0">
+                    <div class="p-4 border-0 card" style="border-radius: 10px">
                         <h6 class="text-dark">Tarjeta</h6>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Tarjeta Débito: </span>
@@ -153,8 +177,8 @@
                     </div>
                 </div>
                 {{-- Totales --}}
-                <div class="col-12 col-md-6 col-lg-3 pb-0">
-                    <div class="card border-0 p-4" style="border-radius: 10px">
+                <div class="pb-0 col-12 col-md-6 col-lg-2">
+                    <div class="p-4 border-0 card" style="border-radius: 10px">
                         <h6 class="text-dark">Totales</h6>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Total Transferencia: </span>
@@ -177,7 +201,7 @@
 
             <!--CLIENTES DE TIENDA (SIN SOLICITUD DE FACTURA)-->
             @foreach ($cortesTienda as $corteTienda)
-                <div class="content-table content-table-flex-none content-table-full card border-0 p-4"
+                <div class="p-4 border-0 content-table content-table-flex-none content-table-full card"
                     style="border-radius: 10px">
                     @foreach ($corteTienda->Customer as $customer)
                         <div class="d-flex justify-content-left">
@@ -191,7 +215,7 @@
                                         {{ substr_replace($pedidoOracle->Source_Transaction_Identifier, '_', 3, 0) }}
                                     </h6>
                                     @if ($pedidoOracle->STATUS == 'ERROR')
-                                        <h6 class="ps-1 text-white rounded-3">
+                                        <h6 class="text-white ps-1 rounded-3">
                                             <i style="color: red" class="fa fa-exclamation-circle ps-1"></i>
                                         </h6>
                                     @endif
@@ -271,8 +295,29 @@
                         </tbody>
 
                         <tfoot>
-                            <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
-                            @if ($corteTienda->IdTipoNomina == 4)
+                            <!--INICIA MONEDERO ELECTRONICO-->
+                            @foreach ($totalMonedero as $monedero)
+                                @if ($corteTienda->Bill_To == $monedero->Bill_To)
+                                    <tr>
+                                        <th style="width: 10vh"></th>
+                                        <th style="width: 60vh; text-align:center">
+                                            <h6 style="color: red; font-size: small;">Dinero Electrónico :</h6>
+                                        </th>
+                                        <th style="width: 15vh">
+                                            <h6></h6>
+                                        </th>
+                                        <th style="width: 15vh"></th>
+                                        <th></th>
+                                        <th style="width: 15vh; color: red;">
+                                            <h6 style="font-size: small;">$ {{ number_format($monedero->importe, 2) }}
+                                            </h6>
+                                        </th>
+                                    </tr>
+                                @endif
+                            @endforeach
+                            <!--TERMINA MONEDERO ELECTRONICO--
+                                <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
+                            {{-- @if ($corteTienda->IdTipoNomina == 4)
                                 <tr style="font-size: .9rem">
                                     <td></td>
                                     <td class="text-danger" style="text-align: right; font-weight: 500">
@@ -285,11 +330,11 @@
                                         ${{ number_format($totalMonederoQuincenal, 2) }}
                                     </td>
                                 </tr>
-                            @endif
+                            @endif --}}
                             <!--TERMINA MONEDERO ELECTRONICO QUINCENALES-->
 
                             <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS SEMANALES-->
-                            @if ($corteTienda->IdTipoNomina == 3)
+                            {{-- @if ($corteTienda->IdTipoNomina == 3)
                                 <tr style="font-size: .9rem">
                                     <td></td>
                                     <td class="text-danger" style="text-align: right; font-weight: 500">
@@ -302,7 +347,7 @@
                                         ${{ number_format($totalMonederoSemanal, 2) }}
                                     </td>
                                 </tr>
-                            @endif
+                            @endif --}}
                             <!--TERMINA MONEDERO ELECTRONICO SEMANALES-->
                             <tr style="font-size: .9rem">
                                 <td></td>
@@ -320,27 +365,27 @@
             <!--SOLICITUDES DE FACTURA-->
             @foreach ($facturas as $factura)
                 @if (count($factura->Factura) !== 0)
-                    <div class="content-table content-table-flex-none content-table-full card border-0 p-4"
+                    <div class="p-4 border-0 content-table content-table-flex-none content-table-full card"
                         style="border-radius: 10px">
                         <div class="d-flex justify-content-left">
                             @if (empty($factura->Bill_To) && empty($factura->IdClienteCloud))
-                                <h6 class="p-1 bg-danger text-white rounded-3"><i class="fa fa-exclamation-triangle"></i>
+                                <h6 class="p-1 text-white bg-danger rounded-3"><i class="fa fa-exclamation-triangle"></i>
                                     FALTA
                                     LIGAR CLIENTE
                                     -
                                     {{ $factura->NomCliente }} <i class="fa fa-exclamation-triangle"></i></h6>
                             @else
-                                <h6 class="ps-4 p-1 rounded-3">{{ $factura->NomCliente }}</h6>
+                                <h6 class="p-1 ps-4 rounded-3">{{ $factura->NomCliente }}</h6>
                             @endif
                             @foreach ($factura->PedidoOracle as $pedidoOracle)
                                 @if (empty($pedidoOracle->Source_Transaction_Identifier))
-                                    <h6 class="text-danger p-1">SIN PEDIDO</h6>
+                                    <h6 class="p-1 text-danger">SIN PEDIDO</h6>
                                 @else
                                     <h6 class="text-{{ $pedidoOracle->STATUS == 'ERROR' ? 'danger' : 'success' }} ps-1">
                                         {{ substr_replace($pedidoOracle->Source_Transaction_Identifier, '_', 3, 0) }}
                                     </h6>
                                     @if ($pedidoOracle->STATUS == 'ERROR')
-                                        <h6 class="ps-1 text-white rounded-3">
+                                        <h6 class="text-white ps-1 rounded-3">
                                             <i style="color: red" class="fa fa-exclamation-circle ps-1"></i>
                                         </h6>
                                     @endif
@@ -440,8 +485,8 @@
             @endforeach
         @elseif($idReporte == 2)
             <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-            <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-                <span class="fs-5 text-sm mb-2" style="font-weight: 500; font-family: sans-serif; color: #334155">
+            <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
+                <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
                     Concentrado de ventas - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'TODAS' : $numCaja }}
                 </span>
                 <table>
@@ -491,15 +536,15 @@
             </div>
         @elseif($idReporte == 3)
             <!--VENTA POR TICKET DIARIO-->
-            <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-                <span class="fs-5 text-sm mb-2" style="font-weight: 500; font-family: sans-serif; color: #334155">
+            <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
+                <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
                     Venta por ticket diario - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'TODAS' : $numCaja }}
                 </span>
                 @if ($idCaja == 0)
                     <!--VER TODAS LAS CAJAS-->
                     <div class="row">
                         @foreach ($tickets as $key => $ticket)
-                            <div class="col-xxl-6 mb-3">
+                            <div class="mb-3 col-xxl-6">
                                 <table class="w-100">
                                     <thead class="table-head">
                                         <tr>
@@ -670,8 +715,8 @@
             </div>
         @elseif($idReporte == 4)
             <!--TICKETS CANCELADOS-->
-            <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-                <span class="fs-5 text-sm mb-2" style="font-weight: 500; font-family: sans-serif; color: #334155">
+            <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
+                <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
                     Tickets Cancelados - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'Todas' : $numCaja }}
                 </span>
                 <table>

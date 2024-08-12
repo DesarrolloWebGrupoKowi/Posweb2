@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Articulo;
 use App\Models\Caja;
+use App\Models\CatPaquete;
 use App\Models\CatPreparado;
 use App\Models\DatCaja;
 use App\Models\DatInventario;
@@ -69,29 +70,47 @@ class PreparadosController extends Controller
     {
         $idcaja = DatCaja::where('Status', 0)->value('IdCaja');
 
-        if (!Auth::user()->usuarioTienda->IdTienda) {
-            return back()->with('msjdelete', 'Error: Este usuario no puede crear una preparado');
+        try {
+            DB::beginTransaction();
+            if (!Auth::user()->usuarioTienda->IdTienda) {
+                return back()->with('msjdelete', 'Error: Este usuario no puede crear una preparado');
+            }
+
+            $nombre = $request->nombre . '_' . Carbon::now()->format('YmdHis');
+
+            $preparado = new CatPreparado();
+            $preparado->Nombre = $nombre;
+            $preparado->Cantidad = $request->cantidad;
+            $preparado->IdUsuario = Auth::user()->IdUsuario;
+            $preparado->IdTienda = Auth::user()->usuarioTienda->IdTienda;
+            $preparado->IdCaja = $idcaja;
+            $preparado->Fecha = date('d-m-Y H:i:s');
+            $preparado->IdCatStatusPreparado = 2;
+            $preparado->save();
+
+            // Crear el paquete
+            // $catPaquete = new CatPaquete();
+            // $catPaquete->NomPaquete = strtoupper($nombre);
+            // $catPaquete->ImportePaquete = 0;
+            // $catPaquete->FechaCreacion = date('d-m-Y H:i:s');
+            // $catPaquete->IdUsuario = Auth::user()->IdUsuario;
+            // $catPaquete->Status = 1;
+            // $catPaquete->save();
+
+            DB::commit();
+            return back()->with('msjAdd', 'Preparado agregado correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error : ' . $th->getMessage());
+            DB::rollback();
         }
-
-        $preparado = new CatPreparado();
-        $preparado->Nombre = $request->nombre . '_' . Carbon::now()->format('Y-d-m');
-        $preparado->Cantidad = $request->cantidad;
-        $preparado->IdUsuario = Auth::user()->IdUsuario;
-        $preparado->IdTienda = Auth::user()->usuarioTienda->IdTienda;
-        $preparado->IdCaja = $idcaja;
-        $preparado->Fecha = Carbon::now()->format('Y-d-m');
-        $preparado->IdCatStatusPreparado = 2;
-        $preparado->save();
-
-        return back()->with('msjAdd', 'Preparado agregado correctamente');
     }
 
     public function EditarPreparados($idPreparado, Request $request)
     {
-        $resultado = intval(preg_replace('/[^0-9]+/', '', $request->nombre), 10);
+        return $resultado = intval(preg_replace('/[^0-9]+/', '', $request->nombre), 10);
 
         CatPreparado::where('IdPreparado', $idPreparado)->update([
-            'Nombre' => $resultado != 0 ? $request->nombre : $request->nombre . '_' . Carbon::now()->format('Y-m-d'),
+            'Nombre' => $resultado != 0 ? $request->nombre : $request->nombre . '_' . Carbon::now()->format('YmdHis'),
             'Cantidad' => $request->cantidad,
         ]);
 
@@ -180,6 +199,9 @@ class PreparadosController extends Controller
         $preparado->CantidadFormula = $formula;
         $preparado->IDLISTAPRECIO = $idListaPrecio ? $idListaPrecio : 4;
         $preparado->save();
+
+        // Agregar detalle al paquete
+        // DatPaquetes
 
         return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $idPreparado]);
     }

@@ -1,28 +1,28 @@
 <!---Registrado Corectamente -->
 @if (Session::has('msjAdd'))
-    <div class="alert alert-success" role="alert" id="alerta">
-        <strong><i class="fa fa-check"></i> {{ Session::get('msjAdd') }} </strong>
+    <div class="alert alert-success rounded" role="alert" id="alerta">
+        @include('components.icons.check-all') {{ Session::get('msjAdd') }}
     </div>
 @endif
 
 <!-- Eliminado Correctamente --->
 @if (Session::has('msjdelete'))
-    <div class="alert alert-danger" role="alert" id="alerta">
-        <strong><i class="fa fa-exclamation-triangle"></i> {{ Session::get('msjdelete') }}</strong>
+    <div class="alert alert-danger rounded" role="alert" id="alerta">
+        @include('components.icons.info') {{ Session::get('msjdelete') }}
     </div>
 @endif
 
 <!-- Editado Correctamente -->
 @if (Session::has('msjupdate'))
-    <div class="alert alert-warning mt-2" role="alert" id="alerta">
-        <strong><i class="fa fa-exclamation-triangle"></i> {{ Session::get('msjupdate') }} </strong>
+    <div class="alert alert-warning rounded" role="alert" id="alerta">
+        @include('components.icons.info') {{ Session::get('msjupdate') }}
     </div>
 @endif
 
 <!-- Alerta para Validar Usuario -->
 @if (Session::has('msjErrorValida'))
-    <div class="alert alert-danger mt-2" role="alert" id="alerta">
-        <strong><i class="fa fa-exclamation-triangle"></i> {{ Session::get('msjErrorValida') }} </strong>
+    <div class="alert alert-danger rounded" role="alert" id="alerta">
+        @include('components.icons.info') {{ Session::get('msjErrorValida') }}
     </div>
 @endif
 

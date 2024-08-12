@@ -832,6 +832,8 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //AsignarPreparados
     Route::get('/AsignarPreparados', 'App\Http\Controllers\AsignarPreparadosController@Preparados')->name('AsignarPreparados.index');
+    //AsignarPreparados/{id}
+    Route::get('/AsignarPreparados/{id}', 'App\Http\Controllers\AsignarPreparadosController@VerPreparado')->name('AsignarPreparados.id');
     //RegresarPreparado
     Route::post('/RegresarPreparado/{id}', 'App\Http\Controllers\AsignarPreparadosController@RegresarPreparado');
     //FinalizarPreparado
