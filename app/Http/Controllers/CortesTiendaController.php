@@ -212,27 +212,25 @@ class CortesTiendaController extends Controller
                     ->whereIn('Bill_To', $billsTo)
                     ->get();
 
-                $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
-                    ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                    ->where('IdTienda', $idTienda)
-                    ->whereDate('FechaVenta', $fecha1)
-                    ->where('IdTipoPago', 7)
-                    ->where('IdListaPrecio', 4)
-                    ->where('b.TipoNomina', 4)
-                    ->where('StatusVenta', 0)
-                    ->where('a.IdDatCaja', $idCaja)
-                    ->sum('ImporteArticulo');
-
-                $totalMonederoSemanal = DB::table('DatCortesTienda as a')
-                    ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                    ->where('IdTienda', $idTienda)
-                    ->whereDate('FechaVenta', $fecha1)
-                    ->where('IdTipoPago', 7)
-                    ->where('IdListaPrecio', 4)
-                    ->where('b.TipoNomina', 3)
-                    ->where('StatusVenta', 0)
-                    ->where('a.IdDatCaja', $idCaja)
-                    ->sum('ImporteArticulo');
+                $totalMonedero = DB::table('DatCortesTienda as a')
+                    ->leftjoin(
+                        'DatClientesCloudTienda as b',
+                        function ($join) {
+                            $join->on('b.Bill_To', 'a.Bill_To')
+                                ->on('b.IdListaPrecio', 'a.IdListaPrecio')
+                                ->on('b.IdTipoPago', 'a.IdTipoPago');
+                        }
+                    )
+                    ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
+                    ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+                    ->where('a.IdTienda', $idTienda)
+                    ->where('b.IdTienda', $idTienda)
+                    ->whereDate('a.FechaVenta', $fecha1)
+                    ->where('a.IdTipoPago', 7)
+                    ->where('a.IdListaPrecio', 4)
+                    ->where('a.StatusVenta', 0)
+                    ->groupBy('a.Bill_To', 'NomClienteCloud')
+                    ->get();
 
                 $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha1)
@@ -331,8 +329,9 @@ class CortesTiendaController extends Controller
                 'opcionesReporte',
                 'cortesTienda',
                 'facturas',
-                'totalMonederoQuincenal',
-                'totalMonederoSemanal',
+                // 'totalMonederoQuincenal',
+                // 'totalMonederoSemanal',
+                'totalMonedero',
                 'creditoQuincenal',
                 'creditoSemanal',
                 'totalTarjetaDebito',
