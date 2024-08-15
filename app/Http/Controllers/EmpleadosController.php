@@ -22,17 +22,19 @@ class EmpleadosController extends Controller
                 ->where('DatEncabezado.StatusVenta', 0)
                 ->where('DatCreditos.StatusCredito', 0)
                 ->orderBy('DatCreditos.FechaVenta', 'desc');
+        }, 'VentasExternas' => function ($query) {
+            $query->whereNull('IdEncabezado');
         }])
             ->where('NumNomina', $txtFiltro)
             ->get();
 
-        $adeudoTotal = CreditoEmpleado::where('DatCreditos.NumNomina', $txtFiltro)
-            ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'DatCreditos.IdEncabezado')
-            ->where('DatEncabezado.StatusVenta', 0)
-            ->where('DatCreditos.StatusCredito', 0)
-            ->sum('DatCreditos.ImporteCredito');
+        // $adeudoTotal = CreditoEmpleado::where('DatCreditos.NumNomina', $txtFiltro)
+        //     ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'DatCreditos.IdEncabezado')
+        //     ->where('DatEncabezado.StatusVenta', 0)
+        //     ->where('DatCreditos.StatusCredito', 0)
+        //     ->sum('DatCreditos.ImporteCredito');
 
-        return view('Empleados.AdeudosEmpleado', compact('adeudo', 'txtFiltro', 'adeudoTotal'));
+        return view('Empleados.AdeudosEmpleado', compact('adeudo', 'txtFiltro'));
     }
 
     public function CreditosPagados(Request $request)

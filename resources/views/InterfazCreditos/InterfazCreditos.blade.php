@@ -2,11 +2,22 @@
 @section('title', 'Interfaz de Creditos')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
+        <div class="p-4 border-0 card" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Interfaz de Créditos'])
+                <form action="/InterfazCreditosExcel" method="GET">
+
+                    <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                    <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                    <input type="hidden" name="tipoNomina" value="{{ $idTipoNomina }}">
+                    <input type="hidden" name="chkNomina" value="{{ $chkNomina }}">
+                    <input type="hidden" name="numNomina" value="{{ $numNomina }}">
+                    <button class="btn card" type="submit">
+                        @include('components.icons.print')
+                    </button>
+                </form>
             </div>
             <div>
                 @include('Alertas.Alertas')
@@ -14,19 +25,19 @@
         </div>
 
         {{-- @if (!empty($fecha1) && !empty($fecha2)) --}}
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex flex-wrap align-items-center justify-content-end gap-2 pb-2" id="formBuscarCreditos"
+        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
+            <form class="flex-wrap gap-2 pb-2 d-flex align-items-center justify-content-end" id="formBuscarCreditos"
                 action="/InterfazCreditos" method="GET">
                 <div class="input-group" style="max-width: 150px">
-                    <input type="date" class="form-control rounded" style="line-height: 18px" name="fecha1"
+                    <input type="date" class="rounded form-control" style="line-height: 18px" name="fecha1"
                         id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
                 </div>
                 <div class="input-group" style="max-width: 150px">
-                    <input type="date" class="form-control rounded" style="line-height: 18px" name="fecha2"
+                    <input type="date" class="rounded form-control" style="line-height: 18px" name="fecha2"
                         id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
                 </div>
                 <div class="input-group" style="max-width: 300px">
-                    <select {!! !empty($chkNomina) ? 'disabled' : '' !!} class="form-select rounded" style="line-height: 18px" name="tipoNomina"
+                    <select {!! !empty($chkNomina) ? 'disabled' : '' !!} class="rounded form-select" style="line-height: 18px" name="tipoNomina"
                         id="tipoNomina">
                         @foreach ($tiposNomina as $tipoNomina)
                             <option {!! $idTipoNomina == $tipoNomina->TipoNomina ? 'selected' : '' !!} value="{{ $tipoNomina->TipoNomina }}">
@@ -36,10 +47,10 @@
                 </div>
                 <div class="input-group" style="max-width: 300px">
                     <span class="input-group-text">
-                        <input {!! !empty($chkNomina) ? 'checked' : '' !!} class="form-check-input mt-0 rounded" style="line-height: 18px"
+                        <input {!! !empty($chkNomina) ? 'checked' : '' !!} class="mt-0 rounded form-check-input" style="line-height: 18px"
                             type="checkbox" name="chkNomina" id="chkNomina">
                     </span>
-                    <input {!! empty($chkNomina) ? 'disabled' : '' !!} class="form-control rounded" style="line-height: 18px" type="number"
+                    <input {!! empty($chkNomina) ? 'disabled' : '' !!} class="rounded form-control" style="line-height: 18px" type="number"
                         name="numNomina" id="numNomina" value="{{ $numNomina }}" placeholder="# Nómina" required>
                 </div>
                 <div class="col-auto">
@@ -56,7 +67,7 @@
                 </div>
             </form>
 
-            <div class="d-flex justify-content-between flex-wrap">
+            <div class="flex-wrap d-flex justify-content-between">
                 <p class="text-uppercase fs-6" style="font-weight: 500">
                     Créditos Empleado - {{ empty($chkNomina) ? $nomTipoNomina : $empleado }}
                 </p>
