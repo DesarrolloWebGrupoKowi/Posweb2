@@ -54,11 +54,11 @@
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1"
                                 style="background: #1e293b; border-radius: 12px; width: 200px;">
                                 @if (!request()->routeIs('miperfil'))
-                                    <li>
+                                    {{-- <li>
                                         <a href="/MiPerfil" class="dropdown-item text-white py-2">
                                             @include('components.icons.user') Mi Perfil
                                         </a>
-                                    </li>
+                                    </li> --}}
                                 @endif
 
                                 @if (!request()->routeIs('dashboard'))
@@ -70,8 +70,13 @@
                                 @endif
                                 @if (Auth::user()->tipoUsuario->IdTipoUsuario == 2)
                                     <li>
+                                        <a href="/ActualizacionPrecios" class="dropdown-item text-white py-2">
+                                            @include('components.icons.upload') Admin Scale
+                                        </a>
+                                    </li>
+                                    <li>
                                         <a href="/Update" class="dropdown-item text-white py-2">
-                                            @include('components.icons.switch') Actualizar
+                                            @include('components.icons.switch') Sincronizar datos
                                         </a>
                                     </li>
                                 @endif
