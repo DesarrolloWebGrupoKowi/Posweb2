@@ -129,7 +129,7 @@
                                     id="editColonia" name="chkEdit[]" value="colonia">
                             </div>
                             <input type="text" id="colonia" name="colonia" class="form-control bg-white"
-                                value="{{ $cliente->Colonia }}" required {!! !empty($cliente->Colonia) ? 'readonly' : '' !!}>
+                                value="{{ $cliente->Colonia }}">
                         </div>
                     </div>
                     <div class="col-4">
