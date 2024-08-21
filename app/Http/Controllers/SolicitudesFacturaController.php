@@ -78,13 +78,23 @@ class SolicitudesFacturaController extends Controller
             ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('Id', $id)
-            ->whereNotNull('Editar')
+            ->whereNotNull('Editar')/*  */
             ->first();
+
+        $clienteSolicitud = Cliente::with([
+            'CorreoCliente' => function ($query) {
+                $query->select('IdClienteCloud', 'Email');
+                $query->groupBy('IdClienteCloud', 'Email');
+            }
+        ])
+            ->where('RFC', $solicitud->RFC)
+            ->where('Bill_To', $solicitud->Bill_To)
+            ->get();
 
         $clientes = Cliente::where('RFC', $solicitud->RFC)
             ->get();
 
-        return view('SolicitudesFactura.SolicitudFactura', compact('solicitud', 'clientes'));
+        return view('SolicitudesFactura.SolicitudFactura', compact('solicitud', 'clienteSolicitud', 'clientes'));
     }
 
     public function Relacionar($id, $billTo, Request $request)

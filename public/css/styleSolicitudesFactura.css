@@ -1,0 +1,30 @@
+label {
+    font-weight: 500;
+    margin: 0;
+    color: rgba(108, 117, 128, 1);
+}
+
+.grid-inputs>div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: start;
+}
+
+.grid-inputs>div>div {
+    flex-grow: 1;
+}
+
+.grid-inputs>div>div span {
+    width: 100%;
+    font-weight: 500;
+    color: #334155;
+    border-radius: .25rem;
+    background-color: #e2e8f0;
+    border: 1px solid #94a3b8;
+    padding: .125rem .625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 21px;
+}
