@@ -209,6 +209,8 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //InterfazCreditos
     Route::get('/InterfazCreditos', 'App\Http\Controllers\InterfazCreditosController@InterfazCreditos');
+    //InterfazCreditosExcel
+    Route::get('/InterfazCreditosExcel', 'App\Http\Controllers\InterfazCreditosController@InterfazCreditosExcel');
     //InterfazarCreditos
     Route::post('/InterfazarCreditos/{fecha1}/{fecha2}/{idTipoNomina}/{numNomina}', 'App\Http\Controllers\InterfazCreditosController@InterfazarCreditos');
     //PrepagoCreditos

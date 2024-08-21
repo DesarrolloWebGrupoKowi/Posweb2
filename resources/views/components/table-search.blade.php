@@ -1,8 +1,13 @@
-<form id="search-form" class="d-flex align-items-center justify-content-end gap-4 pb-2" action="/CatClientes">
-    <div class="d-flex align-items-center gap-2">
+<form id="search-form" class="gap-2 pb-2 d-flex align-items-center justify-content-end" action="/CatClientes">
+    <div class="gap-2 d-flex align-items-center">
         <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Buscar:</label>
-        <input class="form-control rounded" style="line-height: 18px" type="text" name="txtFiltro" id="txtFiltro"
+        <input class="rounded form-control" style="line-height: 18px" type="text" name="txtFiltro" id="txtFiltro"
             value="{{ $txtFiltro }}" autofocus placeholder="{{ isset($placeholder) ? $placeholder : '' }}">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-dark-outline">
+            @include('components.icons.search')
+        </button>
     </div>
 </form>
 
