@@ -751,6 +751,9 @@ Route::group(['middleware' => 'auth'], function () {
     //InterfazarMermas
     Route::post('/InterfazarMermas/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazMermasController@InterfazarMermas')->name('InterfazarMermas');
 
+    //InterfazCreditosExcel
+    Route::get('/InterfazMermasExcel', 'App\Http\Controllers\InterfazMermasController@InterfazMermasExcel');
+
     //+============================================================================================================================================+//
     //VerCortesTienda
     Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerCortesTienda')->name('VerCortesTienda');
