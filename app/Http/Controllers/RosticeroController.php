@@ -358,6 +358,7 @@ class RosticeroController extends Controller
             DatDetalleRosticero::where('IdDatDetalleRosticero', $id)
                 ->update([
                     'Subir' => 0,
+                    'Vendida' => 0,
                     'Status' => 1
                 ]);
 

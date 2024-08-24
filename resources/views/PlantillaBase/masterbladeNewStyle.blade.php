@@ -13,6 +13,7 @@
     {{-- <link rel="stylesheet" href="{{ asset('material-icon/material-icon.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('Icons/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
+    @yield('styles')
 
     <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
 </head>
@@ -31,7 +32,7 @@
 
             @guest
                 @if (!request()->routeIs('login'))
-                    <a class="nav-link d-flex align-items-center text-white text-decoration-none" href="Login">
+                    <a class="text-white nav-link d-flex align-items-center text-decoration-none" href="Login">
                         <span class="pe-2">@include('components.icons.user')</span>
                         <strong>Iniciar Sesión</strong>
                     </a>
@@ -40,7 +41,7 @@
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
                     <ul class="navbar-nav ms-auto ">
                         <div id="ddUsuario" class="dropdown">
-                            <a href="#" class="d-flex align-items-center text-white text-decoration-none gap-2"
+                            <a href="#" class="gap-2 text-white d-flex align-items-center text-decoration-none"
                                 id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="rounded-circle d-flex align-items-center justify-content-center"
                                     style="font-size: 1.5rem; background: #e2e8f0; width: 2.5rem; height: 2.5rem; color: #1e293b; font-family: 'Times New Roman', serif; text-align: center; cursor: pointer;">
@@ -54,29 +55,34 @@
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1"
                                 style="background: #1e293b; border-radius: 12px; width: 200px;">
                                 @if (!request()->routeIs('miperfil'))
-                                    <li>
-                                        <a href="/MiPerfil" class="dropdown-item text-white py-2">
+                                    {{-- <li>
+                                        <a href="/MiPerfil" class="py-2 text-white dropdown-item">
                                             @include('components.icons.user') Mi Perfil
                                         </a>
-                                    </li>
+                                    </li> --}}
                                 @endif
 
                                 @if (!request()->routeIs('dashboard'))
                                     <li>
-                                        <a href="/Dashboard" class="dropdown-item text-white py-2">
+                                        <a href="/Dashboard" class="py-2 text-white dropdown-item">
                                             @include('components.icons.bars') Dashboard
                                         </a>
                                     </li>
                                 @endif
                                 @if (Auth::user()->tipoUsuario->IdTipoUsuario == 2)
                                     <li>
-                                        <a href="/Update" class="dropdown-item text-white py-2">
-                                            @include('components.icons.switch') Actualizar
+                                        <a href="/ActualizacionPrecios" class="py-2 text-white dropdown-item">
+                                            @include('components.icons.upload') Admin Scale
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/Update" class="py-2 text-white dropdown-item">
+                                            @include('components.icons.switch') Sincronizar datos
                                         </a>
                                     </li>
                                 @endif
                                 <li>
-                                    <a class="dropdown-item text-white py-2" href="/Logout"
+                                    <a class="py-2 text-white dropdown-item" href="/Logout"
                                         onclick="event.preventDefault();
                                                 document.getElementById('logout-form').submit();">
                                         @include('components.icons.logout') Cerrar Sesión
@@ -97,56 +103,56 @@
         @if (!request()->routeIs('dashboard') && Auth::user()->tipoUsuario->IdTipoUsuario == 2)
             <div style="background: #cbd5e1">
                 <div class="container-fluid @yield('dashboardWidth')">
-                    <a href="/Dashboard" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                    <a href="/Dashboard" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.tools')Dashboard
                     </a>
-                    <a href="/Pos" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                    <a href="/Pos" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.check')Punto de venta
                     </a>
-                    <a href="/CorteDiario" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                    <a href="/CorteDiario" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.list')Corte diario
                     </a>
                     <a href="/VentaTicketDiario"
-                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.check-all')Tickets
                     </a>
-                    <a href="/SolicitudFactura" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                    <a href="/SolicitudFactura" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.cloud-check')Facturación
                     </a>
                     <a href="/SolicitudCancelacionTicket"
-                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.x')Cancelación
                     </a>
                     <a href="/RecepcionProducto"
-                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.bars')Recepción
                     </a>
                     <a href="/TransaccionProducto"
-                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.switch')Transsacciones
                     </a>
-                    <a href="/CapMermas" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                    <a href="/CapMermas" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.down')Mermas
                     </a>
-                    <a href="/Pedidos" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                    <a href="/Pedidos" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.cart')Pedidos
                     </a>
                     <a href="/AsignarPreparados"
-                        class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.text-file')Preparados
                     </a>
-                    <a href="/VerRosticero" class="btn btn-primary btn-sm rounded-pill py-0 bg-transparent border-0"
+                    <a href="/VerRosticero" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">
                         @include('components.icons.next')Rosticero
                     </a>

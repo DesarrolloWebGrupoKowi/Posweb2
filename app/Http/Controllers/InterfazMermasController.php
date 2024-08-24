@@ -10,6 +10,9 @@ use App\Models\CapMerma;
 use App\Models\OnHandTiendaCloudTable;
 use App\Models\ItemCloudTable;
 use App\Models\TransactionCloudInterface;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\InterfazMermas;
 
 class InterfazMermasController extends Controller
 {
@@ -288,5 +291,112 @@ class InterfazMermasController extends Controller
         DB::connection('server')->commit();
         DB::commit();
         return back()->with('msjAdd', 'Se Interfazaron los articulos: ' . implode(',', array_unique($articulosInterfazados)) . ' Correctamente!');
+    }
+
+    public function InterfazMermasExcel(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $usuarioTienda = Auth::user()->usuarioTienda;
+
+            if ($usuarioTienda->doesntExist()) {
+                return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
+            }
+
+            // if ($usuarioTienda->Todas == 0) {
+            //     $tiendas = Tienda::where('Status', 0)
+            //         ->get();
+            // }
+
+            // if (!empty($usuarioTienda->IdTienda)) {
+            //     $tiendas = Tienda::where('Status', 0)
+            //         ->where('IdTienda', $usuarioTienda->IdTienda)
+            //         ->get();
+            // }
+
+            // if (!empty($usuarioTienda->IdPlaza)) {
+            //     $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+            //         ->where('Status', 0)
+            //         ->get();
+            // }
+
+            $idTienda = $request->idTienda;
+            $fecha1 = $request->fecha1;
+            $fecha2 = $request->fecha2;
+
+            $tienda = Tienda::where('Status', 0)
+                ->where('idtienda', $idTienda)
+                ->value('NomTienda');
+
+            $almacen = Tienda::where('IdTienda', $idTienda)
+                ->value('Almacen');
+
+            $organization_Name = Tienda::where('IdTienda', $idTienda)
+                ->value('Organization_Name');
+
+            $mermas = CapMerma::with(['Lotes' => function ($lote) use ($almacen, $organization_Name) {
+                $lote->leftJoin('server.CLOUD_TABLES.dbo.XXKW_ONHAND_TIENDAS', 'XXKW_ONHAND_TIENDAS.INVENTORY_ITEM_ID', 'XXKW_ITEMS.INVENTORY_ITEM_ID')
+                    ->where('XXKW_ONHAND_TIENDAS.SUBINVENTORY_CODE', $almacen)
+                    ->where('XXKW_ITEMS.ORGANIZATION_NAME', $organization_Name)
+                    ->whereDate('EXPIRATION', '>', date('d-m-Y'))
+                    ->orderBy('EXPIRATION', 'desc');
+            }])
+                ->from('CapMermas as a')
+                ->leftJoin('CatTiposMerma as b', 'b.IdTipoMerma', 'a.IdTipoMerma')
+                ->leftJoin('CatCuentasMerma as c', 'c.IdTipoMerma', 'a.IdTipoMerma')
+                ->leftJoin('CatTiendas as d', 'd.IdTienda', 'a.IdTienda')
+                ->leftJoin('CatArticulos as e', 'e.CodArticulo', 'a.CodArticulo')
+                ->select(
+                    'a.FolioMerma',
+                    'd.Almacen',
+                    'a.CodArticulo',
+                    'e.NomArticulo',
+                    DB::raw('sum(a.CantArticulo) as CantArticulo'),
+                    'b.NomTipoMerma',
+                    'c.Libro',
+                    'd.CentroCosto',
+                    'c.Cuenta',
+                    'c.SubCuenta',
+                    'c.InterCosto',
+                    'e.IdTipoArticulo',
+                    'c.Futuro'
+                )
+                ->where('a.IdTienda', $idTienda)
+                ->whereRaw("CAST(a.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->groupBy(
+                    'a.FolioMerma',
+                    'a.CodArticulo',
+                    'b.NomTipoMerma',
+                    'c.Libro',
+                    'c.Cuenta',
+                    'c.SubCuenta',
+                    'c.InterCosto',
+                    'c.Futuro',
+                    'd.Almacen',
+                    'e.IdTipoArticulo',
+                    'd.CentroCosto',
+                    'e.NomArticulo'
+                )
+                ->whereNull('a.FechaInterfaz')
+                ->whereNull('a.IdUsuarioInterfaz')
+                ->get();
+
+            $data = [
+                'tienda' => $tienda,
+                'fecha1' => $fecha1,
+                'fecha2' => $fecha2,
+                'mermas' => $mermas
+            ];
+
+            DB::commit();
+            $name = 'INTERFAZMERMAS--' . Carbon::now()->parse(date(now()))->format('Y--m--d') . '.xlsx';
+            return Excel::download(new InterfazMermas($data), $name);
+            // return view('InterfazMermas.InterfazMermas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'mermas'));
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return $th->getMessage();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
     }
 }
