@@ -218,6 +218,7 @@ class CortesTiendaController extends Controller
                         function ($join) {
                             $join->on('b.Bill_To', 'a.Bill_To')
                                 ->on('b.IdListaPrecio', 'a.IdListaPrecio')
+                                ->on('b.IdTienda', 'a.IdTienda')
                                 ->on('b.IdTipoPago', 'a.IdTipoPago');
                         }
                     )

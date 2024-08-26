@@ -4,9 +4,9 @@
             <th>Tienda</th>
             <th>Día</th>
             <th>Semanal Crédito</th>
-            <th>Semanal Contado</th>
+            {{-- <th>Semanal Contado</th> --}}
             <th>Quincenal Crédito</th>
-            <th>Quincenal Contado</th>
+            {{-- <th>Quincenal Contado</th> --}}
             <th>Contado</th>
         </tr>
     </thead>
@@ -20,10 +20,10 @@
                 <tr>
                     <td>{{ $item->NomTienda }}</td>
                     <td>{{ $item->Fecha }}</td>
+                    {{-- <td>{{ $item->semanal_creadito }}</td> --}}
                     <td>{{ $item->semanal_creadito }}</td>
-                    <td>{{ $item->semanal_contado }}</td>
                     <td>{{ $item->quincenal_creadito }}</td>
-                    <td>{{ $item->quincenal_contado }}</td>
+                    <td>{{ $item->contado }}</td>
                 </tr>
             @endforeach
         @endif
