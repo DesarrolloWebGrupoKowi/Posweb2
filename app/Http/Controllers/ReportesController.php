@@ -440,31 +440,57 @@ class ReportesController extends Controller
 
         $concentrado = collect(DB::select("SELECT NomTienda,
                 CONVERT(varchar(12), Fecha, 103) as Fecha,
-                sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
-                sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
-                sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
-                sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
-                sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+                sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
+                sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
+                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
             from (
-                select t.NomTienda,
-                    cast(FechaVenta as date) as Fecha,
-                    dt.IdTipoPago,
-                    abs(isnull(dm.Monedero,0)) as Monedero,
-                    case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
-                from DatMonederoElectronico as dm
-                    left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
-                    left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
-                    left join CatTiendas as t on dm.IdTienda = t.IdTienda
-                    left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
-                    left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
-                where cast(FechaVenta as date) >='$fecha1' and
-                    cast(FechaVenta as date) <'$fecha2' and
+                select
+                    t.NomTienda,
+                    NomClienteCloud cliente,
+                    dm.IdEncabezado,
+                    abs(isnull(dm.Monedero,0)) monedero,
+                    cast(dm.FechaGenerado as date) as Fecha
+                from DatMonederoElectronico dm
+                left join DatCortesTienda dt on dm.IdEncabezado = dt.IdEncabezado
+                left join DatClientesCloudTienda dc on dc.Bill_To = dt.Bill_To and dc.IdListaPrecio = dt.IdListaPrecio and dc.IdTipoPago = dt.IdTipoPago and dt.IdTienda = dc.IdTienda
+                left join CatClientesCloud cc on cc.IdClienteCloud = dc.IdClienteCloud
+                left join CatTiendas as t on dt.IdTienda = t.IdTienda
+                where
+                    cast(dm.FechaGenerado as date) >='$fecha1' and
+                    cast(dm.FechaGenerado as date) <'$fecha2' and
                     dm.IdTienda = '$idTienda' and
-                    dt.IdTipoPago in (1, 7) and
-                    dm.Monedero < 0
-                group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+                    dm.BatchGasto is not null and
+                    dt.IdTipoPago = 7
+                group by t.NomTienda, NomClienteCloud, cast(dm.FechaGenerado as date),dm.IdEncabezado,dm.Monedero
             ) as a group by NomTienda, Fecha
             order by NomTienda, Fecha"));
+        // $concentrado = collect(DB::select("SELECT NomTienda,
+        //         CONVERT(varchar(12), Fecha, 103) as Fecha,
+        //         sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
+        //         sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
+        //         sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
+        //         sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
+        //         sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+        //     from (
+        //         select t.NomTienda,
+        //             cast(FechaVenta as date) as Fecha,
+        //             dt.IdTipoPago,
+        //             sum(abs(isnull(dm.Monedero,0))) as Monedero,
+        //             case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
+        //         from DatMonederoElectronico as dm
+        //             left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
+        //             left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
+        //             left join CatTiendas as t on dm.IdTienda = t.IdTienda
+        //             left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
+        //             left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
+        //         where cast(FechaVenta as date) >='$fecha1' and
+        //             cast(FechaVenta as date) <'$fecha2' and
+        //             dm.IdTienda = '$idTienda' and
+        //             dt.IdTipoPago in (1, 7) and
+        //             dm.Monedero < 0
+        //         group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+        //     ) as a group by NomTienda, Fecha
+        //     order by NomTienda, Fecha"));
 
         return view('Reportes.DineroElectronico', compact('fecha1', 'fecha2', 'idTienda', 'tiendas', 'concentrado'));
     }
@@ -477,31 +503,86 @@ class ReportesController extends Controller
 
         $concentrado = collect(DB::select("SELECT NomTienda,
                 CONVERT(varchar(12), Fecha, 103) as Fecha,
-                sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
-                sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
-                sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
-                sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
-                sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+                sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
+                sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
+                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
             from (
-                select t.NomTienda,
-                    cast(FechaVenta as date) as Fecha,
-                    dt.IdTipoPago,
-                    abs(isnull(dm.Monedero,0)) as Monedero,
-                    case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
-                from DatMonederoElectronico as dm
-                    left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
-                    left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
-                    left join CatTiendas as t on dm.IdTienda = t.IdTienda
-                    left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
-                    left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
-                where cast(FechaVenta as date) >='$fecha1' and
-                    cast(FechaVenta as date) <'$fecha2' and
+                select
+                    t.NomTienda,
+                    NomClienteCloud cliente,
+                    dm.IdEncabezado,
+                    abs(isnull(dm.Monedero,0)) monedero,
+                    cast(dm.FechaGenerado as date) as Fecha
+                from DatMonederoElectronico dm
+                left join DatCortesTienda dt on dm.IdEncabezado = dt.IdEncabezado
+                left join DatClientesCloudTienda dc on dc.Bill_To = dt.Bill_To and dc.IdListaPrecio = dt.IdListaPrecio and dc.IdTipoPago = dt.IdTipoPago and dt.IdTienda = dc.IdTienda
+                left join CatClientesCloud cc on cc.IdClienteCloud = dc.IdClienteCloud
+                left join CatTiendas as t on dt.IdTienda = t.IdTienda
+                where
+                    cast(dm.FechaGenerado as date) >='$fecha1' and
+                    cast(dm.FechaGenerado as date) <'$fecha2' and
                     dm.IdTienda = '$idTienda' and
-                    dt.IdTipoPago in (1, 7) and
-                    dm.Monedero < 0
-                group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+                    dm.BatchGasto is not null and
+                    dt.IdTipoPago = 7
+                group by t.NomTienda, NomClienteCloud, cast(dm.FechaGenerado as date),dm.IdEncabezado,dm.Monedero
             ) as a group by NomTienda, Fecha
             order by NomTienda, Fecha"));
+        // $concentrado = collect(DB::select("SELECT NomTienda,
+        //         CONVERT(varchar(12), Fecha, 103) as Fecha,
+        //         sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
+        //         sum(0) as semanal_contado,
+        //         sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
+        //         sum(0) as quincenal_contado,
+        //         sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
+        //     from (
+        //         select
+        //             t.NomTienda,
+        //             NomClienteCloud cliente,
+        //             sum(dt.ImporteArticulo) monedero,
+        //             cast(FechaVenta as date) as Fecha
+        //         from DatCortesTienda dt
+        //         left join DatClientesCloudTienda dc on dc.Bill_To = dt.Bill_To and dc.IdListaPrecio = dt.IdListaPrecio and dc.IdTipoPago = dt.IdTipoPago and dt.IdTienda = dc.IdTienda
+        //         left join CatClientesCloud cc on cc.IdClienteCloud = dc.IdClienteCloud
+        //         left join CatTiendas as t on dt.IdTienda = t.IdTienda
+        //         where
+        //             IdEncabezado in (
+        //             select IdEncabezado from DatMonederoElectronico where
+        //             cast(FechaGenerado as date) >='$fecha1' and
+        //             cast(FechaGenerado as date) <'$fecha2' and
+        //             IdTienda = '$idTienda' and
+        //             BatchGasto is not null
+        //             ) and
+        //             dt.IdTipoPago = 7
+        //         group by t.NomTienda, NomClienteCloud, cast(FechaVenta as date)
+        //     ) as a group by NomTienda, Fecha
+        //     order by NomTienda, Fecha"));
+        // $concentrado = collect(DB::select("SELECT NomTienda,
+        //         CONVERT(varchar(12), Fecha, 103) as Fecha,
+        //         sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
+        //         sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
+        //         sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
+        //         sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
+        //         sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+        //     from (
+        //         select t.NomTienda,
+        //             cast(FechaVenta as date) as Fecha,
+        //             dt.IdTipoPago,
+        //             abs(isnull(dm.Monedero,0)) as Monedero,
+        //             case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
+        //         from DatMonederoElectronico as dm
+        //             left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
+        //             left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
+        //             left join CatTiendas as t on dm.IdTienda = t.IdTienda
+        //             left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
+        //             left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
+        //         where cast(FechaVenta as date) >='$fecha1' and
+        //             cast(FechaVenta as date) <'$fecha2' and
+        //             dm.IdTienda = '$idTienda' and
+        //             dt.IdTipoPago in (1, 7) and
+        //             dm.Monedero < 0
+        //         group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+        //     ) as a group by NomTienda, Fecha
+        //     order by NomTienda, Fecha"));
 
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'dineroelectronico.xlsx';
         return Excel::download(new DineroElectronicoExport($concentrado), $name);

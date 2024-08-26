@@ -2,9 +2,9 @@
 @section('title', 'Dinero Electronico')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
+        <div class="p-4 border-0 card" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Dinero Electronico'])
                 @if (!empty($fecha1) && !empty($fecha2))
@@ -28,10 +28,10 @@
             </div>
         </div>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/ReporteDineroElectronido">
+        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
+            <form class="gap-2 pb-2 d-flex align-items-center justify-content-end" action="/ReporteDineroElectronido">
                 <div class="col-auto">
-                    <select class="form-select rounded" style="line-height: 18px" name="idTienda" id="idTienda">
+                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda">
                         <option value="">Seleccione Tienda</option>
                         @foreach ($tiendas as $tienda)
                             <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
@@ -40,11 +40,11 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <input type="date" class="form-control rounded" style="line-height: 18px" name="fecha1"
+                    <input type="date" class="rounded form-control" style="line-height: 18px" name="fecha1"
                         id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
                 </div>
                 <div class="col-auto">
-                    <input type="date" class="form-control rounded" style="line-height: 18px" name="fecha2"
+                    <input type="date" class="rounded form-control" style="line-height: 18px" name="fecha2"
                         id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
                 </div>
                 <div class="col-auto">
@@ -55,7 +55,7 @@
             </form>
 
             {{-- <div class="mb-2 d-flex justify-content-end">
-                <span class="card bg-dark text-white p-1">{{ strftime('%d %B %Y', strtotime($fecha1)) }} -
+                <span class="p-1 text-white card bg-dark">{{ strftime('%d %B %Y', strtotime($fecha1)) }} -
                     {{ strftime('%d %B %Y', strtotime($fecha2)) }}</span>
             </div> --}}
             <table>
@@ -64,9 +64,9 @@
                         <th class="rounded-start">Tienda</th>
                         <th>Día</th>
                         <th class="text-center">Semanal Crédito</th>
-                        <th class="text-center">Semanal Contado</th>
+                        {{-- <th class="text-center">Semanal Contado</th> --}}
                         <th class="text-center">Quincenal Crédito</th>
-                        <th class="text-center">Quincenal Contado</th>
+                        {{-- <th class="text-center">Quincenal Contado</th> --}}
                         <th class="rounded-end">Contado</th>
                     </tr>
                 </thead>
@@ -77,9 +77,9 @@
                             <td>{{ $item->NomTienda }}</td>
                             <td>{{ $item->Fecha }}</td>
                             <td class="text-end">${{ number_format($item->semanal_creadito, 2) }}</td>
-                            <td class="text-end">${{ number_format($item->semanal_contado, 2) }}</td>
+                            {{-- <td class="text-end">${{ number_format($item->semanal_contado, 2) }}</td> --}}
                             <td class="text-end">${{ number_format($item->quincenal_creadito, 2) }}</td>
-                            <td class="text-end">${{ number_format($item->quincenal_contado, 2) }}</td>
+                            {{-- <td class="text-end">${{ number_format($item->quincenal_contado, 2) }}</td> --}}
                             <td class="text-end">${{ number_format($item->contado, 2) }}</td>
                         </tr>
                     @endforeach
