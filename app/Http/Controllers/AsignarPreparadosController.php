@@ -124,12 +124,10 @@ class AsignarPreparadosController extends Controller
                 'CatPreparado.preparado'
             )
             ->orderBy('CatPreparado.Fecha', 'DESC')
-            ->having(DB::raw(
-                'CatPreparado.Cantidad - ISNULL(SUM(
-                    IIF(' . $idTienda . ' = DatAsignacionPreparados.IdTienda,
-                        ISNULL(DatAsignacionPreparados.CantidadVendida,0),
-                        DatAsignacionPreparados.CantidadEnvio)),0)'
-            ), '>', 0)
+            ->havingRaw('CatPreparado.IdCatStatusPreparado = 2 OR (CatPreparado.IdCatStatusPreparado = 3 AND CatPreparado.Cantidad - ISNULL(SUM(
+                IIF(' . $idTienda . ' = DatAsignacionPreparados.IdTienda,
+                    ISNULL(DatAsignacionPreparados.CantidadVendida,0),
+                    DatAsignacionPreparados.CantidadEnvio)),0) > 0)')
             ->get();
         // }
 
@@ -252,7 +250,7 @@ class AsignarPreparadosController extends Controller
             return back()->with('msjAdd', 'Datos guardados correctamente');
         } catch (\Throwable $th) {
             // DB::rollBack();
-            return $th;
+            // return $th;
             return back()->with('msjdelete', 'Ha ocuarrido un error, intente de nuevo');
         }
     }

@@ -70,6 +70,11 @@
                                 data-bs-target="#ModalEditar{{ $preparado->IdPreparado }}" title="Editar de preparado">
                                 @include('components.icons.edit')
                             </button>
+                            <button class="btn-table btn-table-delete" data-bs-toggle="modal"
+                                data-bs-target="#ModalEliminarPreparado{{ $preparado->IdPreparado }}"
+                                title="Eliminar preparado">
+                                @include('components.icons.delete')
+                            </button>
                         @endif
                     </div>
                     <div class="d-inline-block form-check form-switch ps-3">
@@ -290,6 +295,7 @@
     @include('Preparados.ModalEditar')
     @include('AsignarPreparados.ModalAsignar')
     @include('AsignarPreparados.ModalFinalizar')
+    @include('Preparados.ModalEliminarPreparado')
 @endsection
 
 @section('scripts')

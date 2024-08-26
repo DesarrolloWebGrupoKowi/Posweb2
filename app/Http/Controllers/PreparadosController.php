@@ -107,7 +107,7 @@ class PreparadosController extends Controller
 
     public function EditarPreparados($idPreparado, Request $request)
     {
-        return $resultado = intval(preg_replace('/[^0-9]+/', '', $request->nombre), 10);
+        $resultado = intval(preg_replace('/[^0-9]+/', '', $request->nombre), 10);
 
         CatPreparado::where('IdPreparado', $idPreparado)->update([
             'Nombre' => $resultado != 0 ? $request->nombre : $request->nombre . '_' . Carbon::now()->format('YmdHis'),
@@ -166,7 +166,7 @@ class PreparadosController extends Controller
 
         $preparado->delete();
 
-        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente']);
+        return redirect()->route('AsignarPreparados.index')->with(['msjAdd' => 'La sentencia se ejecuto correctamente']);
     }
 
     public function AgregarArticulo($idPreparado, Request $request)
