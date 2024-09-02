@@ -205,7 +205,7 @@ class InterfazRosticeroController extends Controller
             foreach ($rostisados as $keyRostisado => $rostisado) {
                 TransactionCloudInterface::insert([
                     'ORGANIZATION_NAME' => $organization_Name,
-                    'ITEM_NUMBER' => $rostisado->CantidadVenta,
+                    'ITEM_NUMBER' => $rostisado->CodigoVenta,
                     'SUBINVENTORY_CODE' => $almacen,
                     'TRANSACTION_QUANTITY' => $rostisado->CantidadMatPrima,
                     'TRANSACTION_UOM' => 'KG',
