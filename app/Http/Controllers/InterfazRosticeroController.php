@@ -97,9 +97,12 @@ class InterfazRosticeroController extends Controller
                     ->whereDate('EXPIRATION', '>', date('d-m-Y'))
                     ->orderBy('EXPIRATION', 'desc');
             }])
+                ->leftjoin('CatRosticeroArticulos as ra', 'ra.CodigoVenta', 'DatRosticero.CodigoVenta')
                 ->where('DatRosticero.IdTienda', $idTienda)
                 ->whereRaw("CAST(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                 ->whereNull('FechaInterfazBaja')
+                ->where('Finalizado', 1)
+                ->where('DatRosticero.Status', 0)
                 ->orderBy('Fecha', 'desc')
                 ->get();
 
@@ -197,8 +200,11 @@ class InterfazRosticeroController extends Controller
             $lineasInterfazadas = [];
 
             $rostisados = DatRosticero::where('DatRosticero.IdTienda', $idTienda)
+                ->leftjoin('CatRosticeroArticulos as ra', 'ra.CodigoVenta', 'DatRosticero.CodigoVenta')
                 ->whereRaw("CAST(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                 ->whereNull('FechaInterfazAlta')
+                ->where('Finalizado', 1)
+                ->where('DatRosticero.Status', 0)
                 ->orderBy('Fecha', 'desc')
                 ->get();
 
