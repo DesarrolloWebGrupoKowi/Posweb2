@@ -769,6 +769,9 @@ Route::group(['middleware' => 'auth'], function () {
     //ReporteMermasAdmin
     Route::get('/ReporteMermasAdmin', 'App\Http\Controllers\ReportesController@ReporteMermasAdmin')->name('ReporteMermasAdmin');
 
+    //ReporteRosticeroAdmin
+    Route::get('/ReporteRosticeroAdmin', 'App\Http\Controllers\ReportesController@ReporteRosticeroAdmin')->name('ReporteRosticeroAdmin');
+
     //ReporteConcentradoDeArticulos
     Route::get('/ReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeArticulos')->name('ReporteConcentradoDeArticulos');
 

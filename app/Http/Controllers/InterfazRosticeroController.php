@@ -213,7 +213,7 @@ class InterfazRosticeroController extends Controller
                     'ORGANIZATION_NAME' => $organization_Name,
                     'ITEM_NUMBER' => $rostisado->CodigoVenta,
                     'SUBINVENTORY_CODE' => $almacen,
-                    'TRANSACTION_QUANTITY' => $rostisado->CantidadMatPrima,
+                    'TRANSACTION_QUANTITY' => $rostisado->CantidadVenta,
                     'TRANSACTION_UOM' => 'KG',
                     'DATE_EXPIRATION' => $DATE_EXPIRATION,
                     'TRANSACTION_DATE' => date('d-m-Y H:i:s'),

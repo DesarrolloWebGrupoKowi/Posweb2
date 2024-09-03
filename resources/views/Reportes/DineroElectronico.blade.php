@@ -31,7 +31,7 @@
         <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
             <form class="gap-2 pb-2 d-flex align-items-center justify-content-end" action="/ReporteDineroElectronido">
                 <div class="col-auto">
-                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda">
+                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda" autofocus required>
                         <option value="">Seleccione Tienda</option>
                         @foreach ($tiendas as $tienda)
                             <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
