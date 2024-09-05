@@ -549,8 +549,8 @@ class PoswebController extends Controller
                 ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
                 ->where('d.IdTienda', $idTienda)
                 ->when(empty($CatProdDiez), function ($q) use ($peso) {
-                    $q->where('c.IdListaPrecio', 4);
-                    return $q->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso);
+                    return $q->where('c.IdListaPrecio', 4);
+                    // return $q->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso);
                 })
                 ->when(isset($CatProdDiez), function ($q) use ($CatProdDiez) {
                     return $q->where('c.IdListaPrecio', $CatProdDiez);
