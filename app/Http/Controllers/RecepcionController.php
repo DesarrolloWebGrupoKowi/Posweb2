@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\RecepcionProductoMail;
+use App\Imports\ExcelImport;
 use App\Models\Articulo;
 use App\Models\CapRecepcion;
 use App\Models\CapturaManualTmp;
 use App\Models\CatPaquete;
 use App\Models\CorreoTienda;
-use App\Models\DatAsignacionPreparados;
 use App\Models\DatAsignacionPreparadosLocal;
 use App\Models\DatCaja;
 use App\Models\DatRecepcion;
@@ -16,10 +15,11 @@ use App\Models\HistorialMovimientoProducto;
 use App\Models\InventarioTienda;
 use App\Models\RecepcionSinInternet;
 use App\Models\Tienda;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Mail;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RecepcionController extends Controller
 {
@@ -629,5 +629,57 @@ class RecepcionController extends Controller
 
         DB::commit();
         return back()->with('msjAdd', 'Se recepcionó el producto correctamente');
+    }
+
+    //Funcion importar datos excel
+    public function importExcel(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            if (!$request->hasFile('excel_file')) {
+                throw new Exception('file does not exist');
+            }
+
+            $file = $request->file('excel_file');
+            $import = new ExcelImport();
+            Excel::import($import, $file);
+
+            $importedData = $import->getImportedData();
+            $codigosNotFound = [];
+
+            //Insertar datos
+            foreach ($importedData as $data) {
+                $articulo = Articulo::where('CodArticulo', '' . $data['codigo'])->first();
+
+                if ($data['stock'] > 0 && $articulo) {
+                    CapturaManualTmp::insert([
+                        'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                        'CodArticulo' => $data['codigo'],
+                        'CantArticulo' => $data['stock'],
+                        'Referencia' => 'MANUAL',
+                        'IdMovimiento' => 3,
+                    ]);
+                }
+                if ($data['stock'] > 0 && !$articulo) {
+                    array_push($codigosNotFound, $data['codigo']);
+                }
+            }
+            DB::commit();
+
+            if (count($codigosNotFound) > 0) {
+                return redirect('/RecepcionProducto')->with('msjupdate', 'Algunos articulos, no fueron encontrados: ' . implode(', ', $codigosNotFound));
+            } else {
+                return redirect('/RecepcionProducto')->with('msjAdd', 'Datos importados correctamente');
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function vistaDemo()
+    {
+        return view('Recepcion.ReadExcel');
     }
 }
