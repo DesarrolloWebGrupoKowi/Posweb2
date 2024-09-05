@@ -350,13 +350,13 @@ class ComposerStaticInitb2f2f8b0f44de590ffbf53d9a000947c
         ),
         'Spatie\\LaravelIgnition\\' => 
         array (
-            0 => __DIR__ . '/..' . '/spatie/laravel-ignition/src',
-            1 => __DIR__ . '/..' . '/spatie/error-solutions/legacy/laravel-ignition',
+            0 => __DIR__ . '/..' . '/spatie/error-solutions/legacy/laravel-ignition',
+            1 => __DIR__ . '/..' . '/spatie/laravel-ignition/src',
         ),
         'Spatie\\Ignition\\' => 
         array (
-            0 => __DIR__ . '/..' . '/spatie/ignition/src',
-            1 => __DIR__ . '/..' . '/spatie/error-solutions/legacy/ignition',
+            0 => __DIR__ . '/..' . '/spatie/error-solutions/legacy/ignition',
+            1 => __DIR__ . '/..' . '/spatie/ignition/src',
         ),
         'Spatie\\FlareClient\\' => 
         array (
@@ -441,8 +441,8 @@ class ComposerStaticInitb2f2f8b0f44de590ffbf53d9a000947c
         ),
         'Mike42\\' => 
         array (
-            0 => __DIR__ . '/..' . '/mike42/gfx-php/src/Mike42',
-            1 => __DIR__ . '/..' . '/mike42/escpos-php/src/Mike42',
+            0 => __DIR__ . '/..' . '/mike42/escpos-php/src/Mike42',
+            1 => __DIR__ . '/..' . '/mike42/gfx-php/src/Mike42',
         ),
         'Matrix\\' => 
         array (
@@ -625,6 +625,8 @@ class ComposerStaticInitb2f2f8b0f44de590ffbf53d9a000947c
         'App\\Exports\\ConcentradoPorCiudadYFamilia' => __DIR__ . '/../..' . '/app/Exports/ConcentradoPorCiudadYFamilia.php',
         'App\\Exports\\DineroElectronicoExport' => __DIR__ . '/../..' . '/app/Exports/DineroElectronicoExport.php',
         'App\\Exports\\GrupoYTipoPrecio' => __DIR__ . '/../..' . '/app/Exports/GrupoYTipoPrecio.php',
+        'App\\Exports\\InterfazCreditos' => __DIR__ . '/../..' . '/app/Exports/InterfazCreditos.php',
+        'App\\Exports\\InterfazMermas' => __DIR__ . '/../..' . '/app/Exports/InterfazMermas.php',
         'App\\Exports\\PreciosExport' => __DIR__ . '/../..' . '/app/Exports/PreciosExport.php',
         'App\\Exports\\VentasPorTipoDePrecioExport' => __DIR__ . '/../..' . '/app/Exports/VentasPorTipoDePrecioExport.php',
         'App\\Http\\Controllers\\ActualizacionPreciosController' => __DIR__ . '/../..' . '/app/Http/Controllers/ActualizacionPreciosController.php',
@@ -705,6 +707,7 @@ class ComposerStaticInitb2f2f8b0f44de590ffbf53d9a000947c
         'App\\Http\\Middleware\\TrustHosts' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustHosts.php',
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
+        'App\\Imports\\DepartmentsImport' => __DIR__ . '/../..' . '/app/Imports/DepartmentsImport.php',
         'App\\Mail\\ActualizacionPreciosMail' => __DIR__ . '/../..' . '/app/Mail/ActualizacionPreciosMail.php',
         'App\\Mail\\BajoStockMail' => __DIR__ . '/../..' . '/app/Mail/BajoStockMail.php',
         'App\\Mail\\CancelacionTicketMail' => __DIR__ . '/../..' . '/app/Mail/CancelacionTicketMail.php',
@@ -765,6 +768,7 @@ class ComposerStaticInitb2f2f8b0f44de590ffbf53d9a000947c
         'App\\Models\\DatTipoPago' => __DIR__ . '/../..' . '/app/Models/DatTipoPago.php',
         'App\\Models\\DatTransferencia' => __DIR__ . '/../..' . '/app/Models/DatTransferencia.php',
         'App\\Models\\DatTransferenciaDetalle' => __DIR__ . '/../..' . '/app/Models/DatTransferenciaDetalle.php',
+        'App\\Models\\Department' => __DIR__ . '/../..' . '/app/Models/Department.php',
         'App\\Models\\EmailCustomerCloud' => __DIR__ . '/../..' . '/app/Models/EmailCustomerCloud.php',
         'App\\Models\\Empleado' => __DIR__ . '/../..' . '/app/Models/Empleado.php',
         'App\\Models\\Empleado43' => __DIR__ . '/../..' . '/app/Models/Empleado43.php',
@@ -3996,6 +4000,7 @@ class ComposerStaticInitb2f2f8b0f44de590ffbf53d9a000947c
         'Maatwebsite\\Excel\\Concerns\\WithProgressBar' => __DIR__ . '/..' . '/maatwebsite/excel/src/Concerns/WithProgressBar.php',
         'Maatwebsite\\Excel\\Concerns\\WithProperties' => __DIR__ . '/..' . '/maatwebsite/excel/src/Concerns/WithProperties.php',
         'Maatwebsite\\Excel\\Concerns\\WithReadFilter' => __DIR__ . '/..' . '/maatwebsite/excel/src/Concerns/WithReadFilter.php',
+        'Maatwebsite\\Excel\\Concerns\\WithSkipDuplicates' => __DIR__ . '/..' . '/maatwebsite/excel/src/Concerns/WithSkipDuplicates.php',
         'Maatwebsite\\Excel\\Concerns\\WithStartRow' => __DIR__ . '/..' . '/maatwebsite/excel/src/Concerns/WithStartRow.php',
         'Maatwebsite\\Excel\\Concerns\\WithStrictNullComparison' => __DIR__ . '/..' . '/maatwebsite/excel/src/Concerns/WithStrictNullComparison.php',
         'Maatwebsite\\Excel\\Concerns\\WithStyles' => __DIR__ . '/..' . '/maatwebsite/excel/src/Concerns/WithStyles.php',
