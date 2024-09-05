@@ -391,6 +391,13 @@ Route::group(['middleware' => 'auth'], function () {
     //RecepcionProducto
     Route::get('/RecepcionProducto', 'App\Http\Controllers\RecepcionController@RecepcionProducto');
 
+
+    //Read excel file
+    Route::post('/importExcel', 'App\Http\Controllers\RecepcionController@importExcel');
+
+    Route::get('/ReadExcel', 'App\Http\Controllers\RecepcionController@vistaDemo');
+    //Route::view('/readExcel', 'Recepcion.ReadExcel');
+
     //RecepcionarProducto
     Route::post('/RecepcionarProducto/{idRecepcion}', 'App\Http\Controllers\RecepcionController@RecepcionarProducto');
 
