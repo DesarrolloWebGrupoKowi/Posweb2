@@ -451,7 +451,7 @@ class ReportesController extends Controller
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('DatRosticero.IdTienda', $idTienda);
             })
-            ->whereRaw("cast(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->whereRaw("DatRosticero.Fecha between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->orderBy('DatRosticero.Fecha', 'desc')
             ->paginate(10);
 
