@@ -39,10 +39,10 @@ jobs:
       - name: Limpiar cache view
         run: php artisan view:cache
 
-  gh-d-ke-talamante:
+  gh-talamante:
     runs-on:
       - self-hosted
-      - gh-d-ke-talamante
+      - gh-talamante
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies
