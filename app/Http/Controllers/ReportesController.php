@@ -416,8 +416,8 @@ class ReportesController extends Controller
     public function ReporteRosticeroAdmin(Request $request)
     {
         $idTienda = $request->idTienda;
-        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
-        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+        $fecha1 = $request->fecha1;
+        $fecha2 = $request->fecha2;
 
         $usuarioTienda = Auth::user()->usuarioTienda;
 
@@ -451,7 +451,7 @@ class ReportesController extends Controller
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('DatRosticero.IdTienda', $idTienda);
             })
-            ->whereRaw("DatRosticero.Fecha between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->whereRaw("cast(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->orderBy('DatRosticero.Fecha', 'desc')
             ->paginate(10);
 
