@@ -79,7 +79,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->NomCliente != $solicitud->NomCliente)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->NomCliente }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->NomCliente }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -91,7 +91,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->Telefono != $solicitud->Telefono)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Telefono }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->Telefono }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -103,9 +103,12 @@
                     @foreach ($clienteSolicitud as $cliente)
                         @foreach ($cliente->CorreoCliente as $emails)
                             @if ($emails->Email != $solicitud->Email)
-                                <span class="tags-red w-100">Viejo: {{ $cliente->Email }}</span>
+                                <span class="tags-red w-100">Oracle: {{ $cliente->Email }}</span>
                             @endif
                         @endforeach
+                        @if (count($cliente->CorreoCliente) == 0)
+                            <span class="tags-red w-100">Oracle: Sin correo</span>
+                        @endif
                     @endforeach
                 </div>
                 <div class="col-md-3">
@@ -121,7 +124,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->TipoPersona != $solicitud->TipoPersona)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->TipoPersona }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->TipoPersona }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -131,8 +134,8 @@
                         <span> {{ $solicitud->Calle }} </span>
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Calle != $solicitud->Calle)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Calle }}</span>
+                        @if (strtolower($cliente->Calle) != strtolower($solicitud->Calle))
+                            <span class="tags-red w-100">Oracle: {{ $cliente->Calle }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -143,7 +146,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->NumExt != $solicitud->NumExt)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->NumExt }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->NumExt }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -154,7 +157,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->NumInt != $solicitud->NumInt)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->NumInt }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->NumInt }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -165,7 +168,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->Colonia != $solicitud->Colonia)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Colonia }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->Colonia }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -176,7 +179,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->CodigoPostal != $solicitud->CodigoPostal)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->CodigoPostal }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->CodigoPostal }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -186,8 +189,8 @@
                         <span> {{ $solicitud->Municipio }} </span>
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Municipio != $solicitud->Municipio)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Municipio }}</span>
+                        @if (strtolower($cliente->Municipio) != strtolower($solicitud->Municipio))
+                            <span class="tags-red w-100">Oracle: {{ $cliente->Municipio }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -197,8 +200,8 @@
                         <span> {{ $solicitud->Ciudad }} </span>
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Ciudad != $solicitud->Ciudad)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Ciudad }}</span>
+                        @if (strtolower($cliente->Ciudad) != strtolower($solicitud->Ciudad))
+                            <span class="tags-red w-100">Oracle: {{ $cliente->Ciudad }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -208,8 +211,8 @@
                         <span> {{ $solicitud->Estado }} </span>
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Estado != $solicitud->Estado)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Estado }}</span>
+                        @if (strtolower($cliente->Estado) != strtolower($solicitud->Estado))
+                            <span class="tags-red w-100">Oracle: {{ $cliente->Estado }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -219,8 +222,8 @@
                         <span> {{ $solicitud->Pais }} </span>
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Pais != $solicitud->Pais)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Pais }}</span>
+                        @if (strtolower($cliente->Pais) != strtolower($solicitud->Pais))
+                            <span class="tags-red w-100">Oracle: {{ $cliente->Pais }}</span>
                         @endif
                     @endforeach
                 </div>
