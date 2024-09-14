@@ -191,6 +191,8 @@ class SolicitudFacturaController extends Controller
 
     public function GuardarSolicitudFactura(Request $request)
     {
+        $checks = $request->chkEdit ? array_diff($request->chkEdit, array('email')) : $request->chkEdit;
+
         $request->validate([
             'calle' => 'required',
             'numExt' => 'required',
@@ -203,7 +205,7 @@ class SolicitudFacturaController extends Controller
             'cfdi' => 'required'
         ]);
 
-        if (!empty($request->chkEdit) && empty($request->file('cSituacionFiscal'))) {
+        if (!empty($checks) && empty($request->file('cSituacionFiscal'))) {
             return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.');
         }
 
