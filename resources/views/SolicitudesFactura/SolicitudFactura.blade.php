@@ -79,7 +79,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->NomCliente != $solicitud->NomCliente)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->NomCliente }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->NomCliente }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -89,9 +89,12 @@
                         <span> {{ $solicitud->Telefono ? $solicitud->Telefono : 'Sin dato' }}
                         </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Telefono != $solicitud->Telefono)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Telefono }}</span>
+                    @php
+                        $telefonosOracle = collect($clienteSolicitud)->pluck('Telefono')->unique();
+                    @endphp
+                    @foreach ($telefonosOracle as $telefono)
+                        @if ($telefono != $solicitud->Telefono)
+                            <span class="tags-red w-100">Oracle: {{ $telefono }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -100,13 +103,19 @@
                     <div>
                         <span> {{ $solicitud->Email }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @foreach ($cliente->CorreoCliente as $emails)
-                            @if ($emails->Email != $solicitud->Email)
-                                <span class="tags-red w-100">Viejo: {{ $cliente->Email }}</span>
+                    @isset($cliente)
+                        @php
+                            $correos = $cliente->CorreoCliente->pluck('Email')->unique();
+                        @endphp
+                        @foreach ($correos as $email)
+                            @if ($email != $solicitud->Email)
+                                <span class="tags-red w-100">Oracle: {{ $email }}</span>
                             @endif
                         @endforeach
-                    @endforeach
+                        @if (count($cliente->CorreoCliente) == 0)
+                            <span class="tags-red w-100">Oracle: Sin correo</span>
+                        @endif
+                    @endisset
                 </div>
                 <div class="col-md-3">
                     <label>RFC:</label>
@@ -121,7 +130,7 @@
                     </div>
                     @foreach ($clienteSolicitud as $cliente)
                         @if ($cliente->TipoPersona != $solicitud->TipoPersona)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->TipoPersona }}</span>
+                            <span class="tags-red w-100">Oracle: {{ $cliente->TipoPersona }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -130,9 +139,12 @@
                     <div>
                         <span> {{ $solicitud->Calle }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Calle != $solicitud->Calle)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Calle }}</span>
+                    @php
+                        $callesUnicas = $clienteSolicitud->pluck('Calle')->unique();
+                    @endphp
+                    @foreach ($callesUnicas as $calle)
+                        @if (strtolower($calle) != strtolower($solicitud->Calle))
+                            <span class="tags-red w-100">Oracle: {{ $calle }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -141,9 +153,12 @@
                     <div>
                         <span> {{ $solicitud->NumExt }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->NumExt != $solicitud->NumExt)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->NumExt }}</span>
+                    @php
+                        $NumExtUnicas = $clienteSolicitud->pluck('NumExt')->unique();
+                    @endphp
+                    @foreach ($NumExtUnicas as $numExt)
+                        @if ($numExt != $solicitud->NumExt)
+                            <span class="tags-red w-100">Oracle: {{ $numExt }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -152,9 +167,12 @@
                     <div>
                         <span> {{ $solicitud->NumInt ? $solicitud->NumInt : 'Sin dato' }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->NumInt != $solicitud->NumInt)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->NumInt }}</span>
+                    @php
+                        $NumIntUnicas = $clienteSolicitud->pluck('NumInt')->unique();
+                    @endphp
+                    @foreach ($NumIntUnicas as $numInt)
+                        @if ($numInt != $solicitud->NumInt)
+                            <span class="tags-red w-100">Oracle: {{ $numInt }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -163,9 +181,12 @@
                     <div>
                         <span> {{ $solicitud->Colonia }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Colonia != $solicitud->Colonia)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Colonia }}</span>
+                    @php
+                        $coloniaUnicas = $clienteSolicitud->pluck('Colonia')->unique();
+                    @endphp
+                    @foreach ($coloniaUnicas as $col)
+                        @if ($col != $solicitud->Colonia)
+                            <span class="tags-red w-100">Oracle: {{ $col }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -174,9 +195,12 @@
                     <div>
                         <span> {{ $solicitud->CodigoPostal }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->CodigoPostal != $solicitud->CodigoPostal)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->CodigoPostal }}</span>
+                    @php
+                        $CodigoPostalUnicas = $clienteSolicitud->pluck('CodigoPostal')->unique();
+                    @endphp
+                    @foreach ($CodigoPostalUnicas as $CodigoPostal)
+                        @if ($CodigoPostal != $solicitud->CodigoPostal)
+                            <span class="tags-red w-100">Oracle: {{ $CodigoPostal }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -185,9 +209,12 @@
                     <div>
                         <span> {{ $solicitud->Municipio }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Municipio != $solicitud->Municipio)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Municipio }}</span>
+                    @php
+                        $MunicipioUnicas = $clienteSolicitud->pluck('Municipio')->unique();
+                    @endphp
+                    @foreach ($MunicipioUnicas as $Municipio)
+                        @if (strtolower($Municipio) != strtolower($solicitud->Municipio))
+                            <span class="tags-red w-100">Oracle: {{ $Municipio }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -196,9 +223,12 @@
                     <div>
                         <span> {{ $solicitud->Ciudad }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Ciudad != $solicitud->Ciudad)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Ciudad }}</span>
+                    @php
+                        $CiudadUnicas = $clienteSolicitud->pluck('Ciudad')->unique();
+                    @endphp
+                    @foreach ($CiudadUnicas as $Ciudad)
+                        @if (strtolower($Ciudad) != strtolower($solicitud->Ciudad))
+                            <span class="tags-red w-100">Oracle: {{ $Ciudad }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -207,9 +237,12 @@
                     <div>
                         <span> {{ $solicitud->Estado }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Estado != $solicitud->Estado)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Estado }}</span>
+                    @php
+                        $EstadoUnicas = $clienteSolicitud->pluck('Estado')->unique();
+                    @endphp
+                    @foreach ($EstadoUnicas as $Estado)
+                        @if (strtolower($Estado) != strtolower($solicitud->Estado))
+                            <span class="tags-red w-100">Oracle: {{ $Estado }}</span>
                         @endif
                     @endforeach
                 </div>
@@ -218,9 +251,12 @@
                     <div>
                         <span> {{ $solicitud->Pais }} </span>
                     </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->Pais != $solicitud->Pais)
-                            <span class="tags-red w-100">Viejo: {{ $cliente->Pais }}</span>
+                    @php
+                        $PaisUnicas = $clienteSolicitud->pluck('Pais')->unique();
+                    @endphp
+                    @foreach ($PaisUnicas as $Pais)
+                        @if (strtolower($Pais) != strtolower($solicitud->Pais))
+                            <span class="tags-red w-100">Oracle: {{ $Pais }}</span>
                         @endif
                     @endforeach
                 </div>

@@ -88,7 +88,7 @@ class SolicitudesFacturaController extends Controller
             }
         ])
             ->where('RFC', $solicitud->RFC)
-            ->where('Bill_To', $solicitud->Bill_To)
+            // ->where('Bill_To', $solicitud->Bill_To)
             ->get();
 
         $clientes = Cliente::where('RFC', $solicitud->RFC)
