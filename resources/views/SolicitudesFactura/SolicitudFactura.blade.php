@@ -103,17 +103,19 @@
                     <div>
                         <span> {{ $solicitud->Email }} </span>
                     </div>
-                    @php
-                        $correos = $cliente->CorreoCliente->pluck('Email')->unique();
-                    @endphp
-                    @foreach ($correos as $email)
-                        @if ($email != $solicitud->Email)
-                            <span class="tags-red w-100">Oracle: {{ $email }}</span>
+                    @isset($cliente)
+                        @php
+                            $correos = $cliente->CorreoCliente->pluck('Email')->unique();
+                        @endphp
+                        @foreach ($correos as $email)
+                            @if ($email != $solicitud->Email)
+                                <span class="tags-red w-100">Oracle: {{ $email }}</span>
+                            @endif
+                        @endforeach
+                        @if (count($cliente->CorreoCliente) == 0)
+                            <span class="tags-red w-100">Oracle: Sin correo</span>
                         @endif
-                    @endforeach
-                    @if (count($cliente->CorreoCliente) == 0)
-                        <span class="tags-red w-100">Oracle: Sin correo</span>
-                    @endif
+                    @endisset
                 </div>
                 <div class="col-md-3">
                     <label>RFC:</label>
