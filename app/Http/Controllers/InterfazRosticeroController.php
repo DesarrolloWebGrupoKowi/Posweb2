@@ -205,7 +205,8 @@ class InterfazRosticeroController extends Controller
                 ->leftjoin('CatRosticeroArticulos as ra', 'ra.CodigoVenta', 'DatRosticero.CodigoVenta')
                 ->whereRaw("CAST(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                 ->whereNull('FechaInterfazAlta')
-                ->where('Finalizado', 1)
+                // ->where('Finalizado', 1)
+                ->whereDate('Fecha', '<', now()->toDateString())
                 ->where('DatRosticero.Status', 0)
                 ->orderBy('Fecha', 'desc')
                 ->get();
