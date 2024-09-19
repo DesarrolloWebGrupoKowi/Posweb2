@@ -72,11 +72,11 @@ h2 {
 
 /* Botones */
 .btn {
-    transition: all .3s ease;
+    transition: all 0.3s ease;
     text-transform: capitalize;
 }
 
-.btn-check:focus+.btn,
+.btn-check:focus + .btn,
 .btn:focus {
     outline: 0;
     box-shadow: none;
@@ -103,7 +103,7 @@ h2 {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: .875rem;
+    font-size: 0.875rem;
     padding: 3px 15px;
     font-weight: 500;
 }
@@ -120,7 +120,7 @@ h2 {
     background: #059669;
     color: white;
     border-color: #059669;
-    transition: all .3s ease;
+    transition: all 0.3s ease;
 }
 
 .btn-excel:hover {
@@ -153,7 +153,7 @@ button[disabled] i {
     display: inline-flex;
     align-items: center;
     background-color: transparent;
-    padding: 0.3rem .7rem;
+    padding: 0.3rem 0.7rem;
     text-align: center;
     border: 1px solid #64748b;
     border-radius: 0.25rem;
@@ -205,10 +205,10 @@ button[disabled] i {
 .btn-table-outline {
     display: flex;
     background-color: transparent;
-    padding: .425rem 1rem;
+    padding: 0.425rem 1rem;
     text-align: center;
     border: none;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
 }
 
 .btn-table[disabled],
@@ -228,9 +228,9 @@ button[disabled] i {
 .tags-green {
     font-weight: 500;
     color: rgb(3 84 63);
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     background-color: rgb(222 247 236);
-    padding: .125rem .625rem;
+    padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -240,9 +240,9 @@ button[disabled] i {
 .tags-blue {
     font-weight: 500;
     color: rgb(30 66 159);
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     background-color: rgb(225 239 254);
-    padding: .125rem .625rem;
+    padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -252,9 +252,9 @@ button[disabled] i {
 .tags-red {
     font-weight: 500;
     color: rgb(155 28 28);
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     background-color: rgb(253 232 232);
-    padding: .125rem .625rem;
+    padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -264,13 +264,34 @@ button[disabled] i {
 .tags-yellow {
     font-weight: 500;
     color: rgb(114 59 19);
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     background-color: rgb(253 246 178);
-    padding: .125rem .625rem;
+    padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 21px;
+}
+
+.router {
+    overflow: hidden; /* Evita el desbordamiento */
+    white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+    text-overflow: ellipsis; /* Agrega puntos suspensivos si el contenido es demasiado largo */
+}
+
+.router a {
+    margin: 0 5px; /* Espaciado horizontal entre enlaces */
+}
+
+.router svg {
+    margin: 0 5px; /* Espaciado horizontal entre íconos y enlaces */
+}
+
+@media (max-width: 576px) {
+    .router {
+        flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+        justify-content: flex-start; /* Alinea los elementos al inicio */
+    }
 }
 
 .alert {
@@ -299,7 +320,7 @@ button[disabled] i {
     color: #1e293b;
     /* background: #1e293b;
     color: white; */
-    border-bottom-right-radius: .25rem !important;
+    border-bottom-right-radius: 0.25rem !important;
     font-size: smaller;
 }
 
@@ -308,15 +329,37 @@ button[disabled] i {
 }
 
 .table-head-secondary th:first-child {
-    border-top-left-radius: .25rem !important;
-    border-bottom-left-radius: .25rem !important;
+    border-top-left-radius: 0.25rem !important;
+    border-bottom-left-radius: 0.25rem !important;
 }
 
 .table-head-secondary th:last-child {
-    border-top-right-radius: .25rem !important;
-    border-bottom-right-radius: .25rem !important;
+    border-top-right-radius: 0.25rem !important;
+    border-bottom-right-radius: 0.25rem !important;
 }
 
+/* content-table Chico y sin salto de lineras */
+.content-table-sm {
+    overflow-x: auto;
+}
+
+.content-table-sm thead tr {
+    /* line-height: 2rem; */
+    font-size: small;
+}
+
+.content-table-sm tbody tr {
+    /* line-height: 2rem; */
+    font-size: small;
+}
+
+.content-table-sm th,
+.content-table-sm td {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+/* content-table Normal */
 .content-table {
     overflow-x: auto;
 }
@@ -334,12 +377,13 @@ button[disabled] i {
     /* vertical-align: text-top; */
 }
 
+.content-table-sm td,
 .content-table td {
     color: #4f5464;
 }
 
 tbody tr {
-    transition: all .1s ease;
+    transition: all 0.1s ease;
 }
 
 tbody tr:hover {
@@ -371,7 +415,7 @@ table thead {
     font-size: smaller;
 }
 
-table>tbody>tr>td {
+table > tbody > tr > td {
     font-weight: 500;
 }
 
