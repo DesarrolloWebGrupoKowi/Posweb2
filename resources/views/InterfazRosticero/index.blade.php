@@ -76,7 +76,7 @@
                                 @if (!$rostisado->FechaInterfazBaja)
                                     <span class="tags-green">Baja</span>
                                 @endif
-                                @if (!$rostisado->FechaInterfazAlta)
+                                @if (!$rostisado->FechaInterfazAlta && $rostisado->Finalizado == 1)
                                     <span class="tags-blue">Alta</span>
                                 @endif
                             </td>
@@ -86,7 +86,7 @@
                                 @else
                                     @php
                                         $baja = !$rostisado->FechaInterfazBaja;
-                                        $alta = !$rostisado->FechaInterfazAlta;
+                                        $alta = !$rostisado->FechaInterfazAlta && $rostisado->Finalizado == 1;
                                     @endphp
                                     <button class="btn text-secondary" data-bs-toggle="modal"
                                         data-bs-target="#ModalLotes{{ $rostisado->IdDatRosticero }}">
