@@ -78,7 +78,7 @@ class LigarClientesController extends Controller
                 ->get();
         }
 
-        // $idTienda = $request->idTienda;
+        $idTienda = $request->idTienda;
         $searchQuery = $request->query('search') ? $request->query('search') : '';
         $searchQuery = $request->search ? $request->search : '';
 
@@ -94,12 +94,12 @@ class LigarClientesController extends Controller
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('NomCliente', 'LIKE', '%' . $searchQuery . '%')
             ->where('SolicitudFactura.Status', '0')
-            ->whereNotNull('Editar')
+            ->whereNotNull('SolicitudFactura.Editar')
             ->whereIn('SolicitudFactura.IdTienda', $ids)
-            // ->where('SolicitudFactura.IdTienda', 'LIKE', $idTienda)
+            ->where('SolicitudFactura.IdTienda', 'LIKE', $idTienda)
             ->get();
 
-        return view('LigarClientes.ClientesNuevos', compact('solicitudes', 'tiendas'));
+        return view('LigarClientes.ClientesNuevos', compact('solicitudes', 'tiendas', 'idTienda'));
     }
 
     public function VerConstanciaCliente(Request $request, $idSolicitudFactura)
@@ -164,30 +164,34 @@ class LigarClientesController extends Controller
         //     ->first();
 
         // $ligarCliente = empty($cOracle) ? 1 : 0;
-        $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
-            ->with('ConstanciaSituacionFiscal')
-            ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
-            ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
-            ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
-            ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
-            ->where('IdSolicitudFactura', $request->idSolicitudFactura)
-            ->whereNotNull('Editar')
-            ->first();
+        try {
+            $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
+                ->with('ConstanciaSituacionFiscal')
+                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
+                ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
+                ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
+                ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
+                ->where('IdSolicitudFactura', $request->idSolicitudFactura)
+                ->whereNotNull('Editar')
+                ->first();
 
-        $clienteSolicitud = Cliente::with([
-            'CorreoCliente' => function ($query) {
-                $query->select('IdClienteCloud', 'Email');
-                $query->groupBy('IdClienteCloud', 'Email');
-            }
-        ])
-            ->where('RFC', $solicitud->RFC)
-            // ->where('Bill_To', $solicitud->Bill_To)
-            ->get();
+            $clienteSolicitud = Cliente::with([
+                'CorreoCliente' => function ($query) {
+                    $query->select('IdClienteCloud', 'Email');
+                    $query->groupBy('IdClienteCloud', 'Email');
+                }
+            ])
+                ->where('RFC', $solicitud->RFC)
+                // ->where('Bill_To', $solicitud->Bill_To)
+                ->get();
 
-        $clientes = Cliente::where('RFC', $solicitud->RFC)
-            ->get();
+            $clientes = Cliente::where('RFC', $solicitud->RFC)
+                ->get();
 
-        return view('LigarClientes.LigarCliente', compact('solicitud', 'clienteSolicitud', 'clientes'));
+            return view('LigarClientes.LigarCliente', compact('solicitud', 'clienteSolicitud', 'clientes'));
+        } catch (\Throwable $th) {
+            return redirect('ClientesNuevos')->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
 
         // return view('LigarClientes.LigarCliente', compact('solicitudFactura', 'clientesOracle', 'clienteAlta', 'ligarCliente', 'cOracle'));
     }
@@ -225,5 +229,32 @@ class LigarClientesController extends Controller
         }
 
         return back()->with('msjAdd', 'Listo, Vaya a Ligar Cliente(s)!');
+    }
+
+    public function Cancelar($id, Request $request)
+    {
+        try {
+            SolicitudFactura::where('Id', $id)->update([
+                'Status' => 1,
+                'IdUsuarioCancelacion' => Auth::user()->IdUsuario,
+                'FechaCancelacion' => date('d-m-Y H:i:s')
+            ]);
+            return redirect('ClientesNuevos')->with('msjAdd', 'Solicitud de factura cancelada correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+    }
+
+    public function Finalizar($id, Request $request)
+    {
+        try {
+            SolicitudFactura::where('Id', $id)->update([
+                'Editar' => null,
+            ]);
+
+            return redirect('ClientesNuevos')->with('msjAdd', 'Solicitud de factura finalizada correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
     }
 }

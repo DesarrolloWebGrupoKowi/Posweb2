@@ -361,6 +361,12 @@ Route::group(['middleware' => 'auth'], function () {
     //LigarCliente
     Route::get('/LigarCliente', 'App\Http\Controllers\LigarClientesController@LigarCliente');
 
+    //Cancelar solicitud
+    Route::post('/ClientesNuevos/Cancelar/{id}', 'App\Http\Controllers\LigarClientesController@Cancelar');
+
+    //Finalizar solicitud
+    Route::get('/ClientesNuevos/Finalizar/{id}', 'App\Http\Controllers\LigarClientesController@Finalizar');
+
     //GuardarLigueCliente
     Route::post('/GuardarLigueCliente/{idSolicitudFactura}/{bill_To}', 'App\Http\Controllers\LigarClientesController@GuardarLigueCliente');
 

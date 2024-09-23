@@ -7,7 +7,7 @@
 
 @section('contenido')
     <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
-        <div class="card border-0 p-4" style="border-radius: 10px; margin: 0 auto; width: 100%; max-width: 1440px;">
+        <div class="card border border-5 p-4" style="border-radius: 10px; margin: 0 auto; width: 100%; max-width: 1440px;">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', [
                     'titulo' => 'Ligar Solicitud de Factura con Cliente Oracle',
@@ -26,7 +26,7 @@
                         </a>
                     @endif
                     @if ($solicitud->Bill_To != null)
-                        <a href="{{ '/SolicitudesFactura/Finalizar/' . $solicitud->Id }}" type="button"
+                        <a href="{{ '/ClientesNuevos/Finalizar/' . $solicitud->Id }}" type="button"
                             class="btn btn-sm btn-dark" title="Finalizar solicitud">
                             <i class="fa fa-check" aria-hidden="true"></i> Finalizar solicitud
                         </a>
@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <div class="content-table content-table-flex-none card border-0 p-4" style="border-radius: 10px">
+        <div class="content-table content-table-flex-none card border border-5 p-4" style="border-radius: 10px">
             <div>
                 <h6 class="d-inline-block col-auto bg-warning p-1 rounded">Datos En Solicitud</h6>
             </div>
@@ -323,7 +323,8 @@
             </div>
         </div>
 
-        <div class="p-4 border-0 content-table content-table-flex-none content-table-full card" style="border-radius: 10px">
+        <div class="p-4 border border-5 content-table content-table-flex-none content-table-full card"
+            style="border-radius: 10px">
             <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
                 Detalle de la Solicitud
             </span>

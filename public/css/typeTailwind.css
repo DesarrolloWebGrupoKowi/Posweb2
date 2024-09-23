@@ -280,11 +280,11 @@ button[disabled] i {
 }
 
 .router a {
-    margin: 0 5px; /* Espaciado horizontal entre enlaces */
+    margin: 0 0px; /* Espaciado horizontal entre enlaces */
 }
 
 .router svg {
-    margin: 0 5px; /* Espaciado horizontal entre íconos y enlaces */
+    margin: 0 0px; /* Espaciado horizontal entre íconos y enlaces */
 }
 
 @media (max-width: 576px) {
@@ -444,6 +444,29 @@ table > tbody > tr > td {
     background-color: #1e293b;
     color: #fff;
     font-weight: bold;
+}
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-left: 0;
+}
+
+.pagination li {
+    margin: 0 5px; /* Espaciado entre elementos */
+}
+
+.pagination li a,
+.pagination li span {
+    padding: 8px 12px; /* Aumenta el área clickeable */
+}
+
+@media (max-width: 576px) {
+    .pagination li a,
+    .pagination li span {
+        padding: 6px 10px; /* Ajusta el tamaño para móviles */
+        font-size: 14px; /* Tamaño de fuente más pequeño */
+    }
 }
 
 /* Modales */
