@@ -103,12 +103,12 @@ class RecepcionController extends Controller
                 ->where('b.CodArticulo', $filtroArticulo)
                 ->get();
 
-            if ($dRecepcion->count() == 0) {
-                $articulos = Articulo::where('CodArticulo', $filtroArticulo)
-                    ->get();
-            } else {
-                $articuloPendiente = 0;
-            }
+            // if ($dRecepcion->count() == 0) {
+            $articulos = Articulo::where('CodArticulo', $filtroArticulo)
+                ->get();
+            // } else {
+            //     $articuloPendiente = 0;
+            // }
         } else {
             $articulos = Articulo::where('NomArticulo', 'like', '%' . $filtroArticulo . '%')
                 ->whereRaw("CodArticulo not in" .

@@ -30,38 +30,38 @@
                 </tr>
             </thead>
             <tbody>
-                @if ($articuloPendiente == 0)
+                {{-- @if ($articuloPendiente == 0)
                     <tr>
                         <th colspan="4"><i style="color: red" class="fa fa-exclamation-triangle"></i> Articulo
                             Pendiente Por Recepcionar, Vaya a Recepciones Pendientes!</th>
                     </tr>
+                @else --}}
+                @if ($articulos->count() == 0)
+                    <tr>
+                        <td colspan="4">No se Encontro el Articulo!</td>
+                    </tr>
                 @else
-                    @if ($articulos->count() == 0)
-                        <tr>
-                            <td colspan="4">No se Encontro el Articulo!</td>
-                        </tr>
-                    @else
-                        @foreach ($articulos as $articulo)
-                            <form action="/CapturaManualTmp" target="ifrGuardarTmp">
-                                <input type="hidden" name="codArticulo" value="{{ $articulo->CodArticulo }}">
-                                <tr>
-                                    <td>{{ $articulo->CodArticulo }}</td>
-                                    <td>{{ $articulo->NomArticulo }}</td>
-                                    <td class="d-flex">
-                                        <input type="number" min="0.1" step="any"
-                                            class="form-control form-control-sm" name="cantArticulo" id="cantArticulo"
-                                            required>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm">
-                                            <span class="material-icons">add_circle</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </form>
-                        @endforeach
-                    @endif
+                    @foreach ($articulos as $articulo)
+                        <form action="/CapturaManualTmp" target="ifrGuardarTmp">
+                            <input type="hidden" name="codArticulo" value="{{ $articulo->CodArticulo }}">
+                            <tr>
+                                <td>{{ $articulo->CodArticulo }}</td>
+                                <td>{{ $articulo->NomArticulo }}</td>
+                                <td class="d-flex">
+                                    <input type="number" min="0.1" step="any"
+                                        class="form-control form-control-sm" name="cantArticulo" id="cantArticulo"
+                                        required>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm">
+                                        <span class="material-icons">add_circle</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </form>
+                    @endforeach
                 @endif
+                {{-- @endif --}}
             </tbody>
         </table>
     </div>
