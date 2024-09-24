@@ -400,19 +400,21 @@ class RosticeroController extends Controller
                 ->sum('CantMermaRecalentado');
 
             // Guardamos la merma del recalentado
-            // Guardamos la merma del producto
-            $merma = new CapMerma;
-            $merma->IdTienda = $idTienda;
-            $merma->FechaCaptura = date('d-m-Y H:i:s');
-            $merma->CodArticulo = $rosticero->CodigoVenta;
-            $merma->CantArticulo = $mermaRecalentado;
-            $merma->IdTipoMerma = 3; // Degustacion
-            // $merma->IdSubTipoMerma = $subTipoMerma;
-            $merma->Comentario = 'MERMA ROSTICERO RECALENTADO';
-            $merma->IdUsuarioCaptura = Auth::user()->IdUsuario;
-            $merma->IdCaja = $caja;
-            $merma->Subir = 0;
-            $merma->save();
+            // Guardamos la merma del producto en caso de que exista merma
+            if ($mermaRecalentado > 0) {
+                $merma = new CapMerma;
+                $merma->IdTienda = $idTienda;
+                $merma->FechaCaptura = date('d-m-Y H:i:s');
+                $merma->CodArticulo = $rosticero->CodigoVenta;
+                $merma->CantArticulo = $mermaRecalentado;
+                $merma->IdTipoMerma = 3; // Degustacion
+                // $merma->IdSubTipoMerma = $subTipoMerma;
+                $merma->Comentario = 'MERMA ROSTICERO RECALENTADO';
+                $merma->IdUsuarioCaptura = Auth::user()->IdUsuario;
+                $merma->IdCaja = $caja;
+                $merma->Subir = 0;
+                $merma->save();
+            }
 
             DatRosticero::where('IdDatRosticero', $id)
                 ->update([
