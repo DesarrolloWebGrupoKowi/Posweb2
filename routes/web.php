@@ -782,6 +782,9 @@ Route::group(['middleware' => 'auth'], function () {
     //ReporteMermasAdmin
     Route::get('/ReporteMermasAdmin', 'App\Http\Controllers\ReportesController@ReporteMermasAdmin')->name('ReporteMermasAdmin');
 
+    //ReporteMermasAdmin
+    Route::get('/ReporteMermasAdminExcel', 'App\Http\Controllers\ReportesController@ReporteMermasAdminExcel')->name('ReporteMermasAdminExcel');
+
     //ReporteRosticeroAdmin
     Route::get('/ReporteRosticeroAdmin', 'App\Http\Controllers\ReportesController@ReporteRosticeroAdmin')->name('ReporteRosticeroAdmin');
 
