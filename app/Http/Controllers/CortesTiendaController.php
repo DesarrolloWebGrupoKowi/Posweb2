@@ -311,7 +311,7 @@ class CortesTiendaController extends Controller
                     }
                 ])
                     ->where('IdTienda', $idTienda)
-                    ->where('Status', 0)
+                    // ->where('Status', 0)
                     ->whereDate('FechaSolicitud', $fecha1)
                     ->get();
             }

@@ -1,30 +1,31 @@
-label {
-    font-weight: 500;
-    margin: 0;
-    color: rgba(108, 117, 128, 1);
-}
-
-.grid-inputs>div {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    align-items: start;
-}
-
-.grid-inputs>div>div {
-    flex-grow: 1;
-}
-
-.grid-inputs>div>div span {
+table {
     width: 100%;
+    border-collapse: collapse;
+}
+
+.grid-inputs label {
     font-weight: 500;
-    color: #334155;
-    border-radius: .25rem;
-    background-color: #e2e8f0;
-    border: 1px solid #94a3b8;
-    padding: .125rem .625rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 21px;
+    margin-bottom: 5px;
+}
+
+.grid-inputs span {
+    display: block;
+    padding: 8px;
+    background-color: #d7dde4;
+    border-radius: 5px;
+}
+
+.grid-inputs .tags-red {
+    background-color: #ffebee; /* Fondo ligero para el aviso */
+    color: #b71c1c; /* Color de texto rojo */
+    padding: 8px;
+    border: 1px solid #f44336; /* Borde rojo */
+    border-radius: 5px;
+    margin-top: 5px;
+    font-size: 14px;
+    display: block; /* Para que cada mensaje ocupe toda la fila */
+}
+
+.tags-red.w-100 {
+    width: 100%; /* Asegura que el aviso ocupe el ancho completo */
 }

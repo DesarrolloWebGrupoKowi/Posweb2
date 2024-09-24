@@ -63,12 +63,13 @@
                 <thead class="table-head">
                     <tr>
                         <th class="rounded-start">Folio</th>
-                        <th>Tienda</th>
-                        <th>Rostisado</th>
-                        <th>Materia alta</th>
-                        <th>Cantidad Alta</th>
-                        <th>Materia Baja</th>
-                        <th>Cantidad Baja</th>
+                        <th>Articulo Baja</th>
+                        {{-- <th>Rostisado</th> --}}
+                        {{-- <th>Materia baja</th> --}}
+                        <th>Cantidad baja</th>
+                        <th>Articulo alta</th>
+                        {{-- <th>Materia alta</th> --}}
+                        <th>Cantidad alta</th>
                         <th>Merma estandar</th>
                         <th>Merma real</th>
                         {{-- <th>Recalentado</th> --}}
@@ -81,11 +82,12 @@
                     @foreach ($concentrado as $tConcentrado)
                         <tr>
                             <td>{{ $tConcentrado->IdRosticero }}</td>
-                            <td>{{ $tConcentrado->NomTienda }}</td>
-                            <td>{{ $tConcentrado->ArticuloVenta }}</td>
-                            <td>{{ $tConcentrado->CodigoMatPrima }}</td>
+                            {{-- <td>{{ $tConcentrado->NomTienda }}</td> --}}
+                            {{-- <td>{{ $tConcentrado->CodigoMatPrima }}</td> --}}
+                            <td>{{ $tConcentrado->CodigoMatPrima }} - {{ $tConcentrado->ArticuloMatPrima }}</td>
                             <td>{{ $tConcentrado->CantidadMatPrima }}</td>
-                            <td>{{ $tConcentrado->CodigoVenta }}</td>
+                            <td>{{ $tConcentrado->CodigoVenta }} - {{ $tConcentrado->ArticuloVenta }}</td>
+                            {{-- <td>{{ $tConcentrado->CodigoVenta }}</td> --}}
                             <td>{{ $tConcentrado->CantidadVenta }}</td>
                             <td>{{ $tConcentrado->MermaStnd }}</td>
                             <td>

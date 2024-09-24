@@ -5,7 +5,8 @@
             <div class="modal-header">
                 <h5 class="modal-title">Cancelar solicitud</h5>
             </div>
-            <form action="/SolicitudesFactura/Cancelar/{{ $solicitud->Id }}" method="POST">
+            {{-- <form action="/SolicitudesFactura/Cancelar/{{ $solicitud->Id }}" method="POST"> --}}
+            <form action="/ClientesNuevos/Cancelar/{{ $solicitud->Id }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">

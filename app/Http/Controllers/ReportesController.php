@@ -6,6 +6,7 @@ use App\Exports\ConcentradoDeArticulosExport;
 use App\Exports\ConcentradoPorCiudadYFamilia;
 use App\Exports\DineroElectronicoExport;
 use App\Exports\GrupoYTipoPrecio;
+use App\Exports\Mermas;
 use App\Exports\VentasPorTipoDePrecioExport;
 use App\Models\CapMerma;
 use App\Models\DatEncabezado;
@@ -365,7 +366,7 @@ class ReportesController extends Controller
     public function ReporteMermasAdmin(Request $request)
     {
         $idTienda = $request->idTienda;
-        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha1 =  $request->fecha1;
         $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
 
         $usuarioTienda = Auth::user()->usuarioTienda;
@@ -406,11 +407,77 @@ class ReportesController extends Controller
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('CapMermas.IdTienda', $idTienda);
             })
-            ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            // ->whereDate('CapMermas.FechaCaptura', '>=', $fecha1)
+            // ->whereDate('CapMermas.FechaCaptura', '<=', $fecha2)
+            ->when($fecha1, function ($query) use ($fecha1) {
+                $query->whereDate('CapMermas.FechaCaptura', '>=', $fecha1);
+            })
+            ->when($fecha2, function ($query) use ($fecha2) {
+                $query->whereDate('CapMermas.FechaCaptura', '<=', $fecha2);
+            })
             ->orderBy('CapMermas.FechaCaptura', 'desc')
             ->paginate(10);
 
         return view('Reportes.ConcentradoDeMermas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+    }
+
+    public function ReporteMermasAdminExcel(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $idTienda = $request->idTienda;
+            $fecha1 =  $request->fecha1;
+            $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+
+            $tienda = Tienda::where('Status', 0)
+                ->where('idtienda', $idTienda)
+                ->value('NomTienda');
+
+            $concentrado = CapMerma::select(
+                'CapMermas.FolioMerma',
+                'CapMermas.CodArticulo',
+                'ca.NomArticulo',
+                'CapMermas.FechaCaptura',
+                'tm.NomTipoMerma',
+                'CapMermas.CantArticulo',
+                'CapMermas.FechaInterfaz',
+                'CapMermas.Comentario',
+                'CapMermas.IdTienda',
+                'ct.NomTienda'
+            )
+                ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
+                ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
+                ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'CapMermas.IdTienda')
+                ->when($idTienda, function ($query) use ($idTienda) {
+                    $query->where('CapMermas.IdTienda', $idTienda);
+                })
+                // ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->when($fecha1, function ($query) use ($fecha1) {
+                    $query->whereDate('CapMermas.FechaCaptura', '>=', $fecha1);
+                })
+                ->when($fecha2, function ($query) use ($fecha2) {
+                    $query->whereDate('CapMermas.FechaCaptura', '<=', $fecha2);
+                })
+                ->orderBy('CapMermas.FechaCaptura', 'desc')
+                ->get();
+
+            $data = [
+                'tienda' => $tienda,
+                'fecha1' => $fecha1,
+                'fecha2' => $fecha2,
+                'concentrado' => $concentrado
+            ];
+
+            DB::commit();
+
+            $name = 'MERMAS--' . Carbon::now()->parse(date(now()))->format('Y--m--d') . '.xlsx';
+
+            return Excel::download(new Mermas($data), $name);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return $th;
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
     }
 
     public function ReporteRosticeroAdmin(Request $request)
