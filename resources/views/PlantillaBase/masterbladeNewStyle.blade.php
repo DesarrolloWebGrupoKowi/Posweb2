@@ -55,11 +55,6 @@
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1"
                                 style="background: #1e293b; border-radius: 12px; width: 200px;">
                                 @if (!request()->routeIs('miperfil'))
-                                    {{-- <li>
-                                        <a href="/MiPerfil" class="py-2 text-white dropdown-item">
-                                            @include('components.icons.user') Mi Perfil
-                                        </a>
-                                    </li> --}}
                                 @endif
 
                                 @if (!request()->routeIs('dashboard'))
