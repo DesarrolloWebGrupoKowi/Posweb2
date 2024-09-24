@@ -2313,14 +2313,14 @@ class PoswebController extends Controller
                     ->whereNull('DatCortesTienda.IdSolicitudFactura');
             }])
                 ->where('IdTienda', $idTienda)
-                ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
-                ->distinct('Bill_To')
+                ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+                ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
                 ->whereIn('Bill_To', $billsTo)
                 ->get();
 
-            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja) {
-                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                    ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
+            $facturas =  SolicitudFactura::with(['FacturaLocal' => function ($query) {
+                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
+                $query->where('DatEncabezado.StatusVenta', 0);
             }])
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaSolicitud', $fecha)
@@ -2352,7 +2352,7 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereIn('IdTipoPago', [2, 7])
+                ->whereIn('IdTipoPago', [2])
                 ->where('TipoNomina', 4)
                 ->where('a.IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
@@ -2362,7 +2362,7 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereIn('IdTipoPago', [2, 7])
+                ->whereIn('IdTipoPago', [2])
                 ->where('TipoNomina', 3)
                 ->where('a.IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
@@ -2382,30 +2382,27 @@ class PoswebController extends Controller
                 ->whereNotNull('IdSolicitudFactura')
                 ->sum('ImporteArticulo');
 
-            $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->where('IdTienda', $idTienda)
-                ->whereDate('FechaVenta', $fecha)
-                ->where('IdTipoPago', 7)
-                ->where('IdListaPrecio', 4)
-                ->where('b.TipoNomina', 4)
-                ->where('StatusVenta', 0)
-                ->where('a.IdDatCaja', $idDatCaja)
-                ->sum('ImporteArticulo');
-
-            $totalMonederoSemanal = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->where('IdTienda', $idTienda)
-                ->whereDate('FechaVenta', $fecha)
-                ->where('IdTipoPago', 7)
-                ->where('IdListaPrecio', 4)
-                ->where('b.TipoNomina', 3)
-                ->where('a.IdDatCaja', $idDatCaja)
-                ->where('StatusVenta', 0)
-                ->sum('ImporteArticulo');
+            $totalMonedero = DB::table('DatCortesTienda as a')
+                ->leftjoin(
+                    'DatClientesCloudTienda as b',
+                    function ($join) {
+                        $join->on('b.Bill_To', 'a.Bill_To')
+                            ->on('b.IdListaPrecio', 'a.IdListaPrecio')
+                            ->on('b.IdTipoPago', 'a.IdTipoPago');
+                    }
+                )
+                ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
+                ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+                ->where('a.IdTienda', $idTienda)
+                ->whereDate('a.FechaVenta', $fecha)
+                ->where('a.IdTipoPago', 7)
+                ->where('a.IdListaPrecio', 4)
+                ->where('a.StatusVenta', 0)
+                ->groupBy('a.Bill_To', 'NomClienteCloud')
+                ->get();
 
             $info = [
-                'titulo' => 'Corte Diario de Tienda',
+                'titulo' => 'CORTE DIARIO DE TIENDA',
                 'nomTienda' => $tienda->NomTienda,
                 'numCaja' => $numCaja,
                 'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
@@ -2418,8 +2415,7 @@ class PoswebController extends Controller
                 'creditoSemanal' => $creditoSemanal,
                 'totalTransferencia' => $totalTransferencia,
                 'totalFactura' => $totalFactura,
-                'totalMonederoQuincenal' => $totalMonederoQuincenal,
-                'totalMonederoSemanal' => $totalMonederoSemanal,
+                'totalMonedero' => $totalMonedero
             ];
         }
 
