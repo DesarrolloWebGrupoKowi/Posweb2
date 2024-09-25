@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+        <div class="content-table content-table-flex-none card border-0 p-4" style="border-radius: 10px">
             <div class="d-flex justify-content-between mb-2">
                 <div class="g-3">
                     <div>
@@ -163,7 +163,7 @@
                         <tr>
                             <td>{{ $detalle->CodArticulo }}</td>
                             <td>{{ $detalle->NomArticulo }}</td>
-                            <td>{{ $detalle->CantidadPaquete }}</td>
+                            <td>{{ number_format($detalle->CantidadPaquete, 3) }}</td>
                             <td>{{ number_format($detalle->CantidadFormula, 3, '.', '.') }}</td>
                             <td>
                                 ${{ number_format($detalle->PrecioArticulo * $detalle->CantidadFormula, 2, '.', '.') }}
@@ -206,83 +206,87 @@
         </div>
 
         @if (!(count($preparado->Detalle) == 0 || !$preparado->Cantidad))
-            <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h5>Tiendas asignadas</h5>
-                    @if ($preparado->Cantidad - $preparado->CantidadAsignada != 0)
-                        <form class="d-flex gap-2" action="/AsignarTienda/{{ $preparado->IdPreparado }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="preparado" value="{{ $preparado->preparado }}">
-                            <div class="d-flex flex-column">
-                                <label for="codArticulo" class="text-secondary"
-                                    style="font-weight: 500; line-height: 16px">Tienda:</label>
-                                <select class="form-select rounded" style="line-height: 18px" name="idTienda">
-                                    @foreach ($tiendas as $tienda)
-                                        <option value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="d-flex flex-column">
-                                <label for="codArticulo" class="text-secondary"
-                                    style="font-weight: 500; line-height: 16px">Cantidad envio</label>
-                                <input class="form-control rounded form-control-codigo" style="line-height: 18px"
-                                    name="cantidad" type="number" min="1"
-                                    max="{{ $preparado->Cantidad - $preparado->CantidadAsignada }}"
-                                    placeholder="Cantidad" value="1" autofocus required>
-                            </div>
-                            <div class="d-flex align-items-end">
-                                <button type="submit" class="btn btn-dark-outline"
-                                    {{ count($preparado->Detalle) == 0 || !$preparado->Cantidad ? 'disabled' : '' }}>
-                                    @include('components.icons.plus-circle')
-                                </button>
-                            </div>
-                        </form>
-                    @endif
-                </div>
-                <table>
-                    <thead class="table-head">
-                        <tr>
-                            <th class="rounded-start">Nombre</th>
-                            <th>Cantidad Envio</th>
-                            <th>Cantidad Vendida</th>
-                            <th>Recepción</th>
-                            <th class="rounded-end"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @include('components.table-empty', [
-                            'items' => $preparado->Tiendas,
-                            'colspan' => 5,
-                        ])
-                        @foreach ($preparado->Tiendas as $detalle)
+            <div class="pb-4">
+                <div class="content-table content-table-flex-none card border-0 p-4 mb-4" style="border-radius: 10px">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h5>Tiendas asignadas</h5>
+                        @if ($preparado->Cantidad - $preparado->CantidadAsignada != 0)
+                            <form class="d-flex gap-2" action="/AsignarTienda/{{ $preparado->IdPreparado }}"
+                                method="POST">
+                                @csrf
+                                <input type="hidden" name="preparado" value="{{ $preparado->preparado }}">
+                                <div class="d-flex flex-column">
+                                    <label for="codArticulo" class="text-secondary"
+                                        style="font-weight: 500; line-height: 16px">Tienda:</label>
+                                    <select class="form-select rounded" style="line-height: 18px" name="idTienda">
+                                        @foreach ($tiendas as $tienda)
+                                            <option value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <label for="codArticulo" class="text-secondary"
+                                        style="font-weight: 500; line-height: 16px">Cantidad envio</label>
+                                    <input class="form-control rounded form-control-codigo" style="line-height: 18px"
+                                        name="cantidad" type="number" min="1"
+                                        max="{{ $preparado->Cantidad - $preparado->CantidadAsignada }}"
+                                        placeholder="Cantidad" value="1" autofocus required>
+                                </div>
+                                <div class="d-flex align-items-end">
+                                    <button type="submit" class="btn btn-dark-outline"
+                                        {{ count($preparado->Detalle) == 0 || !$preparado->Cantidad ? 'disabled' : '' }}>
+                                        @include('components.icons.plus-circle')
+                                    </button>
+                                </div>
+                            </form>
+                        @endif
+                    </div>
+                    <table>
+                        <thead class="table-head">
                             <tr>
-                                <td>{{ $detalle->IdDatAsignacionPreparado }} - {{ $detalle->NomTienda }}</td>
-                                <td>{{ $detalle->CantidadEnvio }}</td>
-                                <td>{{ intval($detalle->CantidadVendida) }}</td>
-                                <td>
-                                    @if ($detalle->Subir == 1)
-                                        <span class="tags-green" title="En linea"> @include('components.icons.cloud-check') </span>
-                                    @else
-                                        <span class="tags-red" title="Fuera de linea"> @include('components.icons.cloud-slash')
-                                        </span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <form class="d-inline-block"
-                                        action="/EliminarTiendaAsignada/{{ $detalle->IdDatAsignacionPreparado }}"
-                                        method="POST">
-                                        @csrf
-                                        <button class="btn-table text-danger" title="Eliminar tienda"
-                                            {{ $detalle->IdTienda == $idTienda || $detalle->Subir == 1 ? 'disabled' : '' }}>
-                                            @include('components.icons.delete')
-                                        </button>
-                                    </form>
-                                </td>
+                                <th class="rounded-start">Nombre</th>
+                                <th>Cantidad Envio</th>
+                                <th>Cantidad Vendida</th>
+                                <th>Recepción</th>
+                                <th class="rounded-end"></th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @include('components.table-empty', [
+                                'items' => $preparado->Tiendas,
+                                'colspan' => 5,
+                            ])
+                            @foreach ($preparado->Tiendas as $detalle)
+                                <tr>
+                                    <td>{{ $detalle->IdDatAsignacionPreparado }} - {{ $detalle->NomTienda }}</td>
+                                    <td>{{ $detalle->CantidadEnvio }}</td>
+                                    <td>{{ intval($detalle->CantidadVendida) }}</td>
+                                    <td>
+                                        @if ($detalle->Subir == 1)
+                                            <span class="tags-green" title="En linea"> @include('components.icons.cloud-check')
+                                            </span>
+                                        @else
+                                            <span class="tags-red" title="Fuera de linea"> @include('components.icons.cloud-slash')
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <form class="d-inline-block"
+                                            action="/EliminarTiendaAsignada/{{ $detalle->IdDatAsignacionPreparado }}"
+                                            method="POST">
+                                            @csrf
+                                            <button class="btn-table text-danger" title="Eliminar tienda"
+                                                {{ $detalle->IdTienda == $idTienda || $detalle->Subir == 1 ? 'disabled' : '' }}>
+                                                @include('components.icons.delete')
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         @endif
     </div>
