@@ -19,7 +19,7 @@
                         </button>
                     </form>
                     <a href="/GenerarCortePDF/{{ $fecha }}/{{ $tienda->IdTienda }}/{{ $idDatCaja }}"
-                        class="btn btn-dark-outline">
+                        class="btn btn-dark-outline" target="_blank">
                         @include('components.icons.print')
                     </a>
                 </div>
