@@ -39,6 +39,7 @@
                     <thead class="table-head">
                         <tr>
                             <th class="rounded-start">Id</th>
+                            <th>Ticket</th>
                             <th>Tienda</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
@@ -54,6 +55,7 @@
                             {{-- <tr style="line-height: .9rem"> --}}
                             <tr>
                                 <td>{{ $solicitud->IdSolicitudFactura }}</td>
+                                <td>{{ $solicitud->IdTicket }}</td>
                                 <td>{{ $solicitud->NomTienda }}</td>
                                 <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
                                 <td>{{ $solicitud->TipoPersona }}</td>
@@ -91,13 +93,14 @@
 
         <div class="pt-3 pb-5">
             <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
-                Solicitudes pendientes de ralacionar
+                Solicitudes pendientes de relacionar
             </span>
             <div class="content-table content-table-flex-none card p-3 border border-5" style="border-radius: 10px">
                 <table>
                     <thead class="table-head">
                         <tr>
                             <th class="rounded-start">Id</th>
+                            <th>Ticket</th>
                             <th>Tienda</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
@@ -115,6 +118,7 @@
                             {{-- <tr style="line-height: .9rem"> --}}
                             <tr>
                                 <td>{{ $solicitud->IdSolicitudFactura }}</td>
+                                <td>{{ $solicitud->IdTicket }}</td>
                                 <td>{{ $solicitud->NomTienda }}</td>
                                 <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
                                 <td>{{ $solicitud->TipoPersona }}</td>
