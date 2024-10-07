@@ -45,6 +45,8 @@
                             <th>Cliente</th>
                             <th>Nombre</th>
                             <th>RFC</th>
+                            <th>MP</th>
+                            <th>CFDI</th>
                             <th>Status</th>
                             <th class="rounded-end">Acciones</th>
                         </tr>
@@ -61,6 +63,8 @@
                                 <td>{{ $solicitud->TipoPersona }}</td>
                                 <td>{{ $solicitud->NomCliente }}</td>
                                 <td>{{ $solicitud->RFC }}</td>
+                                <td>{{ $solicitud->MetodoPago }}</td>
+                                <td>{{ $solicitud->UsoCFDI }}</td>
                                 <td>
                                     @if ($solicitud->Status == 1)
                                         <span class="tags-red">Cancelada</span>
