@@ -46,15 +46,16 @@ class SolicitudesFacturaController extends Controller
             array_push($ids, $tienda->IdTienda);
         }
 
-        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'DatEncabezado.IdTicket')
+        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'DatEncabezado.IdTicket', 'DatEncabezado.SubTotal', 'DatEncabezado.ImporteVenta')
+            ->whereHas('DetalleTicket', function ($query) {
+                $query->whereColumn('DatCortesTienda.IdTipoPago', 'SolicitudFactura.IdTipoPago');
+            })
             ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'SolicitudFactura.IdEncabezado')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
             ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('NomCliente', 'LIKE', '%' . $searchQuery . '%')
-            // ->where('SolicitudFactura.Status', '0')
-            // ->whereNull('SolicitudFactura.Editar')
             ->where(function ($query) {
                 $query->whereNull('SolicitudFactura.Editar')
                     ->orWhere('SolicitudFactura.Status', '1');

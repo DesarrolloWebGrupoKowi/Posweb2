@@ -70,6 +70,10 @@
                                     @endif
                                 </td>
                                 <td>
+                                    <button class="btn-table btn-table-show border border-3" data-bs-toggle="modal"
+                                        data-bs-target="#ModalTickets{{ $solicitud->Id }}" title="Detalle de ticket">
+                                        @include('components.icons.list-ol')
+                                    </button>
                                     <a href="/SolicitudesFactura/{{ $solicitud->Id }}" class="btn-table border border-3">
                                         @include('components.icons.list')
                                     </a>
@@ -80,9 +84,10 @@
                                             @include('components.icons.delete')
                                         </button>
                                     @endif
+                                    @include('SolicitudesFactura.ModalTickets')
+                                    @include('SolicitudesFactura.ModalCancelarSolicitud')
                                 </td>
                             </tr>
-                            @include('SolicitudesFactura.ModalCancelarSolicitud')
                         @endforeach
                     </tbody>
                 </table>
