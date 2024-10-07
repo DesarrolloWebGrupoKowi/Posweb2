@@ -110,7 +110,7 @@
                         </div>
                     </div>
                 </div> --}}
-                <div class="mb-4 col-12 col-md-6 col-lg-6 mb-lg-0">
+                <div class="mb-4 col-12 col-md-6 col-lg-4 mb-lg-0">
                     <div class="p-4 border-0 card" style="border-radius: 10px;">
                         <h6 class="text-dark">Dinero Electrónico</h6>
                         @php
@@ -135,7 +135,7 @@
                     </div>
                 </div>
                 {{-- Crédito  --}}
-                <div class="pb-4 col-12 col-md-6 col-lg-2 pb-lg-0" >
+                <div class="pb-4 col-12 col-md-6 col-lg-2 pb-lg-0">
                     <div class="p-4 border-0 card" style="border-radius: 10px">
                         <h6 class="text-dark">Crédito</h6>
                         <div class="d-flex justify-content-between">
@@ -177,7 +177,7 @@
                     </div>
                 </div>
                 {{-- Totales --}}
-                <div class="pb-0 col-12 col-md-6 col-lg-2">
+                <div class="pb-4 col-12 col-md-6 col-lg-2">
                     <div class="p-4 border-0 card" style="border-radius: 10px">
                         <h6 class="text-dark">Totales</h6>
                         <div class="d-flex justify-content-between">
@@ -195,6 +195,17 @@
                                 ${{ number_format($totalEfectivo, 2) }}
                             </b>
                         </div>
+                    </div>
+                </div>
+                {{-- Total general --}}
+                <div class="pb-0 col-12 col-md-12 col-lg-2">
+                    <div class="p-4 border-0 card text-center" style="border-radius: 10px">
+                        <h6 class="text-dark">Total General</h6>
+                        <b class="{{ number_format($totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
+                        </b>
+                        {{-- <span>${{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}</span> --}}
                     </div>
                 </div>
             </div>
@@ -316,7 +327,7 @@
                                 @endif
                             @endforeach
                             <!--TERMINA MONEDERO ELECTRONICO--
-                                <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
+                                                    <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
                             {{-- @if ($corteTienda->IdTipoNomina == 4)
                                 <tr style="font-size: .9rem">
                                     <td></td>
