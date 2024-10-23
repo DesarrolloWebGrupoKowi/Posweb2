@@ -7,6 +7,8 @@ on:
 jobs:
   common-steps:
     runs-on: self-hosted
+    outputs:
+      cache-cleared: ${{ steps.cache.outputs.cache-cleared }}
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies
@@ -21,82 +23,81 @@ jobs:
         run: php artisan view:cache
 
   gh-ke-planta:
-    needs: common-steps
     runs-on: gh-ke-planta
+    needs: common-steps
     steps: *common-steps
 
   gh-desarrollo:
-    needs: common-steps
     runs-on: gh-desarrollo
+    needs: common-steps
     steps: *common-steps
 
   gh-talamante:
-    needs: common-steps
     runs-on: gh-talamante
+    needs: common-steps
     steps: *common-steps
 
   gh-ke-comedor-2:
-    needs: common-steps
     runs-on: gh-ke-comedor-2
+    needs: common-steps
     steps: *common-steps
 
   gh-ke-comedor:
-    needs: common-steps
     runs-on: gh-ke-comedor
+    needs: common-steps
     steps: *common-steps
 
   gh_menudeo_estadio:
-    needs: common-steps
     runs-on: gh-menudeo-estadio
+    needs: common-steps
     steps: *common-steps
 
   gh_aux:
-    needs: common-steps
     runs-on: gh-aux
+    needs: common-steps
     steps: *common-steps
 
   gh_menudeo_alamos:
-    needs: common-steps
     runs-on: gh_menudeo_alamos
+    needs: common-steps
     steps: *common-steps
 
   gh-menudeo-pork:
-    needs: common-steps
     runs-on: gh-menudeo-pork
+    needs: common-steps
     steps: *common-steps
 
   gh-menudeo-hidalgo:
-    needs: common-steps
     runs-on: gh-menudeo-hidalgo
+    needs: common-steps
     steps: *common-steps
 
   gh-menudeo-sonora:
-    needs: common-steps
     runs-on: gh-menudeo-sonora
+    needs: common-steps
     steps: *common-steps
 
-  # OBREGON
   gh_estadio_yaqui:
-    needs: common-steps
     runs-on: gh_estadio_yaqui
+    needs: common-steps
     steps: *common-steps
 
   gh_menudeo_mercadito:
-    needs: common-steps
     runs-on: gh_menudeo_mercadito
+    needs: common-steps
     steps: *common-steps
 
   gh_menudeo_200:
-    needs: common-steps
     runs-on: gh_menudeo_200
+    needs: common-steps
     steps: *common-steps
 
   gh_menudeo_nainari:
-    needs: common-steps
     runs-on: gh_menudeo_nainari
+    needs: common-steps
     steps: *common-steps
 
   gh_menudeo_misiones:
-    needs: common-steps
     runs-on: gh_menudeo_misiones
+    needs: common-steps
     steps: *common-steps
