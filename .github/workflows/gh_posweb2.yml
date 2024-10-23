@@ -5,10 +5,10 @@ on:
     branches: ["gh-production"]
 
 jobs:
-  common-steps:
-    runs-on: self-hosted
-    outputs:
-      cache-cleared: ${{ steps.cache.outputs.cache-cleared }}
+  gh-ke-planta:
+    runs-on:
+      - self-hosted
+      - gh-ke-planta
     steps:
       - uses: actions/checkout@v3
       - name: Install Dependencies
@@ -22,82 +22,275 @@ jobs:
       - name: Limpiar cache view
         run: php artisan view:cache
 
-  gh-ke-planta:
-    runs-on: gh-ke-planta
-    needs: common-steps
-    steps: *common-steps
-
   gh-desarrollo:
-    runs-on: gh-desarrollo
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-desarrollo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh-talamante:
-    runs-on: gh-talamante
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-talamante
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh-ke-comedor-2:
-    runs-on: gh-ke-comedor-2
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-ke-comedor-2
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh-ke-comedor:
-    runs-on: gh-ke-comedor
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-ke-comedor
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh_menudeo_estadio:
-    runs-on: gh-menudeo-estadio
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-menudeo-estadio
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh_aux:
-    runs-on: gh-aux
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-aux
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh_menudeo_alamos:
-    runs-on: gh_menudeo_alamos
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh_menudeo_alamos
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh-menudeo-pork:
-    runs-on: gh-menudeo-pork
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-menudeo-pork
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh-menudeo-hidalgo:
-    runs-on: gh-menudeo-hidalgo
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-menudeo-hidalgo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh-menudeo-sonora:
-    runs-on: gh-menudeo-sonora
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh-menudeo-sonora
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
+  gh-menudeo-guerrero:
+    runs-on:
+      - self-hosted
+      - gh-menudeo-guerrero
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
+
+  # OBREGON
   gh_estadio_yaqui:
-    runs-on: gh_estadio_yaqui
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh_estadio_yaqui
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh_menudeo_mercadito:
-    runs-on: gh_menudeo_mercadito
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh_menudeo_mercadito
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh_menudeo_200:
-    runs-on: gh_menudeo_200
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh_menudeo_200
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh_menudeo_nainari:
-    runs-on: gh_menudeo_nainari
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh_menudeo_nainari
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
 
   gh_menudeo_misiones:
-    runs-on: gh_menudeo_misiones
-    needs: common-steps
-    steps: *common-steps
+    runs-on:
+      - self-hosted
+      - gh_menudeo_misiones
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Limpiar cache
+        run: php artisan cache:clear
+      - name: Limpiar cache config
+        run: php artisan config:cache
+      - name: Limpiar cache route
+        run: php artisan route:cache
+      - name: Limpiar cache view
+        run: php artisan view:cache
