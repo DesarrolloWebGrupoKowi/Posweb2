@@ -827,27 +827,48 @@ class CortesTiendaController extends Controller
                 ->whereNotNull('IdSolicitudFactura')
                 ->sum('ImporteArticulo');
 
-            $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->where('IdTienda', $idTienda)
-                ->whereDate('FechaVenta', $fecha)
-                ->where('IdTipoPago', 7)
-                ->where('IdListaPrecio', 4)
-                ->where('b.TipoNomina', 4)
-                ->where('StatusVenta', 0)
-                ->where('a.IdDatCaja', $idDatCaja)
-                ->sum('ImporteArticulo');
+            // $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
+            //     ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+            //     ->where('IdTienda', $idTienda)
+            //     ->whereDate('FechaVenta', $fecha)
+            //     ->where('IdTipoPago', 7)
+            //     ->where('IdListaPrecio', 4)
+            //     ->where('b.TipoNomina', 4)
+            //     ->where('StatusVenta', 0)
+            //     ->where('a.IdDatCaja', $idDatCaja)
+            //     ->sum('ImporteArticulo');
 
-            $totalMonederoSemanal = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->where('IdTienda', $idTienda)
-                ->whereDate('FechaVenta', $fecha)
-                ->where('IdTipoPago', 7)
-                ->where('IdListaPrecio', 4)
-                ->where('b.TipoNomina', 3)
-                ->where('a.IdDatCaja', $idDatCaja)
-                ->where('StatusVenta', 0)
-                ->sum('ImporteArticulo');
+            // $totalMonederoSemanal = DB::table('DatCortesTienda as a')
+            //     ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+            //     ->where('IdTienda', $idTienda)
+            //     ->whereDate('FechaVenta', $fecha)
+            //     ->where('IdTipoPago', 7)
+            //     ->where('IdListaPrecio', 4)
+            //     ->where('b.TipoNomina', 3)
+            //     ->where('a.IdDatCaja', $idDatCaja)
+            //     ->where('StatusVenta', 0)
+            //     ->sum('ImporteArticulo');
+
+            $totalMonedero = DB::table('DatCortesTienda as a')
+                ->leftjoin(
+                    'DatClientesCloudTienda as b',
+                    function ($join) {
+                        $join->on('b.Bill_To', 'a.Bill_To')
+                            ->on('b.IdListaPrecio', 'a.IdListaPrecio')
+                            ->on('b.IdTienda', 'a.IdTienda')
+                            ->on('b.IdTipoPago', 'a.IdTipoPago');
+                    }
+                )
+                ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
+                ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+                ->where('a.IdTienda', $idTienda)
+                ->where('b.IdTienda', $idTienda)
+                ->whereDate('a.FechaVenta', $fecha)
+                ->where('a.IdTipoPago', 7)
+                ->where('a.IdListaPrecio', 4)
+                ->where('a.StatusVenta', 0)
+                ->groupBy('a.Bill_To', 'NomClienteCloud')
+                ->get();
 
             $info = [
                 'titulo' => 'Corte Diario de Tienda',
@@ -863,8 +884,9 @@ class CortesTiendaController extends Controller
                 'creditoSemanal' => $creditoSemanal,
                 'totalTransferencia' => $totalTransferencia,
                 'totalFactura' => $totalFactura,
-                'totalMonederoQuincenal' => $totalMonederoQuincenal,
-                'totalMonederoSemanal' => $totalMonederoSemanal,
+                'totalMonedero' => $totalMonedero,
+                // 'totalMonederoQuincenal' => $totalMonederoQuincenal,
+                // 'totalMonederoSemanal' => $totalMonederoSemanal,
             ];
         }
 
