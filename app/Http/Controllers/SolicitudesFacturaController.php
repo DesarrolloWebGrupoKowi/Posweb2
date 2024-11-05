@@ -46,7 +46,19 @@ class SolicitudesFacturaController extends Controller
             array_push($ids, $tienda->IdTienda);
         }
 
-        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'DatEncabezado.IdTicket', 'DatEncabezado.SubTotal', 'DatEncabezado.ImporteVenta')
+        $solicitudes = SolicitudFactura::select(
+            'SolicitudFactura.Id',
+            'SolicitudFactura.IdSolicitudFactura',
+            'DatEncabezado.IdTicket',
+            'CatTiendas.NomTienda',
+            'SolicitudFactura.FechaSolicitud',
+            'SolicitudFactura.TipoPersona',
+            'SolicitudFactura.NomCliente',
+            'SolicitudFactura.RFC',
+            'SolicitudFactura.MetodoPago',
+            'SolicitudFactura.UsoCFDI',
+            'SolicitudFactura.Status'
+        )
             ->whereHas('DetalleTicket', function ($query) {
                 $query->whereColumn('DatCortesTienda.IdTipoPago', 'SolicitudFactura.IdTipoPago');
             })
@@ -63,6 +75,19 @@ class SolicitudesFacturaController extends Controller
             ->whereIn('SolicitudFactura.IdTienda', $ids)
             ->where('SolicitudFactura.IdTienda', 'LIKE', $idTienda)
             ->orderBy('SolicitudFactura.FechaSolicitud', 'desc')
+            ->groupBy(
+                'SolicitudFactura.Id',
+                'SolicitudFactura.IdSolicitudFactura',
+                'DatEncabezado.IdTicket',
+                'CatTiendas.NomTienda',
+                'SolicitudFactura.FechaSolicitud',
+                'SolicitudFactura.TipoPersona',
+                'SolicitudFactura.NomCliente',
+                'SolicitudFactura.RFC',
+                'SolicitudFactura.MetodoPago',
+                'SolicitudFactura.UsoCFDI',
+                'SolicitudFactura.Status'
+            )
             ->paginate(10)
             ->onEachSide(1);
 
