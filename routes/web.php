@@ -559,6 +559,9 @@ Route::group(['middleware' => 'auth'], function () {
     //VentaEmpleados
     Route::get('VentaEmpleados', 'App\Http\Controllers\EmpleadosController@VentaEmpleados');
 
+    //VentaEmpleadosExcel
+    Route::get('VentaEmpleadosExcel', 'App\Http\Controllers\EmpleadosController@VentaEmpleadosExcel');
+
     //VentasCredito
     Route::get('/VentasCredito', 'App\Http\Controllers\EmpleadosController@VentasCredito');
 

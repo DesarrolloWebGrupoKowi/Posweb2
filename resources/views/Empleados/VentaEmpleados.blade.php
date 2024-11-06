@@ -7,6 +7,17 @@
         <div class="card border-0 p-4 flex-1" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Reporte de Ventas a Empleados'])
+                <div>
+                    <form action="/VentaEmpleadosExcel" method="GET">
+                        <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                        <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                        <input type="hidden" name="chkNomina" value="{{ $chkNomina }}">
+                        <input type="hidden" name="numNomina" value="{{ $numNomina }}">
+                        <button type="submit" class="input-group-text text-decoration-none btn-excel">
+                            Exportar @include('components.icons.excel')
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
