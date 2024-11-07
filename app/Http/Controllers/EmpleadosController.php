@@ -9,8 +9,10 @@ use App\Models\Empleado;
 use App\Models\CorteTienda;
 use App\Models\CreditoEmpleado;
 use App\Models\LimiteCredito;
+use App\Models\Tienda;
 use App\Models\VentaCreditoEmpleado;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class EmpleadosController extends Controller
@@ -63,154 +65,143 @@ class EmpleadosController extends Controller
 
     public function VentaEmpleados(Request $request)
     {
+        $usuarioTienda = Auth::user()->usuarioTienda;
+
+        if ($usuarioTienda->doesntExist()) {
+            return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
+        }
+
+        if ($usuarioTienda->Todas == 0) {
+            $tiendas = Tienda::where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendas = Tienda::where('Status', 0)
+                ->where('IdTienda', $usuarioTienda->IdTienda)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+                ->where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+
         // return $request;
+        $idTienda = $request->idTienda;
         $fecha1 = $request->fecha1;
         $fecha2 = $request->fecha2;
         $chkNomina = $request->chkNomina;
         $numNomina = $request->numNomina;
 
-        if ($chkNomina == 'on') {
-            $ventasEmpleado = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->leftJoin('CatTiendas as c', 'c.IdTienda', 'a.IdTienda')
-                ->leftJoin('DatEncabezado as d', 'd.IdEncabezado', 'a.IdEncabezado')
-                ->select(
-                    'a.NumNomina',
-                    'a.FechaVenta',
-                    'c.NomTienda',
-                    'b.Nombre',
-                    'b.Apellidos',
-                    'b.Empresa',
-                    'd.IdTicket',
-                    'a.ImporteArticulo',
-                    'a.StatusCredito',
-                    'b.Status'
-                )
-                ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('a.NumNomina', $numNomina)
-                ->where('d.StatusVenta', 0)
-                ->orderBy('a.FechaVenta')
-                ->get();
+        $ventasEmpleado = DB::table('DatCortesTienda as a')
+            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+            ->leftJoin('CatTiendas as c', 'c.IdTienda', 'a.IdTienda')
+            ->leftJoin('DatEncabezado as d', 'd.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatArticulos as e', 'e.IdArticulo', 'a.IdArticulo')
+            ->select(
+                'a.NumNomina',
+                'a.FechaVenta',
+                'c.NomTienda',
+                'b.Nombre',
+                'b.Apellidos',
+                'b.Empresa',
+                'd.IdTicket',
+                'a.ImporteArticulo',
+                'e.NomArticulo',
+                'e.CodArticulo',
+                'a.StatusCredito',
+                'b.Status'
+            )
+            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('a.IdTienda', $idTienda);
+            })
+            ->when($chkNomina == 'on', function ($query) use ($numNomina) {
+                $query->where('a.NumNomina', $numNomina);
+            })
+            ->when($chkNomina != 'on', function ($query) {
+                $query->whereNotNull('a.NumNomina');
+            })
+            ->where('d.StatusVenta', 0)
+            ->orderBy('a.FechaVenta')
+            ->get();
 
-            $importeTotal = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('StatusVenta', 0)
-                ->where('NumNomina', $numNomina)
-                ->sum('ImporteArticulo');
+        $importeTotal = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->where('StatusVenta', 0)
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('IdTienda', $idTienda);
+            })
+            ->when($chkNomina == 'on', function ($query) use ($numNomina) {
+                $query->where('NumNomina', $numNomina);
+            })
+            ->when($chkNomina != 'on', function ($query) {
+                $query->whereNotNull('NumNomina');
+            })
+            ->sum('ImporteArticulo');
 
-            $importeCredito = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->whereNotNull('StatusCredito')
-                ->where('StatusVenta', 0)
-                ->where('NumNomina', $numNomina)
-                ->sum('ImporteArticulo');
-        } else {
-            $ventasEmpleado = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->leftJoin('CatTiendas as c', 'c.IdTienda', 'a.IdTienda')
-                ->leftJoin('DatEncabezado as d', 'd.IdEncabezado', 'a.IdEncabezado')
-                ->select(
-                    'a.NumNomina',
-                    'a.FechaVenta',
-                    'c.NomTienda',
-                    'b.Nombre',
-                    'b.Apellidos',
-                    'b.Empresa',
-                    'd.IdTicket',
-                    'a.ImporteArticulo',
-                    'a.StatusCredito',
-                    'b.Status'
-                )
-                ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->whereNotNull('a.NumNomina')
-                ->get();
-
-            $importeTotal = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('StatusVenta', 0)
-                ->whereNotNull('NumNomina')
-                ->sum('ImporteArticulo');
-
-            $importeCredito = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->whereNotNull('StatusCredito')
-                ->where('StatusVenta', 0)
-                ->sum('ImporteArticulo');
-        }
+        $importeCredito = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->whereNotNull('StatusCredito')
+            ->where('StatusVenta', 0)
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('IdTienda', $idTienda);
+            })
+            ->when($chkNomina == 'on', function ($query) use ($numNomina) {
+                $query->where('NumNomina', $numNomina);
+            })
+            ->when($chkNomina != 'on', function ($query) {
+                $query->whereNotNull('NumNomina');
+            })
+            ->sum('ImporteArticulo');
 
         //return $ventasEmpleado;
 
-        return view('Empleados.VentaEmpleados', compact('ventasEmpleado', 'fecha1', 'fecha2', 'importeTotal', 'importeCredito', 'chkNomina', 'numNomina'));
+        return view('Empleados.VentaEmpleados', compact('tiendas', 'ventasEmpleado', 'fecha1', 'fecha2', 'importeTotal', 'importeCredito', 'chkNomina', 'numNomina', 'idTienda'));
     }
 
     public function VentaEmpleadosExcel(Request $request)
     {
+        // return $request;
+        $idTienda = $request->idTienda;
         $fecha1 = $request->fecha1;
         $fecha2 = $request->fecha2;
         $chkNomina = $request->chkNomina;
         $numNomina = $request->numNomina;
 
-        if ($chkNomina == 'on') {
-            $ventasEmpleado = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->leftJoin('CatTiendas as c', 'c.IdTienda', 'a.IdTienda')
-                ->leftJoin('DatEncabezado as d', 'd.IdEncabezado', 'a.IdEncabezado')
-                ->select(
-                    'a.NumNomina',
-                    'a.FechaVenta',
-                    'c.NomTienda',
-                    'b.Nombre',
-                    'b.Apellidos',
-                    'b.Empresa',
-                    'd.IdTicket',
-                    'a.ImporteArticulo',
-                    'a.StatusCredito',
-                    'b.Status'
-                )
-                ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('a.NumNomina', $numNomina)
-                ->where('d.StatusVenta', 0)
-                ->orderBy('a.FechaVenta')
-                ->get();
-
-            $importeTotal = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('StatusVenta', 0)
-                ->where('NumNomina', $numNomina)
-                ->sum('ImporteArticulo');
-
-            $importeCredito = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->whereNotNull('StatusCredito')
-                ->where('StatusVenta', 0)
-                ->where('NumNomina', $numNomina)
-                ->sum('ImporteArticulo');
-        } else {
-            $ventasEmpleado = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->leftJoin('CatTiendas as c', 'c.IdTienda', 'a.IdTienda')
-                ->leftJoin('DatEncabezado as d', 'd.IdEncabezado', 'a.IdEncabezado')
-                ->select(
-                    'a.IdArticulo',
-                    'a.NumNomina',
-                    'a.FechaVenta',
-                    'c.NomTienda',
-                    'b.Nombre',
-                    'b.Apellidos',
-                    'b.Empresa',
-                    'd.IdTicket',
-                    'a.ImporteArticulo',
-                    'a.StatusCredito',
-                    'b.Status'
-                )
-                ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->whereNotNull('a.NumNomina')
-                ->get();
-
-            $importeTotal = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('StatusVenta', 0)
-                ->whereNotNull('NumNomina')
-                ->sum('ImporteArticulo');
-
-            $importeCredito = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->whereNotNull('StatusCredito')
-                ->where('StatusVenta', 0)
-                ->sum('ImporteArticulo');
-        }
+        $ventasEmpleado = DB::table('DatCortesTienda as a')
+            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+            ->leftJoin('CatTiendas as c', 'c.IdTienda', 'a.IdTienda')
+            ->leftJoin('DatEncabezado as d', 'd.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatArticulos as e', 'e.IdArticulo', 'a.IdArticulo')
+            ->select(
+                'a.NumNomina',
+                'a.FechaVenta',
+                'c.NomTienda',
+                'b.Nombre',
+                'b.Apellidos',
+                'b.Empresa',
+                'd.IdTicket',
+                'a.ImporteArticulo',
+                'e.NomArticulo',
+                'e.CodArticulo',
+                'a.StatusCredito',
+                'b.Status'
+            )
+            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('a.IdTienda', $idTienda);
+            })
+            ->when($chkNomina == 'on', function ($query) use ($numNomina) {
+                $query->where('a.NumNomina', $numNomina);
+            })
+            ->when($chkNomina != 'on', function ($query) {
+                $query->whereNotNull('a.NumNomina');
+            })
+            ->where('d.StatusVenta', 0)
+            ->orderBy('a.FechaVenta')
+            ->get();
 
         // return $ventasEmpleado;
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'ventasaempleado.xlsx';

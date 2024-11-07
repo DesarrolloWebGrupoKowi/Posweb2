@@ -7,6 +7,8 @@
             <th>Empleado</th>
             <th>Empresa</th>
             <th>Ticket</th>
+            <th>Codigo</th>
+            <th>Articulo</th>
             <th>Importe</th>
             <th>Crédito</th>
         </tr>
@@ -25,6 +27,8 @@
                     <td>{{ $item->Nombre }} {{ $item->Apellidos }}</td>
                     <td>{{ $item->Empresa }}</td>
                     <td>{{ $item->IdTicket }}</td>
+                    <td>{{ $item->CodArticulo }}</td>
+                    <td>{{ $item->NomArticulo }}</td>
                     <td>{{ $item->ImporteArticulo }}</td>
                     <td>{{ $item->StatusCredito === '0' ? 'Si' : '' }}</td>
                 </tr>
