@@ -68,14 +68,22 @@
                         <th>Código</th>
                         <th>Articulo</th>
                         <th>Cantidad</th>
-                        <th>Importe</th>
-                        <th class="rounded-end">Precio</th>
+                        <th>Precio</th>
+                        <th>Iva</th>
+                        <th class="rounded-end">Importe</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        // Inicializamos las variables para la suma
+                        $totalPeso = 0;
+                        $totalIva = 0;
+                        $totalImporte = 0;
+                    @endphp
+
                     @if ($concentrado->count() == 0)
                         <tr>
-                            <td colspan="6">No Hay Ventas en Rango de Fechas Seleccionadas!</td>
+                            <td colspan="9">No Hay Ventas en Rango de Fechas Seleccionadas!</td>
                         </tr>
                     @else
                         @foreach ($concentrado as $tConcentrado)
@@ -86,12 +94,31 @@
                                 <td>{{ $tConcentrado->CodArticulo }}</td>
                                 <td>{{ $tConcentrado->NomArticulo }}</td>
                                 <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
-                                <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
                                 <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
+                                <td>{{ number_format($tConcentrado->Iva, 2) }}</td>
+                                <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
                             </tr>
+
+                            @php
+                                // Acumulamos los valores
+                                $totalPeso += $tConcentrado->Peso;
+                                $totalIva += $tConcentrado->Iva;
+                                $totalImporte += $tConcentrado->Importe;
+                            @endphp
                         @endforeach
                     @endif
                 </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td colspan="5"><strong>Total:</strong></td>
+                        <td><strong>{{ number_format($totalPeso, 3) }}</strong></td>
+                        <td></td>
+                        <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
+                        <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
+                    </tr>
+                </tfoot>
+
             </table>
         </div>
     </div>

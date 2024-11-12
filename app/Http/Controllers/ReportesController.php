@@ -62,7 +62,7 @@ class ReportesController extends Controller
             ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
             ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
             ->select(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
-                            b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe'))
+                            b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'))
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
             })
@@ -93,7 +93,7 @@ class ReportesController extends Controller
             ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
             ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
             ->select(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
-                            b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe'))
+                            b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'))
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
             })
