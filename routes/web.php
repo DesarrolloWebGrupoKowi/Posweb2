@@ -185,7 +185,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('AgregarArticulo/{id}', 'App\Http\Controllers\ArticulosController@AgregarArticulo');
 
     //Articulo Item
-    Route::get('BuscarArticulo', 'App\Http\Controllers\ArticulosController@BuscarArticulo');
+    Route::get('BuscarArticulo', 'App\Http\Controllers\ArticulosController@BuscarArticulo')->name('BuscarArticulo');
 
     //LigarArticulo
     Route::post('LigarArticulo', 'App\Http\Controllers\ArticulosController@LigarArticulo');

@@ -9,7 +9,7 @@
                 @include('components.title', ['titulo' => 'Catálogo de Articulos'])
                 <div>
                     <a href="/BuscarArticulo" class="btn btn-sm btn-dark" title="Agregar articulo">
-                        Agregar articulo @include('components.icons.plus-circle')
+                        Descargar articulo @include('components.icons.plus-circle')
                     </a>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @include('components.table-empty', ['items' => $articulos, 'colspan' => 14])
+                    @include('components.table-empty', ['items' => $articulos, 'colspan' => 15])
                     @foreach ($articulos as $articulo)
                         <tr>
                             <td>{{ $articulo->IdArticulo }}</td>
