@@ -107,18 +107,26 @@ class PreparadosController extends Controller
 
     public function EditarPreparados($idPreparado, Request $request)
     {
-        $resultado = intval(preg_replace('/[^0-9]+/', '', $request->nombre), 10);
+        try {
+            DB::beginTransaction();
+            $resultado = intval(preg_replace('/[^0-9]+/', '', $request->nombre), 10);
+            $cantidad = empty($request->cantidad) ? 0 : $request->cantidad;
 
-        CatPreparado::where('IdPreparado', $idPreparado)->update([
-            'Nombre' => $resultado != 0 ? $request->nombre : $request->nombre . '_' . Carbon::now()->format('YmdHis'),
-            'Cantidad' => $request->cantidad,
-        ]);
+            CatPreparado::where('IdPreparado', $idPreparado)->update([
+                'Nombre' => $resultado != 0 ? $request->nombre : $request->nombre . '_' . Carbon::now()->format('YmdHis'),
+                'Cantidad' => $cantidad,
+            ]);
 
-        DB::update("UPDATE [dbo].[DatPreparados]
-            SET CantidadFormula=ROUND(CantidadPaquete / $request->cantidad,2)
+            DB::update("UPDATE [dbo].[DatPreparados]
+                SET CantidadFormula = IIF($cantidad = 0, 0, ROUND(CantidadPaquete / $cantidad,2))
             WHERE [IdPreparado]=$idPreparado");
 
-        return back();
+            DB::commit();
+            return back();
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error : ' . $th->getMessage());
+            DB::rollback();
+        }
     }
 
     public function EditarListaPreciosPreparados($idPreparado, Request $request)
@@ -171,39 +179,47 @@ class PreparadosController extends Controller
 
     public function AgregarArticulo($idPreparado, Request $request)
     {
-        $idListaPrecio = DatPreparados::where('IdPreparado', $idPreparado)->value('IDLISTAPRECIO');
-        $idArticulo = Articulo::where('CodArticulo', $request->codigo)->value('IdArticulo');
+        try {
+            DB::beginTransaction();
+            // return $request->cantidad;
+            $idListaPrecio = DatPreparados::where('IdPreparado', $idPreparado)->value('IDLISTAPRECIO');
+            $idArticulo = Articulo::where('CodArticulo', $request->codigo)->value('IdArticulo');
 
-        // Validamos que el articulo tenga lista de precio
-        $articulo = Precio::where('CodArticulo', $request->codigo)
-            ->where('IdListaPrecio', $idListaPrecio ? $idListaPrecio : 4)
-            ->first();
+            // Validamos que el articulo tenga lista de precio
+            $articulo = Precio::where('CodArticulo', $request->codigo)
+                ->where('IdListaPrecio', $idListaPrecio ? $idListaPrecio : 4)
+                ->first();
 
-        if (!$articulo || $articulo->PrecioArticulo == 0) {
-            return back()->with('msjdelete', 'Error: El articulo que desea agregar no cuenta con precio');
+            if (!$articulo || $articulo->PrecioArticulo == 0) {
+                return back()->with('msjdelete', 'Error: El articulo que desea agregar no cuenta con precio');
+            }
+
+            // Validamos que el articulo tenga stock
+            $stock = InventarioTienda::where('CodArticulo', $request->codigo)->first();
+            if ($stock == null || $stock->StockArticulo < $request->cantidad) {
+                return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');
+            }
+
+            $cantidad = CatPreparado::where('IdPreparado', $idPreparado)->value('Cantidad');
+            $formula = $cantidad ? round($request->cantidad / $cantidad, 2) : null;
+
+            $preparado = new DatPreparados();
+            $preparado->IdPreparado = $idPreparado;
+            $preparado->IdArticulo = $idArticulo;
+            $preparado->CantidadPaquete = $request->cantidad;
+            $preparado->CantidadFormula = $formula;
+            $preparado->IDLISTAPRECIO = $idListaPrecio ? $idListaPrecio : 4;
+            $preparado->save();
+
+            // Agregar detalle al paquete
+            // DatPaquetes
+
+            DB::commit();
+            return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $idPreparado]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('msjdelete', 'Ha ocuarrido un error, intente de nuevo');
         }
-
-        // Validamos que el articulo tenga stock
-        $stock = InventarioTienda::where('CodArticulo', $request->codigo)->first();
-        if ($stock == null || $stock->StockArticulo < $request->cantidad) {
-            return back()->with('msjdelete', 'Error: El articulo no cuenta con stock suficiente');
-        }
-
-        $cantidad = CatPreparado::where('IdPreparado', $idPreparado)->value('Cantidad');
-        $formula = $cantidad ? round($request->cantidad / $cantidad, 2) : null;
-
-        $preparado = new DatPreparados();
-        $preparado->IdPreparado = $idPreparado;
-        $preparado->IdArticulo = $idArticulo;
-        $preparado->CantidadPaquete = $request->cantidad;
-        $preparado->CantidadFormula = $formula;
-        $preparado->IDLISTAPRECIO = $idListaPrecio ? $idListaPrecio : 4;
-        $preparado->save();
-
-        // Agregar detalle al paquete
-        // DatPaquetes
-
-        return back()->with(['msjAdd' => 'La sentencia se ejecuto correctamente', 'modalshow' => $idPreparado]);
     }
 
     public function EliminarArticulo($id)

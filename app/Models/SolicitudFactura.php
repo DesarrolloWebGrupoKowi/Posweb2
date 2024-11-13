@@ -53,6 +53,26 @@ class SolicitudFactura extends Model
             ->as('PivotDetalle');
     }
 
+    public function FacturaCorteDiario()
+    {
+        return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
+            ->select(
+                [
+                    DB::raw("CatArticulos.CodArticulo"),
+                    DB::raw("CatArticulos.NomArticulo"),
+                    DB::raw("DatCortesTienda.IdListaPrecio"),
+                    DB::raw("DatCortesTienda.IdTipoPago"),
+                    DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
+                    // DB::raw("XXH2.STATUS as STATUS"),
+                    // DB::raw("XXH2.MENSAJE_ERROR as MENSAJE_ERROR"),
+                    // DB::raw("XXH2.Batch_Name as Batch_Name"),
+                ]
+            )
+            ->where('DatCortesTienda.StatusVenta', 0)
+            ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
+            ->as('PivotDetalle');
+    }
+
     public function Factura()
     {
         return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
