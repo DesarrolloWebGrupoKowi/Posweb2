@@ -8,6 +8,7 @@ use App\Models\DatCaja;
 use App\Models\DatEncabezado;
 use App\Models\SolicitudFactura;
 use App\Models\Tienda;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -895,5 +896,57 @@ class CortesTiendaController extends Controller
         view()->share('GenerarCorteOraclePDF', $info);
         $pdf = PDF::loadView('CortesTienda.GenerarCorteOraclePDF', $info);
         return $pdf->stream('Corte ' . $fecha . ' ' . $tienda->NomTienda . ' Caja ' . $numCaja . '.pdf');
+    }
+
+    public function ProcesarClientesContado($fecha, $idTienda, $idDatCaja)
+    {
+        try {
+            // sleep(3);
+            // return back()->with('msjAdd', 'Corte procesado correctamente!');
+
+            // Convierte la fecha en un objeto Carbon
+            $carbonDate = Carbon::parse($fecha);
+
+            // Ahora puedes formatear la fecha como quieras, por ejemplo: Día, Mes, Año
+            $fecha1 = $carbonDate->format('d/m/Y');
+
+            // Sumar un día
+            $carbonDate->addDay();
+            $fecha2 = $carbonDate->format('d/m/Y');
+
+            DB::select('EXEC CONTADO_POS_SP_VWN ?, ?, ?', array_values([$idTienda, $fecha1, $fecha2]))[0];
+            // DB::select('EXEC FACTURA_POS_SP_VWN ?, ?, ?', array_values([$idTienda, $fecha1, $fecha2]))[0];
+
+            return back()->with('msjAdd', 'Corte procesado correctamente!');
+        } catch (\Exception $e) {
+            return back()->with('msjdelete', 'Error al procesar el corte, intente de nuevo!');
+            return $e->getMessage();
+        }
+    }
+
+    public function ProcesarClientesFacturas($fecha, $idTienda, $idDatCaja)
+    {
+        try {
+            // sleep(3);
+            // return back()->with('msjAdd', 'Corte procesado correctamente!');
+
+            // Convierte la fecha en un objeto Carbon
+            $carbonDate = Carbon::parse($fecha);
+
+            // Ahora puedes formatear la fecha como quieras, por ejemplo: Día, Mes, Año
+            $fecha1 = $carbonDate->format('d/m/Y');
+
+            // Sumar un día
+            $carbonDate->addDay();
+            $fecha2 = $carbonDate->format('d/m/Y');
+
+            // DB::select('EXEC CONTADO_POS_SP_VWN ?, ?, ?', array_values([$idTienda, $fecha1, $fecha2]))[0];
+            DB::select('EXEC FACTURA_POS_SP_VWN ?, ?, ?', array_values([$idTienda, $fecha1, $fecha2]))[0];
+
+            return back()->with('msjAdd', 'Corte procesado correctamente!');
+        } catch (\Exception $e) {
+            return back()->with('msjdelete', 'Error al procesar el corte, intente de nuevo!');
+            return $e->getMessage();
+        }
     }
 }

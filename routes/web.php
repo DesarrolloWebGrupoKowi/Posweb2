@@ -780,6 +780,12 @@ Route::group(['middleware' => 'auth'], function () {
     //GenerarCorteOraclePDF
     Route::get('/GenerarCorteOraclePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@GenerarCorteOraclePDF')->name('GenerarCorteOraclePDF');
 
+    //Procesar pedidos
+    Route::get('/procesarclientescontado/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesContado')->name('ProcesarClientesContado');
+
+    //Procesar facturas
+    Route::get('/procesarclientesfacturas/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesFacturas')->name('ProcesarClientesFacturas');
+
 
     //+============================================================================================================================================+//
     //ReporteMermasAdmin
