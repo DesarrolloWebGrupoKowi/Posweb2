@@ -1294,12 +1294,13 @@ class PoswebController extends Controller
                     Log::info($detalle->CantArticulo);
                     // return $detalle->CodigoEtiqueta;
 
-                    // $idRostisado = $detRostisado = DatDetalleRosticero::where('CodigoEtiqueta', $detalle->CodigoEtiqueta)
-                    //     ->where('Status', 0)
-                    //     ->where('Vendida', 1)
-                    //     ->value('IdDatDetalleRosticero');
+                    // return $detalle->CodigoEtiqueta;
+                    $idRostisado = DatDetalleRosticero::where('IdDatDetalleRosticero', $detalle->CodigoEtiqueta)
+                        ->where('Status', 0)
+                        ->where('Vendida', 1)
+                        ->value('IdRosticero');
 
-                    $idRostisado = $detalle->CodigoEtiqueta;
+                    // $idRostisado = $detalle->CodigoEtiqueta;
 
                     DatDetalle::insert([
                         'IdEncabezado' => $idEncabezado,
