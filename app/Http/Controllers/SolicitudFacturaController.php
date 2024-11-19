@@ -276,7 +276,7 @@ class SolicitudFacturaController extends Controller
                         'Telefono' => $request->telefono,
                         'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
                         'IdUsuarioCliente' => null,
-                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                        'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => $request->metodopag,
                         'Editar' => empty($editarInfo) ? null : 1,
@@ -348,7 +348,7 @@ class SolicitudFacturaController extends Controller
                 foreach ($pagosFactura as $j => $pagoFactura) {
                     CorteTienda::where('IdCortesTienda', $pagoFactura->IdCortesTienda)
                         ->update([
-                            'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                            'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                             'IdSolicitudFactura' => $idSolicitudFactura
                         ]);
                 }
@@ -426,7 +426,7 @@ class SolicitudFacturaController extends Controller
                         'Telefono' => $request->telefono,
                         'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
                         'IdUsuarioCliente' => null,
-                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                        'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => strtoupper($request->metodopag),
                         'Editar' => empty($editarInfo) ? null : 1,
@@ -479,7 +479,7 @@ class SolicitudFacturaController extends Controller
                     foreach ($pagoParaFactura->CortePago as $key => $pagoIdCorte) {
                         CorteTienda::where('IdCortesTienda', $pagoIdCorte->IdCortesTienda)
                             ->update([
-                                'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                                'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                                 'IdSolicitudFactura' => $idSolicitudFactura
                             ]);
                     }
