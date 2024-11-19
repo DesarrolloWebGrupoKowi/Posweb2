@@ -2832,8 +2832,9 @@ class PoswebController extends Controller
             ->first();
 
         $fecha = $request->txtFecha;
+        $txtFolio = $request->txtFolio;
 
-        empty($fecha) ? $fecha = date('Y-m-d') : $fecha = $fecha;
+        empty($fecha) && !$txtFolio ? $fecha = date('Y-m-d') : $fecha = $fecha;
 
         $tickets = DatEncabezado::with(['SolicitudCancelacionTicket', 'detalle' => function ($detalle) {
             $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
@@ -2841,7 +2842,9 @@ class PoswebController extends Controller
                 ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
         }, 'TipoPago', 'SolicitudFactura'])
             ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
+            ->when(!$txtFolio, fn($query) => $query->whereDate('FechaVenta', $fecha))
+            ->when($txtFolio, fn($query) => $query->where('IdEncabezado', $txtFolio))
+            // ->whereDate('FechaVenta', $fecha)
             ->orderBy('IdTicket')
             ->get();
 
@@ -2857,7 +2860,7 @@ class PoswebController extends Controller
 
         // return $tickets;
 
-        return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'total', 'totalIva'));
+        return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'txtFolio', 'total', 'totalIva'));
     }
 
     public function ConcentradoVentas(Request $request)
