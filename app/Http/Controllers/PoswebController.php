@@ -30,6 +30,7 @@ use App\Models\SolicitudFactura;
 use App\Models\TemporalPos;
 use App\Models\Tienda;
 use App\Models\TipoPagoTienda;
+use App\Models\UsuarioTienda;
 use App\Models\VentaCreditoEmpleado;
 use DateTime;
 use Illuminate\Http\Request;
@@ -1294,12 +1295,13 @@ class PoswebController extends Controller
                     Log::info($detalle->CantArticulo);
                     // return $detalle->CodigoEtiqueta;
 
-                    // $idRostisado = $detRostisado = DatDetalleRosticero::where('CodigoEtiqueta', $detalle->CodigoEtiqueta)
-                    //     ->where('Status', 0)
-                    //     ->where('Vendida', 1)
-                    //     ->value('IdDatDetalleRosticero');
+                    // return $detalle->CodigoEtiqueta;
+                    $idRostisado = DatDetalleRosticero::where('IdDatDetalleRosticero', $detalle->CodigoEtiqueta)
+                        ->where('Status', 0)
+                        ->where('Vendida', 1)
+                        ->value('IdRosticero');
 
-                    $idRostisado = $detalle->CodigoEtiqueta;
+                    // $idRostisado = $detalle->CodigoEtiqueta;
 
                     DatDetalle::insert([
                         'IdEncabezado' => $idEncabezado,
@@ -2052,32 +2054,43 @@ class PoswebController extends Controller
     public function CorteDiario(Request $request)
     {
         $fecha = $request->input('fecha', date('Y-m-d'));
-        $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
-        $tienda = Tienda::where('IdTienda', $idTienda)->first();
-        $idDatCaja = DatCaja::where('IdTienda', $idTienda)->where('Status', 0)->where('Activa', 0)->value('IdDatCajas');
+        $idUsuario = $request->input('idUsuario', Auth::id());
 
+        // Obtener información de la tienda
+        $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
+        $tienda = Tienda::find($idTienda);
+        $idDatCaja = DatCaja::where('IdTienda', $idTienda)
+            ->where('Status', 0)
+            ->where('Activa', 0)
+            ->value('IdDatCajas');
+
+        // Cargar usuarios, si el valor de idUsuario es necesario
+        $usuarios = UsuarioTienda::leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'CatUsuariosTienda.IdUsuario')
+            ->get();
+
+        // Bills to, optimizado para no usar el método "distinct" innecesariamente
         $billsTo = CorteTienda::where('IdTienda', $idTienda)
-            ->distinct('Bill_To')
             ->whereDate('FechaVenta', $fecha)
             ->where('StatusVenta', 0)
             ->whereNull('IdSolicitudFactura')
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario))
             ->pluck('Bill_To');
 
-        $cortesTienda = ClienteCloudTienda::with([
-            'Customer',
-            'CorteTienda' => function ($query) use ($fecha, $idTienda) {
-                $query->where('DatCortesTienda.IdTienda', $idTienda)
-                    ->where('DatCortesTienda.StatusVenta', 0)
-                    ->whereDate('FechaVenta', $fecha)
-                    ->whereNull('DatCortesTienda.IdSolicitudFactura');
-            },
-        ])
+        // Obtener cortes de tienda
+        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda, $idUsuario) {
+            $query->where('DatCortesTienda.IdTienda', $idTienda)
+                ->where('DatCortesTienda.StatusVenta', 0)
+                ->whereDate('DatCortesTienda.FechaVenta', $fecha)
+                ->whereNull('DatCortesTienda.IdSolicitudFactura')
+                ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario));
+        }])
             ->where('IdTienda', $idTienda)
+            ->whereIn('Bill_To', $billsTo)
             ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
             ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
-            ->whereIn('Bill_To', $billsTo)
             ->get();
 
+        // Consultas de totales (Eficientizadas al máximo)
         $totalMonedero = DB::table('DatCortesTienda as a')
             ->leftjoin(
                 'DatClientesCloudTienda as b',
@@ -2094,70 +2107,40 @@ class PoswebController extends Controller
             ->where('a.IdTipoPago', 7)
             ->where('a.IdListaPrecio', 4)
             ->where('a.StatusVenta', 0)
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario))
             ->groupBy('a.Bill_To', 'NomClienteCloud')
             ->get();
 
-        $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 5)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
+        $totalTarjetaDebito = $this->getTotalByPaymentType($idTienda, $fecha, 5, null, $idUsuario);
+        $totalTarjetaCredito = $this->getTotalByPaymentType($idTienda, $fecha, 4, null, $idUsuario);
+        $totalEfectivo = $this->getTotalByPaymentType($idTienda, $fecha, 1, null, $idUsuario);
+        $creditoQuincenal = $this->getCreditoByTipoNomina($idTienda, $fecha, 4, $idUsuario);
+        $creditoSemanal = $this->getCreditoByTipoNomina($idTienda, $fecha, 3, $idUsuario);
+        $totalTransferencia = $this->getTotalByPaymentType($idTienda, $fecha, 3, null, $idUsuario);
+        $totalFactura = $this->getTotalFactura($idTienda, $fecha, $idUsuario);
 
-        $totalTarjetaCredito = CorteTienda::where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 4)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
-
-        $totalEfectivo = CorteTienda::where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 1)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
-
-        $creditoQuincenal = DB::table('DatCortesTienda as a')
-            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('StatusVenta', 0)
-            ->whereIn('IdTipoPago', [2])
-            ->where('TipoNomina', 4)
-            ->sum('ImporteArticulo');
-
-        $creditoSemanal = DB::table('DatCortesTienda as a')
-            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('StatusVenta', 0)
-            ->whereIn('IdTipoPago', [2])
-            ->where('TipoNomina', 3)
-            ->sum('ImporteArticulo');
-
-        $totalTransferencia = DB::table('DatCortesTienda as a')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('StatusVenta', 0)
-            ->where('IdTipoPago', 3)
-            ->sum('ImporteArticulo');
-
-        $totalFactura = CorteTienda::where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('StatusVenta', 0)
-            ->whereNotNull('IdSolicitudFactura')
-            ->sum('ImporteArticulo');
-
-        $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) {
+        $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) use ($idUsuario) {
             $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
             $query->where('DatEncabezado.StatusVenta', 0);
+            $query->when($idUsuario, function ($q) use ($idUsuario) {
+                return $q->where('DatCortesTienda.IdUsuario', $idUsuario);
+            });
         }])
             ->where('IdTienda', $idTienda)
             ->whereDate('FechaSolicitud', $fecha)
             ->get();
 
-        //return $facturas;
+        // Filtrar facturas con factura_local vacía
+        $facturas = $facturas->filter(function ($factura) {
+            return $factura->FacturaLocal->isNotEmpty();
+        });
+
+        // return $facturas;
 
         return view('Posweb.CorteDiario', compact(
             'tienda',
+            'idUsuario',
+            'usuarios',
             'cortesTienda',
             'fecha',
             'totalEfectivo',
@@ -2168,11 +2151,49 @@ class PoswebController extends Controller
             'totalTarjetaCredito',
             'totalTransferencia',
             'totalFactura',
-            // 'totalMonederoQuincenal',
-            // 'totalMonederoSemanal',
             'totalMonedero',
             'idDatCaja'
         ));
+    }
+
+    // Método para obtener total por tipo de pago
+    private function getTotalByPaymentType($idTienda, $fecha, $paymentType, $priceList = null, $idUsuario = null)
+    {
+        $query = DB::table('DatCortesTienda as a')
+            ->where('a.IdTienda', $idTienda)
+            ->whereDate('a.FechaVenta', $fecha)
+            ->where('a.StatusVenta', 0)
+            ->where('a.IdTipoPago', $paymentType)
+            ->when($priceList, fn($q) => $q->where('a.IdListaPrecio', $priceList))
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario));
+
+        return $query->sum('a.ImporteArticulo');
+    }
+
+    // Método para obtener crédito por tipo de nómina
+    private function getCreditoByTipoNomina($idTienda, $fecha, $tipoNomina, $idUsuario = null)
+    {
+        $query = DB::table('DatCortesTienda as a')
+            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+            ->where('a.IdTienda', $idTienda)
+            ->whereDate('a.FechaVenta', $fecha)
+            ->where('a.StatusVenta', 0)
+            ->whereIn('a.IdTipoPago', [2])
+            ->where('TipoNomina', $tipoNomina)
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario));
+
+        return $query->sum('a.ImporteArticulo');
+    }
+
+    // Método para obtener total de factura
+    private function getTotalFactura($idTienda, $fecha, $idUsuario = null)
+    {
+        return CorteTienda::where('DatCortesTienda.IdTienda', $idTienda)
+            ->whereDate('DatCortesTienda.FechaVenta', $fecha)
+            ->where('DatCortesTienda.StatusVenta', 0)
+            ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario))
+            ->sum('DatCortesTienda.ImporteArticulo');
     }
 
     public function GenerarCortePDF($fecha, $idTienda, $idDatCaja)
@@ -2282,6 +2303,9 @@ class PoswebController extends Controller
             $info = [
                 'titulo' => 'Corte Diario de Tienda',
                 'nomTienda' => $tienda->NomTienda,
+                'direccion' => $tienda->Direccion,
+                'telefono' => $tienda->Telefono,
+                'RFC' => $tienda->RFC,
                 'numCaja' => $numCaja,
                 'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
                 'cortesTienda' => $cortesTienda,
@@ -2404,6 +2428,9 @@ class PoswebController extends Controller
             $info = [
                 'titulo' => 'CORTE DIARIO DE TIENDA',
                 'nomTienda' => $tienda->NomTienda,
+                'direccion' => $tienda->Direccion,
+                'telefono' => $tienda->Telefono,
+                'RFC' => $tienda->RFC,
                 'numCaja' => $numCaja,
                 'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
                 'cortesTienda' => $cortesTienda,
@@ -2805,8 +2832,9 @@ class PoswebController extends Controller
             ->first();
 
         $fecha = $request->txtFecha;
+        $txtFolio = $request->txtFolio;
 
-        empty($fecha) ? $fecha = date('Y-m-d') : $fecha = $fecha;
+        empty($fecha) && !$txtFolio ? $fecha = date('Y-m-d') : $fecha = $fecha;
 
         $tickets = DatEncabezado::with(['SolicitudCancelacionTicket', 'detalle' => function ($detalle) {
             $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
@@ -2814,7 +2842,9 @@ class PoswebController extends Controller
                 ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
         }, 'TipoPago', 'SolicitudFactura'])
             ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
+            ->when(!$txtFolio, fn($query) => $query->whereDate('FechaVenta', $fecha))
+            ->when($txtFolio, fn($query) => $query->where('IdEncabezado', $txtFolio))
+            // ->whereDate('FechaVenta', $fecha)
             ->orderBy('IdTicket')
             ->get();
 
@@ -2830,7 +2860,7 @@ class PoswebController extends Controller
 
         // return $tickets;
 
-        return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'total', 'totalIva'));
+        return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'txtFolio', 'total', 'totalIva'));
     }
 
     public function ConcentradoVentas(Request $request)

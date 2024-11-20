@@ -47,7 +47,7 @@ body {
 
 .width-general {
     max-width: 1440px;
-    max-height: calc(100vh - 136px);
+    /* max-height: calc(100vh - 136px); */
 }
 
 .content-table-max-height {

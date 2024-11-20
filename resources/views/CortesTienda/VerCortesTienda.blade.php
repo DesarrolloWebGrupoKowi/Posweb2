@@ -1,28 +1,63 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Cortes Por Tienda')
 @section('dashboardWidth', 'width-general')
-@if ($idReporte == 1)
+@section('styles')
+    @if ($idReporte == 1)
+        <style>
+            table {
+                font-size: 13px;
+            }
+
+            #totales {
+                color: red;
+            }
+
+            #sumatorias {
+                text-align: right
+            }
+        </style>
+    @endif
     <style>
-        table {
-            font-size: 13px;
+        /* Define la animación del spinner */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
-        #totales {
-            color: red;
+        /* Estilo para el spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #f59e0b;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            margin: 0 auto;
+            animation: spin 1s linear infinite;
         }
 
-        #sumatorias {
-            text-align: right
+        /* Estilo para el botón deshabilitado */
+        #rotateButton,
+        #buttonIcon,
+        #rotateButtonFac,
+        #buttonIconFac {
+            color: #1e429f;
+            font-weight: bold;
         }
     </style>
-@endif
+
+@endsection
 @section('contenido')
     <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
 
         <div class="p-4 border-0 card" style="border-radius: 10px">
             <div class="gap-2 d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Cortes de Tienda'])
-                <div>
+                <div class="d-flex gap-4">
                     <a href="/GenerarCorteOraclePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
                         target="_blank" type="button" class="btn card">
                         @include('components.icons.print')
@@ -89,28 +124,27 @@
             </span>
 
             <div class="row" style="font-size: small">
-                {{-- Dinero Electrónico --}}
-                {{-- <div class="pb-4 col-12 col-md-6 col-lg-3 pb-md-0">
-                    <div class="p-4 border-0 card" style="border-radius: 10px">
-                        <h6 class="text-dark">Dinero Electrónico</h6>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-secondary">Monedero Quincenal: </span>
-                            <span>${{ number_format($totalMonederoQuincenal, 2) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-secondary">Monedero Semanal: </span>
-                            <span>${{ number_format($totalMonederoSemanal, 2) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-secondary">Total: </span>
-                            <b class="{{ number_format($totalMonederoQuincenal + $totalMonederoSemanal, 2) == 0 ? 'eliminar' : 'send' }}"
-                                style="font-size: 16px">
-                                ${{ number_format($totalMonederoQuincenal + $totalMonederoSemanal, 2) }}
-                            </b>
-                        </div>
+                @if ($fecha1 != date('Y-m-d') && Auth::id() == 11)
+                    <div class="mb-4 col-12 col-md-6">
+                        <a href="/procesarclientescontado/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
+                            type="button" class="btn card" style="border-radius: 10px;" id="rotateButton">
+                            <span id="buttonIcon">
+                                @include('components.icons.cloud-up')
+                            </span>
+                            Procesar contado
+                        </a>
                     </div>
-                </div> --}}
-                <div class="mb-4 col-12 col-md-6 col-lg-6 mb-lg-0">
+                    <div class="mb-4 col-12 col-md-6">
+                        <a href="/procesarclientesfacturas/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
+                            type="button" class="btn card" style="border-radius: 10px;" id="rotateButtonFac">
+                            <span id="buttonIconFac">
+                                @include('components.icons.cloud-up')
+                            </span>
+                            Procesar facturas
+                        </a>
+                    </div>
+                @endif
+                <div class="mb-4 col-12 col-md-6 col-lg-4 mb-lg-0">
                     <div class="p-4 border-0 card" style="border-radius: 10px;">
                         <h6 class="text-dark">Dinero Electrónico</h6>
                         @php
@@ -135,7 +169,7 @@
                     </div>
                 </div>
                 {{-- Crédito  --}}
-                <div class="pb-4 col-12 col-md-6 col-lg-2 pb-lg-0" >
+                <div class="pb-4 col-12 col-md-6 col-lg-2 pb-lg-0">
                     <div class="p-4 border-0 card" style="border-radius: 10px">
                         <h6 class="text-dark">Crédito</h6>
                         <div class="d-flex justify-content-between">
@@ -177,7 +211,7 @@
                     </div>
                 </div>
                 {{-- Totales --}}
-                <div class="pb-0 col-12 col-md-6 col-lg-2">
+                <div class="pb-4 col-12 col-md-6 col-lg-2">
                     <div class="p-4 border-0 card" style="border-radius: 10px">
                         <h6 class="text-dark">Totales</h6>
                         <div class="d-flex justify-content-between">
@@ -195,6 +229,17 @@
                                 ${{ number_format($totalEfectivo, 2) }}
                             </b>
                         </div>
+                    </div>
+                </div>
+                {{-- Total general --}}
+                <div class="pb-0 col-12 col-md-12 col-lg-2">
+                    <div class="p-4 border-0 card text-center" style="border-radius: 10px">
+                        <h6 class="text-dark">Total General</h6>
+                        <b class="{{ number_format($totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px">
+                            ${{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
+                        </b>
+                        {{-- <span>${{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}</span> --}}
                     </div>
                 </div>
             </div>
@@ -316,7 +361,7 @@
                                 @endif
                             @endforeach
                             <!--TERMINA MONEDERO ELECTRONICO--
-                                <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
+                                                                                                                                                                                                                                                                        <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
                             {{-- @if ($corteTienda->IdTipoNomina == 4)
                                 <tr style="font-size: .9rem">
                                     <td></td>
@@ -848,5 +893,39 @@
                     }
                 });
         });
+
+        document.addEventListener('click', e => {
+            if (e.target.matches('#rotateButton') || e.target.matches('#rotateButton *')) {
+                let button = document.getElementById('rotateButton');
+                let buttonIcon = document.getElementById('buttonIcon'); // El contenedor del icono
+                if (button.getAttribute('disabled')) {
+                    e.preventDefault()
+                } else {
+                    // e.preventDefault()
+                    button.setAttribute('disabled', 'true'); // Deshabilitar el botón
+                    button.style += 'border-radius: 10px; opacity: 0.5; cursor: wait;';
+                    buttonIcon.setAttribute('disabled', 'true'); // Deshabilitar el botón
+
+                    // Mostrar el spinner en lugar del icono
+                    buttonIcon.innerHTML = '<div class="spinner"></div>'; // Reemplazar el icono por el spinner
+                }
+            }
+
+            if (e.target.matches('#rotateButtonFac') || e.target.matches('#rotateButtonFac *')) {
+                let button = document.getElementById('rotateButtonFac');
+                let buttonIcon = document.getElementById('buttonIconFac'); // El contenedor del icono
+                if (button.getAttribute('disabled')) {
+                    e.preventDefault()
+                } else {
+                    // e.preventDefault()
+                    button.setAttribute('disabled', 'true'); // Deshabilitar el botón
+                    button.style += 'border-radius: 10px; opacity: 0.5; cursor: wait;';
+                    buttonIcon.setAttribute('disabled', 'true'); // Deshabilitar el botón
+
+                    // Mostrar el spinner en lugar del icono
+                    buttonIcon.innerHTML = '<div class="spinner"></div>'; // Reemplazar el icono por el spinner
+                }
+            }
+        })
     </script>
 @endsection

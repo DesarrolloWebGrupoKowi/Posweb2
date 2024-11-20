@@ -27,9 +27,9 @@
         </div>
 
         <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
+        <div class="p-4 border-0 card" style="border-radius: 10px">
             <!--CONTAINER FILTROS-->
-            <form class="gap-2 pb-2 d-flex align-items-center justify-content-end" action="/ReporteConcentradoDeArticulos"
+            <form class="gap-2 pb-2 d-flex align-items-center justify-content-end flex-wrap" action="/ReporteConcentradoDeArticulos"
                 method="GET">
                 <div class="col-auto">
                     <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda">
@@ -59,40 +59,69 @@
                 </div>
             </form>
 
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Ciudad</th>
-                        <th>Tienda</th>
-                        <th>Grupo</th>
-                        <th>Código</th>
-                        <th>Articulo</th>
-                        <th>Cantidad</th>
-                        <th>Importe</th>
-                        <th class="rounded-end">Precio</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($concentrado->count() == 0)
+            <div class="content-table content-table-full" style="max-height: calc(65vh);">
+                <table class="w-100">
+                    <thead class="table-head">
                         <tr>
-                            <td colspan="6">No Hay Ventas en Rango de Fechas Seleccionadas!</td>
+                            <th class="rounded-start">Ciudad</th>
+                            <th>Tienda</th>
+                            <th>Grupo</th>
+                            <th>Código</th>
+                            <th>Articulo</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Iva</th>
+                            <th class="rounded-end">Importe</th>
                         </tr>
-                    @else
-                        @foreach ($concentrado as $tConcentrado)
+                    </thead>
+                    <tbody>
+                        @php
+                            // Inicializamos las variables para la suma
+                            $totalPeso = 0;
+                            $totalIva = 0;
+                            $totalImporte = 0;
+                        @endphp
+
+                        @if ($concentrado->count() == 0)
                             <tr>
-                                <td>{{ $tConcentrado->NomCiudad }}</td>
-                                <td>{{ $tConcentrado->NomTienda }}</td>
-                                <td>{{ $tConcentrado->NomGrupo }}</td>
-                                <td>{{ $tConcentrado->CodArticulo }}</td>
-                                <td>{{ $tConcentrado->NomArticulo }}</td>
-                                <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
-                                <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
-                                <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
+                                <td colspan="9">No Hay Ventas en Rango de Fechas Seleccionadas!</td>
                             </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
+                        @else
+                            @foreach ($concentrado as $tConcentrado)
+                                <tr>
+                                    <td>{{ $tConcentrado->NomCiudad }}</td>
+                                    <td>{{ $tConcentrado->NomTienda }}</td>
+                                    <td>{{ $tConcentrado->NomGrupo }}</td>
+                                    <td>{{ $tConcentrado->CodArticulo }}</td>
+                                    <td>{{ $tConcentrado->NomArticulo }}</td>
+                                    <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
+                                    <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
+                                    <td>{{ number_format($tConcentrado->Iva, 2) }}</td>
+                                    <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
+                                </tr>
+
+                                @php
+                                    // Acumulamos los valores
+                                    $totalPeso += $tConcentrado->Peso;
+                                    $totalIva += $tConcentrado->Iva;
+                                    $totalImporte += $tConcentrado->Importe;
+                                @endphp
+                            @endforeach
+                        @endif
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <td colspan="5"><strong>Total:</strong></td>
+                            <td><strong>{{ number_format($totalPeso, 3) }}</strong></td>
+                            <td></td>
+                            <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
+                            <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
+                        </tr>
+                    </tfoot>
+
+                </table>
+            </div>
         </div>
     </div>
 

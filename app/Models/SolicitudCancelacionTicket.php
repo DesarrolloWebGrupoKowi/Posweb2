@@ -19,6 +19,7 @@ class SolicitudCancelacionTicket extends Model
         'SolicitudAprobada',
         'FechaAprobacion',
         'IdUsuarioAprobacion',
+        'SolicitudCancelacion',
         'Status'
     ];
     public $timestamps = false;

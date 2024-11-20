@@ -96,7 +96,7 @@
 
     <div class="mb-4" style="padding-top: 59px">
         @if (!request()->routeIs('dashboard') && Auth::user()->tipoUsuario->IdTipoUsuario == 2)
-            <div style="background: #cbd5e1">
+            <div style="background: #cbd5e1; position: sticky; top:59px; z-index: 9;">
                 <div class="container-fluid @yield('dashboardWidth')">
                     <a href="/Dashboard" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
                         style="color: #1e293b; font-weight: 500">

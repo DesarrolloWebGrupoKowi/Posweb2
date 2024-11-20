@@ -7,6 +7,18 @@
         <div class="card border-0 p-4 flex-1" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Reporte de Ventas a Empleados'])
+                <div>
+                    <form action="/VentaEmpleadosExcel" method="GET">
+                        <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                        <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                        <input type="hidden" name="chkNomina" value="{{ $chkNomina }}">
+                        <input type="hidden" name="numNomina" value="{{ $numNomina }}">
+                        <input type="hidden" name="idTienda" value="{{ $idTienda }}">
+                        <button type="submit" class="input-group-text text-decoration-none btn-excel">
+                            Exportar @include('components.icons.excel')
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -19,6 +31,15 @@
                 <div class="col-auto">
                     <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha2"
                         id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                </div>
+                <div class="col-auto">
+                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda">
+                        <option value="">Seleccione Tienda</option>
+                        @foreach ($tiendas as $tienda)
+                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-auto">
                     <div class="input-group">
@@ -37,51 +58,59 @@
                     </button>
                 </div>
             </form>
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Fecha Compra</th>
-                        <th>Tienda</th>
-                        <th>Nómina</th>
-                        <th>Empleado</th>
-                        <th>Empresa</th>
-                        <th>Ticket</th>
-                        <th>Importe</th>
-                        <th class="rounded-end">Crédito</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @include('components.table-empty', ['items' => $ventasEmpleado, 'colspan' => 8])
-                    @foreach ($ventasEmpleado as $ventaEmpleado)
+            <div class="content-table content-table-full">
+                <table class="w-100">
+                    <thead class="table-head">
                         <tr>
-                            <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ventaEmpleado->FechaVenta)) }}</td>
-                            <td>{{ $ventaEmpleado->NomTienda }}</td>
-                            <td>{{ $ventaEmpleado->NumNomina }}</td>
-                            <td>{{ $ventaEmpleado->Nombre }} {{ $ventaEmpleado->Apellidos }}</td>
-                            <td>{{ $ventaEmpleado->Empresa }}</td>
-                            <td>{{ $ventaEmpleado->IdTicket }}</td>
-                            <td>{{ number_format($ventaEmpleado->ImporteArticulo, 2) }}</td>
-                            <td>
-                                @if ($ventaEmpleado->StatusCredito == '0')
-                                    @include('components.icons.check-all')
-                                @endif
-                            </td>
+                            <th class="rounded-start">Fecha Compra</th>
+                            <th>Tienda</th>
+                            <th>Nómina</th>
+                            <th>Empleado</th>
+                            <th>Empresa</th>
+                            <th>Ticket</th>
+                            <th>Codigo</th>
+                            <th>Articulo</th>
+                            <th>Importe</th>
+                            <th class="rounded-end">Crédito</th>
                         </tr>
-                    @endforeach
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th>Totales: </th>
-                        <th>{{ number_format($importeTotal, 2) }}</th>
-                        <th>{{ number_format($importeCredito, 2) }}</th>
-                    </tr>
-                </tfoot>
-            </table>
+                    </thead>
+                    <tbody>
+                        @include('components.table-empty', ['items' => $ventasEmpleado, 'colspan' => 10])
+                        @foreach ($ventasEmpleado as $ventaEmpleado)
+                            <tr>
+                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ventaEmpleado->FechaVenta)) }}</td>
+                                <td>{{ $ventaEmpleado->NomTienda }}</td>
+                                <td>{{ $ventaEmpleado->NumNomina }}</td>
+                                <td>{{ $ventaEmpleado->Nombre }} {{ $ventaEmpleado->Apellidos }}</td>
+                                <td>{{ $ventaEmpleado->Empresa }}</td>
+                                <td>{{ $ventaEmpleado->IdTicket }}</td>
+                                <td>{{ $ventaEmpleado->CodArticulo }}</td>
+                                <td>{{ $ventaEmpleado->NomArticulo }}</td>
+                                <td>{{ number_format($ventaEmpleado->ImporteArticulo, 2) }}</td>
+                                <td>
+                                    @if ($ventaEmpleado->StatusCredito == '0')
+                                        @include('components.icons.check-all')
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Totales: </th>
+                            <th>{{ number_format($importeTotal, 2) }}</th>
+                            <th>{{ number_format($importeCredito, 2) }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
 

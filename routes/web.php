@@ -185,7 +185,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('AgregarArticulo/{id}', 'App\Http\Controllers\ArticulosController@AgregarArticulo');
 
     //Articulo Item
-    Route::get('BuscarArticulo', 'App\Http\Controllers\ArticulosController@BuscarArticulo');
+    Route::get('BuscarArticulo', 'App\Http\Controllers\ArticulosController@BuscarArticulo')->name('BuscarArticulo');
 
     //LigarArticulo
     Route::post('LigarArticulo', 'App\Http\Controllers\ArticulosController@LigarArticulo');
@@ -559,6 +559,9 @@ Route::group(['middleware' => 'auth'], function () {
     //VentaEmpleados
     Route::get('VentaEmpleados', 'App\Http\Controllers\EmpleadosController@VentaEmpleados');
 
+    //VentaEmpleadosExcel
+    Route::get('VentaEmpleadosExcel', 'App\Http\Controllers\EmpleadosController@VentaEmpleadosExcel');
+
     //VentasCredito
     Route::get('/VentasCredito', 'App\Http\Controllers\EmpleadosController@VentasCredito');
 
@@ -776,6 +779,12 @@ Route::group(['middleware' => 'auth'], function () {
 
     //GenerarCorteOraclePDF
     Route::get('/GenerarCorteOraclePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@GenerarCorteOraclePDF')->name('GenerarCorteOraclePDF');
+
+    //Procesar pedidos
+    Route::get('/procesarclientescontado/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesContado')->name('ProcesarClientesContado');
+
+    //Procesar facturas
+    Route::get('/procesarclientesfacturas/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesFacturas')->name('ProcesarClientesFacturas');
 
 
     //+============================================================================================================================================+//
