@@ -22,9 +22,13 @@ class UsuariosController extends Controller
 
         $usuarios = DB::table('CatUsuarios')
             ->leftJoin('CatTipoUsuarios', 'CatUsuarios.IdTipoUsuario', '=', 'CatTipoUsuarios.IdTipoUsuario')
-            ->select('IdUsuario', 'NomUsuario', 'NumNomina', 'Correo', 'CatTipoUsuarios.NomTipoUsuario', 'CatUsuarios.IdTipoUsuario', 'CatUsuarios.Status')
+            ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', '=', 'CatUsuarios.NumNomina')
+            ->select('IdUsuario', 'NomUsuario', 'CatUsuarios.NumNomina', 'Correo', 'CatTipoUsuarios.NomTipoUsuario', 'CatUsuarios.IdTipoUsuario', 'CatUsuarios.Status', 'CatEmpleados.Nombre', 'CatEmpleados.Apellidos')
             ->whereNotIn('IdUsuario', [Auth::user()->IdUsuario])
-            ->where('NomUsuario', 'like', '%' . $txtFiltro . '%')
+            ->where(function($query) use ($txtFiltro) {
+                $query->where('NomUsuario', 'like', '%' . $txtFiltro . '%')
+                      ->orWhere('CatUsuarios.NumNomina', 'like', '%' . $txtFiltro . '%');
+            })
             ->when(!empty($idTipoUsuario), function ($query) use ($idTipoUsuario) {
                 return $query->where('CatUsuarios.IdTipoUsuario', $idTipoUsuario);
             })
