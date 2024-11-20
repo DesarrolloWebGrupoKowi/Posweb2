@@ -12,6 +12,7 @@ use App\Models\DatCorteInvTmp;
 use App\Models\DatDetalle;
 use App\Models\DatEncabezado;
 use App\Models\DatMonederoElectronico;
+use App\Models\DatTipoPago;
 use App\Models\HistorialMovimientoProducto;
 use App\Models\InventarioTienda;
 use App\Models\SolicitudCancelacionTicket;
@@ -359,23 +360,61 @@ class CancelacionTicketsController extends Controller
             'TipoPago',
             'SolicitudCancelacionTicket',
         ])
-            ->where('IdTicket', $idTicket)
+            ->select('DatEncabezado.*', 'CatEmpleados.Nombre', 'CatEmpleados.Apellidos')
+            ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'DatEncabezado.IdUsuario')
+            ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina')
+            ->when($idTicket >= 8, fn($q) => $q->where('IdEncabezado', $idTicket))
+            ->when($idTicket < 8, fn($q) => $q->where('IdTicket', $idTicket))
+            ->when($idTicket < 8, fn($q) => $q->whereDate('FechaVenta', date('d-m-Y')))
+            // ->where('IdTicket', $idTicket)
             ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', date('d-m-Y'))
+            // ->whereDate('FechaVenta', date('d-m-Y'))
             ->first();
 
-        $ticketEncontrado = (empty($ticket)) ? 'no' : 'si';
 
-        $ticketConSolicitud = 'no';
-        if (!empty($ticket->IdEncabezado)) {
-            if (SolicitudCancelacionTicket::where('IdEncabezado', $ticket->IdEncabezado)->exists()) {
-                $ticketConSolicitud = 'si';
+        if (isset($ticket)) {
+            $usuario = $ticket->Nombre . ' ' . $ticket->Apellidos;
+            $cambio = DatTipoPago::where('IdEncabezado', $ticket->IdEncabezado)
+                ->where('Restante', '>=', 0)
+                ->first();
+
+            $empleado = DB::table('CatEmpleados')
+                ->where('NumNomina', $ticket->NumNomina)
+                ->first();
+
+            $frecuenteSocio = DB::table('CatFrecuentesSocios')
+                ->where('FolioViejo', $ticket->NumNomina)
+                ->first();
+
+            $ticketEncontrado = (empty($ticket)) ? 'no' : 'si';
+
+            $ticketConSolicitud = 'no';
+            if (!empty($ticket->IdEncabezado)) {
+                if (SolicitudCancelacionTicket::where('IdEncabezado', $ticket->IdEncabezado)->exists()) {
+                    $ticketConSolicitud = 'si';
+                }
             }
+        } else {
+            $usuario = '';
+            $cambio = '';
+            $empleado = '';
+            $frecuenteSocio = '';
+            $ticketEncontrado = '';
+            $ticketConSolicitud = '';
         }
 
         //return $ticketConSolicitud;
 
-        return view('CancelacionTickets.SolicitudCancelacionTicket', compact('idTicket', 'ticket', 'ticketEncontrado', 'ticketConSolicitud'));
+        return view('CancelacionTickets.SolicitudCancelacionTicket', compact(
+            'idTicket',
+            'ticket',
+            'ticketEncontrado',
+            'ticketConSolicitud',
+            'cambio',
+            'usuario',
+            'empleado',
+            'frecuenteSocio'
+        ));
     }
 
     public function SolicitarCancelacion($idEncabezado, Request $request)

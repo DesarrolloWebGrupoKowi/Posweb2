@@ -131,6 +131,12 @@ class SolicitudFactura extends Model
             );
     }
 
+    public function DetalleTicket()
+    {
+        return $this->hasMany(CorteTienda::class, 'IdEncabezado', 'IdEncabezado')
+            ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatCortesTienda.IdArticulo');
+    }
+
     public function PedidoOracle()
     {
         return $this->hasMany(CorteTienda::class, 'IdSolicitudFactura', 'IdSolicitudFactura');

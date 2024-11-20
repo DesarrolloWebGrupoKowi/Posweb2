@@ -103,6 +103,12 @@
                     </div>
                 </div>
                 <div class="col-sm-6 col-md-3">
+                    <label>No Ticket:</label>
+                    <div>
+                        <span>{{ $solicitud->IdTicket }}</span>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
                     <label>Id Cliente Cloud: </label>
                     <div>
                         <span>

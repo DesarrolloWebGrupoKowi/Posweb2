@@ -46,14 +46,28 @@ class SolicitudesFacturaController extends Controller
             array_push($ids, $tienda->IdTienda);
         }
 
-        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
+        $solicitudes = SolicitudFactura::select(
+            'SolicitudFactura.Id',
+            'SolicitudFactura.IdSolicitudFactura',
+            'DatEncabezado.IdTicket',
+            'CatTiendas.NomTienda',
+            'SolicitudFactura.FechaSolicitud',
+            'SolicitudFactura.TipoPersona',
+            'SolicitudFactura.NomCliente',
+            'SolicitudFactura.RFC',
+            'SolicitudFactura.MetodoPago',
+            'SolicitudFactura.UsoCFDI',
+            'SolicitudFactura.Status'
+        )
+            ->whereHas('DetalleTicket', function ($query) {
+                $query->whereColumn('DatCortesTienda.IdTipoPago', 'SolicitudFactura.IdTipoPago');
+            })
+            ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'SolicitudFactura.IdEncabezado')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
             ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('NomCliente', 'LIKE', '%' . $searchQuery . '%')
-            // ->where('SolicitudFactura.Status', '0')
-            // ->whereNull('SolicitudFactura.Editar')
             ->where(function ($query) {
                 $query->whereNull('SolicitudFactura.Editar')
                     ->orWhere('SolicitudFactura.Status', '1');
@@ -61,10 +75,24 @@ class SolicitudesFacturaController extends Controller
             ->whereIn('SolicitudFactura.IdTienda', $ids)
             ->where('SolicitudFactura.IdTienda', 'LIKE', $idTienda)
             ->orderBy('SolicitudFactura.FechaSolicitud', 'desc')
+            ->groupBy(
+                'SolicitudFactura.Id',
+                'SolicitudFactura.IdSolicitudFactura',
+                'DatEncabezado.IdTicket',
+                'CatTiendas.NomTienda',
+                'SolicitudFactura.FechaSolicitud',
+                'SolicitudFactura.TipoPersona',
+                'SolicitudFactura.NomCliente',
+                'SolicitudFactura.RFC',
+                'SolicitudFactura.MetodoPago',
+                'SolicitudFactura.UsoCFDI',
+                'SolicitudFactura.Status'
+            )
             ->paginate(10)
             ->onEachSide(1);
 
-        $solicitudesPendientes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
+        $solicitudesPendientes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'DatEncabezado.IdTicket')
+            ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'SolicitudFactura.IdEncabezado')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
             ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])

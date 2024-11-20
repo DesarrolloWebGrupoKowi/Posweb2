@@ -39,11 +39,14 @@
                     <thead class="table-head">
                         <tr>
                             <th class="rounded-start">Id</th>
+                            <th>Ticket</th>
                             <th>Tienda</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
                             <th>Nombre</th>
                             <th>RFC</th>
+                            <th>MP</th>
+                            <th>CFDI</th>
                             <th>Status</th>
                             <th class="rounded-end">Acciones</th>
                         </tr>
@@ -54,11 +57,14 @@
                             {{-- <tr style="line-height: .9rem"> --}}
                             <tr>
                                 <td>{{ $solicitud->IdSolicitudFactura }}</td>
+                                <td>{{ $solicitud->IdTicket }}</td>
                                 <td>{{ $solicitud->NomTienda }}</td>
                                 <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
                                 <td>{{ $solicitud->TipoPersona }}</td>
                                 <td>{{ $solicitud->NomCliente }}</td>
                                 <td>{{ $solicitud->RFC }}</td>
+                                <td>{{ $solicitud->MetodoPago }}</td>
+                                <td>{{ $solicitud->UsoCFDI }}</td>
                                 <td>
                                     @if ($solicitud->Status == 1)
                                         <span class="tags-red">Cancelada</span>
@@ -68,6 +74,10 @@
                                     @endif
                                 </td>
                                 <td>
+                                    <button class="btn-table btn-table-show border border-3" data-bs-toggle="modal"
+                                        data-bs-target="#ModalTickets{{ $solicitud->Id }}" title="Detalle de ticket">
+                                        @include('components.icons.list-ol')
+                                    </button>
                                     <a href="/SolicitudesFactura/{{ $solicitud->Id }}" class="btn-table border border-3">
                                         @include('components.icons.list')
                                     </a>
@@ -78,9 +88,10 @@
                                             @include('components.icons.delete')
                                         </button>
                                     @endif
+                                    @include('SolicitudesFactura.ModalTickets')
+                                    @include('SolicitudesFactura.ModalCancelarSolicitud')
                                 </td>
                             </tr>
-                            @include('SolicitudesFactura.ModalCancelarSolicitud')
                         @endforeach
                     </tbody>
                 </table>
@@ -91,13 +102,14 @@
 
         <div class="pt-3 pb-5">
             <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
-                Solicitudes pendientes de ralacionar
+                Solicitudes pendientes de relacionar
             </span>
             <div class="content-table content-table-flex-none card p-3 border border-5" style="border-radius: 10px">
                 <table>
                     <thead class="table-head">
                         <tr>
                             <th class="rounded-start">Id</th>
+                            <th>Ticket</th>
                             <th>Tienda</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
@@ -115,6 +127,7 @@
                             {{-- <tr style="line-height: .9rem"> --}}
                             <tr>
                                 <td>{{ $solicitud->IdSolicitudFactura }}</td>
+                                <td>{{ $solicitud->IdTicket }}</td>
                                 <td>{{ $solicitud->NomTienda }}</td>
                                 <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
                                 <td>{{ $solicitud->TipoPersona }}</td>

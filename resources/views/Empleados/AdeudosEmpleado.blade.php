@@ -32,6 +32,7 @@
                     <tr>
                         <th class="rounded-start">Tienda</th>
                         <th>Fecha Venta</th>
+                        <th>Id ticket</th>
                         <th class="rounded-end">Adeudo</th>
                     </tr>
                 </thead>
@@ -45,6 +46,7 @@
                             <tr>
                                 <td>{{ $adeudoEmpleado->NomTienda }}</td>
                                 <td>{{ strftime('%d %B %Y, %H:%M', strtotime($adeudoEmpleado->FechaVenta)) }}</td>
+                                <td>{{ $adeudoEmpleado->IdTicket }}</td>
                                 <td>${{ number_format($adeudoEmpleado->ImporteCredito, 2) }}</td>
                             </tr>
                             @php
@@ -58,7 +60,7 @@
                                 <td>
                                     <span class="tags-red">ADEUDO EXTERNO</span>
                                 </td>
-                                <td>{{ strftime('%d %B %Y, %H:%M', strtotime($externo->FechaVenta)) }}</td>
+                                <td colspan="2">{{ strftime('%d %B %Y, %H:%M', strtotime($externo->FechaVenta)) }}</td>
                                 <td>${{ number_format($externo->CreditoActual, 2) }}</td>
                             </tr>
                             @php
@@ -70,6 +72,7 @@
                 @if (count($adeudo) > 0)
                     <tfoot>
                         <tr style="font-weight: 500">
+                            <td></td>
                             <td></td>
                             <td class="text-end">Total Adeudo: </td>
                             <td>${{ number_format($adeudoTotal, 2) }}</td>
