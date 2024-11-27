@@ -207,7 +207,7 @@ class InterfazMermasController extends Controller
                 ->whereNull('a.IdUsuarioInterfaz')
                 ->get();
 
-            //return $mermas;
+            // return $mermas;
 
             $source_Header_Id = DB::select("SELECT (SELECT * FROM OPENQUERY(SERVER, 'SELECT NEXT VALUE FOR CLOUD_INTERFACE..PRICE_ADJ_IDENTIFIER_SEQ')) as SOURCE_HEADER_ID_SEQ");
             foreach ($source_Header_Id as $key => $value) {
@@ -227,7 +227,10 @@ class InterfazMermasController extends Controller
                     $RestanteMerma = $merma->CantArticulo;
 
                     foreach ($merma->Lotes as $keyLoteMerma => $loteMerma) {
-                        if ($totalLote >= $merma->CantArticulo) {
+                        $cant_1 = round(($totalLote * 1000) / 1000, 4);
+                        $cant_2 = round(($merma->CantArticulo * 1000) / 1000, 4);
+
+                        if ($cant_1 >= $cant_2) {
                             $sourceLineId = $sourceLineId + 1;
                             $auxLote = $loteMerma->TOTAL;
                             $auxCantMerma = $RestanteMerma;
