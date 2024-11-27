@@ -71,6 +71,7 @@
                             <th>Codigo</th>
                             <th>Articulo</th>
                             <th>Importe</th>
+                            <th>Tipo empleado</th>
                             <th class="rounded-end">Crédito</th>
                         </tr>
                     </thead>
@@ -87,6 +88,9 @@
                                 <td>{{ $ventaEmpleado->CodArticulo }}</td>
                                 <td>{{ $ventaEmpleado->NomArticulo }}</td>
                                 <td>{{ number_format($ventaEmpleado->ImporteArticulo, 2) }}</td>
+                                <td>
+                                    {{ ['' => '', 3 => 'SEMANAL', 4 => 'QUINCENAL'][$ventaEmpleado->TipoNomina] }}
+                                </td>
                                 <td>
                                     @if ($ventaEmpleado->StatusCredito == '0')
                                         @include('components.icons.check-all')

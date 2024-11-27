@@ -10,6 +10,7 @@
             <th>Codigo</th>
             <th>Articulo</th>
             <th>Importe</th>
+            <th>Tipo Empleado</th>
             <th>Crédito</th>
         </tr>
     </thead>
@@ -30,6 +31,9 @@
                     <td>{{ $item->CodArticulo }}</td>
                     <td>{{ $item->NomArticulo }}</td>
                     <td>{{ $item->ImporteArticulo }}</td>
+                    <td>
+                        {{ ['' => '', 3 => 'SEMANAL', 4 => 'QUINCENAL'][$item->TipoNomina] }}
+                    </td>
                     <td>{{ $item->StatusCredito === '0' ? 'Si' : '' }}</td>
                 </tr>
             @endforeach
