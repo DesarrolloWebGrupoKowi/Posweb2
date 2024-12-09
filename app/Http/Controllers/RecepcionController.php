@@ -65,7 +65,8 @@ class RecepcionController extends Controller
                 " select Referencia, '', '" . $tienda->Almacen . "', 0, 0, '0', a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo" .
                 " from CapRecepcionManualTmp as a" .
                 " left join CatArticulos as b on b.CodArticulo=a.CodArticulo" .
-                " where a.IdTienda = '" . $tienda->IdTienda . "' "
+                " where a.IdTienda = '" . $tienda->IdTienda . "' " .
+                " and b.Status = 0"
         );
 
         $totalRecepcion = DatRecepcion::where('IdCapRecepcion', $idRecepcion)
@@ -105,6 +106,7 @@ class RecepcionController extends Controller
 
             // if ($dRecepcion->count() == 0) {
             $articulos = Articulo::where('CodArticulo', $filtroArticulo)
+                ->where('Status', 0)
                 ->get();
             // } else {
             //     $articuloPendiente = 0;
@@ -119,6 +121,7 @@ class RecepcionController extends Controller
                     " where a.Almacen = 'ALP-114'" .
                     " and a.IdStatusRecepcion = 1" .
                     " and c.NomArticulo like '%" . $filtroArticulo . "%')")
+                ->where('Status', 0)
                 ->get();
         }
 
@@ -156,6 +159,7 @@ class RecepcionController extends Controller
         $articulosManual = DB::table('CapRecepcionManualTmp as a')
             ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
             ->where('a.IdTienda', $idTienda)
+            ->where('b.Status', 0)
             ->get();
 
         return view('Recepcion.CapturaManualTmp', compact('articulosManual'));

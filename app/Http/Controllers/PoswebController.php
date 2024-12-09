@@ -2066,6 +2066,7 @@ class PoswebController extends Controller
 
         // Cargar usuarios, si el valor de idUsuario es necesario
         $usuarios = UsuarioTienda::leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'CatUsuariosTienda.IdUsuario')
+            ->where('CatUsuarios.Status', 0)
             ->get();
 
         // Bills to, optimizado para no usar el método "distinct" innecesariamente

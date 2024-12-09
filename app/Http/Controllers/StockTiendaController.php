@@ -39,6 +39,7 @@ class StockTiendaController extends Controller
                 $query->orWhere('b.NomArticulo', 'like', '%' . $codArticulo . '%');
             })
             ->where('a.StockArticulo', '>', 0)
+            ->where('b.Status', 0)
             ->orderBy('b.NomArticulo')
             ->get();
 
@@ -52,6 +53,7 @@ class StockTiendaController extends Controller
                 $query->orWhere('b.NomArticulo', 'like', '%' . $codArticulo . '%');
             })
             ->where('a.StockArticulo', '<=', 0)
+            ->where('b.Status', 0)
             ->orderBy('b.NomArticulo')
             ->get();
 
@@ -137,12 +139,14 @@ class StockTiendaController extends Controller
         $stocksPos  = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $idTienda)
             ->where('DatInventario.StockArticulo', '>', 0)
+            ->where('b.Status', 0)
             ->orderBy('b.NomArticulo')
             ->get();
 
         $stocksLess = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $idTienda)
             ->where('DatInventario.StockArticulo', '<=', 0)
+            ->where('b.Status', 0)
             ->orderBy('b.NomArticulo')
             ->get();
 
@@ -187,12 +191,14 @@ class StockTiendaController extends Controller
         $stocksPos  = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $idTienda)
             ->where('DatInventario.StockArticulo', '>', 0)
+            ->where('b.Status', 0)
             ->orderBy('b.NomArticulo')
             ->get();
 
         $stocksLess = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $idTienda)
             ->where('DatInventario.StockArticulo', '<=', 0)
+            ->where('b.Status', 0)
             ->orderBy('b.NomArticulo')
             ->get();
 
