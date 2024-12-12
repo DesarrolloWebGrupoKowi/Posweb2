@@ -76,7 +76,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @include('components.table-empty', ['items' => $ventasEmpleado, 'colspan' => 10])
+                        @include('components.table-empty', ['items' => $ventasEmpleado, 'colspan' => 11])
                         @foreach ($ventasEmpleado as $ventaEmpleado)
                             <tr>
                                 <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ventaEmpleado->FechaVenta)) }}</td>

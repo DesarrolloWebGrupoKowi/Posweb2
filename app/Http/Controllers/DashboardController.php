@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DatCaja;
 use App\Models\TipoMenu;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,8 @@ class DashboardController extends Controller
 {
     public function Dashboard()
     {
+        $idCaja =  DatCaja::where('status', 0)->where('activa', 0)->value('IdCaja');
+
         $tipoMenus = DB::table('CatMenus as a')
             ->leftJoin('CatTipoMenu as b', 'b.IdTipoMenu', 'a.IdTipoMenu')
             ->leftJoin('DatMenuTipoUsuario as c', 'c.IdMenu', 'a.IdMenu')
@@ -32,10 +35,14 @@ class DashboardController extends Controller
         $tipoMenus = count($tipoMenus) == 0 ? $condition : $tipoMenus;
 
         foreach ($tipoMenus as $key => $tipoMenuItem) {
-            $tipoMenu[$key] = $tipoMenuItem->IdTipoMenu;
+            if ($idCaja == 1)
+                $tipoMenu[$key] = $tipoMenuItem->IdTipoMenu;
+            else
+            if ($tipoMenuItem->IdTipoMenu != 5)
+                $tipoMenu[$key] = $tipoMenuItem->IdTipoMenu;
         }
 
-        //return $tipoMenu;
+        // return $tipoMenu;
 
         $menus = TipoMenu::with('DetalleMenu')
             ->whereIn('IdTipoMenu', $tipoMenu)
@@ -44,6 +51,6 @@ class DashboardController extends Controller
 
         //return $menus;
 
-        return view('Dashboard.DashboardMaterial', compact('menus'));
+        return view('Dashboard.DashboardMaterial', compact('menus', 'idCaja'));
     }
 }
