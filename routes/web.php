@@ -484,6 +484,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/ImprimirTicketVenta/{idEncabezado}/{restante}/{pago}', 'App\Http\Controllers\PoswebController@ImprimirTicketVenta')->name('ImprimirTicketVenta');
 
     //ReimprimirTicket
+
     Route::get('ReimprimirTicket', 'App\Http\Controllers\PoswebController@ReimprimirTicket')->name('ReimprimirTicket');
 
     //ImprimirTicket
