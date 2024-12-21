@@ -20,12 +20,12 @@
                 <div class="d-flex align-items-center gap-2">
                     <label for="fechaSolicitud" class="text-secondary" style="font-weight: 500">Buscar:</label>
                     <input type="date" class="form-control rounded" style="line-height: 18px" name="txtFecha"
-                        id="txtFecha" value="{{ $fecha }}" autofocus>
+                        id="txtFecha" value="{{ $fecha }}">
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     {{-- <label for="fechaSolicitud" class="text-secondary" style="font-weight: 500">Buscar:</label> --}}
                     <input type="text" class="form-control rounded" style="line-height: 18px" name="txtFolio"
-                        id="txtFolio" value="{{ $txtFolio }}" placeholder="Folio...">
+                        id="txtFolio" value="{{ $txtFolio }}" placeholder="Folio..." autofocus>
                 </div>
                 <button type="submit" class="btn btn-dark-outline">
                     @include('components.icons.search')
