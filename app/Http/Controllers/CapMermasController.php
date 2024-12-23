@@ -31,6 +31,7 @@ class CapMermasController extends Controller
         $articulosTipoMerma = DB::table('CatArticulos as a')
             ->leftJoin('DatArticulosTipoMerma as b', 'b.CodArticulo', 'a.CodArticulo')
             ->where('b.IdTipoMerma', $idTipoMerma)
+            ->where('a.Status', 0)
             ->where('b.Status', 0)
             ->get();
 
@@ -39,6 +40,7 @@ class CapMermasController extends Controller
             ->leftJoin('CatTiposMerma as c', 'c.IdTipoMerma', 'a.IdTipoMerma')
             ->leftJoin('CatSubTiposMerma as d', 'd.IdSubTipoMerma', 'a.IdSubTipoMerma')
             ->where('IdTienda', Auth::user()->usuarioTienda->IdTienda)
+            ->where('b.Status', 0)
             ->get();
 
         return view('CapMermas.CapMermas', compact('tiposMerma', 'subTiposMerma', 'idTipoMerma', 'articulosTipoMerma', 'tmpMermas'));
@@ -204,6 +206,7 @@ class CapMermasController extends Controller
                 ->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'CapMermas.CodArticulo')
                 ->leftJoin('CatTiposMerma', 'CatTiposMerma.IdTipoMerma', 'CapMermas.IdTipoMerma')
                 ->where('IdTienda', $idTienda)
+                ->where('CatArticulos.Status', 0)
                 ->whereRaw("cast(CapMermas.FechaCaptura as date) >= '" . $fecha1 . "' and cast(CapMermas.FechaCaptura as date) <= '" . $fecha2 . "' ")
                 ->groupBy(
                     'CapMermas.IdTipoMerma',
@@ -236,6 +239,7 @@ class CapMermasController extends Controller
                 ->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'CapMermas.CodArticulo')
                 ->leftJoin('CatTiposMerma', 'CatTiposMerma.IdTipoMerma', 'CapMermas.IdTipoMerma')
                 ->where('IdTienda', $idTienda)
+                ->where('CatArticulos.Status', 0)
                 ->whereRaw("cast(CapMermas.FechaCaptura as date) >= '" . $fecha1 . "' and cast(CapMermas.FechaCaptura as date) <= '" . $fecha2 . "' ")
                 ->orderBy(DB::raw("FORMAT(CapMermas.FechaCaptura, 'yyyy/MM/dd')"), 'DESC')
                 ->orderBy('CatTiposMerma.NomTipoMerma')
