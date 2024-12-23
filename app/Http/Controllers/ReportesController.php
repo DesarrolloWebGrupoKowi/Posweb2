@@ -404,6 +404,7 @@ class ReportesController extends Controller
             ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
             ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
             ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'CapMermas.IdTienda')
+            ->where('ca.status', 0)
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('CapMermas.IdTienda', $idTienda);
             })
@@ -448,6 +449,7 @@ class ReportesController extends Controller
                 ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
                 ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
                 ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'CapMermas.IdTienda')
+                ->where('ca.status', 0)
                 ->when($idTienda, function ($query) use ($idTienda) {
                     $query->where('CapMermas.IdTienda', $idTienda);
                 })
