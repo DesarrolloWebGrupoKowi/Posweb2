@@ -803,6 +803,7 @@ class CortesTiendaController extends Controller
                 'Customer',
                 'CorteTiendaOracle' => function ($query) use ($idTienda, $fecha, $idDatCaja) {
                     $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                        ->leftJoin('SolicitudCancelacionTicket as sc', 'sc.IdEncabezado', 'DatCortesTienda.IdEncabezado')
                         ->where('DatCortesTienda.IdTienda', $idTienda)
                         ->where('DatCortesTienda.StatusVenta', 0)
                         // ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
