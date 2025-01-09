@@ -76,7 +76,7 @@ h2 {
     text-transform: capitalize;
 }
 
-.btn-check:focus + .btn,
+.btn-check:focus+.btn,
 .btn:focus {
     outline: 0;
     box-shadow: none;
@@ -227,9 +227,11 @@ button[disabled] i {
 
 .tags-green {
     font-weight: 500;
-    color: rgb(3 84 63);
+    /* color: rgb(3 84 63); */
+    color: rgb(255, 255, 255);
     border-radius: 0.25rem;
-    background-color: rgb(222 247 236);
+    /* background-color: rgb(222 247 236); */
+    background-color: rgb(3 84 63);
     padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
@@ -239,9 +241,11 @@ button[disabled] i {
 
 .tags-blue {
     font-weight: 500;
-    color: rgb(30 66 159);
+    /* color: rgb(30 66 159); */
+    color: white;
     border-radius: 0.25rem;
-    background-color: rgb(225 239 254);
+    /* background-color: rgb(225 239 254); */
+    background-color: rgb(30 66 159);
     padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
@@ -251,9 +255,11 @@ button[disabled] i {
 
 .tags-red {
     font-weight: 500;
-    color: rgb(155 28 28);
+    /* color: rgb(155 28 28); */
+    color: white;
     border-radius: 0.25rem;
-    background-color: rgb(253 232 232);
+    /* background-color: rgb(253 232 232); */
+    background-color: rgb(155 28 28);
     padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
@@ -263,9 +269,11 @@ button[disabled] i {
 
 .tags-yellow {
     font-weight: 500;
-    color: rgb(114 59 19);
+    /* color: rgb(114 59 19); */
+    color: white;
     border-radius: 0.25rem;
-    background-color: rgb(253 246 178);
+    /* background-color: rgb(253 246 178); */
+    background-color: rgb(114 59 19);
     padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
@@ -274,23 +282,30 @@ button[disabled] i {
 }
 
 .router {
-    overflow: hidden; /* Evita el desbordamiento */
-    white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
-    text-overflow: ellipsis; /* Agrega puntos suspensivos si el contenido es demasiado largo */
+    overflow: hidden;
+    /* Evita el desbordamiento */
+    white-space: nowrap;
+    /* Evita que el texto se rompa en varias líneas */
+    text-overflow: ellipsis;
+    /* Agrega puntos suspensivos si el contenido es demasiado largo */
 }
 
 .router a {
-    margin: 0 0px; /* Espaciado horizontal entre enlaces */
+    margin: 0 0px;
+    /* Espaciado horizontal entre enlaces */
 }
 
 .router svg {
-    margin: 0 0px; /* Espaciado horizontal entre íconos y enlaces */
+    margin: 0 0px;
+    /* Espaciado horizontal entre íconos y enlaces */
 }
 
 @media (max-width: 576px) {
     .router {
-        flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
-        justify-content: flex-start; /* Alinea los elementos al inicio */
+        flex-wrap: wrap;
+        /* Permite que los elementos se envuelvan en pantallas pequeñas */
+        justify-content: flex-start;
+        /* Alinea los elementos al inicio */
     }
 }
 
@@ -415,7 +430,7 @@ table thead {
     font-size: smaller;
 }
 
-table > tbody > tr > td {
+table>tbody>tr>td {
     font-weight: 500;
 }
 
@@ -445,6 +460,7 @@ table > tbody > tr > td {
     color: #fff;
     font-weight: bold;
 }
+
 .pagination {
     display: flex;
     flex-wrap: wrap;
@@ -453,19 +469,24 @@ table > tbody > tr > td {
 }
 
 .pagination li {
-    margin: 0 5px; /* Espaciado entre elementos */
+    margin: 0 5px;
+    /* Espaciado entre elementos */
 }
 
 .pagination li a,
 .pagination li span {
-    padding: 8px 12px; /* Aumenta el área clickeable */
+    padding: 8px 12px;
+    /* Aumenta el área clickeable */
 }
 
 @media (max-width: 576px) {
+
     .pagination li a,
     .pagination li span {
-        padding: 6px 10px; /* Ajusta el tamaño para móviles */
-        font-size: 14px; /* Tamaño de fuente más pequeño */
+        padding: 6px 10px;
+        /* Ajusta el tamaño para móviles */
+        font-size: 14px;
+        /* Tamaño de fuente más pequeño */
     }
 }
 

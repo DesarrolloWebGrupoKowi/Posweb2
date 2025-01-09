@@ -66,6 +66,7 @@
         <br>
 
         <caption>Dia {{ $fecha }}</caption>
+        <caption>Hora: {{ \Carbon\Carbon::now()->format('g:i:s A') }}</caption>
         <caption>En caja {{ $numCaja == 0 ? 'TODAS' : $numCaja }}</caption>
 
         <br>
