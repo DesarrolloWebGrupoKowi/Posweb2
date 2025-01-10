@@ -230,9 +230,10 @@ class CortesTiendaController extends Controller
                         }
                     )
                     ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
-                    ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+                    ->leftJoin('SolicitudFactura as d', 'd.IdSolicitudFactura', 'a.IdSolicitudFactura')
+                    ->select(DB::raw('a.Bill_To, CASE WHEN NomClienteCloud IS NULL THEN \'SOLICITUDES DE FACTURAS\' ELSE NomClienteCloud END as NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
                     ->where('a.IdTienda', $idTienda)
-                    ->where('b.IdTienda', $idTienda)
+                    //->where('b.IdTienda', $idTienda)
                     // ->where('a.IdDatCaja', $idCaja)
                     ->when($idCaja > 0, function ($query) use ($idCaja) {
                         $query->where('a.IdDatCaja', $idCaja);
@@ -950,9 +951,9 @@ class CortesTiendaController extends Controller
                     }
                 )
                 ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
-                ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+                ->leftJoin('SolicitudFactura as d', 'd.IdSolicitudFactura', 'a.IdSolicitudFactura')
+                ->select(DB::raw('a.Bill_To, CASE WHEN NomClienteCloud IS NULL THEN \'SOLICITUDES DE FACTURAS\' ELSE NomClienteCloud END as NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
                 ->where('a.IdTienda', $idTienda)
-                ->where('b.IdTienda', $idTienda)
                 ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
                     $query->where('IdDatCaja', $idDatCaja);
                 })
