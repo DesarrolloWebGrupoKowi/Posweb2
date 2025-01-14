@@ -11,6 +11,10 @@
                 <div class="d-flex align-items-center justify-content-end gap-4">
                     <form class="d-flex align-items-center justify-content-end gap-2" action="/CorteDiario">
                         <div class="input-group" style="min-width: 200px">
+                            <input class="form-control rounded" style="line-height: 18px" name="codigo" id="codigo"
+                                type="text" value="{{ $codigo }}" placeholder="Buscar codigo">
+                        </div>
+                        <div class="input-group" style="min-width: 200px">
                             <input class="form-control rounded" style="line-height: 18px" name="fecha" id="fecha"
                                 type="date" value="{{ $fecha }}" autofocus>
                         </div>
