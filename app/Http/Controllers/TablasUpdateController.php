@@ -19,6 +19,8 @@ class TablasUpdateController extends Controller
 
         $tablasActualizables = TablaUpdate::where('IdTienda', $idTienda)
             ->orderBy('Descargar')
+            ->orderBy('IdCaja')
+            ->orderBy('NombreTabla')
             ->get();
 
         $tablasPorDescargar = TablaUpdate::where('Descargar', 0)
@@ -107,7 +109,6 @@ class TablasUpdateController extends Controller
 
             DB::commit();
             return back()->with('msjAdd', 'Tablas a Espera de Actualización');
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th);
@@ -134,6 +135,5 @@ class TablasUpdateController extends Controller
         }
 
         return back();
-
     }
 }

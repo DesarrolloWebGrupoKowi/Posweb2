@@ -581,7 +581,7 @@ class ReportesController extends Controller
                 CONVERT(varchar(12), Fecha, 103) as Fecha,
                 sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
                 sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
-                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
+                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' OR cliente IS NULL THEN Monedero ELSE 0 END) as contado
             from (
                 select
                     t.NomTienda,
@@ -673,7 +673,7 @@ class ReportesController extends Controller
                 CONVERT(varchar(12), Fecha, 103) as Fecha,
                 sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
                 sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
-                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
+                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' OR cliente IS NULL THEN Monedero ELSE 0 END) as contado
             from (
                 select
                     t.NomTienda,

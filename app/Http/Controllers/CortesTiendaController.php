@@ -72,7 +72,7 @@ class CortesTiendaController extends Controller
 
         //Corte diario
         if ($idReporte == 1) {
-            if ($idCaja == 0) {
+            if ($idCaja == -1) {
                 $billsTo = CorteTienda::where('IdTienda', $idTienda)
                     ->distinct('Bill_To')
                     ->whereDate('FechaVenta', $fecha1)
@@ -180,7 +180,9 @@ class CortesTiendaController extends Controller
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('StatusVenta', 0)
                     ->whereNull('IdSolicitudFactura')
-                    ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->pluck('Bill_To');
 
                 // TODO: CORTE GENERAL
@@ -200,9 +202,13 @@ class CortesTiendaController extends Controller
                     'Customer',
                     'CorteTiendaOracle' => function ($query) use ($idTienda, $fecha1, $idCaja) {
                         $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                            ->leftJoin('SolicitudCancelacionTicket as sc', 'sc.IdEncabezado', 'DatCortesTienda.IdEncabezado')
                             ->where('DatCortesTienda.IdTienda', $idTienda)
                             ->where('DatCortesTienda.StatusVenta', 0)
-                            ->where('DatCortesTienda.IdDatCaja', $idCaja)
+                            // ->where('DatCortesTienda.IdDatCaja', $idCaja)
+                            ->when($idCaja > 0, function ($query) use ($idCaja) {
+                                $query->where('DatCortesTienda.IdDatCaja', $idCaja);
+                            })
                             ->whereDate('FechaVenta', $fecha1)
                             ->whereNull('DatCortesTienda.IdSolicitudFactura');
                     },
@@ -224,9 +230,14 @@ class CortesTiendaController extends Controller
                         }
                     )
                     ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
-                    ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+                    ->leftJoin('SolicitudFactura as d', 'd.IdSolicitudFactura', 'a.IdSolicitudFactura')
+                    ->select(DB::raw('a.Bill_To, CASE WHEN NomClienteCloud IS NULL THEN \'SOLICITUDES DE FACTURAS\' ELSE NomClienteCloud END as NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
                     ->where('a.IdTienda', $idTienda)
-                    ->where('b.IdTienda', $idTienda)
+                    //->where('b.IdTienda', $idTienda)
+                    // ->where('a.IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('a.IdDatCaja', $idCaja);
+                    })
                     ->whereDate('a.FechaVenta', $fecha1)
                     ->where('a.IdTipoPago', 7)
                     ->where('a.IdListaPrecio', 4)
@@ -238,21 +249,30 @@ class CortesTiendaController extends Controller
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('IdTipoPago', 5)
                     ->where('StatusVenta', 0)
-                    ->where('IdDatCaja', $idCaja)
+                    // ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('ImporteArticulo');
 
                 $totalTarjetaCredito = CorteTienda::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('IdTipoPago', 4)
                     ->where('StatusVenta', 0)
-                    ->where('IdDatCaja', $idCaja)
+                    // ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('ImporteArticulo');
 
                 $totalEfectivo = CorteTienda::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('IdTipoPago', 1)
                     ->where('StatusVenta', 0)
-                    ->where('IdDatCaja', $idCaja)
+                    // ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('ImporteArticulo');
 
                 $creditoQuincenal = DB::table('DatCortesTienda as a')
@@ -262,7 +282,10 @@ class CortesTiendaController extends Controller
                     ->where('StatusVenta', 0)
                     ->whereIn('IdTipoPago', [2])
                     ->where('TipoNomina', 4)
-                    ->where('IdDatCaja', $idCaja)
+                    // ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('ImporteArticulo');
 
                 $creditoSemanal = DB::table('DatCortesTienda as a')
@@ -272,7 +295,10 @@ class CortesTiendaController extends Controller
                     ->where('StatusVenta', 0)
                     ->whereIn('IdTipoPago', [2])
                     ->where('TipoNomina', 3)
-                    ->where('a.IdDatCaja', $idCaja)
+                    // ->where('a.IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('ImporteArticulo');
 
                 $totalTransferencia = DB::table('DatCortesTienda as a')
@@ -280,14 +306,20 @@ class CortesTiendaController extends Controller
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('StatusVenta', 0)
                     ->where('IdTipoPago', 3)
-                    ->where('a.IdDatCaja', $idCaja)
+                    // ->where('a.IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('ImporteArticulo');
 
                 $totalFactura = CorteTienda::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('StatusVenta', 0)
                     ->whereNotNull('IdSolicitudFactura')
-                    ->where('IdDatCaja', $idCaja)
+                    // ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('ImporteArticulo');
 
                 // TODO: CLIENTES FACTURAS
@@ -308,7 +340,10 @@ class CortesTiendaController extends Controller
                     'Factura' => function ($query) use ($idCaja) {
                         $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                             ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                            ->where('DatCortesTienda.IdDatCaja', $idCaja);
+                            // ->where('DatCortesTienda.IdDatCaja', $idCaja);
+                            ->when($idCaja > 0, function ($query) use ($idCaja) {
+                                $query->where('DatCortesTienda.IdDatCaja', $idCaja);
+                            });
                     }
                 ])
                     ->where('IdTienda', $idTienda)
@@ -348,7 +383,7 @@ class CortesTiendaController extends Controller
         }
         //Concentrado de ventas por rango de fechas
         if ($idReporte == 2) {
-            if ($idCaja == 0) {
+            if ($idCaja == -1) {
                 $concentrado = DB::table('DatEncabezado as a')
                     ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                     ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
@@ -391,7 +426,10 @@ class CortesTiendaController extends Controller
                             b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe'))
                     ->where('a.IdTienda', $idTienda)
                     ->where('a.StatusVenta', 0)
-                    ->where('a.IdDatCaja', $idCaja)
+                    // ->where('a.IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('a.IdDatCaja', $idCaja);
+                    })
                     ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                     ->groupBy('c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'd.NomFamilia', 'e.NomGrupo')
                     ->orderBy('c.CodArticulo')
@@ -401,7 +439,10 @@ class CortesTiendaController extends Controller
                     ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                     ->where('a.IdTienda', $idTienda)
                     ->where('a.StatusVenta', 0)
-                    ->where('a.IdDatCaja', $idCaja)
+                    // ->where('a.IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('a.IdDatCaja', $idCaja);
+                    })
                     ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                     ->sum('b.CantArticulo');
 
@@ -409,7 +450,10 @@ class CortesTiendaController extends Controller
                     ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                     ->where('a.IdTienda', $idTienda)
                     ->where('a.StatusVenta', 0)
-                    ->where('a.IdDatCaja', $idCaja)
+                    // ->where('a.IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('a.IdDatCaja', $idCaja);
+                    })
                     ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                     ->sum('b.ImporteArticulo');
 
@@ -417,7 +461,10 @@ class CortesTiendaController extends Controller
                     ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                     ->where('a.IdTienda', $idTienda)
                     ->where('a.StatusVenta', 0)
-                    ->where('a.IdDatCaja', $idCaja)
+                    // ->where('a.IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('a.IdDatCaja', $idCaja);
+                    })
                     ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                     ->sum('b.IvaArticulo');
             }
@@ -444,7 +491,7 @@ class CortesTiendaController extends Controller
         }
         //Venta por ticket diario
         if ($idReporte == 3) {
-            if ($idCaja == 0) {
+            if ($idCaja == -1) {
                 $cajas = DatCaja::where('IdTienda', $idTienda)
                     ->get();
 
@@ -479,7 +526,10 @@ class CortesTiendaController extends Controller
                         ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
                 }, 'Caja', 'TipoPago', 'SolicitudFactura', 'SolicitudCancelacionTicket'])
                     ->where('IdTienda', $idTienda)
-                    ->where('IdDatCaja', $idCaja)
+                    // ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->whereDate('FechaVenta', $fecha1)
                     ->orderBy('IdTicket')
                     ->get();
@@ -487,20 +537,26 @@ class CortesTiendaController extends Controller
                 $total = DatEncabezado::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('StatusVenta', 0)
-                    ->where('IdDatCaja', $idCaja)
+                    // ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('ImporteVenta');
 
                 $totalIva = DatEncabezado::where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('StatusVenta', 0)
-                    ->where('IdDatCaja', $idCaja)
+                    // ->where('IdDatCaja', $idCaja)
+                    ->when($idCaja > 0, function ($query) use ($idCaja) {
+                        $query->where('IdDatCaja', $idCaja);
+                    })
                     ->sum('Iva');
             }
 
             $numCaja = DatCaja::where('IdDatCajas', $idCaja)
                 ->value('IdCaja');
 
-            //return $tickets;
+            // return $tickets;
 
             return view('CortesTienda.VerCortesTienda', compact(
                 'tiendas',
@@ -608,7 +664,7 @@ class CortesTiendaController extends Controller
         $numCaja = DatCaja::where('IdDatCajas', $idDatCaja)
             ->value('IdCaja');
 
-        if ($idDatCaja == 0) {
+        if ($idDatCaja == -1) {
             $billsTo = CorteTienda::where('IdTienda', $idTienda)
                 ->distinct('Bill_To')
                 ->whereDate('FechaVenta', $fecha)
@@ -726,7 +782,10 @@ class CortesTiendaController extends Controller
                 ->distinct('Bill_To')
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->where('IdDatCaja', $idDatCaja)
+                // ->where('IdDatCaja', $idDatCaja)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->whereNull('IdSolicitudFactura')
                 ->pluck('Bill_To');
 
@@ -745,9 +804,13 @@ class CortesTiendaController extends Controller
                 'Customer',
                 'CorteTiendaOracle' => function ($query) use ($idTienda, $fecha, $idDatCaja) {
                     $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                        ->leftJoin('SolicitudCancelacionTicket as sc', 'sc.IdEncabezado', 'DatCortesTienda.IdEncabezado')
                         ->where('DatCortesTienda.IdTienda', $idTienda)
                         ->where('DatCortesTienda.StatusVenta', 0)
-                        ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
+                        // ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
+                        ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                            $query->where('DatCortesTienda.IdDatCaja', $idDatCaja);
+                        })
                         ->whereDate('FechaVenta', $fecha)
                         ->whereNull('DatCortesTienda.IdSolicitudFactura');
                 },
@@ -764,10 +827,16 @@ class CortesTiendaController extends Controller
                 'Factura' => function ($query) use ($idDatCaja) {
                     $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
                         ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                        ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
+                        // ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
+                        ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                            $query->where('DatCortesTienda.IdDatCaja', $idDatCaja);
+                        });
                 }
             ])
                 ->where('IdTienda', $idTienda)
+                ->when($idDatCaja > 0, function ($query) use ($numCaja) {
+                    $query->where('IdCaja', $numCaja);
+                })
                 ->where('Status', 0)
                 ->whereDate('FechaSolicitud', $fecha)
                 ->get();
@@ -776,21 +845,30 @@ class CortesTiendaController extends Controller
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 5)
                 ->where('StatusVenta', 0)
-                ->where('IdDatCaja', $idDatCaja)
+                // ->where('IdDatCaja', $idDatCaja)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->sum('ImporteArticulo');
 
             $totalTarjetaCredito = CorteTienda::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 4)
                 ->where('StatusVenta', 0)
-                ->where('IdDatCaja', $idDatCaja)
+                // ->where('IdDatCaja', $idDatCaja)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->sum('ImporteArticulo');
 
             $totalEfectivo = CorteTienda::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('IdTipoPago', 1)
                 ->where('StatusVenta', 0)
-                ->where('IdDatCaja', $idDatCaja)
+                // ->where('IdDatCaja', $idDatCaja)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->sum('ImporteArticulo');
 
             $creditoQuincenal = DB::table('DatCortesTienda as a')
@@ -800,7 +878,10 @@ class CortesTiendaController extends Controller
                 ->where('StatusVenta', 0)
                 ->whereIn('IdTipoPago', [2, 7])
                 ->where('TipoNomina', 4)
-                ->where('a.IdDatCaja', $idDatCaja)
+                // ->where('a.IdDatCaja', $idDatCaja)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->sum('ImporteArticulo');
 
             $creditoSemanal = DB::table('DatCortesTienda as a')
@@ -810,7 +891,10 @@ class CortesTiendaController extends Controller
                 ->where('StatusVenta', 0)
                 ->whereIn('IdTipoPago', [2, 7])
                 ->where('TipoNomina', 3)
-                ->where('a.IdDatCaja', $idDatCaja)
+                // ->where('a.IdDatCaja', $idDatCaja)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->sum('ImporteArticulo');
 
             $totalTransferencia = DB::table('DatCortesTienda as a')
@@ -818,13 +902,19 @@ class CortesTiendaController extends Controller
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
                 ->where('IdTipoPago', 3)
-                ->where('a.IdDatCaja', $idDatCaja)
+                // ->where('a.IdDatCaja', $idDatCaja)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->sum('ImporteArticulo');
 
             $totalFactura = CorteTienda::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->where('IdDatCaja', $idDatCaja)
+                // ->where('IdDatCaja', $idDatCaja)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->whereNotNull('IdSolicitudFactura')
                 ->sum('ImporteArticulo');
 
@@ -861,9 +951,12 @@ class CortesTiendaController extends Controller
                     }
                 )
                 ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
-                ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+                ->leftJoin('SolicitudFactura as d', 'd.IdSolicitudFactura', 'a.IdSolicitudFactura')
+                ->select(DB::raw('a.Bill_To, CASE WHEN NomClienteCloud IS NULL THEN \'SOLICITUDES DE FACTURAS\' ELSE NomClienteCloud END as NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
                 ->where('a.IdTienda', $idTienda)
-                ->where('b.IdTienda', $idTienda)
+                ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+                    $query->where('IdDatCaja', $idDatCaja);
+                })
                 ->whereDate('a.FechaVenta', $fecha)
                 ->where('a.IdTipoPago', 7)
                 ->where('a.IdListaPrecio', 4)
