@@ -2053,6 +2053,7 @@ class PoswebController extends Controller
 
     public function CorteDiario(Request $request)
     {
+        $codigo = $request->input('codigo');
         $fecha = $request->input('fecha', date('Y-m-d'));
         $idUsuario = $request->input('idUsuario', Auth::id());
 
@@ -2071,6 +2072,8 @@ class PoswebController extends Controller
 
         // Bills to, optimizado para no usar el método "distinct" innecesariamente
         $billsTo = CorteTienda::where('IdTienda', $idTienda)
+            ->leftJoin('CatArticulos as ca', 'ca.IdArticulo', 'DatCortesTienda.IdArticulo')
+            ->where('ca.CodArticulo', 'like', '%' . $codigo . '%')
             ->whereDate('FechaVenta', $fecha)
             ->where('StatusVenta', 0)
             ->whereNull('IdSolicitudFactura')
@@ -2078,9 +2081,10 @@ class PoswebController extends Controller
             ->pluck('Bill_To');
 
         // Obtener cortes de tienda
-        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda, $idUsuario) {
+        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda, $idUsuario, $codigo) {
             $query->where('DatCortesTienda.IdTienda', $idTienda)
                 ->where('DatCortesTienda.StatusVenta', 0)
+                ->where('CatArticulos.CodArticulo', 'like', '%' . $codigo . '%')
                 ->whereDate('DatCortesTienda.FechaVenta', $fecha)
                 ->whereNull('DatCortesTienda.IdSolicitudFactura')
                 ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario));
@@ -2120,8 +2124,9 @@ class PoswebController extends Controller
         $totalTransferencia = $this->getTotalByPaymentType($idTienda, $fecha, 3, null, $idUsuario);
         $totalFactura = $this->getTotalFactura($idTienda, $fecha, $idUsuario);
 
-        $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) use ($idUsuario) {
+        $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) use ($idUsuario, $codigo) {
             $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
+            $query->where('CatArticulos.CodArticulo', 'like', '%' . $codigo . '%');
             $query->where('DatEncabezado.StatusVenta', 0);
             $query->when($idUsuario, function ($q) use ($idUsuario) {
                 return $q->where('DatCortesTienda.IdUsuario', $idUsuario);
@@ -2143,6 +2148,7 @@ class PoswebController extends Controller
             'idUsuario',
             'usuarios',
             'cortesTienda',
+            'codigo',
             'fecha',
             'totalEfectivo',
             'facturas',
