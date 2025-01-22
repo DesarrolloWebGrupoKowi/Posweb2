@@ -804,6 +804,12 @@ Route::group(['middleware' => 'auth'], function () {
     //ReporteConcentradoDeArticulos
     Route::get('/ExportReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeArticulos')->name('ExportReporteConcentradoDeArticulos');
 
+    //ReporteConcentradoDeTickets
+    Route::get('/ReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeTickets')->name('ReporteConcentradoDeTickets');
+
+    // //ExportReporteConcentradoDeTickets
+    Route::get('/ExportReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeTickets')->name('ExportReporteConcentradoDeTickets');
+
     //ReportePorTipoDePrecio
     Route::get('/ReportePorTipoDePrecio', 'App\Http\Controllers\ReportesController@ReportePorTipoDePrecio')->name('ReportePorTipoDePrecio');
 
