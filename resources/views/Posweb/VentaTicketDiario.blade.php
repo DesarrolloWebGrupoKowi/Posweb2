@@ -55,8 +55,8 @@
                                 <td>{{ number_format($ticket->Iva, 2) }}</td>
                                 <td>
                                     <span class="{{ $ticket->Subir == 1 ? 'tags-green' : 'tags-red' }}">
-                                        @if ($ticket->StatusVenta == 1)
-                                            @include('components.icons.cloud-slash')
+                                        @if ($ticket->Subir == 1)
+                                            @include('components.icons.cloud-check')
                                         @else
                                             @include('components.icons.cloud-slash')
                                         @endif

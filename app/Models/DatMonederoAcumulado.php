@@ -9,7 +9,7 @@ class DatMonederoAcumulado extends Model
 {
     use HasFactory;
     protected $table = 'DatMonederoElectronico';
-    protected $fillable = ['IdEncabezado', 'NumNomina', 'FechaExpiracion', 'FechaGenerado', 'Monedero', 'Subir', 'descargar', 'BatchGasto'];
+    protected $fillable = ['IdEncabezado', 'NumNomina', 'FechaExpiracion', 'FechaGenerado', 'Monedero', 'Subir', 'descargar', 'BatchGasto', 'MonederoGastado', 'MonederoPorGastar'];
     public $timestamps = false;
-    protected $primaryKey = 'IdDatMonedero'; 
+    protected $primaryKey = 'IdDatMonedero';
 }

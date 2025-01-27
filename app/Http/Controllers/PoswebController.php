@@ -32,6 +32,7 @@ use App\Models\Tienda;
 use App\Models\TipoPagoTienda;
 use App\Models\UsuarioTienda;
 use App\Models\VentaCreditoEmpleado;
+use App\Services\VentaService;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +45,13 @@ use PDF;
 
 class PoswebController extends Controller
 {
+    protected $ventaService;
+
+    public function __construct(VentaService $ventaService)
+    {
+        $this->ventaService = $ventaService;
+    }
+
     public function Pos(Request $request)
     {
 
@@ -147,7 +155,7 @@ class PoswebController extends Controller
 
         $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
             ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-            ->sum('Monedero') - $monederoDescuento;
+            ->sum('MonederoPorGastar') - $monederoDescuento;
 
         $paquetes = CatPaquete::where('Status', 0)
             ->whereNull('FechaEliminacion')
@@ -1059,24 +1067,8 @@ class PoswebController extends Controller
     // Funcion para cuando se da al boton de pagar
     public function GuardarVenta(Request $request)
     {
-        Log::info('===============================================================================================================');
-        Log::info('');
-        Log::info('===========================================GUARDAR VENTA =======================================================');
-        Log::info('-->');
-        Log::info($request);
-        Log::info('-->usuario');
-        Log::info(Auth::user());
-        Log::info('-----> id tienda: ');
-        Log::info(Auth::user()->usuarioTienda->IdTienda);
-        Log::info('preventa');
         $preventaValidate = PreventaTmp::get();
-        Log::info($preventaValidate);
-
         $temporalPos = TemporalPos::first();
-
-        Log::info('-->Temporal post');
-        Log::info($temporalPos);
-
 
         try {
             DB::beginTransaction();
@@ -1105,19 +1097,17 @@ class PoswebController extends Controller
             }
 
             if ($multipago == null) {
+                /**
+                 * ================================================================================
+                 * ================================================================================
+                 * Detalles generales de la venta y validaciones
+                 * ================================================================================
+                 */
                 $idTipoPago = $request->tipoPago;
                 Log::info('-->');
                 Log::info('Tipo de pago: ' . $idTipoPago);
 
                 $idUsuario = Auth::user()->IdUsuario;
-
-                $preventaIdPedido = PreventaTmp::select('IdPedido')
-                    ->distinct()
-                    ->where('IdTienda', $idTienda)
-                    ->whereNotNull('IdPedido')
-                    ->first();
-
-                empty($preventaIdPedido) ? $idPedidoDist = null : $idPedidoDist = $preventaIdPedido->IdPedido;
 
                 $pago = $request->txtPago;
 
@@ -1195,252 +1185,89 @@ class PoswebController extends Controller
                     }
                 }
 
-                if ($idTipoPago == 7) {
-                    $temporalPos = TemporalPos::first();
-                    $numNomina = $temporalPos->NumNomina;
-                    $descuentoMonedero = $temporalPos->MonederoDescuento;
 
-                    $monederoE = MonederoElectronico::where('Status', 0)
-                        ->first();
-
-                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
-                        ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                        ->sum('Monedero') - $descuentoMonedero;
-
-                    $importeProcesado = DB::table('DatVentaTmp as a')
-                        ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
-                        ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                        ->where('b.IdGrupo', $monederoE->IdGrupo)
-                        ->sum('a.ImporteArticulo');
-
-                    $pagoMonedero = $pago;
-
-                    //Validaciones de Monedero Electrónico
-                    if ($pagoMonedero > $monederoEmpleado) {
-                        return redirect()->route('Pos')->with('Pos', 'Saldo en Monedero Insuficiente, Saldo Actual: $' . number_format($monederoEmpleado, 2));
-                    }
-
-                    if ($importeProcesado == 0) {
-                        return redirect()->route('Pos')->with('Pos', 'No Puede Pagar Con Monedero Electrónico Porque No Lleva Producto Procesado!');
-                    }
-
-                    if ($pagoMonedero > $importeProcesado) {
-                        return redirect()->route('Pos')->with('Pos', 'Solo Puede Pagar $' . number_format($importeProcesado, 2) . ' En Monedero Electrónico!');
-                    }
-
-                    TemporalPos::where('TemporalPos', 1)
-                        ->update([
-                            'MonederoDescuento' => $pagoMonedero,
-                        ]);
-                    $temporalPos = TemporalPos::first();
-                }
+                // [--] validandoTipoDePagoMonedero
+                $this->ventaService->validandoTipoDePagoMonedero($idTipoPago, $pago);
+                $temporalPos = TemporalPos::first();
 
                 if ($idTipoPago != 1 && $pago > $totalVenta) {
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1):' . $pago . '   :' . $totalVenta);
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
                 }
 
-                Log::info('-->');
-                Log::info('Guardando dat encabezado');
+                // ================================================================================
+                // Guardando venta
+                // ================================================================================
 
-                DB::table('DatEncabezado')
-                    ->insert([
-                        'IdEncabezado' => -2,
-                        'IdTienda' => $idTienda,
-                        'IdDatCaja' => $caja->IdDatCajas,
-                        'IdTicket' => $idTicket,
-                        'FechaVenta' => date('d-m-Y H:i:s'),
-                        'IdUsuario' => $idUsuario,
-                        'SubTotal' => $subTotalVenta,
-                        'Iva' => $ivaVenta,
-                        'Promocion' => null,
-                        'ImporteVenta' => $totalVenta,
-                        'StatusVenta' => 0,
-                        'MotivoCancel' => null,
-                        'FechaCancelacion' => null,
-                        'FechaCreacion' => null,
-                        'SolicitudFE' => null,
-                        'IdMetodoPago' => null,
-                        'IdUsoCFDI' => null,
-                        'IdFormaPago' => null,
-                        'FolioCupon' => null,
-                        'NumNomina' => $numNomina,
-                        'Subir' => 1,
-                    ]);
+                // Guardando encabezado de la venta
+                $idEncabezado = $this->ventaService->guardarEncabezado(
+                    $idTienda,
+                    $caja->IdDatCajas,
+                    $idTicket,
+                    $idUsuario,
+                    $subTotalVenta,
+                    $ivaVenta,
+                    $totalVenta,
+                    $numNomina
+                );
 
-                $idDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
-                    ->max('IdDatEncabezado');
+                // Guardando detalle de venta
+                $this->ventaService->guardarDetalle($idTienda, $idEncabezado);
 
-                $idEncabezado = DatEncabezado::where('IdDatEncabezado', $idDatEncabezado)
-                    ->value('IdEncabezado');
+                // Obtener el importe total de los artículos
+                $importeVenta = round(PreventaTmp::sum('ImporteArticulo'), 2);
 
-                Log::info('-->');
-                Log::info('Encabezado: ' . $idEncabezado);
+                // Obtener el primer IdPedido distinto para la tienda, si existe
+                $preventaIdPedido = PreventaTmp::where('IdTienda', $idTienda)
+                    ->whereNotNull('IdPedido')
+                    ->distinct('IdPedido')
+                    ->first();
 
-                DatEncabezado::where('IdTienda', $idTienda)
-                    ->where('IdDatEncabezado', $idDatEncabezado)
-                    ->update([
-                        'IdEncabezado' => $idEncabezado,
-                    ]);
+                // Asignar IdPedido o null si no se encuentra
+                $idPedidoDist = $preventaIdPedido ? $preventaIdPedido->IdPedido : null;
 
-                $preventa = PreventaTmp::where('IdTienda', $idTienda)
-                    ->get();
-
-                Log::info('-->');
-                Log::info('Guardando detalle de encabezado');
-
-                foreach ($preventa as $index => $detalle) {
-                    Log::info('----------');
-                    Log::info($detalle->IdArticulo);
-                    Log::info($detalle->CantArticulo);
-                    // return $detalle->CodigoEtiqueta;
-
-                    // return $detalle->CodigoEtiqueta;
-                    $idRostisado = DatDetalleRosticero::where('IdDatDetalleRosticero', $detalle->CodigoEtiqueta)
-                        ->where('Status', 0)
-                        ->where('Vendida', 1)
-                        ->value('IdRosticero');
-
-                    // $idRostisado = $detalle->CodigoEtiqueta;
-
-                    DatDetalle::insert([
-                        'IdEncabezado' => $idEncabezado,
-                        'IdArticulo' => $detalle->IdArticulo,
-                        'CantArticulo' => $detalle->CantArticulo,
-                        'PrecioLista' => $detalle->PrecioLista,
-                        'PrecioArticulo' => $detalle->PrecioVenta,
-                        'IdListaPrecio' => $detalle->IdListaPrecio,
-                        'CapturaManual' => null,
-                        'ImporteArticulo' => $detalle->ImporteArticulo,
-                        'IvaArticulo' => $detalle->IvaArticulo,
-                        'SubTotalArticulo' => $detalle->SubTotalArticulo,
-                        'IdPaquete' => $detalle->IdPaquete,
-                        'IdPedido' => $detalle->IdPedido,
-                        'IdDatPrecios' => $detalle->IdDatPrecios,
-                        'Linea' => $index + 1,
-                        'Recorte' => $detalle->Recorte == '0' ? 0 : 1,
-                        'IdEncDescuento' => $detalle->IdEncDescuento,
-                        'IdRosticero' => $idRostisado,
-                    ]);
-                }
-
-                $importeVenta = PreventaTmp::select('ImporteArticulo')
-                    ->sum('ImporteArticulo');
-
-                // Formatear el valor con dos decimales
-                // $importeVentaFormateado = number_format($importeVenta, 2);
-                $importeVenta = round($importeVenta, 2);
-
-                //Si hay IdPedido en el detalle para marcarlo como vendido
-                if ($idPedidoDist != null) {
+                // Si hay un IdPedido, marcar el pedido como vendido
+                if ($idPedidoDist !== null) {
                     DatEncPedido::where('IdTienda', $idTienda)
                         ->where('IdPedido', $idPedidoDist)
-                        ->update([
-                            'Status' => 2,
-                        ]);
+                        ->update(['Status' => 2]);
                 }
 
-                Log::info('Importes de venta y cantidad de pago');
-                Log::info('Pago: ' . $pago);
-                Log::info('Importe ventadasjip: ' . $importeVenta);
-                Log::info($pago > $importeVenta || $pago == $importeVenta);
-
+                /**
+                 * ================================================================================
+                 * ================================================================================
+                 * Pago completado sin multipago
+                 * ================================================================================
+                 */
                 if ($pago > $importeVenta || $pago == $importeVenta) {
+                    //  ================================================================================
+                    // Realizamos la venta de diferentes productos
+                    //  ================================================================================
 
-                    Log::info('-->');
-                    Log::info('El pago es completado sin multipago');
+                    // [--] Venta de Rostisados
+                    $this->ventaService->ventaRostisados();
 
-                    // Validamos los rosticeros y descontamos las cantidades vendidas
-                    $rostisados = PreventaTmp::select('DatVentaTmp.*')
-                        ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', '=', 'DatVentaTmp.IdArticulo')
-                        ->leftJoin('CatRosticeroArticulos', 'CatRosticeroArticulos.CodigoVenta', '=', 'CatArticulos.CodArticulo')
-                        ->whereNotNull('CatRosticeroArticulos.IdCatRosticeroArticulos')
-                        ->get();
+                    // [--] Venta de preparados
+                    $this->ventaService->ventaPreparados($idTienda);
 
-                    foreach ($rostisados as $rostisado) {
-                        // return $rostisado;
-                        $detRostisado = DatDetalleRosticero::where('IdDatDetalleRosticero', $rostisado->CodigoEtiqueta)
-                            ->where('Status', 0)
-                            ->where('Vendida', 1)
-                            ->first();
+                    // [--] Descuento de inventario
+                    $this->ventaService->descontarInventario($idEncabezado, $idTienda);
 
-                        // Validamos que la etiqueta se encuentre activa
-                        if (!$detRostisado) {
-                            return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
-                        }
+                    // [--] Descuento de Monedero Gastado
+                    $monederoDescuento = $temporalPos->MonederoDescuento;
+                    $this->ventaService->descontarMonedero($idEncabezado, $numNomina, $monederoDescuento);
+                    // return 'jiji';
 
-                        $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
-                        $rotisado->update([
-                            'Disponible' => $rotisado->Disponible - $detRostisado->Cantidad,
-                            'subir' => 0
-                        ]);
+                    // [--] Se guarda el monedero generado
+                    $this->ventaService->generarMonedero($idEncabezado, $numNomina, $monederoDescuento);
 
-                        // Actualizamos la etiqueta para que no se pueda volver a usar
-                        $detRostisado->update([
-                            'subir' => 0,
-                            'Vendida' => 0,
-                        ]);
-                    }
+                    // return $temporalPos;
 
-                    // Validamos que los preparados sean validos, descontamos la cantidad vendida y actualizamos el valores
-                    $paquetesPreparados = PreventaTmp::select(
-                        'DatVentaTmp.IdPaquete',
-                        DB::raw('COUNT(DatVentaTmp.CantArticulo) as Cantidad')
-                    )
-                        ->where('IdTienda', $idTienda)
-                        ->whereNotNull('DatVentaTmp.IdPaquete')
-                        ->groupBy('DatVentaTmp.IdPaquete', 'DatVentaTmp.IdArticulo')
-                        ->distinct()
-                        ->get();
-
-                    foreach ($paquetesPreparados as $pp) {
-                        $paquetesConPreparado = CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
-                            ->whereNotNull('CatPaquetes.IdPreparado')
-                            ->get();
-
-                        Log::info('-->');
-                        Log::info('Paquete preparado');
-                        Log::info($paquetesConPreparado);
-
-                        // Buscamos que los paquetes tengan id de prepadado
-                        if (count($paquetesConPreparado) != 0) {
-                            // Obtenemos la cantidad ya vendida
-                            $cantidadTotal = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                                ->value('CantidadEnvio');
-
-                            $cantidadVendida = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                                ->value('CantidadVendida');
-
-                            if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) < 0) {
-                                return redirect()->route('Pos')->with('Pos', 'Inventario insuficiente para el paquete de preparado!');
-                            }
-
-                            if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) == 0) {
-                                CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
-                                    ->whereNotNull('CatPaquetes.IdPreparado')
-                                    ->update([
-                                        'Status' => 1,
-                                    ]);
-                            }
-
-                            // Sumamos la cantidad vendida, mas la nueva cantidad que se esta vendiendo
-                            DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                                ->update([
-                                    'CantidadVendida' => !$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad,
-                                ]);
-                        }
-                    }
-
+                    // Calcular el restante y formatearlo con dos decimales
                     $restanteSinFormat = $pago - $importeVenta;
                     $restante = number_format($restanteSinFormat, 2);
 
-                    Log::info('-->');
-                    Log::info('Restante: ' . $restante);
-                    Log::info('Pago: ' . $pago);
-
+                    // Insertar el tipo de pago en la base de datos
                     DatTipoPago::insert([
                         'IdEncabezado' => $idEncabezado,
                         'IdTipoPago' => $idTipoPago,
@@ -1450,152 +1277,32 @@ class PoswebController extends Controller
                         'numTarjeta' => $request->numTarjeta,
                     ]);
 
-                    PreventaTmp::where('IdTienda', $idTienda)
-                        ->delete();
+                    // Eliminar registros de PreventaTmp para la tienda
+                    PreventaTmp::where('IdTienda', $idTienda)->delete();
 
-                    TemporalPos::where('TemporalPos', 1)
-                        ->update([
-                            'NumNomina' => null,
-                            'IdEncabezado' => null,
-                            'MonederoDescuento' => null,
-                        ]);
+                    // Limpiar la información temporal en TemporalPos
+                    TemporalPos::where('TemporalPos', 1)->update([
+                        'NumNomina' => null,
+                        'IdEncabezado' => null,
+                        'MonederoDescuento' => null,
+                    ]);
 
-                    //Descontar Inventario
-                    $datDetalle = DatDetalle::where('IdEncabezado', $idEncabezado)
-                        ->get();
-
-                    foreach ($datDetalle as $key => $detalle) {
-                        $articulo = Articulo::where('IdArticulo', $detalle->IdArticulo)
-                            ->first();
-
-                        $stockArticulo = InventarioTienda::where('IdTienda', $idTienda)
-                            ->where('CodArticulo', $articulo->CodArticulo)
-                            ->sum('StockArticulo');
-
-                        InventarioTienda::where('IdTienda', $idTienda)
-                            ->where('CodArticulo', $articulo->CodArticulo)
-                            ->update([
-                                'StockArticulo' => $stockArticulo - $detalle->CantArticulo,
-                            ]);
-                    }
-
-                    //Descontar Monedero Si Uso Para Pagar
-                    if (!empty($numNomina) && !empty($temporalPos->MonederoDescuento)) {
-                        $pagoMonedero = $temporalPos->MonederoDescuento;
-
-                        $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
-                            ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                            ->orderBy('FechaExpiracion')
-                            ->get();
-
-                        // generar batchGasto
-                        $countBatch = DatMonederoAcumulado::max('IdDatMonedero') + 1;
-
-                        $numCaja = DB::table('DatCajas as a')
-                            ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                            ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                            ->where('a.Activa', 0)
-                            ->where('a.Status', 0)
-                            ->value('NumCaja');
-
-                        $batchGasto = Auth::user()->usuarioTienda->IdTienda . $numCaja . $countBatch; // batchGasto
-
-                        //Consultar Catalogo de Monedero
-                        $monederoE = MonederoElectronico::where('Status', 0)
-                            ->first();
-
-                        $fecha = strtotime(date('Y-m-d') . "+ " . $monederoE->VigenciaMonedero . " days");
-                        $fechaExpiracion = date('d-m-Y', $fecha);
-
-                        DatMonederoAcumulado::insert([
-                            'IdEncabezado' => $idEncabezado,
-                            'NumNomina' => $numNomina,
-                            'FechaExpiracion' => $fechaExpiracion,
-                            'FechaGenerado' => date('d-m-Y H:i:s'),
-                            'Monedero' => -$pagoMonedero,
-                            'BatchGasto' => $batchGasto,
-                            'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
-                        ]);
-
-                        MovimientoMonederoElectronico::insert([
-                            'NumNomina' => $numNomina,
-                            'IdEncabezado' => $idEncabezado,
-                            'FechaMovimiento' => date('d-m-Y H:i:s'),
-                            'Monedero' => -$pagoMonedero,
-                            'BatchGasto' => $batchGasto,
-                        ]);
-                    }
-
-                    //Consultar Catalogo de Monedero
-                    $monederoE = MonederoElectronico::where('Status', 0)
-                        ->first();
-
-                    $importeProcesado = DB::table('DatDetalle as a')
-                        ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
-                        ->where('a.IdEncabezado', $idEncabezado)
-                        ->where('b.IdGrupo', $monederoE->IdGrupo)
-                        ->sum('a.ImporteArticulo');
-
-                    // guardar monedero, si genero el empleado
-                    if (!empty($numNomina) && $importeProcesado - $temporalPos->MonederoDescuento >= $monederoE->MonederoMultiplo) {
-                        $puntosGenerados = ($importeProcesado - $temporalPos->MonederoDescuento) / $monederoE->MonederoMultiplo;
-                        $puntosTotales = intval($puntosGenerados);
-
-                        $monederoGenerado = $puntosTotales * $monederoE->PesosPorMultiplo;
-
-                        $fecha = strtotime(date('Y-m-d') . "+ " . $monederoE->VigenciaMonedero . " days");
-                        $fechaExpiracion = date('d-m-Y', $fecha);
-
-                        $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
-                            ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                            ->sum('Monedero');
-
-                        MovimientoMonederoElectronico::insert([
-                            'NumNomina' => $numNomina,
-                            'IdEncabezado' => $idEncabezado,
-                            'FechaMovimiento' => date('d-m-Y H:i:s'),
-                            'Monedero' => $monederoGenerado,
-                        ]);
-
-                        $faltanteMaximo = $monederoE->MaximoAcumulado - $monederoEmpleado;
-                        $monederoGenerado + $monederoEmpleado > $monederoE->MaximoAcumulado ? $monederoGenerado = $faltanteMaximo : $monederoGenerado = $monederoGenerado;
-
-                        DatMonederoAcumulado::insert([
-                            'IdEncabezado' => $idEncabezado,
-                            'NumNomina' => $numNomina,
-                            'FechaExpiracion' => $fechaExpiracion,
-                            'FechaGenerado' => date('d-m-Y H:i:s'),
-                            'Monedero' => $monederoGenerado,
-                            'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
-                        ]);
-                    }
-
-                    Log::info('-->');
-                    Log::info('Se actualiza el encabezado para que se suba');
-
-                    //subir venta
-                    DatEncabezado::where('IdEncabezado', $idEncabezado)
-                        ->update([
-                            'Subir' => 0,
-                        ]);
+                    // Marcar la venta como subida en DatEncabezado
+                    DatEncabezado::where('IdEncabezado', $idEncabezado)->update([
+                        'Subir' => 0,
+                    ]);
 
                     if (!empty($numNomina)) {
-                        // validar el pago para saber si es credito o no
-                        $pago = $idTipoPago == 2 ? $pago : 0;
+                        // Validar si el tipo de pago es crédito
+                        $pago = ($idTipoPago == 2) ? $pago : 0;
 
-                        // guardar numero de ventas e importe del credito del empleado
+                        // Ejecutar el procedimiento almacenado para guardar la venta
                         DB::statement("exec Sp_Guardar_DatConcenVenta " . $idTienda . ", '" . $idEncabezado . "', " . $numNomina . ", '" . date('d-m-Y') . "', " . $pago . ", 1");
                     }
 
-                    // imprimir ticket
+                    // Ejecutar el procedimiento almacenado generar el ticket
                     DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                     DB::commit();
-
-                    Log::info('-->');
-                    Log::info('Se manda imprimir el ticket');
-                    Log::info('Encabezado: ' . $idEncabezado);
-                    Log::info('Restante: ' . $restante);
-                    Log::info('Pago: ' . $pago);
 
                     return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
                 }
@@ -1949,6 +1656,8 @@ class PoswebController extends Controller
                         'Monedero' => -$pagoMonedero,
                         'BatchGasto' => $batchGasto,
                     ]);
+
+                    DB::statement("exec Sp_Monedero_Pago " . $temporalPos->NumNomina . ", '" . date('d-m-Y') . "', " . $pagoMonedero);
                 }
 
                 //Consultar Catalogo de Monedero
@@ -1996,6 +1705,8 @@ class PoswebController extends Controller
                         'FechaGenerado' => date('d-m-Y H:i:s'),
                         'Monedero' => $monederoGenerado,
                         'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
+                        'MonederoGastado' => 0,
+                        'MonederoPorGastar' => $monederoGenerado,
                     ]);
                 }
 
