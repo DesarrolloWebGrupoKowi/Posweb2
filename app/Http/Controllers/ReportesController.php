@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ConcentradoDeArticulosExport;
+use App\Exports\ConcentradoDeTicketsExport;
 use App\Exports\ConcentradoPorCiudadYFamilia;
 use App\Exports\DineroElectronicoExport;
 use App\Exports\GrupoYTipoPrecio;
@@ -104,6 +105,85 @@ class ReportesController extends Controller
             ->get();
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'concentradodeventas.xlsx';
         return Excel::download(new ConcentradoDeArticulosExport($concentrado), $name);
+    }
+
+    public function ReporteConcentradoDeTickets(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
+        $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+        $tiendasQuery = Tienda::where('Status', 0)->orderBy('IdTienda');
+
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendasQuery->where('IdTienda', $usuarioTienda->IdTienda);
+        }
+
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendasQuery->where('IdPlaza', $usuarioTienda->IdPlaza);
+        }
+
+        $tiendas = $tiendasQuery->get();
+        $idsTiendas = $tiendas->pluck('IdTienda')->toArray();
+
+        $concentrado = DB::table('DatEncabezado as a')
+            ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+            ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+            ->select(DB::raw('g.NomCiudad, f.NomTienda,  SUM(b.ImporteArticulo) as Importe, cast(a.FechaVenta as date) as Fecha, count(DISTINCT a.IdTicket) as Tickets'))
+            ->whereIn('a.IdTienda', $idsTiendas)
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('a.IdTienda', $idTienda);
+            })
+            ->where('a.StatusVenta', 0)
+            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->groupBy('g.NomCiudad', 'f.IdTienda', 'f.NomTienda', DB::raw('cast(a.FechaVenta as date)'))
+            ->orderBy('Fecha')
+            ->orderBy('f.IdTienda')
+            ->get();
+
+        return view('Reportes.ConcentradoDeTickets', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+    }
+
+    public function ExportReporteConcentradoDeTickets(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
+        $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+        $tiendasQuery = Tienda::where('Status', 0)->orderBy('IdTienda');
+
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendasQuery->where('IdTienda', $usuarioTienda->IdTienda);
+        }
+
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendasQuery->where('IdPlaza', $usuarioTienda->IdPlaza);
+        }
+
+        $tiendas = $tiendasQuery->get();
+        $idsTiendas = $tiendas->pluck('IdTienda')->toArray();
+
+        $concentrado = DB::table('DatEncabezado as a')
+            ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+            ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+            ->select(DB::raw('g.NomCiudad, f.NomTienda,  SUM(b.ImporteArticulo) as Importe, cast(a.FechaVenta as date) as Fecha, count(DISTINCT a.IdTicket) as Tickets'))
+            ->whereIn('a.IdTienda', $idsTiendas)
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('a.IdTienda', $idTienda);
+            })
+            ->where('a.StatusVenta', 0)
+            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->groupBy('g.NomCiudad', 'f.IdTienda', 'f.NomTienda', DB::raw('cast(a.FechaVenta as date)'))
+            ->orderBy('Fecha')
+            ->orderBy('f.IdTienda')
+            ->get();
+
+        $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'concentradodetickets.xlsx';
+        return Excel::download(new ConcentradoDeTicketsExport($concentrado), $name);
     }
 
     public function ReportePorTipoDePrecio(Request $request)
@@ -581,7 +661,7 @@ class ReportesController extends Controller
                 CONVERT(varchar(12), Fecha, 103) as Fecha,
                 sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
                 sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
-                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
+                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' OR cliente IS NULL THEN Monedero ELSE 0 END) as contado
             from (
                 select
                     t.NomTienda,
@@ -673,7 +753,7 @@ class ReportesController extends Controller
                 CONVERT(varchar(12), Fecha, 103) as Fecha,
                 sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
                 sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
-                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
+                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' OR cliente IS NULL THEN Monedero ELSE 0 END) as contado
             from (
                 select
                     t.NomTienda,

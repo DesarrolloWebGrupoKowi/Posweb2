@@ -294,7 +294,12 @@
                                     <td style="width: 15vh">{{ number_format($detalleCorte->PrecioArticulo, 2) }}</td>
                                     <td>{{ number_format($detalleCorte->IvaArticulo, 2) }}</td>
                                     <td style="width: 10vh">{{ number_format($detalleCorte->ImporteArticulo, 2) }}</td>
-                                    @if (empty($detalleCorte->Source_Transaction_Identifier))
+                                    {{-- SolicitudCancelacion --}}
+                                    @if (empty($detalleCorte->Source_Transaction_Identifier) && $detalleCorte->SolicitudCancelacion != null)
+                                        <th>
+                                            <span class="tags-red">Solicitud Cancelacion</span>
+                                        </th>
+                                    @elseif (empty($detalleCorte->Source_Transaction_Identifier))
                                         <th>
                                             <span class="tags-red">SIN PEDIDO</span>
                                         </th>
@@ -361,7 +366,7 @@
                                 @endif
                             @endforeach
                             <!--TERMINA MONEDERO ELECTRONICO--
-                                                                                                                                                                                                                                                                        <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
+                                                                                                                                                                                                                                                                                <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
                             {{-- @if ($corteTienda->IdTipoNomina == 4)
                                 <tr style="font-size: .9rem">
                                     <td></td>

@@ -42,6 +42,7 @@
                 <thead class="table-head">
                     <tr>
                         <th class="rounded-start">Nombre Tabla</th>
+                        <th>Caja</th>
                         <th>Descargada</th>
                         <th class="rounded-end">Descargar Todas
                             <div class="ps-5 form-switch d-inline-block" style="line-height: 18px">
@@ -62,6 +63,7 @@
                             @foreach ($tablasActualizables as $tActualizable)
                                 <tr>
                                     <td>{{ $tActualizable->NombreTabla }}</td>
+                                    <td>{{ $tActualizable->IdCaja }}</td>
                                     <td>
                                         @if ($tActualizable->Descargar == 1)
                                             <i style="font-size: 20px;" class="fa fa-check"></i>
