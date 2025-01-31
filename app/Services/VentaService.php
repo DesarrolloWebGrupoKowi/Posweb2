@@ -316,7 +316,7 @@ class VentaService
 
             $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
                 ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                ->sum('Monedero');
+                ->sum('MonederoPorGastar');
 
             MovimientoMonederoElectronico::insert([
                 'NumNomina' => $numNomina,

@@ -1686,7 +1686,7 @@ class PoswebController extends Controller
 
                     $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
                         ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                        ->sum('Monedero');
+                        ->sum('MonederoPorGastar');
 
                     MovimientoMonederoElectronico::insert([
                         'NumNomina' => $temporalPos->NumNomina,
