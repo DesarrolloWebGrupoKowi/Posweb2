@@ -338,6 +338,7 @@ class VentaService
                 'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
                 'MonederoGastado' => 0,
                 'MonederoPorGastar' => $monederoGenerado,
+                'FechaActual' => date('d-m-Y H:i:s'),
             ]);
         }
     }
