@@ -1707,6 +1707,7 @@ class PoswebController extends Controller
                         'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
                         'MonederoGastado' => 0,
                         'MonederoPorGastar' => $monederoGenerado,
+                        'FechaActual' => date('d-m-Y H:i:s'),
                     ]);
                 }
 
@@ -2228,7 +2229,7 @@ class PoswebController extends Controller
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $encabezado->NumNomina)
                 ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                ->sum('Monedero');
+                ->sum('MonederoPorGastar');
         }
 
         $caja = DB::table('DatCajas as a')
@@ -2430,7 +2431,7 @@ class PoswebController extends Controller
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $encabezado->NumNomina)
                 ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                ->sum('Monedero');
+                ->sum('MonederoPorGastar');
         }
 
         $caja = DB::table('DatCajas as a')
