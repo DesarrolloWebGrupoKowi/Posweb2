@@ -48,6 +48,11 @@
             color: #1e429f;
             font-weight: bold;
         }
+
+        /* Estilo cuando el modal está abierto (activo) */
+        .link-style.opened {
+            color: #44aef5;
+        }
     </style>
 
 @endsection
@@ -366,7 +371,7 @@
                                 @endif
                             @endforeach
                             <!--TERMINA MONEDERO ELECTRONICO--
-                                                                                                                                                                                                                                                                                <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
+                                                                                                                                                                                                                                                                                    <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
                             {{-- @if ($corteTienda->IdTipoNomina == 4)
                                 <tr style="font-size: .9rem">
                                     <td></td>
@@ -734,9 +739,9 @@
                                         @endisset
                                     </td>
                                     <td>
-                                        <button class="btn-table btn-table-show" data-bs-toggle="modal"
+                                        <button class="btn-table btn-table-show link-style" data-bs-toggle="modal"
                                             data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}"
-                                            title="Detalle de ticket">
+                                            title="Detalle de ticket" id="btnTicket{{ $ticket->IdTicket }}">
                                             @include('components.icons.list')
                                         </button>
                                         <button class="btn-table btn-table-success" data-bs-toggle="modal"
@@ -854,6 +859,25 @@
     </div>
 
     <script>
+        // Agregar un listener para el evento 'shown.bs.modal' de Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtén todos los modales
+            const modals = document.querySelectorAll('.modal');
+
+            modals.forEach(modal => {
+                modal.addEventListener('shown.bs.modal', function() {
+                    // Obtén el ID del modal
+                    const modalId = modal.id.replace('ModalDetalleTicket', '');
+                    // Encuentra el botón correspondiente
+                    const button = document.querySelector('#btnTicket' + modalId);
+                    if (button) {
+                        // Agrega la clase 'opened' para marcar el botón como clicado
+                        button.classList.add('opened');
+                    }
+                });
+            });
+        });
+
         const fecha2 = document.getElementById('fecha2');
         document.getElementById('idReporte').addEventListener('change', (e) => {
             const reporte = document.getElementById('idReporte').value
