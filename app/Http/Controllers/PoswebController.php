@@ -117,6 +117,7 @@ class PoswebController extends Controller
         $preventa = DB::table('DatVentaTmp as a')
             ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
             ->where('a.IdTienda', $idTienda)
+            ->orderBy('a.IdDatVentaTmp')
             ->get();
 
         $subTotal = PreventaTmp::where('IdTienda', $idTienda)
