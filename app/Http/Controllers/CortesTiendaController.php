@@ -240,7 +240,7 @@ class CortesTiendaController extends Controller
                     })
                     ->whereDate('a.FechaVenta', $fecha1)
                     ->where('a.IdTipoPago', 7)
-                    ->where('a.IdListaPrecio', 4)
+                    // ->where('a.IdListaPrecio', 4)
                     ->where('a.StatusVenta', 0)
                     ->groupBy('a.Bill_To', 'NomClienteCloud')
                     ->get();

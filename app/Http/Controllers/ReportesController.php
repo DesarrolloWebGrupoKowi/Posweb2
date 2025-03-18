@@ -854,4 +854,62 @@ class ReportesController extends Controller
 
         return view('Reportes.PedidosOracle', compact('txtFiltro', 'concentrado'));
     }
+
+    public function ReporteInformacionVentas(Request $request)
+    {
+        // return $request;
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
+        $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
+        $agrupar = $request->agrupar;
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+        $tiendasQuery = Tienda::where('Status', 0)->orderBy('IdTienda');
+
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendasQuery->where('IdTienda', $usuarioTienda->IdTienda);
+        }
+
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendasQuery->where('IdPlaza', $usuarioTienda->IdPlaza);
+        }
+
+        $tiendas = $tiendasQuery->get();
+        $idsTiendas = $tiendas->pluck('IdTienda')->toArray();
+
+        if ($agrupar != 'on') {
+            $concentrado = DB::table('DatEncabezado as a')
+                ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+                ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+                ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+                ->select(DB::raw('g.NomCiudad, f.NomTienda,  SUM(b.ImporteArticulo) as Importe, SUM(b.CantArticulo) as cantidad, cast(a.FechaVenta as date) as Fecha, count(DISTINCT a.IdTicket) as Tickets'))
+                ->whereIn('a.IdTienda', $idsTiendas)
+                ->when($idTienda, function ($query) use ($idTienda) {
+                    $query->where('a.IdTienda', $idTienda);
+                })
+                ->where('a.StatusVenta', 0)
+                ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->groupBy('g.NomCiudad', 'f.IdTienda', 'f.NomTienda', DB::raw('cast(a.FechaVenta as date)'))
+                ->orderBy('f.IdTienda')
+                ->orderBy('Fecha')
+                ->get();
+        } else {
+            $concentrado = DB::table('DatEncabezado as a')
+                ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+                ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+                ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+                ->select(DB::raw('SUM(b.ImporteArticulo) as Importe, SUM(b.CantArticulo) as cantidad, cast(a.FechaVenta as date) as Fecha, count(DISTINCT a.IdTicket) as Tickets'))
+                ->whereIn('a.IdTienda', $idsTiendas)
+                ->when($idTienda, function ($query) use ($idTienda) {
+                    $query->where('a.IdTienda', $idTienda);
+                })
+                ->where('a.StatusVenta', 0)
+                ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->groupBy(DB::raw('cast(a.FechaVenta as date)'))
+                ->orderBy('Fecha')
+                ->get();
+        }
+
+        return view('Reportes.InformacionVentas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'agrupar', 'concentrado'));
+    }
 }

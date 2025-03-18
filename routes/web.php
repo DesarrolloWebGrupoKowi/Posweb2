@@ -787,6 +787,8 @@ Route::group(['middleware' => 'auth'], function () {
     //Procesar facturas
     Route::get('/procesarclientesfacturas/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesFacturas')->name('ProcesarClientesFacturas');
 
+    //VerCortesTienda
+    Route::get('/InformacionVentas', 'App\Http\Controllers\ReportesController@ReporteInformacionVentas')->name('InformacionVentas');
 
     //+============================================================================================================================================+//
     //ReporteMermasAdmin
