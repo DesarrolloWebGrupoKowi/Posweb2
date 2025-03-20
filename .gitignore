@@ -1,1 +1,40 @@
-/.env
+# Laravel & Composer
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.env
+.phpunit.result.cache
+
+# IDEs and editors
+/.idea
+/.vscode
+*.sublime-workspace
+*.sublime-project
+
+# Laravel specific files
+/.env.*.local
+/.env.*.env
+/.env.local
+/.env.testing
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and Temporary files
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/public/hot
+/.phpunit.result.cache
+
+# Nginx or Apache logs
+/logs
+
+# Composer
+composer.lock
+
+# Composer
+package-lock.json

@@ -290,6 +290,7 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //Dashboard
     Route::get('/Dashboard', 'App\Http\Controllers\DashboardController@Dashboard')->name('dashboard');
+    Route::get('/DashboardGrafics', 'App\Http\Controllers\DashboardController@DashboardAdmin')->name('dashboardcatalogos');
 
     //+============================================================================================================================================+//
     //CajCajas
