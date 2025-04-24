@@ -169,6 +169,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Mostrar Articulos
     Route::get('/CatArticulos', 'App\Http\Controllers\ArticulosController@CatArticulos');
 
+    //Export detalle de precios a excel
+    Route::get('/ExportExcelCatArticulos', 'App\Http\Controllers\ArticulosController@ExportExcel');
+
     //Crear Articulo
     Route::post('/CrearArticulo', 'App\Http\Controllers\ArticulosController@CrearArticulo');
 
