@@ -7,9 +7,12 @@
         <div class="p-4 border-0 card" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Catálogo de Articulos'])
-                <div>
+                <div class="d-flex gap-2">
                     <a href="/BuscarArticulo" class="btn btn-sm btn-dark" title="Agregar articulo">
                         Descargar articulo @include('components.icons.plus-circle')
+                    </a>
+                    <a href="/ExportExcelCatArticulos" class="input-group-text text-decoration-none btn-excel">
+                        Exportar precios @include('components.icons.excel')
                     </a>
                 </div>
             </div>
