@@ -342,6 +342,34 @@ class RosticeroController extends Controller
         }
     }
 
+    // Solo se cambia el estatus y se marca como vendido
+    public function CambiarDetalleRosticero($id)
+    {
+        try {
+            $detalle = DatDetalleRosticero::where('IdDatDetalleRosticero', $id)->first();
+            $rosticero = DatRosticero::where('IdRosticero', $detalle->IdRosticero)->first();
+
+            DatRosticero::where('IdRosticero', $detalle->IdRosticero)
+                ->update([
+                    'CantidadVenta' => $rosticero->CantidadVenta - $detalle->Cantidad,
+                    'Disponible' => $rosticero->Disponible - $detalle->Cantidad,
+                    'MermaReal' => $rosticero->MermaReal + $detalle->Cantidad,
+                    'Subir' => 0
+                ]);
+
+            DatDetalleRosticero::where('IdDatDetalleRosticero', $id)
+                ->update([
+                    'Subir' => 0,
+                    'Vendida' => 0,
+                    'Status' => 0
+                ]);
+
+            return back()->with('msjAdd', 'La sentencia se ejecuto correctamente');
+        } catch (\Throwable $e) {
+            return back()->with('msjdelete', 'Error: ' . $e->getMessage());
+        }
+    }
+
     public function EliminarDetalleRosticero($id)
     {
         try {
@@ -351,6 +379,7 @@ class RosticeroController extends Controller
             DatRosticero::where('IdRosticero', $detalle->IdRosticero)
                 ->update([
                     'CantidadVenta' => $rosticero->CantidadVenta - $detalle->Cantidad,
+                    'Disponible' => $rosticero->Disponible - $detalle->Cantidad,
                     'MermaReal' => $rosticero->MermaReal + $detalle->Cantidad,
                     'Subir' => 0
                 ]);

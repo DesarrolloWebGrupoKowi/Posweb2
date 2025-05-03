@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ArticulosExport;
 use App\Models\Articulo;
 use App\Models\Familia;
 use App\Models\Grupo;
 use App\Models\TipoArticulo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ArticulosController extends Controller
 {
@@ -227,5 +229,10 @@ class ArticulosController extends Controller
 
         DB::commit();
         return redirect('CatArticulos')->with('msjAdd', 'Articulo Agregado!');
+    }
+
+    public function ExportExcel()
+    {
+        return Excel::download(new ArticulosExport, 'articulos.xlsx');
     }
 }

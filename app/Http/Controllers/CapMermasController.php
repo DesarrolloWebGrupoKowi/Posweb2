@@ -124,6 +124,10 @@ class CapMermasController extends Controller
                     ->where('CodArticulo', $merma->CodArticulo)
                     ->sum('StockArticulo');
 
+                if ($stock - $merma->CantArticulo < 0) {
+                    return back()->with('msjupdate', 'No se puede mermas mas del inventario disponible COD: ' . $merma->CodArticulo);
+                }
+
                 //DESCONTAR PRODUCTO MERMADO DEL INVENTARIO WEB
                 // DB::table('DatInventario')
                 //     ->where('IdTienda', $idTienda)

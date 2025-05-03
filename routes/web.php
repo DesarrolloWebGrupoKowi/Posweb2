@@ -169,6 +169,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Mostrar Articulos
     Route::get('/CatArticulos', 'App\Http\Controllers\ArticulosController@CatArticulos');
 
+    //Export detalle de precios a excel
+    Route::get('/ExportExcelCatArticulos', 'App\Http\Controllers\ArticulosController@ExportExcel');
+
     //Crear Articulo
     Route::post('/CrearArticulo', 'App\Http\Controllers\ArticulosController@CrearArticulo');
 
@@ -575,6 +578,19 @@ Route::group(['middleware' => 'auth'], function () {
 
     //EditarLimiteCredito
     Route::get('EditarLimiteCredito/{tipoNomina}', 'App\Http\Controllers\LimiteCreditoController@EditarLimiteCredito');
+
+    //+============================================================================================================================================+//
+    //CatLimiteCreditoEspecial
+    Route::get('CatLimiteCreditoEspecial', 'App\Http\Controllers\LimiteCreditoEspecialController@index');
+
+    //AgregarEmpleado
+    Route::post('CatLimiteCreditoEspecial', 'App\Http\Controllers\LimiteCreditoEspecialController@create');
+
+    //EditarEmpleado
+    Route::put('CatLimiteCreditoEspecial/{Id}', 'App\Http\Controllers\LimiteCreditoEspecialController@update');
+
+    //EliminarEmpleado
+    Route::delete('CatLimiteCreditoEspecial/{Id}', 'App\Http\Controllers\LimiteCreditoEspecialController@delete');
     //+============================================================================================================================================+//
 
     //CatMonederoElectronico
@@ -967,6 +983,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Eliminar Rosticero
     Route::delete('/EliminarRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarRosticero');
+
+    //Eliminar Rosticero
+    Route::put('/CambiarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@CambiarDetalleRosticero');
 
     //Eliminar Rosticero
     Route::delete('/EliminarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarDetalleRosticero');

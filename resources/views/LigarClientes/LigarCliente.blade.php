@@ -391,6 +391,7 @@
                             <th>Bill_To</th>
                             <th>Locacion</th>
                             <th>Ciudad</th>
+                            <th>Direccion</th>
                             <th class="rounded-end"></th>
                         </tr>
                     </thead>
@@ -408,6 +409,12 @@
                                     <td>{{ $cliente->Bill_To }}</td>
                                     <td>{{ $cliente->Locacion }}</td>
                                     <td>{{ $cliente->Ciudad }}</td>
+                                    <td>
+                                        {{ $cliente->Calle }}
+                                        #{{ $cliente->NumExt }}
+                                        Col. {{ $cliente->Colonia }}
+
+                                    </td>
                                     <td>
                                         {{-- <a href="{{ '/SolicitudesFactura/Relacionar/' . $solicitud->Id . '/' . $cliente->Bill_To }}"
                                             class="btn-table">
