@@ -595,7 +595,7 @@
                 <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
                     Venta por ticket diario - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'TODAS' : $numCaja }}
                 </span>
-                @if ($idCaja == 0)
+                @if ($idCaja === 0)
                     <!--VER TODAS LAS CAJAS-->
                     <div class="row">
                         @foreach ($tickets as $key => $ticket)
