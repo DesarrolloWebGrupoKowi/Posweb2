@@ -21,6 +21,7 @@ use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\InventarioTienda;
 use App\Models\LimiteCredito;
+use App\Models\LimiteCreditoEspecial;
 use App\Models\ListaPrecio;
 use App\Models\ListaPrecioTienda;
 use App\Models\MonederoElectronico;
@@ -65,6 +66,16 @@ class PoswebController extends Controller
             ->where('NumNomina', $numNomina)
             ->first();
 
+        // TODO: AQUI AGREGAMOS EL LIMITE DE CREDITO ESPECIAL
+        try {
+            $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $cliente->NumNomina)->first();
+        } catch (\Throwable $th) {
+        }
+
+        if (!empty($limiteCreditoEspecial)) {
+            $cliente->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+            $cliente->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+        }
         // exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
 
         // if ($codigo === 1) {
@@ -333,6 +344,16 @@ class PoswebController extends Controller
                 ->where('NumNomina', $numNomina)
                 ->first();
 
+            try {
+                $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $empleado->NumNomina)->first();
+            } catch (\Throwable $th) {
+            }
+
+            if (!empty($limiteCreditoEspecial)) {
+                $empleado->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+                $empleado->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+            }
+
             $frecuenteSocio = CatFrecuentesSocios::with('TipoCliente')
                 ->where('FolioViejo', $numNomina)
                 ->first();
@@ -375,6 +396,10 @@ class PoswebController extends Controller
             if (!empty($empleado)) {
                 $limiteCredito = LimiteCredito::where('TipoNomina', $empleado->TipoNomina)
                     ->first();
+
+                if (!empty($limiteCreditoEspecial)) {
+                    $limiteCredito = $limiteCreditoEspecial;
+                }
 
                 $totalVentasDiarias = $limiteCredito->TotalVentaDiaria;
 
@@ -1165,6 +1190,17 @@ class PoswebController extends Controller
                         ->where('NumNomina', $numNomina)
                         ->first();
 
+                    // TODO: AQUI AGREGAMOS EL LIMITE DE CREDITO ESPECIAL
+                    try {
+                        $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $cliente->NumNomina)->first();
+                    } catch (\Throwable $th) {
+                    }
+
+                    if (!empty($limiteCreditoEspecial)) {
+                        $cliente->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+                        $cliente->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+                    }
+
                     // compras a credito del empleado que no han sido pagadas
                     $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
                         ->sum('CreditoActual');
@@ -1317,6 +1353,17 @@ class PoswebController extends Controller
                             ->where('NumNomina', $numNomina)
                             ->first();
 
+                        // TODO: AQUI AGREGAMOS EL LIMITE DE CREDITO ESPECIAL
+                        try {
+                            $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $cliente->NumNomina)->first();
+                        } catch (\Throwable $th) {
+                        }
+
+                        if (!empty($limiteCreditoEspecial)) {
+                            $cliente->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+                            $cliente->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+                        }
+
                         // compras a credito del empleado que no han sido pagadas
                         $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
                             ->sum('CreditoActual');
@@ -1446,6 +1493,17 @@ class PoswebController extends Controller
                 $cliente = Empleado::with('LimiteCredito')
                     ->where('NumNomina', $temporalPos->NumNomina)
                     ->first();
+
+                // TODO: AQUI AGREGAMOS EL LIMITE DE CREDITO ESPECIAL
+                try {
+                    $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $cliente->NumNomina)->first();
+                } catch (\Throwable $th) {
+                }
+
+                if (!empty($limiteCreditoEspecial)) {
+                    $cliente->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+                    $cliente->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+                }
 
                 // compras a credito del empleado que no han sido pagadas
                 $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $temporalPos->NumNomina)
