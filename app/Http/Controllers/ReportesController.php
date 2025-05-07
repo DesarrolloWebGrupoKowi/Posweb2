@@ -49,6 +49,7 @@ class ReportesController extends Controller
             $tiendas = collect(); // Por si no entra a ningún caso
         }
 
+        $idTiendas = $tiendas->pluck('IdTienda');
         $concentrado = DB::connection($optionsOnline == 'on' ? 'server' : null)
             ->table('DatEncabezado as a')
             ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
@@ -59,6 +60,7 @@ class ReportesController extends Controller
             ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
             ->select(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
                             b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'))
+            ->whereIn('a.IdTienda', $idTiendas)
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
             })
