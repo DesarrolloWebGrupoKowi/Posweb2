@@ -18,6 +18,9 @@
                         </select>
                         <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
                         <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                        <input type="hidden" name="txtFiltro" value="{{ $txtFiltro }}">
+                        <input type="hidden" name="optionsOnline" value="{{ $optionsOnline }}">
+                        <input type="hidden" name="agrupado" value="{{ $agrupado }}">
                         <button type="submit" class="input-group-text text-decoration-none btn-excel">
                             Exportar @include('components.icons.excel')
                         </button>
@@ -61,7 +64,15 @@
                         <input type="radio" class="btn-check" name="optionsOnline" id="success-outlined"
                             autocomplete="off" value="on" {{ $optionsOnline == 'on' ? 'checked' : '' }}>
                         <label class="btn btn-outline-success" for="success-outlined">@include('components.icons.cloud-check')</label>
-
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="on" id="agrupado" name="agrupado"
+                                {{ $agrupado ? 'checked' : '' }}>
+                            <label class="form-check-label" for="agrupado">
+                                Agrupado por fecha
+                            </label>
+                        </div>
                     </div>
                 @endif
                 <div class="col-auto">
@@ -77,6 +88,9 @@
                         <tr>
                             <th class="rounded-start">Ciudad</th>
                             <th>Tienda</th>
+                            @if ($agrupado)
+                                <th>Fecha</th>
+                            @endif
                             <th>Grupo</th>
                             <th>Código</th>
                             <th>Articulo</th>
@@ -103,6 +117,10 @@
                                 <tr>
                                     <td>{{ $tConcentrado->NomCiudad }}</td>
                                     <td>{{ $tConcentrado->NomTienda }}</td>
+                                    @if ($agrupado)
+                                        {{-- <td>{{ $tConcentrado->FechaVenta }}</td> --}}
+                                        <td>{{ \Carbon\Carbon::parse($tConcentrado->FechaVenta)->format('d/m/Y') }}</td>
+                                    @endif
                                     <td>{{ $tConcentrado->NomGrupo }}</td>
                                     <td>{{ $tConcentrado->CodArticulo }}</td>
                                     <td>{{ $tConcentrado->NomArticulo }}</td>
@@ -125,6 +143,9 @@
                     <tfoot>
                         <tr>
                             <td colspan="5"><strong>Total:</strong></td>
+                            @if ($agrupado)
+                                <td></td>
+                            @endif
                             <td><strong>{{ number_format($totalPeso, 3) }}</strong></td>
                             <td></td>
                             <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
