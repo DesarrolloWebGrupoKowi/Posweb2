@@ -17,11 +17,11 @@
             <form class="d-flex flex-wrap align-items-center justify-content-end gap-2 pb-2" action="/ReporteRecepciones">
                 <div class="col-auto">
                     <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                        id="fecha1" value="{{ $fecha1 }}">
                 </div>
                 <div class="col-auto">
                     <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha2"
-                        id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                        id="fecha2" value="{{ $fecha2 }}">
                 </div>
                 <div class="col-auto">
                     <div class="input-group">
@@ -54,7 +54,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @include('components.table-empty', ['items' => $recepciones, 'colspan' => 5])
+                    @include('components.table-empty', ['items' => $recepciones, 'colspan' => 7])
                     @foreach ($recepciones as $recepcion)
                         <tr>
                             <td>{{ $recepcion->IdRecepcionLocal }}</td>
@@ -79,15 +79,25 @@
                             </td>
                             <td>
                                 <button class="btn-table" data-bs-toggle="modal"
-                                    data-bs-target="#ModalDetalleRecepcion{{ $recepcion->IdCapRecepcion }}">
+                                    data-bs-target="#ModalDetalleRecepcion{{ $recepcion->IdCapRecepcion }}"
+                                    title="Detalle de recepción">
                                     @include('components.icons.list')
                                 </button>
+                                @if ($recepcion->IdStatusRecepcion == 3)
+                                    <button class="btn-table btn-table-delete" data-bs-toggle="modal"
+                                        data-bs-target="#ModalMotivoCancelacion{{ $recepcion->IdCapRecepcion }}"
+                                        title="Motivo de cancelación">
+                                        @include('components.icons.text-file-x')
+                                    </button>
+                                @endif
                                 @include('Recepcion.ModalDetalleRecepcion')
+                                @include('Recepcion.ModalMotivoCancelacion')
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            @include('components.paginate', ['items' => $recepciones])
         </div>
     </div>
 

@@ -2,40 +2,32 @@
 @section('title', 'Concentrado de Mermas')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+    <div class="gap-4 pt-4 container-fluid width-95 d-flex flex-column">
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
+        <div class="p-4 border-0 card" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Concentrado de Mermas'])
-                <div>
-                    {{-- <form action="/ExportReporteConcentradoDeArticulos" method="GET">
-                    <select class="d-none" name="idTienda">
-                        <option value="">Seleccione Tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                <form action="/ReporteMermasAdminExcel" method="GET">
+                    <input type="hidden" name="fecha1" value="{{ $fecha1 }}">
                     <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                    <button type="submit" class="input-group-text text-decoration-none btn-excel">
-                        <i class="fa fa-file-excel-o pe-2"></i> Exportar
+                    <input type="hidden" name="idTienda" value="{{ $idTienda }}">
+                    <button class="btn card" type="submit">
+                        @include('components.icons.print')
                     </button>
-                </form> --}}
-                </div>
+                </form>
             </div>
         </div>
 
         <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
             <!--CONTAINER FILTROS-->
-            <form class="d-flex align-items-center justify-content-end flex-wrap pb-2 gap-2" action="/ReporteMermasAdmin"
+            <form class="flex-wrap gap-2 pb-2 d-flex align-items-center justify-content-end" action="/ReporteMermasAdmin"
                 method="GET">
                 <input type="hidden" class="idPagination" value="&idTienda={{ $idTienda }}">
-                <input type="hidden" class="idPagination" value="&fecha1={{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                <input type="hidden" class="idPagination" value="&fecha1={{ $fecha1 }}">
                 <input type="hidden" class="idPagination" value="&fecha2={{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
                 <div class="col-auto">
-                    <select class="form-select rounded" style="line-height: 18px" name="idTienda" id="idTienda">
+                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda" autofocus>
                         <option value="">Seleccione Tienda</option>
                         @foreach ($tiendas as $tienda)
                             <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
@@ -44,11 +36,11 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha1"
+                        id="fecha1" value="{{ $fecha1 }}">
                 </div>
                 <div class="col-auto">
-                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha2"
+                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha2"
                         id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
                 </div>
                 <div class="col-auto">
@@ -85,7 +77,7 @@
                             <td>{{ strftime('%d %B %Y, %H:%M', strtotime($tConcentrado->FechaCaptura)) }}</td>
                             <td>{{ $tConcentrado->NomTipoMerma }}</td>
                             <td style="text-align: right" class="fw-bold">
-                                <p class="pe-3 m-0">{{ number_format($tConcentrado->CantArticulo, 3) }}</p>
+                                <p class="m-0 pe-3">{{ number_format($tConcentrado->CantArticulo, 3) }}</p>
                             </td>
                             <td class="puntitos" title="{{ $tConcentrado->Comentario }}">
                                 {{ $tConcentrado->Comentario }}

@@ -22,7 +22,40 @@
         <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
             <div class="d-flex justify-content-between">
                 @include('components.number-paginate')
-                @include('components.table-search')
+                {{-- @include('components.table-search') --}}
+                <form id="search-form" class="gap-2 pb-2 d-flex align-items-end justify-content-end"
+                    action="/CatUsuariosTienda">
+                    <div class="d-flex flex-column">
+                        <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Buscar:</label>
+                        <input class="rounded form-control" style="line-height: 18px" type="text" name="txtFiltro"
+                            id="txtFiltro" value="{{ $txtFiltro }}" autofocus placeholder="Buscar usuario">
+                    </div>
+                    <div class="d-flex flex-column">
+                        <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Tiendas:</label>
+                        <select name="IdTienda" id="IdTienda" class="form-select rounded" style="line-height: 18px">
+                            <option value="">Todas</option>
+                            @foreach ($tiendas as $tienda)
+                                <option value="{{ $tienda->IdTienda }}"
+                                    {{ $tienda->IdTienda == $IdTienda ? 'selected' : '' }}>{{ $tienda->NomTienda }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Sucursales:</label>
+                        <select name="IdPlaza" id="IdPlaza" class="form-select rounded" style="line-height: 18px">
+                            <option value="">Todas</option>
+                            @foreach ($plazas as $plaza)
+                                <option value="{{ $plaza->IdPlaza }}" {{ $plaza->IdPlaza == $IdPlaza ? 'selected' : '' }}>
+                                    {{ $plaza->NomPlaza }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-dark-outline">
+                            @include('components.icons.search')
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <table>

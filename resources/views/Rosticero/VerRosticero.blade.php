@@ -115,7 +115,7 @@
 
                                         <button class="btn-table btn-table-success" data-bs-toggle="modal"
                                             data-bs-target="#ModalFinalizar{{ $rostisado->IdDatRosticero }}"
-                                            title="Finalizar">
+                                            title="Finalizar" {{ count($rostisado->newdetalle) == 0 ? 'disabled' : '' }}>
                                             @include('components.icons.check')
                                         </button>
                                     @endif

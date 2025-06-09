@@ -12,7 +12,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.5",
         "maatwebsite/excel": "^3.1",
-        "mike42/escpos-php": "^2.2"
+        "mike42/escpos-php": "^4.0"
     },
     "require-dev": {
         "spatie/laravel-ignition": "^2.0",

@@ -93,10 +93,12 @@ class PreciosController extends Controller
                     ->select('d.NomListaPrecio', 'a.CodArticulo', 'c.NomArticulo', 'a.PrecioArticulo as PrecioArticuloViejo', 'b.PrecioArticulo as PrecioArticuloNuevo')
                     ->leftJoin('CatArticulos as c', 'c.CodArticulo', 'a.CodArticulo')
                     ->leftJoin('CatListasPrecio as d', 'd.IdListaPrecio', 'a.IdListaPrecio')
-                    ->leftJoin(DB::raw('(SELECT CodArticulo, PrecioArticulo FROM DatPreciosTmp WHERE IdListaPrecio = ' . $idListaPrecioHidden . ') as b'),
+                    ->leftJoin(
+                        DB::raw('(SELECT CodArticulo, PrecioArticulo FROM DatPreciosTmp WHERE IdListaPrecio = ' . $idListaPrecioHidden . ') as b'),
                         function ($join) {
                             $join->on('a.CodArticulo', '=', 'b.CodArticulo');
-                        })
+                        }
+                    )
                     ->where('a.IdListaPrecio', $idListaPrecioHidden)
                     ->where('a.PrecioArticulo', '<>', DB::raw('b.PrecioArticulo'))
                     ->orderBy('a.CodArticulo')
@@ -107,7 +109,9 @@ class PreciosController extends Controller
                     ->leftJoin(
                         DB::raw('(SELECT CodArticulo, PrecioArticulo FROM DatPreciosTmp
                             WHERE IdListaPrecio = ' . $idListaPrecioHidden . ') AS B'),
-                        'A.CodArticulo', '=', 'B.CodArticulo'
+                        'A.CodArticulo',
+                        '=',
+                        'B.CodArticulo'
                     )
                     ->where('A.IdListaPrecio', '=', $idListaPrecioHidden)
                     ->where('A.PrecioArticulo', '<>', DB::raw('B.PrecioArticulo'))
@@ -136,11 +140,8 @@ class PreciosController extends Controller
 
                     $enviarCorreo = "Execute SP_ENVIAR_MAIL 'sistemas@kowi.com.mx;', '" . $asunto . "', '" . $mensaje . "'";
                     DB::statement($enviarCorreo);
-
                 } catch (\Throwable $th) {
-
                 }
-
             }
 
             // enviar correo de actualizacion de precios
@@ -169,6 +170,7 @@ class PreciosController extends Controller
         $precios = Precio::select(
             'DatPrecios.CodArticulo',
             'CatArticulos.NomArticulo',
+            'CatArticulos.IdArticulo',
             DB::raw('(SELECT PrecioArticulo from DatPrecios as dp where CodArticulo = DatPrecios.CodArticulo and IdListaPrecio = 1) Menudeo'),
             DB::raw('(SELECT PrecioArticulo from DatPrecios as dp where CodArticulo = DatPrecios.CodArticulo and IdListaPrecio = 2) Minorista'),
             DB::raw('(SELECT PrecioArticulo from DatPrecios as dp where CodArticulo = DatPrecios.CodArticulo and IdListaPrecio = 3) Detalle'),
@@ -177,12 +179,13 @@ class PreciosController extends Controller
             ->leftjoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatPrecios.CodArticulo')
             ->where('CatArticulos.NomArticulo', 'LIKE', '%' . $txtFiltro . '%')
             ->orWhere('CatArticulos.CodArticulo', 'LIKE', '%' . $txtFiltro . '%')
-            ->groupBy('DatPrecios.CodArticulo', 'CatArticulos.NomArticulo')
+            ->orWhere('CatArticulos.IdArticulo', 'LIKE', '%' . $txtFiltro . '%')
+            ->groupBy('DatPrecios.CodArticulo', 'CatArticulos.NomArticulo', 'CatArticulos.IdArticulo')
             ->paginate(10)->withQueryString();
 
-            // return $precios;
+        // return $precios;
 
-                    return view('Precios.ListaPrecios', compact('precios', 'txtFiltro'));
+        return view('Precios.ListaPrecios', compact('precios', 'txtFiltro'));
     }
 
     public function ExportExcel(Request $request)

@@ -342,6 +342,34 @@ class RosticeroController extends Controller
         }
     }
 
+    // Solo se cambia el estatus y se marca como vendido
+    public function CambiarDetalleRosticero($id)
+    {
+        try {
+            $detalle = DatDetalleRosticero::where('IdDatDetalleRosticero', $id)->first();
+            $rosticero = DatRosticero::where('IdRosticero', $detalle->IdRosticero)->first();
+
+            DatRosticero::where('IdRosticero', $detalle->IdRosticero)
+                ->update([
+                    'CantidadVenta' => $rosticero->CantidadVenta - $detalle->Cantidad,
+                    'Disponible' => $rosticero->Disponible - $detalle->Cantidad,
+                    'MermaReal' => $rosticero->MermaReal + $detalle->Cantidad,
+                    'Subir' => 0
+                ]);
+
+            DatDetalleRosticero::where('IdDatDetalleRosticero', $id)
+                ->update([
+                    'Subir' => 0,
+                    'Vendida' => 0,
+                    'Status' => 0
+                ]);
+
+            return back()->with('msjAdd', 'La sentencia se ejecuto correctamente');
+        } catch (\Throwable $e) {
+            return back()->with('msjdelete', 'Error: ' . $e->getMessage());
+        }
+    }
+
     public function EliminarDetalleRosticero($id)
     {
         try {
@@ -351,6 +379,7 @@ class RosticeroController extends Controller
             DatRosticero::where('IdRosticero', $detalle->IdRosticero)
                 ->update([
                     'CantidadVenta' => $rosticero->CantidadVenta - $detalle->Cantidad,
+                    'Disponible' => $rosticero->Disponible - $detalle->Cantidad,
                     'MermaReal' => $rosticero->MermaReal + $detalle->Cantidad,
                     'Subir' => 0
                 ]);
@@ -358,6 +387,7 @@ class RosticeroController extends Controller
             DatDetalleRosticero::where('IdDatDetalleRosticero', $id)
                 ->update([
                     'Subir' => 0,
+                    'Vendida' => 0,
                     'Status' => 1
                 ]);
 
@@ -399,19 +429,21 @@ class RosticeroController extends Controller
                 ->sum('CantMermaRecalentado');
 
             // Guardamos la merma del recalentado
-            // Guardamos la merma del producto
-            $merma = new CapMerma;
-            $merma->IdTienda = $idTienda;
-            $merma->FechaCaptura = date('d-m-Y H:i:s');
-            $merma->CodArticulo = $rosticero->CodigoVenta;
-            $merma->CantArticulo = $mermaRecalentado;
-            $merma->IdTipoMerma = 3; // Degustacion
-            // $merma->IdSubTipoMerma = $subTipoMerma;
-            $merma->Comentario = 'MERMA ROSTICERO RECALENTADO';
-            $merma->IdUsuarioCaptura = Auth::user()->IdUsuario;
-            $merma->IdCaja = $caja;
-            $merma->Subir = 0;
-            $merma->save();
+            // Guardamos la merma del producto en caso de que exista merma
+            if ($mermaRecalentado > 0) {
+                $merma = new CapMerma;
+                $merma->IdTienda = $idTienda;
+                $merma->FechaCaptura = date('d-m-Y H:i:s');
+                $merma->CodArticulo = $rosticero->CodigoVenta;
+                $merma->CantArticulo = $mermaRecalentado;
+                $merma->IdTipoMerma = 3; // Degustacion
+                // $merma->IdSubTipoMerma = $subTipoMerma;
+                $merma->Comentario = 'MERMA ROSTICERO RECALENTADO';
+                $merma->IdUsuarioCaptura = Auth::user()->IdUsuario;
+                $merma->IdCaja = $caja;
+                $merma->Subir = 0;
+                $merma->save();
+            }
 
             DatRosticero::where('IdDatRosticero', $id)
                 ->update([

@@ -14,7 +14,10 @@ class UsuariosTiendaController extends Controller
     public function CatUsuariosTienda(Request $request)
     {
         $txtFiltro = $request->get('txtFiltro', '');
+        $IdTienda = $request->get('IdTienda', '');
+        $IdPlaza = $request->get('IdPlaza', '');
         $paginate = $request->get('paginate', 10);
+
         $usuariosTienda = DB::table('CatUsuariosTienda')
             ->leftJoin('CatUsuarios', 'CatUsuariosTienda.IdUsuario', '=', 'CatUsuarios.IdUsuario')
             ->leftJoin('CatTiendas', 'CatUsuariosTienda.IdTienda', '=', 'CatTiendas.IdTienda')
@@ -33,6 +36,12 @@ class UsuariosTiendaController extends Controller
                 ['CatUsuarios.Status', '=', 0],
                 ['CatUsuariosTienda.Status', '=', 0]
             ])
+            ->when($IdTienda, function ($query, $IdTienda) {
+                return $query->where('CatUsuariosTienda.IdTienda', '=', $IdTienda);
+            })
+            ->when($IdPlaza, function ($query, $IdPlaza) {
+                return $query->where('CatUsuariosTienda.IdPlaza', '=', $IdPlaza);
+            })
             ->paginate($paginate)
             ->withQueryString();
 
@@ -52,7 +61,7 @@ class UsuariosTiendaController extends Controller
             ->where('Status', 0)
             ->get();
         //return $usuariosTienda;
-        return view('UsuariosTienda.CatUsuariosTienda', compact('usuariosTienda', 'usuarios', 'tiendas', 'plazas', 'txtFiltro'));
+        return view('UsuariosTienda.CatUsuariosTienda', compact('usuariosTienda', 'usuarios', 'tiendas', 'plazas', 'txtFiltro', 'IdTienda', 'IdPlaza'));
     }
 
     public function CrearUsuarioTienda(Request $request)

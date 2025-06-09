@@ -45,7 +45,7 @@
                             <tr style="vertical-align: middle">
                                 <td>{{ $paquete->IdPaquete }}</td>
                                 <td>{{ $paquete->IdPreparado }}</td>
-                                <td>{{ $paquete->NomPaquete }}</td>
+                                <td>{{ substr($paquete->NomPaquete, 0, -15) }} </td>
                                 <td>{{ $paquete->CantidadEnvio }}</td>
                                 <td>{{ $paquete->CantidadVendida ? $paquete->CantidadVendida : 0 }}</td>
                                 <td>${{ number_format($paquete->ImportePaquete, 2) }}</td>

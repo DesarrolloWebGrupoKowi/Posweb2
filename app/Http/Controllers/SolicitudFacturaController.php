@@ -191,10 +191,12 @@ class SolicitudFacturaController extends Controller
 
     public function GuardarSolicitudFactura(Request $request)
     {
+        $checks = $request->chkEdit ? array_diff($request->chkEdit, array('email')) : $request->chkEdit;
+
         $request->validate([
             'calle' => 'required',
             'numExt' => 'required',
-            'colonia' => 'required',
+            // 'colonia' => 'required',
             'ciudad' => 'required',
             'municipio' => 'required',
             'estado' => 'required',
@@ -203,7 +205,7 @@ class SolicitudFacturaController extends Controller
             'cfdi' => 'required'
         ]);
 
-        if (!empty($request->chkEdit) && empty($request->file('cSituacionFiscal'))) {
+        if (!empty($checks) && empty($request->file('cSituacionFiscal'))) {
             return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.');
         }
 
@@ -261,22 +263,22 @@ class SolicitudFacturaController extends Controller
                         'TipoPersona' => $tipoPersona,
                         'RFC' => strtoupper($request->rfcCliente),
                         'NomCliente' => $cliente->NomCliente,
-                        'Calle' => strtoupper($request->calle),
+                        'Calle' => $request->calle,
                         'NumExt' => strtoupper($request->numExt),
                         'NumInt' => strtoupper($request->numInt),
-                        'Colonia' => strtoupper($request->colonia),
-                        'Ciudad' => strtoupper($request->ciudad),
-                        'Municipio' => strtoupper($request->municipio),
-                        'Estado' => strtoupper($request->estado),
+                        'Colonia' => $request->colonia,
+                        'Ciudad' => $request->ciudad,
+                        'Municipio' => $request->municipio,
+                        'Estado' => $request->estado,
                         'Pais' => 'MEXICO',
                         'CodigoPostal' => $request->codigoPostal,
                         'Email' => strtolower($request->email),
                         'Telefono' => $request->telefono,
                         'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
                         'IdUsuarioCliente' => null,
-                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                        'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
-                        'MetodoPago' => strtoupper($request->metodopag),
+                        'MetodoPago' => $request->metodopag,
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -346,7 +348,7 @@ class SolicitudFacturaController extends Controller
                 foreach ($pagosFactura as $j => $pagoFactura) {
                     CorteTienda::where('IdCortesTienda', $pagoFactura->IdCortesTienda)
                         ->update([
-                            'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                            'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                             'IdSolicitudFactura' => $idSolicitudFactura
                         ]);
                 }
@@ -424,7 +426,7 @@ class SolicitudFacturaController extends Controller
                         'Telefono' => $request->telefono,
                         'IdUsuarioSolicitud' => Auth::user()->IdUsuario,
                         'IdUsuarioCliente' => null,
-                        'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                        'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => strtoupper($request->metodopag),
                         'Editar' => empty($editarInfo) ? null : 1,
@@ -477,7 +479,7 @@ class SolicitudFacturaController extends Controller
                     foreach ($pagoParaFactura->CortePago as $key => $pagoIdCorte) {
                         CorteTienda::where('IdCortesTienda', $pagoIdCorte->IdCortesTienda)
                             ->update([
-                                'Bill_To' => empty($editarInfo) && empty($pdf) ? $cliente->Bill_To : null,
+                                'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                                 'IdSolicitudFactura' => $idSolicitudFactura
                             ]);
                     }

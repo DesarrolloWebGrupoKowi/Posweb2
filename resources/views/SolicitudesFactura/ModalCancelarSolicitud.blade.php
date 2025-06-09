@@ -9,7 +9,7 @@
                 @csrf
                 <div class="modal-body">
                     <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
-                        ¿Estas seguro de cancelar la solicitud de factura #{{ $solicitud->Id }}?
+                        ¿Estas seguro de cancelar la solicitud de factura #{{ $solicitud->IdSolicitudFactura }}?
                     </p>
                 </div>
                 <div class="modal-footer">

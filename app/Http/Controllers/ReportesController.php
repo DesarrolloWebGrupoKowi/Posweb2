@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ConcentradoDeArticulosExport;
+use App\Exports\ConcentradoDeTicketsExport;
 use App\Exports\ConcentradoPorCiudadYFamilia;
 use App\Exports\DineroElectronicoExport;
 use App\Exports\GrupoYTipoPrecio;
+use App\Exports\Mermas;
 use App\Exports\VentasPorTipoDePrecioExport;
 use App\Models\CapMerma;
 use App\Models\DatEncabezado;
+use App\Models\DatRosticero;
 use App\Models\DatTipoPago;
 use App\Models\Tienda;
 use Carbon\Carbon;
@@ -28,75 +31,214 @@ class ReportesController extends Controller
     public function ReporteConcentradoDeArticulos(Request $request)
     {
         $idTienda = $request->idTienda;
-        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
-        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+        $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
+        $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
+        $txtFiltro = $request->txtFiltro;
+        $optionsOnline = $request->optionsOnline ?? 'off';
+        $agrupado = $request->agrupado == 'on' ? true : false;
 
         $usuarioTienda = Auth::user()->usuarioTienda;
 
-        if ($usuarioTienda->Todas == 0) {
-            $tiendas = Tienda::where('Status', 0)
-                ->orderBy('IdTienda')
-                ->get();
-        }
-        if (!empty($usuarioTienda->IdTienda)) {
-            $tiendas = Tienda::where('Status', 0)
-                ->where('IdTienda', $usuarioTienda->IdTienda)
-                ->orderBy('IdTienda')
-                ->get();
-        }
         if (!empty($usuarioTienda->IdPlaza)) {
-            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
-                ->where('Status', 0)
-                ->orderBy('IdTienda')
-                ->get();
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)->where('Status', 0)->orderBy('IdTienda')->get();
+        } elseif (!empty($usuarioTienda->IdTienda)) {
+            $tiendas = Tienda::where('IdTienda', $usuarioTienda->IdTienda)->where('Status', 0)->orderBy('IdTienda')->get();
+        } elseif ($usuarioTienda->Todas == 0) {
+            $tiendas = Tienda::where('Status', 0)->orderBy('IdTienda')->get();
+        } else {
+            $tiendas = collect(); // Por si no entra a ningún caso
         }
 
-        $concentrado = DB::table('DatEncabezado as a')
+        $idTiendas = $tiendas->pluck('IdTienda');
+        $concentrado = DB::connection($optionsOnline == 'on' ? 'server' : null)
+            ->table('DatEncabezado as a')
             ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
             ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
             ->leftJoin('CatFamilias as d', 'c.IdFamilia', 'd.IdFamilia')
             ->leftJoin('CatGrupos as e', 'c.IdGrupo', 'e.IdGrupo')
             ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
             ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
-            ->select(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
-                            b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe'))
+            ->when($agrupado, function ($query) {
+                $query->select(DB::raw('cast(a.FechaVenta as date) as FechaVenta, g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
+                b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'));
+            })
+            ->when(!$agrupado, function ($query) {
+                $query->select(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
+                b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'));
+            })
+
+            ->whereIn('a.IdTienda', $idTiendas)
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
             })
             ->where('a.StatusVenta', 0)
             ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-            ->groupBy('g.NomCiudad', 'f.NomTienda', 'c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'e.NomGrupo')
-            ->orderBy('c.CodArticulo')
+            ->when($txtFiltro, function ($query) use ($txtFiltro) {
+                $query->where('c.CodArticulo', 'like', '%' . $txtFiltro . '%');
+                $query->orWhere('c.NomArticulo', 'like', '%' . $txtFiltro . '%');
+            })
+            ->when($agrupado, function ($query) {
+                $query->groupBy(DB::raw('cast(a.FechaVenta as date), g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, b.PrecioArticulo, e.NomGrupo'));
+            })
+            ->when(!$agrupado, function ($query) {
+                $query->groupBy(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, b.PrecioArticulo, e.NomGrupo'));
+            })
+            ->when($agrupado, function ($query) {
+                $query->orderBy('FechaVenta');
+                $query->orderBy('c.CodArticulo');
+            })
+            ->when(!$agrupado, function ($query) {
+                $query->orderBy('c.CodArticulo');
+            })
             ->get();
 
-        return view('Reportes.ConcentradoDeArticulos', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+        return view('Reportes.ConcentradoDeArticulos', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado', 'txtFiltro', 'optionsOnline', 'agrupado'));
     }
 
     public function ExportReporteConcentradoDeArticulos(Request $request)
     {
         $idTienda = $request->idTienda;
-        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
-        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+        $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
+        $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
+        $txtFiltro = $request->txtFiltro;
+        $optionsOnline = $request->optionsOnline ?? 'off';
+        $agrupado = $request->agrupado == 'on' ? true : false;
 
-        $concentrado = DB::table('DatEncabezado as a')
+        $usuarioTienda = Auth::user()->usuarioTienda;
+
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)->where('Status', 0)->orderBy('IdTienda')->get();
+        } elseif (!empty($usuarioTienda->IdTienda)) {
+            $tiendas = Tienda::where('IdTienda', $usuarioTienda->IdTienda)->where('Status', 0)->orderBy('IdTienda')->get();
+        } elseif ($usuarioTienda->Todas == 0) {
+            $tiendas = Tienda::where('Status', 0)->orderBy('IdTienda')->get();
+        } else {
+            $tiendas = collect(); // Por si no entra a ningún caso
+        }
+
+        $idTiendas = $tiendas->pluck('IdTienda');
+        $concentrado = DB::connection($optionsOnline == 'on' ? 'server' : null)
+            ->table('DatEncabezado as a')
             ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
             ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
             ->leftJoin('CatFamilias as d', 'c.IdFamilia', 'd.IdFamilia')
             ->leftJoin('CatGrupos as e', 'c.IdGrupo', 'e.IdGrupo')
             ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
             ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
-            ->select(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
-                            b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe'))
+            ->when($agrupado, function ($query) {
+                $query->select(DB::raw('cast(a.FechaVenta as date) as FechaVenta, g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
+            b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'));
+            })
+            ->when(!$agrupado, function ($query) {
+                $query->select(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
+            b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'));
+            })
+            ->whereIn('a.IdTienda', $idTiendas)
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
             })
             ->where('a.StatusVenta', 0)
             ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-            ->groupBy('g.NomCiudad', 'f.NomTienda', 'c.CodArticulo', 'c.NomArticulo', 'b.PrecioArticulo', 'e.NomGrupo')
-            ->orderBy('c.CodArticulo')
+            ->when($txtFiltro, function ($query) use ($txtFiltro) {
+                $query->where('c.CodArticulo', 'like', '%' . $txtFiltro . '%');
+                $query->orWhere('c.NomArticulo', 'like', '%' . $txtFiltro . '%');
+            })
+            ->when($agrupado, function ($query) {
+                $query->groupBy(DB::raw('cast(a.FechaVenta as date), g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, b.PrecioArticulo, e.NomGrupo'));
+            })
+            ->when(!$agrupado, function ($query) {
+                $query->groupBy(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, b.PrecioArticulo, e.NomGrupo'));
+            })
+            ->when($agrupado, function ($query) {
+                $query->orderBy('FechaVenta');
+                $query->orderBy('c.CodArticulo');
+            })
+            ->when(!$agrupado, function ($query) {
+                $query->orderBy('c.CodArticulo');
+            })
             ->get();
+
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'concentradodeventas.xlsx';
         return Excel::download(new ConcentradoDeArticulosExport($concentrado), $name);
+    }
+
+    public function ReporteConcentradoDeTickets(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
+        $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+        $tiendasQuery = Tienda::where('Status', 0)->orderBy('IdTienda');
+
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendasQuery->where('IdTienda', $usuarioTienda->IdTienda);
+        }
+
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendasQuery->where('IdPlaza', $usuarioTienda->IdPlaza);
+        }
+
+        $tiendas = $tiendasQuery->get();
+        $idsTiendas = $tiendas->pluck('IdTienda')->toArray();
+
+        $concentrado = DB::table('DatEncabezado as a')
+            ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+            ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+            ->select(DB::raw('g.NomCiudad, f.NomTienda,  SUM(b.ImporteArticulo) as Importe, cast(a.FechaVenta as date) as Fecha, count(DISTINCT a.IdTicket) as Tickets'))
+            ->whereIn('a.IdTienda', $idsTiendas)
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('a.IdTienda', $idTienda);
+            })
+            ->where('a.StatusVenta', 0)
+            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->groupBy('g.NomCiudad', 'f.IdTienda', 'f.NomTienda', DB::raw('cast(a.FechaVenta as date)'))
+            ->orderBy('Fecha')
+            ->orderBy('f.IdTienda')
+            ->get();
+
+        return view('Reportes.ConcentradoDeTickets', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+    }
+
+    public function ExportReporteConcentradoDeTickets(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
+        $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+        $tiendasQuery = Tienda::where('Status', 0)->orderBy('IdTienda');
+
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendasQuery->where('IdTienda', $usuarioTienda->IdTienda);
+        }
+
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendasQuery->where('IdPlaza', $usuarioTienda->IdPlaza);
+        }
+
+        $tiendas = $tiendasQuery->get();
+        $idsTiendas = $tiendas->pluck('IdTienda')->toArray();
+
+        $concentrado = DB::table('DatEncabezado as a')
+            ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+            ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+            ->select(DB::raw('g.NomCiudad, f.NomTienda,  SUM(b.ImporteArticulo) as Importe, cast(a.FechaVenta as date) as Fecha, count(DISTINCT a.IdTicket) as Tickets'))
+            ->whereIn('a.IdTienda', $idsTiendas)
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('a.IdTienda', $idTienda);
+            })
+            ->where('a.StatusVenta', 0)
+            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->groupBy('g.NomCiudad', 'f.IdTienda', 'f.NomTienda', DB::raw('cast(a.FechaVenta as date)'))
+            ->orderBy('Fecha')
+            ->orderBy('f.IdTienda')
+            ->get();
+
+        $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'concentradodetickets.xlsx';
+        return Excel::download(new ConcentradoDeTicketsExport($concentrado), $name);
     }
 
     public function ReportePorTipoDePrecio(Request $request)
@@ -359,7 +501,7 @@ class ReportesController extends Controller
     public function ReporteMermasAdmin(Request $request)
     {
         $idTienda = $request->idTienda;
-        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
+        $fecha1 =  $request->fecha1;
         $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
 
         $usuarioTienda = Auth::user()->usuarioTienda;
@@ -397,21 +539,158 @@ class ReportesController extends Controller
             ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
             ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
             ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'CapMermas.IdTienda')
+            ->where('ca.status', 0)
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('CapMermas.IdTienda', $idTienda);
             })
-            ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            // ->whereDate('CapMermas.FechaCaptura', '>=', $fecha1)
+            // ->whereDate('CapMermas.FechaCaptura', '<=', $fecha2)
+            ->when($fecha1, function ($query) use ($fecha1) {
+                $query->whereDate('CapMermas.FechaCaptura', '>=', $fecha1);
+            })
+            ->when($fecha2, function ($query) use ($fecha2) {
+                $query->whereDate('CapMermas.FechaCaptura', '<=', $fecha2);
+            })
             ->orderBy('CapMermas.FechaCaptura', 'desc')
             ->paginate(10);
 
         return view('Reportes.ConcentradoDeMermas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
     }
 
+    public function ReporteMermasAdminExcel(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $idTienda = $request->idTienda;
+            $fecha1 =  $request->fecha1;
+            $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+
+            $tienda = Tienda::where('Status', 0)
+                ->where('idtienda', $idTienda)
+                ->value('NomTienda');
+
+            $concentrado = CapMerma::select(
+                'CapMermas.FolioMerma',
+                'CapMermas.CodArticulo',
+                'ca.NomArticulo',
+                'CapMermas.FechaCaptura',
+                'tm.NomTipoMerma',
+                'CapMermas.CantArticulo',
+                'CapMermas.FechaInterfaz',
+                'CapMermas.Comentario',
+                'CapMermas.IdTienda',
+                'ct.NomTienda'
+            )
+                ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
+                ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
+                ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'CapMermas.IdTienda')
+                ->where('ca.status', 0)
+                ->when($idTienda, function ($query) use ($idTienda) {
+                    $query->where('CapMermas.IdTienda', $idTienda);
+                })
+                // ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->when($fecha1, function ($query) use ($fecha1) {
+                    $query->whereDate('CapMermas.FechaCaptura', '>=', $fecha1);
+                })
+                ->when($fecha2, function ($query) use ($fecha2) {
+                    $query->whereDate('CapMermas.FechaCaptura', '<=', $fecha2);
+                })
+                ->orderBy('CapMermas.FechaCaptura', 'desc')
+                ->get();
+
+            $data = [
+                'tienda' => $tienda,
+                'fecha1' => $fecha1,
+                'fecha2' => $fecha2,
+                'concentrado' => $concentrado
+            ];
+
+            DB::commit();
+
+            $name = 'MERMAS--' . Carbon::now()->parse(date(now()))->format('Y--m--d') . '.xlsx';
+
+            return Excel::download(new Mermas($data), $name);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return $th;
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+    }
+
+    public function ReporteRosticeroAdmin(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1;
+        $fecha2 = $request->fecha2;
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+
+        if ($usuarioTienda->Todas == 0) {
+            $tiendas = Tienda::where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendas = Tienda::where('Status', 0)
+                ->where('IdTienda', $usuarioTienda->IdTienda)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
+                ->where('Status', 0)
+                ->orderBy('IdTienda')
+                ->get();
+        }
+
+        $concentrado = DatRosticero::select(
+            'DatRosticero.*',
+            'CAMP.NomArticulo as ArticuloMatPrima',
+            'CAV.NomArticulo as ArticuloVenta',
+            'ct.NomTienda'
+        )
+            ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'DatRosticero.IdTienda')
+            ->leftjoin('CatArticulos as CAMP', 'CAMP.CodArticulo', 'DatRosticero.CodigoMatPrima')
+            ->leftjoin('CatArticulos as CAV', 'CAV.CodArticulo', 'DatRosticero.CodigoVenta')
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('DatRosticero.IdTienda', $idTienda);
+            })
+            ->whereRaw("cast(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->orderBy('DatRosticero.Fecha', 'desc')
+            ->paginate(10);
+
+        // $concentrado = CapMerma::select(
+        //     'CapMermas.FolioMerma',
+        //     'CapMermas.CodArticulo',
+        //     'ca.NomArticulo',
+        //     'CapMermas.FechaCaptura',
+        //     'tm.NomTipoMerma',
+        //     'CapMermas.CantArticulo',
+        //     'CapMermas.FechaInterfaz',
+        //     'CapMermas.Comentario',
+        //     'CapMermas.IdTienda',
+        //     'ct.NomTienda'
+        // )
+        //     ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
+        //     ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
+        //     ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'CapMermas.IdTienda')
+        //     ->when($idTienda, function ($query) use ($idTienda) {
+        //         $query->where('CapMermas.IdTienda', $idTienda);
+        //     })
+        //     ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+        //     ->orderBy('CapMermas.FechaCaptura', 'desc')
+        //     ->paginate(10);
+
+        return view('Reportes.ConcentradoDeRostisados', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+    }
+
     public function ReporteDineroElectronido(Request $request)
     {
         $idTienda = $request->idTienda;
-        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
-        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+        $fecha1 = $request->fecha1;
+        $fecha2 = $request->fecha2;
+        $pFecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('d/m/Y') : Carbon::parse($request->fecha1)->format('d/m/Y');
+        $pFecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('d/m/Y') : Carbon::parse($request->fecha2)->format('d/m/Y');
 
         $usuarioTienda = Auth::user()->usuarioTienda;
 
@@ -435,31 +714,86 @@ class ReportesController extends Controller
 
         $concentrado = collect(DB::select("SELECT NomTienda,
                 CONVERT(varchar(12), Fecha, 103) as Fecha,
-                sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
-                sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
-                sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
-                sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
-                sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+                sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
+                sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
+                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' OR cliente IS NULL THEN Monedero ELSE 0 END) as contado
             from (
-                select t.NomTienda,
-                    cast(FechaVenta as date) as Fecha,
-                    dt.IdTipoPago,
-                    abs(isnull(dm.Monedero,0)) as Monedero,
-                    case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
-                from DatMonederoElectronico as dm
-                    left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
-                    left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
-                    left join CatTiendas as t on dm.IdTienda = t.IdTienda
-                    left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
-                    left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
-                where cast(FechaVenta as date) >='$fecha1' and
-                    cast(FechaVenta as date) <'$fecha2' and
-                    dm.IdTienda = '$idTienda' and
-                    dt.IdTipoPago in (1, 7) and
-                    dm.Monedero < 0
-                group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+                select
+                    t.NomTienda,
+                    NomClienteCloud cliente,
+                    dm.IdEncabezado,
+                    abs(isnull(dm.Monedero,0)) monedero,
+                    cast(dm.FechaGenerado as date) as Fecha
+                from DatMonederoElectronico dm
+                left join (SELECT * FROM  DBO.FN_BIL_MON_CORTE ('$idTienda','$pFecha1','$pFecha2')) dt on dm.IdEncabezado = dt.IdEncabezado
+                left join DatClientesCloudTienda dc on dc.Bill_To = dt.Bill_To and dc.IdListaPrecio = dt.IdListaPrecio and dc.IdTipoPago = dt.IdTipoPago and dt.IdTienda = dc.IdTienda
+                left join CatClientesCloud cc on cc.IdClienteCloud = dc.IdClienteCloud
+                left join CatTiendas as t on dt.IdTienda = t.IdTienda
+                where
+                    cast(dm.FechaGenerado as date) >='$pFecha1'
+                    and cast(dm.FechaGenerado as date) < '$pFecha2'
+                    and dm.IdTienda = '$idTienda'
+                    and dm.BatchGasto is not null
+                    and dt.IdTipoPago = 7
+                    and dt.StatusVenta=0
+                group by t.NomTienda, NomClienteCloud, cast(dm.FechaGenerado as date),dm.IdEncabezado,dm.Monedero
             ) as a group by NomTienda, Fecha
             order by NomTienda, Fecha"));
+
+        // $concentrado = collect(DB::select("SELECT NomTienda,
+        //         CONVERT(varchar(12), Fecha, 103) as Fecha,
+        //         sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
+        //         sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
+        //         sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
+        //     from (
+        //         select
+        //             dm.IdDatMonedero,
+        //             t.NomTienda,
+        //             NomClienteCloud cliente,
+        //             dm.IdEncabezado,
+        //             sum(abs(isnull(dm.Monedero,0))) monedero,
+        //             cast(dm.FechaGenerado as date) as Fecha
+        //         from DatMonederoElectronico dm
+        //         left join DatCortesTienda dt on dm.IdEncabezado = dt.IdEncabezado
+        //         left join DatClientesCloudTienda dc on dc.Bill_To = dt.Bill_To and dc.IdListaPrecio = dt.IdListaPrecio and dc.IdTipoPago = dt.IdTipoPago and dt.IdTienda = dc.IdTienda
+        //         left join CatClientesCloud cc on cc.IdClienteCloud = dc.IdClienteCloud
+        //         left join CatTiendas as t on dt.IdTienda = t.IdTienda
+        //         where
+        //             cast(dm.FechaGenerado as date) >='$fecha1' and
+        //             cast(dm.FechaGenerado as date) <'$fecha2' and
+        //             dm.IdTienda = '$idTienda' and
+        //             dm.BatchGasto is not null and
+        //             dt.IdTipoPago = 7
+        //         group by dm.IdDatMonedero, t.NomTienda, NomClienteCloud, cast(dm.FechaGenerado as date),dm.IdEncabezado,dm.Monedero
+        //     ) as a group by NomTienda, Fecha
+        //     order by NomTienda, Fecha"));
+        // $concentrado = collect(DB::select("SELECT NomTienda,
+        //         CONVERT(varchar(12), Fecha, 103) as Fecha,
+        //         sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
+        //         sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
+        //         sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
+        //         sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
+        //         sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+        //     from (
+        //         select t.NomTienda,
+        //             cast(FechaVenta as date) as Fecha,
+        //             dt.IdTipoPago,
+        //             sum(abs(isnull(dm.Monedero,0))) as Monedero,
+        //             case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
+        //         from DatMonederoElectronico as dm
+        //             left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
+        //             left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
+        //             left join CatTiendas as t on dm.IdTienda = t.IdTienda
+        //             left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
+        //             left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
+        //         where cast(FechaVenta as date) >='$fecha1' and
+        //             cast(FechaVenta as date) <'$fecha2' and
+        //             dm.IdTienda = '$idTienda' and
+        //             dt.IdTipoPago in (1, 7) and
+        //             dm.Monedero < 0
+        //         group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+        //     ) as a group by NomTienda, Fecha
+        //     order by NomTienda, Fecha"));
 
         return view('Reportes.DineroElectronico', compact('fecha1', 'fecha2', 'idTienda', 'tiendas', 'concentrado'));
     }
@@ -467,36 +801,92 @@ class ReportesController extends Controller
     public function ExportReporteDineroElectronido(Request $request)
     {
         $idTienda = $request->idTienda;
-        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
-        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
+        $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('d/m/Y') : Carbon::parse($request->fecha1)->format('d/m/Y');
+        $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('d/m/Y') : Carbon::parse($request->fecha2)->format('d/m/Y');
 
         $concentrado = collect(DB::select("SELECT NomTienda,
                 CONVERT(varchar(12), Fecha, 103) as Fecha,
-                sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
-                sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
-                sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
-                sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
-                sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+                sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
+                sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
+                sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' OR cliente IS NULL THEN Monedero ELSE 0 END) as contado
             from (
-                select t.NomTienda,
-                    cast(FechaVenta as date) as Fecha,
-                    dt.IdTipoPago,
-                    abs(isnull(dm.Monedero,0)) as Monedero,
-                    case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
-                from DatMonederoElectronico as dm
-                    left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
-                    left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
-                    left join CatTiendas as t on dm.IdTienda = t.IdTienda
-                    left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
-                    left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
-                where cast(FechaVenta as date) >='$fecha1' and
-                    cast(FechaVenta as date) <'$fecha2' and
-                    dm.IdTienda = '$idTienda' and
-                    dt.IdTipoPago in (1, 7) and
-                    dm.Monedero < 0
-                group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+                select
+                    t.NomTienda,
+                    NomClienteCloud cliente,
+                    dm.IdEncabezado,
+                    abs(isnull(dm.Monedero,0)) monedero,
+                    cast(dm.FechaGenerado as date) as Fecha
+                from DatMonederoElectronico dm
+                left join (SELECT * FROM  DBO.FN_BIL_MON_CORTE ('$idTienda','$fecha1','$fecha2')) dt on dm.IdEncabezado = dt.IdEncabezado
+                left join DatClientesCloudTienda dc on dc.Bill_To = dt.Bill_To and dc.IdListaPrecio = dt.IdListaPrecio and dc.IdTipoPago = dt.IdTipoPago and dt.IdTienda = dc.IdTienda
+                left join CatClientesCloud cc on cc.IdClienteCloud = dc.IdClienteCloud
+                left join CatTiendas as t on dt.IdTienda = t.IdTienda
+                where
+                    cast(dm.FechaGenerado as date) >='$fecha1'
+                    and cast(dm.FechaGenerado as date) < '$fecha2'
+                    and dm.IdTienda = '$idTienda'
+                    and dm.BatchGasto is not null
+                    and dt.IdTipoPago = 7
+                    and dt.StatusVenta=0
+                group by t.NomTienda, NomClienteCloud, cast(dm.FechaGenerado as date),dm.IdEncabezado,dm.Monedero
             ) as a group by NomTienda, Fecha
             order by NomTienda, Fecha"));
+        // $concentrado = collect(DB::select("SELECT NomTienda,
+        //         CONVERT(varchar(12), Fecha, 103) as Fecha,
+        //         sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS SEMANALES' THEN Monedero ELSE 0 END) as semanal_creadito,
+        //         sum(0) as semanal_contado,
+        //         sum(case WHEN cliente = 'CREDITO EMPLEADOS Y SOCIOS QUINCENALES' THEN Monedero ELSE 0 END) as quincenal_creadito,
+        //         sum(0) as quincenal_contado,
+        //         sum(case WHEN cliente = 'CONTADO PUBLICO GENERAL EMPLEADOS Y SOCIOS' THEN Monedero ELSE 0 END) as contado
+        //     from (
+        //         select
+        //             t.NomTienda,
+        //             NomClienteCloud cliente,
+        //             sum(dt.ImporteArticulo) monedero,
+        //             cast(FechaVenta as date) as Fecha
+        //         from DatCortesTienda dt
+        //         left join DatClientesCloudTienda dc on dc.Bill_To = dt.Bill_To and dc.IdListaPrecio = dt.IdListaPrecio and dc.IdTipoPago = dt.IdTipoPago and dt.IdTienda = dc.IdTienda
+        //         left join CatClientesCloud cc on cc.IdClienteCloud = dc.IdClienteCloud
+        //         left join CatTiendas as t on dt.IdTienda = t.IdTienda
+        //         where
+        //             IdEncabezado in (
+        //             select IdEncabezado from DatMonederoElectronico where
+        //             cast(FechaGenerado as date) >='$fecha1' and
+        //             cast(FechaGenerado as date) <'$fecha2' and
+        //             IdTienda = '$idTienda' and
+        //             BatchGasto is not null
+        //             ) and
+        //             dt.IdTipoPago = 7
+        //         group by t.NomTienda, NomClienteCloud, cast(FechaVenta as date)
+        //     ) as a group by NomTienda, Fecha
+        //     order by NomTienda, Fecha"));
+        // $concentrado = collect(DB::select("SELECT NomTienda,
+        //         CONVERT(varchar(12), Fecha, 103) as Fecha,
+        //         sum(case WHEN Tipo = 3 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as semanal_creadito,
+        //         sum(case WHEN Tipo = 3 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as semanal_contado,
+        //         sum(case WHEN Tipo = 4 AND IdTipoPago = 7 THEN Monedero ELSE 0 END) as quincenal_creadito,
+        //         sum(case WHEN Tipo = 4 AND IdTipoPago = 1 THEN Monedero ELSE 0 END) as quincenal_contado,
+        //         sum(case WHEN Tipo = 1 THEN Monedero ELSE 0 END) as contado
+        //     from (
+        //         select t.NomTienda,
+        //             cast(FechaVenta as date) as Fecha,
+        //             dt.IdTipoPago,
+        //             abs(isnull(dm.Monedero,0)) as Monedero,
+        //             case WHEN ce.TipoNomina is not null THEN ce.TipoNomina ELSE cf.IdTipoCliente END as Tipo
+        //         from DatMonederoElectronico as dm
+        //             left join DatEncabezado as de on de.IdEncabezado = dm.IdEncabezado
+        //             left join DatTipoPago as dt on dm.IdEncabezado = dt.IdEncabezado
+        //             left join CatTiendas as t on dm.IdTienda = t.IdTienda
+        //             left join CatEmpleados as ce on ce.NumNomina = dm.NumNomina
+        //             left join CatFrecuentesSocios as cf on cf.FolioViejo = dm.NumNomina
+        //         where cast(FechaVenta as date) >='$fecha1' and
+        //             cast(FechaVenta as date) <'$fecha2' and
+        //             dm.IdTienda = '$idTienda' and
+        //             dt.IdTipoPago in (1, 7) and
+        //             dm.Monedero < 0
+        //         group by t.NomTienda, cast(FechaVenta as date), dt.IdTipoPago, ce.TipoNomina, cf.IdTipoCliente, dm.Monedero
+        //     ) as a group by NomTienda, Fecha
+        //     order by NomTienda, Fecha"));
 
         $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'dineroelectronico.xlsx';
         return Excel::download(new DineroElectronicoExport($concentrado), $name);
@@ -518,5 +908,63 @@ class ReportesController extends Controller
         $txtFiltro = $txtFiltro ? substr_replace($txtFiltro, '_', 3, 0) : $txtFiltro;
 
         return view('Reportes.PedidosOracle', compact('txtFiltro', 'concentrado'));
+    }
+
+    public function ReporteInformacionVentas(Request $request)
+    {
+        // return $request;
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
+        $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
+        $agrupar = $request->agrupar;
+
+        $usuarioTienda = Auth::user()->usuarioTienda;
+        $tiendasQuery = Tienda::where('Status', 0)->orderBy('IdTienda');
+
+        if (!empty($usuarioTienda->IdTienda)) {
+            $tiendasQuery->where('IdTienda', $usuarioTienda->IdTienda);
+        }
+
+        if (!empty($usuarioTienda->IdPlaza)) {
+            $tiendasQuery->where('IdPlaza', $usuarioTienda->IdPlaza);
+        }
+
+        $tiendas = $tiendasQuery->get();
+        $idsTiendas = $tiendas->pluck('IdTienda')->toArray();
+
+        if ($agrupar != 'on') {
+            $concentrado = DB::table('DatEncabezado as a')
+                ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+                ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+                ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+                ->select(DB::raw('g.NomCiudad, f.NomTienda,  SUM(b.ImporteArticulo) as Importe, SUM(b.CantArticulo) as cantidad, cast(a.FechaVenta as date) as Fecha, count(DISTINCT a.IdTicket) as Tickets'))
+                ->whereIn('a.IdTienda', $idsTiendas)
+                ->when($idTienda, function ($query) use ($idTienda) {
+                    $query->where('a.IdTienda', $idTienda);
+                })
+                ->where('a.StatusVenta', 0)
+                ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->groupBy('g.NomCiudad', 'f.IdTienda', 'f.NomTienda', DB::raw('cast(a.FechaVenta as date)'))
+                ->orderBy('f.IdTienda')
+                ->orderBy('Fecha')
+                ->get();
+        } else {
+            $concentrado = DB::table('DatEncabezado as a')
+                ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+                ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+                ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+                ->select(DB::raw('SUM(b.ImporteArticulo) as Importe, SUM(b.CantArticulo) as cantidad, cast(a.FechaVenta as date) as Fecha, count(DISTINCT a.IdTicket) as Tickets'))
+                ->whereIn('a.IdTienda', $idsTiendas)
+                ->when($idTienda, function ($query) use ($idTienda) {
+                    $query->where('a.IdTienda', $idTienda);
+                })
+                ->where('a.StatusVenta', 0)
+                ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+                ->groupBy(DB::raw('cast(a.FechaVenta as date)'))
+                ->orderBy('Fecha')
+                ->get();
+        }
+
+        return view('Reportes.InformacionVentas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'agrupar', 'concentrado'));
     }
 }

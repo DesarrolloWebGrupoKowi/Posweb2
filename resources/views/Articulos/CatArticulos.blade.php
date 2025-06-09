@@ -2,14 +2,17 @@
 @section('title', 'Catálogo de Articulos')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+    <div class="gap-4 pt-4 container-fluid width-95 d-flex flex-column">
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
+        <div class="p-4 border-0 card" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Catálogo de Articulos'])
-                <div>
+                <div class="d-flex gap-2">
                     <a href="/BuscarArticulo" class="btn btn-sm btn-dark" title="Agregar articulo">
-                        Agregar articulo @include('components.icons.plus-circle')
+                        Descargar articulo @include('components.icons.plus-circle')
+                    </a>
+                    <a href="/ExportExcelCatArticulos" class="input-group-text text-decoration-none btn-excel">
+                        Exportar precios @include('components.icons.excel')
                     </a>
                 </div>
             </div>
@@ -19,12 +22,13 @@
             </div>
         </div>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
+        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
             @include('components.table-search')
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Código</th>
+                        <th class="rounded-start">Id</th>
+                        <th>Código</th>
                         <th>Nombre</th>
                         <th>Amece</th>
                         <th>UOM</th>
@@ -41,9 +45,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @include('components.table-empty', ['items' => $articulos, 'colspan' => 14])
+                    @include('components.table-empty', ['items' => $articulos, 'colspan' => 15])
                     @foreach ($articulos as $articulo)
                         <tr>
+                            <td>{{ $articulo->IdArticulo }}</td>
                             <td>{{ $articulo->CodArticulo }}</td>
                             <td>{{ $articulo->NomArticulo }}</td>
                             <td>{{ $articulo->Amece }}</td>

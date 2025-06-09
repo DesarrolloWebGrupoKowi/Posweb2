@@ -59,6 +59,7 @@
                     <tr>
                         <th class="rounded-start">Usuario</th>
                         <th>Nómina</th>
+                        <th>Empleado</th>
                         <th>Correo</th>
                         <th>Tipo de Usuario</th>
                         <th>Estatus</th>
@@ -71,6 +72,7 @@
                         <tr>
                             <td>{{ $usuario->NomUsuario }}</td>
                             <td>{{ $usuario->NumNomina }}</td>
+                            <td>{{ $usuario->Nombre }} {{ $usuario->Apellidos }}</td>
                             <td>{{ $usuario->Correo }}</td>
                             <td>{{ $usuario->NomTipoUsuario }}</td>
                             <td>

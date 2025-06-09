@@ -13,22 +13,30 @@
     }
 </style>
 @section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
+        <div class="p-4 border-0 card" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Interfaz de Mermas'])
+                <form action="/InterfazMermasExcel" method="GET">
+                    <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                    <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                    <input type="hidden" name="idTienda" value="{{ $idTienda }}">
+                    <button class="btn card" type="submit">
+                        @include('components.icons.print')
+                    </button>
+                </form>
             </div>
             <div>
                 @include('Alertas.Alertas')
             </div>
         </div>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex flex-wrap align-items-center justify-content-end gap-2 pb-2" action="/InterfazMermas"
+        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
+            <form class="flex-wrap gap-2 pb-2 d-flex align-items-center justify-content-end" action="/InterfazMermas"
                 method="GET">
                 <div class="col-auto">
-                    <select class="form-select rounded" style="line-height: 18px" name="idTienda" id="idTienda" required>
+                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda" required>
                         <option value="">Seleccione Tienda</option>
                         @foreach ($tiendas as $tienda)
                             <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
@@ -37,11 +45,11 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha1"
+                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha1"
                         id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" required>
                 </div>
                 <div class="col-auto">
-                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha2"
+                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha2"
                         id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}" required>
                 </div>
                 <div class="col-auto">
@@ -96,7 +104,7 @@
             </div>
 
             @if (!empty($lotesDisponibles))
-                <div class="d-flex justify-content-center mb-1">
+                <div class="mb-1 d-flex justify-content-center">
                     <div class="col-auto">
                         <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfaz">
                             Interfazar Mermas
@@ -104,9 +112,9 @@
                     </div>
                 </div>
             @elseif(empty($lotesDisponibles) && $mermas->count() > 0)
-                <div class="d-flex justify-content-center mb-1">
+                <div class="mb-1 d-flex justify-content-center">
                     <div class="col-auto">
-                        <h5 class="bg-danger text-white p-1 shadow rounded-3">
+                        <h5 class="p-1 text-white shadow bg-danger rounded-3">
                             <i class="fa fa-exclamation-circle"></i> Ninguna Merma Apta para ser Interfazada <i
                                 class="fa fa-exclamation-circle"></i>
                         </h5>

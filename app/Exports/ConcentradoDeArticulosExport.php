@@ -2,10 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Precio;
-use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromView;
 
 class ConcentradoDeArticulosExport implements FromView

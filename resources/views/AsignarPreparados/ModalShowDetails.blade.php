@@ -38,7 +38,12 @@
                                 name="cantidad" type="number" min="0" placeholder="Cantidad" value="1"
                                 step=".01" required>
                         </div>
-                        <input type="submit" class="d-none" value="Agregar">
+                        {{-- <input type="submit" class="btn btn-dark-outline" value="Agregar"> --}}
+                        <div class="d-flex align-items-end">
+                            <button type="submit" class="btn btn-dark-outline">
+                                @include('components.icons.plus-circle')
+                            </button>
+                        </div>
                     </form>
                 </div>
                 <table>

@@ -46,6 +46,7 @@ class ActualizacionPreciosController extends Controller
             $articulos = Articulo::select('CatArticulos.CodArticulo', 'CatArticulos.NomArticulo', 'CatArticulos.Iva', 'CatArticulos.CodEtiqueta', 'DatPrecios.PrecioArticulo')
                 ->leftJoin('DatPrecios', 'DatPrecios.CodArticulo', 'CatArticulos.CodArticulo')
                 ->where('DatPrecios.IdListaPrecio', '1')
+                ->where('CatArticulos.Status', '0')
                 ->get();
 
             foreach ($articulos as $articulo) {

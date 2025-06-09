@@ -21,6 +21,7 @@ use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\InventarioTienda;
 use App\Models\LimiteCredito;
+use App\Models\LimiteCreditoEspecial;
 use App\Models\ListaPrecio;
 use App\Models\ListaPrecioTienda;
 use App\Models\MonederoElectronico;
@@ -30,7 +31,9 @@ use App\Models\SolicitudFactura;
 use App\Models\TemporalPos;
 use App\Models\Tienda;
 use App\Models\TipoPagoTienda;
+use App\Models\UsuarioTienda;
 use App\Models\VentaCreditoEmpleado;
+use App\Services\VentaService;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +46,13 @@ use PDF;
 
 class PoswebController extends Controller
 {
+    protected $ventaService;
+
+    public function __construct(VentaService $ventaService)
+    {
+        $this->ventaService = $ventaService;
+    }
+
     public function Pos(Request $request)
     {
 
@@ -56,6 +66,16 @@ class PoswebController extends Controller
             ->where('NumNomina', $numNomina)
             ->first();
 
+        // TODO: AQUI AGREGAMOS EL LIMITE DE CREDITO ESPECIAL
+        try {
+            $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $cliente->NumNomina)->first();
+        } catch (\Throwable $th) {
+        }
+
+        if (!empty($limiteCreditoEspecial)) {
+            $cliente->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+            $cliente->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+        }
         // exec("ping -n 1 posweb2admin.kowi.com.mx", $salida, $codigo);
 
         // if ($codigo === 1) {
@@ -108,6 +128,7 @@ class PoswebController extends Controller
         $preventa = DB::table('DatVentaTmp as a')
             ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
             ->where('a.IdTienda', $idTienda)
+            ->orderBy('a.IdDatVentaTmp')
             ->get();
 
         $subTotal = PreventaTmp::where('IdTienda', $idTienda)
@@ -146,7 +167,7 @@ class PoswebController extends Controller
 
         $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
             ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-            ->sum('Monedero') - $monederoDescuento;
+            ->sum('MonederoPorGastar') - $monederoDescuento;
 
         $paquetes = CatPaquete::where('Status', 0)
             ->whereNull('FechaEliminacion')
@@ -323,6 +344,16 @@ class PoswebController extends Controller
                 ->where('NumNomina', $numNomina)
                 ->first();
 
+            try {
+                $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $empleado->NumNomina)->first();
+            } catch (\Throwable $th) {
+            }
+
+            if (!empty($limiteCreditoEspecial)) {
+                $empleado->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+                $empleado->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+            }
+
             $frecuenteSocio = CatFrecuentesSocios::with('TipoCliente')
                 ->where('FolioViejo', $numNomina)
                 ->first();
@@ -365,6 +396,10 @@ class PoswebController extends Controller
             if (!empty($empleado)) {
                 $limiteCredito = LimiteCredito::where('TipoNomina', $empleado->TipoNomina)
                     ->first();
+
+                if (!empty($limiteCreditoEspecial)) {
+                    $limiteCredito = $limiteCreditoEspecial;
+                }
 
                 $totalVentasDiarias = $limiteCredito->TotalVentaDiaria;
 
@@ -549,8 +584,8 @@ class PoswebController extends Controller
                 ->where('a.CodEtiqueta', $buscarArticulo->CodEtiqueta)
                 ->where('d.IdTienda', $idTienda)
                 ->when(empty($CatProdDiez), function ($q) use ($peso) {
-                    $q->where('c.IdListaPrecio', 4);
-                    return $q->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso);
+                    return $q->where('c.IdListaPrecio', 4);
+                    // return $q->whereRaw('? between c.PesoMinimo and c.PesoMaximo', $peso);
                 })
                 ->when(isset($CatProdDiez), function ($q) use ($CatProdDiez) {
                     return $q->where('c.IdListaPrecio', $CatProdDiez);
@@ -1058,24 +1093,8 @@ class PoswebController extends Controller
     // Funcion para cuando se da al boton de pagar
     public function GuardarVenta(Request $request)
     {
-        Log::info('===============================================================================================================');
-        Log::info('');
-        Log::info('===========================================GUARDAR VENTA =======================================================');
-        Log::info('-->');
-        Log::info($request);
-        Log::info('-->usuario');
-        Log::info(Auth::user());
-        Log::info('-----> id tienda: ');
-        Log::info(Auth::user()->usuarioTienda->IdTienda);
-        Log::info('preventa');
         $preventaValidate = PreventaTmp::get();
-        Log::info($preventaValidate);
-
         $temporalPos = TemporalPos::first();
-
-        Log::info('-->Temporal post');
-        Log::info($temporalPos);
-
 
         try {
             DB::beginTransaction();
@@ -1104,19 +1123,17 @@ class PoswebController extends Controller
             }
 
             if ($multipago == null) {
+                /**
+                 * ================================================================================
+                 * ================================================================================
+                 * Detalles generales de la venta y validaciones
+                 * ================================================================================
+                 */
                 $idTipoPago = $request->tipoPago;
                 Log::info('-->');
                 Log::info('Tipo de pago: ' . $idTipoPago);
 
                 $idUsuario = Auth::user()->IdUsuario;
-
-                $preventaIdPedido = PreventaTmp::select('IdPedido')
-                    ->distinct()
-                    ->where('IdTienda', $idTienda)
-                    ->whereNotNull('IdPedido')
-                    ->first();
-
-                empty($preventaIdPedido) ? $idPedidoDist = null : $idPedidoDist = $preventaIdPedido->IdPedido;
 
                 $pago = $request->txtPago;
 
@@ -1173,6 +1190,17 @@ class PoswebController extends Controller
                         ->where('NumNomina', $numNomina)
                         ->first();
 
+                    // TODO: AQUI AGREGAMOS EL LIMITE DE CREDITO ESPECIAL
+                    try {
+                        $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $cliente->NumNomina)->first();
+                    } catch (\Throwable $th) {
+                    }
+
+                    if (!empty($limiteCreditoEspecial)) {
+                        $cliente->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+                        $cliente->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+                    }
+
                     // compras a credito del empleado que no han sido pagadas
                     $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
                         ->sum('CreditoActual');
@@ -1194,251 +1222,89 @@ class PoswebController extends Controller
                     }
                 }
 
-                if ($idTipoPago == 7) {
-                    $temporalPos = TemporalPos::first();
-                    $numNomina = $temporalPos->NumNomina;
-                    $descuentoMonedero = $temporalPos->MonederoDescuento;
 
-                    $monederoE = MonederoElectronico::where('Status', 0)
-                        ->first();
-
-                    $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
-                        ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                        ->sum('Monedero') - $descuentoMonedero;
-
-                    $importeProcesado = DB::table('DatVentaTmp as a')
-                        ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
-                        ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                        ->where('b.IdGrupo', $monederoE->IdGrupo)
-                        ->sum('a.ImporteArticulo');
-
-                    $pagoMonedero = $pago;
-
-                    //Validaciones de Monedero Electrónico
-                    if ($pagoMonedero > $monederoEmpleado) {
-                        return redirect()->route('Pos')->with('Pos', 'Saldo en Monedero Insuficiente, Saldo Actual: $' . number_format($monederoEmpleado, 2));
-                    }
-
-                    if ($importeProcesado == 0) {
-                        return redirect()->route('Pos')->with('Pos', 'No Puede Pagar Con Monedero Electrónico Porque No Lleva Producto Procesado!');
-                    }
-
-                    if ($pagoMonedero > $importeProcesado) {
-                        return redirect()->route('Pos')->with('Pos', 'Solo Puede Pagar $' . number_format($importeProcesado, 2) . ' En Monedero Electrónico!');
-                    }
-
-                    TemporalPos::where('TemporalPos', 1)
-                        ->update([
-                            'MonederoDescuento' => $pagoMonedero,
-                        ]);
-                    $temporalPos = TemporalPos::first();
-                }
+                // [--] validandoTipoDePagoMonedero
+                $this->ventaService->validandoTipoDePagoMonedero($idTipoPago, $pago);
+                $temporalPos = TemporalPos::first();
 
                 if ($idTipoPago != 1 && $pago > $totalVenta) {
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1):' . $pago . '   :' . $totalVenta);
                     return redirect('Pos')->with('Pos', 'No Puede Pagar Más del Importe Total! (1)');
                 }
 
-                Log::info('-->');
-                Log::info('Guardando dat encabezado');
+                // ================================================================================
+                // Guardando venta
+                // ================================================================================
 
-                DB::table('DatEncabezado')
-                    ->insert([
-                        'IdEncabezado' => -2,
-                        'IdTienda' => $idTienda,
-                        'IdDatCaja' => $caja->IdDatCajas,
-                        'IdTicket' => $idTicket,
-                        'FechaVenta' => date('d-m-Y H:i:s'),
-                        'IdUsuario' => $idUsuario,
-                        'SubTotal' => $subTotalVenta,
-                        'Iva' => $ivaVenta,
-                        'Promocion' => null,
-                        'ImporteVenta' => $totalVenta,
-                        'StatusVenta' => 0,
-                        'MotivoCancel' => null,
-                        'FechaCancelacion' => null,
-                        'FechaCreacion' => null,
-                        'SolicitudFE' => null,
-                        'IdMetodoPago' => null,
-                        'IdUsoCFDI' => null,
-                        'IdFormaPago' => null,
-                        'FolioCupon' => null,
-                        'NumNomina' => $numNomina,
-                        'Subir' => 1,
-                    ]);
+                // Guardando encabezado de la venta
+                $idEncabezado = $this->ventaService->guardarEncabezado(
+                    $idTienda,
+                    $caja->IdDatCajas,
+                    $idTicket,
+                    $idUsuario,
+                    $subTotalVenta,
+                    $ivaVenta,
+                    $totalVenta,
+                    $numNomina
+                );
 
-                $idDatEncabezado = DatEncabezado::where('IdTienda', $idTienda)
-                    ->max('IdDatEncabezado');
+                // Guardando detalle de venta
+                $this->ventaService->guardarDetalle($idTienda, $idEncabezado);
 
-                $idEncabezado = DatEncabezado::where('IdDatEncabezado', $idDatEncabezado)
-                    ->value('IdEncabezado');
+                // Obtener el importe total de los artículos
+                $importeVenta = round(PreventaTmp::sum('ImporteArticulo'), 2);
 
-                Log::info('-->');
-                Log::info('Encabezado: ' . $idEncabezado);
+                // Obtener el primer IdPedido distinto para la tienda, si existe
+                $preventaIdPedido = PreventaTmp::where('IdTienda', $idTienda)
+                    ->whereNotNull('IdPedido')
+                    ->distinct('IdPedido')
+                    ->first();
 
-                DatEncabezado::where('IdTienda', $idTienda)
-                    ->where('IdDatEncabezado', $idDatEncabezado)
-                    ->update([
-                        'IdEncabezado' => $idEncabezado,
-                    ]);
+                // Asignar IdPedido o null si no se encuentra
+                $idPedidoDist = $preventaIdPedido ? $preventaIdPedido->IdPedido : null;
 
-                $preventa = PreventaTmp::where('IdTienda', $idTienda)
-                    ->get();
-
-                Log::info('-->');
-                Log::info('Guardando detalle de encabezado');
-
-                foreach ($preventa as $index => $detalle) {
-                    Log::info('----------');
-                    Log::info($detalle->IdArticulo);
-                    Log::info($detalle->CantArticulo);
-                    // return $detalle->CodigoEtiqueta;
-
-                    // $idRostisado = $detRostisado = DatDetalleRosticero::where('CodigoEtiqueta', $detalle->CodigoEtiqueta)
-                    //     ->where('Status', 0)
-                    //     ->where('Vendida', 1)
-                    //     ->value('IdDatDetalleRosticero');
-
-                    $idRostisado = $detalle->CodigoEtiqueta;
-
-                    DatDetalle::insert([
-                        'IdEncabezado' => $idEncabezado,
-                        'IdArticulo' => $detalle->IdArticulo,
-                        'CantArticulo' => $detalle->CantArticulo,
-                        'PrecioLista' => $detalle->PrecioLista,
-                        'PrecioArticulo' => $detalle->PrecioVenta,
-                        'IdListaPrecio' => $detalle->IdListaPrecio,
-                        'CapturaManual' => null,
-                        'ImporteArticulo' => $detalle->ImporteArticulo,
-                        'IvaArticulo' => $detalle->IvaArticulo,
-                        'SubTotalArticulo' => $detalle->SubTotalArticulo,
-                        'IdPaquete' => $detalle->IdPaquete,
-                        'IdPedido' => $detalle->IdPedido,
-                        'IdDatPrecios' => $detalle->IdDatPrecios,
-                        'Linea' => $index + 1,
-                        'Recorte' => $detalle->Recorte == '0' ? 0 : 1,
-                        'IdEncDescuento' => $detalle->IdEncDescuento,
-                        'IdRosticero' => $idRostisado,
-                    ]);
-                }
-
-                $importeVenta = PreventaTmp::select('ImporteArticulo')
-                    ->sum('ImporteArticulo');
-
-                // Formatear el valor con dos decimales
-                // $importeVentaFormateado = number_format($importeVenta, 2);
-                $importeVenta = round($importeVenta, 2);
-
-                //Si hay IdPedido en el detalle para marcarlo como vendido
-                if ($idPedidoDist != null) {
+                // Si hay un IdPedido, marcar el pedido como vendido
+                if ($idPedidoDist !== null) {
                     DatEncPedido::where('IdTienda', $idTienda)
                         ->where('IdPedido', $idPedidoDist)
-                        ->update([
-                            'Status' => 2,
-                        ]);
+                        ->update(['Status' => 2]);
                 }
 
-                Log::info('Importes de venta y cantidad de pago');
-                Log::info('Pago: ' . $pago);
-                Log::info('Importe ventadasjip: ' . $importeVenta);
-                Log::info($pago > $importeVenta || $pago == $importeVenta);
-
+                /**
+                 * ================================================================================
+                 * ================================================================================
+                 * Pago completado sin multipago
+                 * ================================================================================
+                 */
                 if ($pago > $importeVenta || $pago == $importeVenta) {
+                    //  ================================================================================
+                    // Realizamos la venta de diferentes productos
+                    //  ================================================================================
 
-                    Log::info('-->');
-                    Log::info('El pago es completado sin multipago');
+                    // [--] Venta de Rostisados
+                    $this->ventaService->ventaRostisados();
 
-                    // Validamos los rosticeros y descontamos las cantidades vendidas
-                    $rostisados = PreventaTmp::select('DatVentaTmp.*')
-                        ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', '=', 'DatVentaTmp.IdArticulo')
-                        ->leftJoin('CatRosticeroArticulos', 'CatRosticeroArticulos.CodigoVenta', '=', 'CatArticulos.CodArticulo')
-                        ->whereNotNull('CatRosticeroArticulos.IdCatRosticeroArticulos')
-                        ->get();
+                    // [--] Venta de preparados
+                    $this->ventaService->ventaPreparados($idTienda);
 
-                    foreach ($rostisados as $rostisado) {
-                        // return $rostisado;
-                        $detRostisado = DatDetalleRosticero::where('IdDatDetalleRosticero', $rostisado->CodigoEtiqueta)
-                            ->where('Status', 0)
-                            ->where('Vendida', 1)
-                            ->first();
+                    // [--] Descuento de inventario
+                    $this->ventaService->descontarInventario($idEncabezado, $idTienda);
 
-                        // Validamos que la etiqueta se encuentre activa
-                        if (!$detRostisado) {
-                            return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
-                        }
+                    // [--] Descuento de Monedero Gastado
+                    $monederoDescuento = $temporalPos->MonederoDescuento;
+                    $this->ventaService->descontarMonedero($idEncabezado, $numNomina, $monederoDescuento);
+                    // return 'jiji';
 
-                        $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
-                        $rotisado->update([
-                            'Disponible' => $rotisado->Disponible - $detRostisado->Cantidad,
-                            'subir' => 0
-                        ]);
+                    // [--] Se guarda el monedero generado
+                    $this->ventaService->generarMonedero($idEncabezado, $numNomina, $monederoDescuento);
 
-                        // Actualizamos la etiqueta para que no se pueda volver a usar
-                        $detRostisado->update([
-                            'subir' => 0,
-                            'Vendida' => 0,
-                        ]);
-                    }
+                    // return $temporalPos;
 
-                    // Validamos que los preparados sean validos, descontamos la cantidad vendida y actualizamos el valores
-                    $paquetesPreparados = PreventaTmp::select(
-                        'DatVentaTmp.IdPaquete',
-                        DB::raw('COUNT(DatVentaTmp.CantArticulo) as Cantidad')
-                    )
-                        ->where('IdTienda', $idTienda)
-                        ->whereNotNull('DatVentaTmp.IdPaquete')
-                        ->groupBy('DatVentaTmp.IdPaquete', 'DatVentaTmp.IdArticulo')
-                        ->distinct()
-                        ->get();
-
-                    foreach ($paquetesPreparados as $pp) {
-                        $paquetesConPreparado = CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
-                            ->whereNotNull('CatPaquetes.IdPreparado')
-                            ->get();
-
-                        Log::info('-->');
-                        Log::info('Paquete preparado');
-                        Log::info($paquetesConPreparado);
-
-                        // Buscamos que los paquetes tengan id de prepadado
-                        if (count($paquetesConPreparado) != 0) {
-                            // Obtenemos la cantidad ya vendida
-                            $cantidadTotal = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                                ->value('CantidadEnvio');
-
-                            $cantidadVendida = DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                                ->value('CantidadVendida');
-
-                            if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) < 0) {
-                                return redirect()->route('Pos')->with('Pos', 'Inventario insuficiente para el paquete de preparado!');
-                            }
-
-                            if (($cantidadTotal - (!$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad)) == 0) {
-                                CatPaquete::where('CatPaquetes.IdPaquete', $pp->IdPaquete)
-                                    ->whereNotNull('CatPaquetes.IdPreparado')
-                                    ->update([
-                                        'Status' => 1,
-                                    ]);
-                            }
-
-                            // Sumamos la cantidad vendida, mas la nueva cantidad que se esta vendiendo
-                            DatAsignacionPreparadosLocal::where('DatAsignacionPreparados.IdPreparado', $paquetesConPreparado[0]->IdPreparado)
-                                ->where('DatAsignacionPreparados.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                                ->update([
-                                    'CantidadVendida' => !$cantidadVendida ? $pp->Cantidad : $cantidadVendida + $pp->Cantidad,
-                                ]);
-                        }
-                    }
-
+                    // Calcular el restante y formatearlo con dos decimales
                     $restanteSinFormat = $pago - $importeVenta;
                     $restante = number_format($restanteSinFormat, 2);
 
-                    Log::info('-->');
-                    Log::info('Restante: ' . $restante);
-                    Log::info('Pago: ' . $pago);
-
+                    // Insertar el tipo de pago en la base de datos
                     DatTipoPago::insert([
                         'IdEncabezado' => $idEncabezado,
                         'IdTipoPago' => $idTipoPago,
@@ -1448,152 +1314,32 @@ class PoswebController extends Controller
                         'numTarjeta' => $request->numTarjeta,
                     ]);
 
-                    PreventaTmp::where('IdTienda', $idTienda)
-                        ->delete();
+                    // Eliminar registros de PreventaTmp para la tienda
+                    PreventaTmp::where('IdTienda', $idTienda)->delete();
 
-                    TemporalPos::where('TemporalPos', 1)
-                        ->update([
-                            'NumNomina' => null,
-                            'IdEncabezado' => null,
-                            'MonederoDescuento' => null,
-                        ]);
+                    // Limpiar la información temporal en TemporalPos
+                    TemporalPos::where('TemporalPos', 1)->update([
+                        'NumNomina' => null,
+                        'IdEncabezado' => null,
+                        'MonederoDescuento' => null,
+                    ]);
 
-                    //Descontar Inventario
-                    $datDetalle = DatDetalle::where('IdEncabezado', $idEncabezado)
-                        ->get();
-
-                    foreach ($datDetalle as $key => $detalle) {
-                        $articulo = Articulo::where('IdArticulo', $detalle->IdArticulo)
-                            ->first();
-
-                        $stockArticulo = InventarioTienda::where('IdTienda', $idTienda)
-                            ->where('CodArticulo', $articulo->CodArticulo)
-                            ->sum('StockArticulo');
-
-                        InventarioTienda::where('IdTienda', $idTienda)
-                            ->where('CodArticulo', $articulo->CodArticulo)
-                            ->update([
-                                'StockArticulo' => $stockArticulo - $detalle->CantArticulo,
-                            ]);
-                    }
-
-                    //Descontar Monedero Si Uso Para Pagar
-                    if (!empty($numNomina) && !empty($temporalPos->MonederoDescuento)) {
-                        $pagoMonedero = $temporalPos->MonederoDescuento;
-
-                        $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
-                            ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                            ->orderBy('FechaExpiracion')
-                            ->get();
-
-                        // generar batchGasto
-                        $countBatch = DatMonederoAcumulado::max('IdDatMonedero') + 1;
-
-                        $numCaja = DB::table('DatCajas as a')
-                            ->leftJoin('CatCajas as b', 'b.IdCaja', 'a.IdCaja')
-                            ->where('a.IdTienda', Auth::user()->usuarioTienda->IdTienda)
-                            ->where('a.Activa', 0)
-                            ->where('a.Status', 0)
-                            ->value('NumCaja');
-
-                        $batchGasto = Auth::user()->usuarioTienda->IdTienda . $numCaja . $countBatch; // batchGasto
-
-                        //Consultar Catalogo de Monedero
-                        $monederoE = MonederoElectronico::where('Status', 0)
-                            ->first();
-
-                        $fecha = strtotime(date('Y-m-d') . "+ " . $monederoE->VigenciaMonedero . " days");
-                        $fechaExpiracion = date('d-m-Y', $fecha);
-
-                        DatMonederoAcumulado::insert([
-                            'IdEncabezado' => $idEncabezado,
-                            'NumNomina' => $numNomina,
-                            'FechaExpiracion' => $fechaExpiracion,
-                            'FechaGenerado' => date('d-m-Y H:i:s'),
-                            'Monedero' => -$pagoMonedero,
-                            'BatchGasto' => $batchGasto,
-                            'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
-                        ]);
-
-                        MovimientoMonederoElectronico::insert([
-                            'NumNomina' => $numNomina,
-                            'IdEncabezado' => $idEncabezado,
-                            'FechaMovimiento' => date('d-m-Y H:i:s'),
-                            'Monedero' => -$pagoMonedero,
-                            'BatchGasto' => $batchGasto,
-                        ]);
-                    }
-
-                    //Consultar Catalogo de Monedero
-                    $monederoE = MonederoElectronico::where('Status', 0)
-                        ->first();
-
-                    $importeProcesado = DB::table('DatDetalle as a')
-                        ->leftJoin('CatArticulos as b', 'b.IdArticulo', 'a.IdArticulo')
-                        ->where('a.IdEncabezado', $idEncabezado)
-                        ->where('b.IdGrupo', $monederoE->IdGrupo)
-                        ->sum('a.ImporteArticulo');
-
-                    // guardar monedero, si genero el empleado
-                    if (!empty($numNomina) && $importeProcesado - $temporalPos->MonederoDescuento >= $monederoE->MonederoMultiplo) {
-                        $puntosGenerados = ($importeProcesado - $temporalPos->MonederoDescuento) / $monederoE->MonederoMultiplo;
-                        $puntosTotales = intval($puntosGenerados);
-
-                        $monederoGenerado = $puntosTotales * $monederoE->PesosPorMultiplo;
-
-                        $fecha = strtotime(date('Y-m-d') . "+ " . $monederoE->VigenciaMonedero . " days");
-                        $fechaExpiracion = date('d-m-Y', $fecha);
-
-                        $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $numNomina)
-                            ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                            ->sum('Monedero');
-
-                        MovimientoMonederoElectronico::insert([
-                            'NumNomina' => $numNomina,
-                            'IdEncabezado' => $idEncabezado,
-                            'FechaMovimiento' => date('d-m-Y H:i:s'),
-                            'Monedero' => $monederoGenerado,
-                        ]);
-
-                        $faltanteMaximo = $monederoE->MaximoAcumulado - $monederoEmpleado;
-                        $monederoGenerado + $monederoEmpleado > $monederoE->MaximoAcumulado ? $monederoGenerado = $faltanteMaximo : $monederoGenerado = $monederoGenerado;
-
-                        DatMonederoAcumulado::insert([
-                            'IdEncabezado' => $idEncabezado,
-                            'NumNomina' => $numNomina,
-                            'FechaExpiracion' => $fechaExpiracion,
-                            'FechaGenerado' => date('d-m-Y H:i:s'),
-                            'Monedero' => $monederoGenerado,
-                            'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
-                        ]);
-                    }
-
-                    Log::info('-->');
-                    Log::info('Se actualiza el encabezado para que se suba');
-
-                    //subir venta
-                    DatEncabezado::where('IdEncabezado', $idEncabezado)
-                        ->update([
-                            'Subir' => 0,
-                        ]);
+                    // Marcar la venta como subida en DatEncabezado
+                    DatEncabezado::where('IdEncabezado', $idEncabezado)->update([
+                        'Subir' => 0,
+                    ]);
 
                     if (!empty($numNomina)) {
-                        // validar el pago para saber si es credito o no
-                        $pago = $idTipoPago == 2 ? $pago : 0;
+                        // Validar si el tipo de pago es crédito
+                        $pago = ($idTipoPago == 2) ? $pago : 0;
 
-                        // guardar numero de ventas e importe del credito del empleado
+                        // Ejecutar el procedimiento almacenado para guardar la venta
                         DB::statement("exec Sp_Guardar_DatConcenVenta " . $idTienda . ", '" . $idEncabezado . "', " . $numNomina . ", '" . date('d-m-Y') . "', " . $pago . ", 1");
                     }
 
-                    // imprimir ticket
+                    // Ejecutar el procedimiento almacenado generar el ticket
                     DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                     DB::commit();
-
-                    Log::info('-->');
-                    Log::info('Se manda imprimir el ticket');
-                    Log::info('Encabezado: ' . $idEncabezado);
-                    Log::info('Restante: ' . $restante);
-                    Log::info('Pago: ' . $pago);
 
                     return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
                 }
@@ -1606,6 +1352,17 @@ class PoswebController extends Controller
                         $cliente = Empleado::with('LimiteCredito')
                             ->where('NumNomina', $numNomina)
                             ->first();
+
+                        // TODO: AQUI AGREGAMOS EL LIMITE DE CREDITO ESPECIAL
+                        try {
+                            $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $cliente->NumNomina)->first();
+                        } catch (\Throwable $th) {
+                        }
+
+                        if (!empty($limiteCreditoEspecial)) {
+                            $cliente->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+                            $cliente->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+                        }
 
                         // compras a credito del empleado que no han sido pagadas
                         $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $numNomina)
@@ -1736,6 +1493,17 @@ class PoswebController extends Controller
                 $cliente = Empleado::with('LimiteCredito')
                     ->where('NumNomina', $temporalPos->NumNomina)
                     ->first();
+
+                // TODO: AQUI AGREGAMOS EL LIMITE DE CREDITO ESPECIAL
+                try {
+                    $limiteCreditoEspecial = LimiteCreditoEspecial::where('NumNomina', $cliente->NumNomina)->first();
+                } catch (\Throwable $th) {
+                }
+
+                if (!empty($limiteCreditoEspecial)) {
+                    $cliente->LimiteCredito->Limite = $limiteCreditoEspecial->Limite;
+                    $cliente->LimiteCredito->TotalVentaDiaria = $limiteCreditoEspecial->TotalVentaDiaria;
+                }
 
                 // compras a credito del empleado que no han sido pagadas
                 $gastoEmpleado = VentaCreditoEmpleado::where('NumNomina', $temporalPos->NumNomina)
@@ -1947,6 +1715,8 @@ class PoswebController extends Controller
                         'Monedero' => -$pagoMonedero,
                         'BatchGasto' => $batchGasto,
                     ]);
+
+                    DB::statement("exec Sp_Monedero_Pago " . $temporalPos->NumNomina . ", '" . date('d-m-Y') . "', " . $pagoMonedero);
                 }
 
                 //Consultar Catalogo de Monedero
@@ -1975,7 +1745,7 @@ class PoswebController extends Controller
 
                     $monederoEmpleado = DatMonederoAcumulado::where('NumNomina', $temporalPos->NumNomina)
                         ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                        ->sum('Monedero');
+                        ->sum('MonederoPorGastar');
 
                     MovimientoMonederoElectronico::insert([
                         'NumNomina' => $temporalPos->NumNomina,
@@ -1994,6 +1764,9 @@ class PoswebController extends Controller
                         'FechaGenerado' => date('d-m-Y H:i:s'),
                         'Monedero' => $monederoGenerado,
                         'IDTIENDA' => Auth::user()->usuarioTienda->IdTienda,
+                        'MonederoGastado' => 0,
+                        'MonederoPorGastar' => $monederoGenerado,
+                        'FechaActual' => date('d-m-Y H:i:s'),
                     ]);
                 }
 
@@ -2051,124 +1824,102 @@ class PoswebController extends Controller
 
     public function CorteDiario(Request $request)
     {
-        // $idTienda = Auth::user()->usuarioTienda->IdTienda;
+        $codigo = $request->input('codigo');
+        $fecha = $request->input('fecha', date('Y-m-d'));
+        $idUsuario = $request->input('idUsuario', Auth::id());
+
+        // Obtener información de la tienda
         $idTienda = Tienda::where('TiendaActiva', 0)->value('IdTienda');
-
-        $tienda = Tienda::where('IdTienda', $idTienda)
-            ->first();
-
+        $tienda = Tienda::find($idTienda);
         $idDatCaja = DatCaja::where('IdTienda', $idTienda)
             ->where('Status', 0)
             ->where('Activa', 0)
             ->value('IdDatCajas');
 
-        $fecha = $request->fecha;
-        empty($fecha) ? $fecha = date('Y-m-d') : $fecha = $fecha;
+        // Cargar usuarios, si el valor de idUsuario es necesario
+        $usuarios = UsuarioTienda::leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'CatUsuariosTienda.IdUsuario')
+            ->where('CatUsuarios.Status', 0)
+            ->get();
 
+        // Bills to, optimizado para no usar el método "distinct" innecesariamente
         $billsTo = CorteTienda::where('IdTienda', $idTienda)
-            ->distinct('Bill_To')
+            ->leftJoin('CatArticulos as ca', 'ca.IdArticulo', 'DatCortesTienda.IdArticulo')
+            ->where('ca.CodArticulo', 'like', '%' . $codigo . '%')
             ->whereDate('FechaVenta', $fecha)
             ->where('StatusVenta', 0)
             ->whereNull('IdSolicitudFactura')
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario))
             ->pluck('Bill_To');
 
-        $cortesTienda = ClienteCloudTienda::with([
-            'Customer',
-            'CorteTienda' => function ($query) use ($fecha, $idTienda) {
-                $query->where('DatCortesTienda.IdTienda', $idTienda)
-                    ->where('DatCortesTienda.StatusVenta', 0)
-                    ->whereDate('FechaVenta', $fecha)
-                    ->whereNull('DatCortesTienda.IdSolicitudFactura');
-            },
-        ])
+        // Obtener cortes de tienda
+        $cortesTienda = ClienteCloudTienda::with(['Customer', 'CorteTienda' => function ($query) use ($fecha, $idTienda, $idUsuario, $codigo) {
+            $query->where('DatCortesTienda.IdTienda', $idTienda)
+                ->where('DatCortesTienda.StatusVenta', 0)
+                ->where('CatArticulos.CodArticulo', 'like', '%' . $codigo . '%')
+                ->whereDate('DatCortesTienda.FechaVenta', $fecha)
+                ->whereNull('DatCortesTienda.IdSolicitudFactura')
+                ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario));
+        }])
             ->where('IdTienda', $idTienda)
+            ->whereIn('Bill_To', $billsTo)
             ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
             ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
-            ->whereIn('Bill_To', $billsTo)
             ->get();
 
-        $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
-            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 7)
-            ->where('IdListaPrecio', 4)
-            ->where('b.TipoNomina', 4)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
+        // Consultas de totales (Eficientizadas al máximo)
+        $totalMonedero = DB::table('DatCortesTienda as a')
+            ->leftjoin(
+                'DatClientesCloudTienda as b',
+                function ($join) {
+                    $join->on('b.Bill_To', 'a.Bill_To')
+                        ->on('b.IdListaPrecio', 'a.IdListaPrecio')
+                        ->on('b.IdTipoPago', 'a.IdTipoPago');
+                }
+            )
+            ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
+            ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+            ->where('a.IdTienda', $idTienda)
+            ->whereDate('a.FechaVenta', $fecha)
+            ->where('a.IdTipoPago', 7)
+            ->where('a.IdListaPrecio', 4)
+            ->where('a.StatusVenta', 0)
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario))
+            ->groupBy('a.Bill_To', 'NomClienteCloud')
+            ->get();
 
-        $totalMonederoSemanal = DB::table('DatCortesTienda as a')
-            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 7)
-            ->where('IdListaPrecio', 4)
-            ->where('b.TipoNomina', 3)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
+        $totalTarjetaDebito = $this->getTotalByPaymentType($idTienda, $fecha, 5, null, $idUsuario);
+        $totalTarjetaCredito = $this->getTotalByPaymentType($idTienda, $fecha, 4, null, $idUsuario);
+        $totalEfectivo = $this->getTotalByPaymentType($idTienda, $fecha, 1, null, $idUsuario);
+        $creditoQuincenal = $this->getCreditoByTipoNomina($idTienda, $fecha, 4, $idUsuario);
+        $creditoSemanal = $this->getCreditoByTipoNomina($idTienda, $fecha, 3, $idUsuario);
+        $totalTransferencia = $this->getTotalByPaymentType($idTienda, $fecha, 3, null, $idUsuario);
+        $totalFactura = $this->getTotalFactura($idTienda, $fecha, $idUsuario);
 
-        $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 5)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
-
-        $totalTarjetaCredito = CorteTienda::where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 4)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
-
-        $totalEfectivo = CorteTienda::where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('IdTipoPago', 1)
-            ->where('StatusVenta', 0)
-            ->sum('ImporteArticulo');
-
-        $creditoQuincenal = DB::table('DatCortesTienda as a')
-            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('StatusVenta', 0)
-            ->whereIn('IdTipoPago', [2])
-            ->where('TipoNomina', 4)
-            ->sum('ImporteArticulo');
-
-        $creditoSemanal = DB::table('DatCortesTienda as a')
-            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('StatusVenta', 0)
-            ->whereIn('IdTipoPago', [2])
-            ->where('TipoNomina', 3)
-            ->sum('ImporteArticulo');
-
-        $totalTransferencia = DB::table('DatCortesTienda as a')
-            ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('StatusVenta', 0)
-            ->where('IdTipoPago', 3)
-            ->sum('ImporteArticulo');
-
-        $totalFactura = CorteTienda::where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
-            ->where('StatusVenta', 0)
-            ->whereNotNull('IdSolicitudFactura')
-            ->sum('ImporteArticulo');
-
-        $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) {
+        $facturas = SolicitudFactura::with(['FacturaLocal' => function ($query) use ($idUsuario, $codigo) {
             $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
+            $query->where('CatArticulos.CodArticulo', 'like', '%' . $codigo . '%');
             $query->where('DatEncabezado.StatusVenta', 0);
+            $query->when($idUsuario, function ($q) use ($idUsuario) {
+                return $q->where('DatCortesTienda.IdUsuario', $idUsuario);
+            });
         }])
             ->where('IdTienda', $idTienda)
             ->whereDate('FechaSolicitud', $fecha)
             ->get();
 
-        //return $facturas;
+        // Filtrar facturas con factura_local vacía
+        $facturas = $facturas->filter(function ($factura) {
+            return $factura->FacturaLocal->isNotEmpty();
+        });
+
+        // return $facturas;
 
         return view('Posweb.CorteDiario', compact(
             'tienda',
+            'idUsuario',
+            'usuarios',
             'cortesTienda',
+            'codigo',
             'fecha',
             'totalEfectivo',
             'facturas',
@@ -2178,10 +1929,49 @@ class PoswebController extends Controller
             'totalTarjetaCredito',
             'totalTransferencia',
             'totalFactura',
-            'totalMonederoQuincenal',
-            'totalMonederoSemanal',
+            'totalMonedero',
             'idDatCaja'
         ));
+    }
+
+    // Método para obtener total por tipo de pago
+    private function getTotalByPaymentType($idTienda, $fecha, $paymentType, $priceList = null, $idUsuario = null)
+    {
+        $query = DB::table('DatCortesTienda as a')
+            ->where('a.IdTienda', $idTienda)
+            ->whereDate('a.FechaVenta', $fecha)
+            ->where('a.StatusVenta', 0)
+            ->where('a.IdTipoPago', $paymentType)
+            ->when($priceList, fn($q) => $q->where('a.IdListaPrecio', $priceList))
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario));
+
+        return $query->sum('a.ImporteArticulo');
+    }
+
+    // Método para obtener crédito por tipo de nómina
+    private function getCreditoByTipoNomina($idTienda, $fecha, $tipoNomina, $idUsuario = null)
+    {
+        $query = DB::table('DatCortesTienda as a')
+            ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
+            ->where('a.IdTienda', $idTienda)
+            ->whereDate('a.FechaVenta', $fecha)
+            ->where('a.StatusVenta', 0)
+            ->whereIn('a.IdTipoPago', [2])
+            ->where('TipoNomina', $tipoNomina)
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario));
+
+        return $query->sum('a.ImporteArticulo');
+    }
+
+    // Método para obtener total de factura
+    private function getTotalFactura($idTienda, $fecha, $idUsuario = null)
+    {
+        return CorteTienda::where('DatCortesTienda.IdTienda', $idTienda)
+            ->whereDate('DatCortesTienda.FechaVenta', $fecha)
+            ->where('DatCortesTienda.StatusVenta', 0)
+            ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+            ->when($idUsuario, fn($q) => $q->where('IdUsuario', $idUsuario))
+            ->sum('DatCortesTienda.ImporteArticulo');
     }
 
     public function GenerarCortePDF($fecha, $idTienda, $idDatCaja)
@@ -2291,6 +2081,9 @@ class PoswebController extends Controller
             $info = [
                 'titulo' => 'Corte Diario de Tienda',
                 'nomTienda' => $tienda->NomTienda,
+                'direccion' => $tienda->Direccion,
+                'telefono' => $tienda->Telefono,
+                'RFC' => $tienda->RFC,
                 'numCaja' => $numCaja,
                 'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
                 'cortesTienda' => $cortesTienda,
@@ -2322,14 +2115,14 @@ class PoswebController extends Controller
                     ->whereNull('DatCortesTienda.IdSolicitudFactura');
             }])
                 ->where('IdTienda', $idTienda)
-                ->select('IdClienteCloud', 'Bill_To', 'IdListaPrecio', 'IdTipoNomina')
-                ->distinct('Bill_To')
+                ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+                ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
                 ->whereIn('Bill_To', $billsTo)
                 ->get();
 
-            $facturas = SolicitudFactura::with(['Factura' => function ($query) use ($idDatCaja) {
-                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                    ->where('DatCortesTienda.IdDatCaja', $idDatCaja);
+            $facturas =  SolicitudFactura::with(['FacturaLocal' => function ($query) {
+                $query->whereNotNull('DatCortesTienda.IdSolicitudFactura');
+                $query->where('DatEncabezado.StatusVenta', 0);
             }])
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaSolicitud', $fecha)
@@ -2361,7 +2154,7 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereIn('IdTipoPago', [2, 7])
+                ->whereIn('IdTipoPago', [2])
                 ->where('TipoNomina', 4)
                 ->where('a.IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
@@ -2371,7 +2164,7 @@ class PoswebController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereIn('IdTipoPago', [2, 7])
+                ->whereIn('IdTipoPago', [2])
                 ->where('TipoNomina', 3)
                 ->where('a.IdDatCaja', $idDatCaja)
                 ->sum('ImporteArticulo');
@@ -2391,31 +2184,31 @@ class PoswebController extends Controller
                 ->whereNotNull('IdSolicitudFactura')
                 ->sum('ImporteArticulo');
 
-            $totalMonederoQuincenal = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->where('IdTienda', $idTienda)
-                ->whereDate('FechaVenta', $fecha)
-                ->where('IdTipoPago', 7)
-                ->where('IdListaPrecio', 4)
-                ->where('b.TipoNomina', 4)
-                ->where('StatusVenta', 0)
-                ->where('a.IdDatCaja', $idDatCaja)
-                ->sum('ImporteArticulo');
-
-            $totalMonederoSemanal = DB::table('DatCortesTienda as a')
-                ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
-                ->where('IdTienda', $idTienda)
-                ->whereDate('FechaVenta', $fecha)
-                ->where('IdTipoPago', 7)
-                ->where('IdListaPrecio', 4)
-                ->where('b.TipoNomina', 3)
-                ->where('a.IdDatCaja', $idDatCaja)
-                ->where('StatusVenta', 0)
-                ->sum('ImporteArticulo');
+            $totalMonedero = DB::table('DatCortesTienda as a')
+                ->leftjoin(
+                    'DatClientesCloudTienda as b',
+                    function ($join) {
+                        $join->on('b.Bill_To', 'a.Bill_To')
+                            ->on('b.IdListaPrecio', 'a.IdListaPrecio')
+                            ->on('b.IdTipoPago', 'a.IdTipoPago');
+                    }
+                )
+                ->leftJoin('CatClientesCloud as c', 'c.IdClienteCloud', 'b.IdClienteCloud')
+                ->select(DB::raw('a.Bill_To, NomClienteCloud, SUM(a.ImporteArticulo) as importe'))
+                ->where('a.IdTienda', $idTienda)
+                ->whereDate('a.FechaVenta', $fecha)
+                ->where('a.IdTipoPago', 7)
+                ->where('a.IdListaPrecio', 4)
+                ->where('a.StatusVenta', 0)
+                ->groupBy('a.Bill_To', 'NomClienteCloud')
+                ->get();
 
             $info = [
-                'titulo' => 'Corte Diario de Tienda',
+                'titulo' => 'CORTE DIARIO DE TIENDA',
                 'nomTienda' => $tienda->NomTienda,
+                'direccion' => $tienda->Direccion,
+                'telefono' => $tienda->Telefono,
+                'RFC' => $tienda->RFC,
                 'numCaja' => $numCaja,
                 'fecha' => strftime("%d %B del %Y", strtotime($fecha)),
                 'cortesTienda' => $cortesTienda,
@@ -2427,8 +2220,7 @@ class PoswebController extends Controller
                 'creditoSemanal' => $creditoSemanal,
                 'totalTransferencia' => $totalTransferencia,
                 'totalFactura' => $totalFactura,
-                'totalMonederoQuincenal' => $totalMonederoQuincenal,
-                'totalMonederoSemanal' => $totalMonederoSemanal,
+                'totalMonedero' => $totalMonedero
             ];
         }
 
@@ -2496,7 +2288,7 @@ class PoswebController extends Controller
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $encabezado->NumNomina)
                 ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                ->sum('Monedero');
+                ->sum('MonederoPorGastar');
         }
 
         $caja = DB::table('DatCajas as a')
@@ -2698,7 +2490,7 @@ class PoswebController extends Controller
 
             $monederoAcumulado = DatMonederoAcumulado::where('NumNomina', $encabezado->NumNomina)
                 ->whereRaw("'" . date('Y-m-d') . "' <= cast(FechaExpiracion as date)")
-                ->sum('Monedero');
+                ->sum('MonederoPorGastar');
         }
 
         $caja = DB::table('DatCajas as a')
@@ -2818,8 +2610,9 @@ class PoswebController extends Controller
             ->first();
 
         $fecha = $request->txtFecha;
+        $txtFolio = $request->txtFolio;
 
-        empty($fecha) ? $fecha = date('Y-m-d') : $fecha = $fecha;
+        empty($fecha) && !$txtFolio ? $fecha = date('Y-m-d') : $fecha = $fecha;
 
         $tickets = DatEncabezado::with(['SolicitudCancelacionTicket', 'detalle' => function ($detalle) {
             $detalle->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetalle.IdArticulo')
@@ -2827,7 +2620,9 @@ class PoswebController extends Controller
                 ->leftJoin('DatEncPedido', 'DatEncPedido.IdPedido', 'DatDetalle.IdPedido');
         }, 'TipoPago', 'SolicitudFactura'])
             ->where('IdTienda', $idTienda)
-            ->whereDate('FechaVenta', $fecha)
+            ->when(!$txtFolio, fn($query) => $query->whereDate('FechaVenta', $fecha))
+            ->when($txtFolio, fn($query) => $query->where('IdEncabezado', $txtFolio))
+            // ->whereDate('FechaVenta', $fecha)
             ->orderBy('IdTicket')
             ->get();
 
@@ -2843,7 +2638,7 @@ class PoswebController extends Controller
 
         // return $tickets;
 
-        return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'total', 'totalIva'));
+        return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'txtFolio', 'total', 'totalIva'));
     }
 
     public function ConcentradoVentas(Request $request)

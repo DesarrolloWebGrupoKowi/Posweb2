@@ -42,6 +42,7 @@ class PaquetesController extends Controller
             ->where('da.IdTienda', Auth::user()->usuarioTienda->IdTienda)
             ->where('NomPaquete', 'like', '%' . $txtFiltro . '%')
             ->whereNotNull('da.IdPreparado')
+            ->orderBy('FechaCreacion', 'desc')
             ->paginate(10)
             ->withQueryString();
 
@@ -279,6 +280,7 @@ class PaquetesController extends Controller
         // return $idPaquete;
         try {
             DB::beginTransaction();
+            $idTienda = Auth::user()->usuarioTienda->IdTienda;
             $datasinado = DatAsignacionPreparados::where('IdPreparado', $idPreparado)
                 ->first();
 
@@ -286,6 +288,7 @@ class PaquetesController extends Controller
                 return back()->with('msjdelete', 'Error al actualizar la cantidad');
             }
             DatAsignacionPreparados::where('IdPreparado', $idPreparado)
+                ->where('IdTienda', $idTienda)
                 ->update([
                     'CantidadEnvio' => $request->cantidad
                 ]);

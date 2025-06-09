@@ -121,6 +121,17 @@
                                             </button> --}}
 
                                             <form class="d-flex"
+                                                action="CambiarDetalleRosticero/{{ $detalle->IdDatDetalleRosticero }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                <button class="btn-table-outline" type="submit"
+                                                    title="Marcar como vendido">
+                                                    @include('components.icons.switch')
+                                                </button>
+                                            </form>
+
+                                            <form class="d-flex"
                                                 action="EliminarDetalleRosticero/{{ $detalle->IdDatDetalleRosticero }}"
                                                 method="POST">
                                                 @csrf

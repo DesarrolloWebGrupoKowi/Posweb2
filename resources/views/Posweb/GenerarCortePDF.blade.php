@@ -2,252 +2,319 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ $titulo }}</title>
     <style>
-        * {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
         }
 
-        .titulo,
-        .tienda {
-            text-align: center;
-        }
-
-        #tblCustomerTienda,
-        #tblFactura {
-            font-size: 10px;
-            /*border-collapse: collapse;*/
-            width: 100%;
-        }
-
-        #sumatorias {
+        caption {
+            font-weight: medium;
             font-size: 11px;
-            /*border-collapse: collapse;*/
-            width: 100%;
         }
 
-        table,
-        td {
-            border-bottom: 1px solid rgb(95, 95, 95);
+        table {
+            /* margin-top: 8px; */
+            margin-bottom: 32px;
+            font-size: 10px;
+            width: 100%;
             border-collapse: collapse;
+            line-height: 18px;
         }
 
         th {
             text-align: left;
-            border-bottom: 1px solid rgb(0, 0, 0);
-            background-color: #000000;
+            /* background-color: #000000;
             color: white;
+            font-size: 12px; */
         }
 
-        tr:nth-child(even) {
-            background-color: #dddddd;
+        .tbl-corte tr:nth-child(even),
+        .totales {
+            /* background-color: #dddddd; */
+            /* border-bottom: 1px solid black; */
         }
 
-        #DivSumatorias{
-            float: right;;
+        #DivSumatorias {
+            /* float: right; */
+        }
+
+        #sumatorias {
+            font-size: 11px;
+            width: 100%;
+        }
+
+        .mayus {
+            text-transform: uppercase;
         }
     </style>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Corte Diario de Tienda</title>
 </head>
 
 <body>
-    <div class="container">
-        <caption class="titulo">{{ $titulo }}</caption>
-        <caption class="tienda">{{ $nomTienda }}</caption>
-        <caption class="titulo">CAJA: {{ $numCaja == 0 ? 'TODAS' : $numCaja }}</caption>
-        <caption style="text-align: right">{{ $fecha }}</caption>
-        <br>
-        @foreach ($cortesTienda as $corteTienda)
-        @foreach ($corteTienda->Customer as $customer)
-        @endforeach
-        <table id="tblCustomerTienda">
-            <caption style="text-align: left">{{ $customer->NomClienteCloud }}</caption>
-            <thead>
-                <tr class="cab">
-                    <th>Código</th>
-                    <th>Articulo</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Iva</th>
-                    <th>Importe</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                $sumCantArticulo = 0;
-                $sumImporte = 0;
-                @endphp
-                @foreach ($corteTienda->CorteTienda as $detalleCorte)
-                <tr class="striped">
-                    <td>{{ $detalleCorte->CodArticulo }}</td>
-                    <td>{{ $detalleCorte->NomArticulo }}</td>
-                    <td>{{ number_format($detalleCorte->CantArticulo, 4) }}</td>
-                    <td>{{ number_format($detalleCorte->PrecioArticulo, 2) }}</td>
-                    <td>{{ number_format($detalleCorte->IvaArticulo, 2) }}</td>
-                    <td>{{ number_format($detalleCorte->ImporteArticulo, 2) }}</td>
-                </tr>
-                @php
-                $sumCantArticulo = $sumCantArticulo + $detalleCorte->CantArticulo;
-                $sumImporte = $sumImporte + $detalleCorte->ImporteArticulo;
-                @endphp
-                @endforeach
-            </tbody>
-            <tfoot>
-                <!--MONEDERO ELECTRONICO QUINCENAL-->
-                @if ($corteTienda->IdListaPrecio == 4 && $corteTienda->IdTipoNomina == 4)
-                <tr>
-                    <td></td>
-                    <td style="text-align:center; font-weight: bold;">Dinero Electrónico: </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td style="color: red; font-weight: bold;">{{ number_format($totalMonederoQuincenal, 2) }}</td>
-                </tr>
-                @endif
-                <!--TERMINA MONEDERO ELECTRONICO QUINCENAL-->
+    {{-- Ventas normales --}}
+    <div>
+        {{-- <caption><i>{{ $titulo }}</i></caption> --}}
+        <caption>{{ $nomTienda }}</caption>
+        <caption>{{ $direccion }}</caption>
+        <caption>{{ $RFC }} / {{ $telefono }}</caption>
 
-                <!--MONEDERO ELECTRONICO SEMANAL-->
-                @if ($corteTienda->IdListaPrecio == 4 && $corteTienda->IdTipoNomina == 3)
-                <tr>
-                    <td></td>
-                    <td style="text-align:center; font-weight: bold;">Dinero Electrónico: </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td style="color: red; font-weight: bold;">{{ number_format($totalMonederoSemanal, 2) }}</td>
-                </tr>
-                @endif
-                <!--TERMINA MONEDERO ELECTRONICO SEMANAL-->
-                <tr>
-                    <td></td>
-                    <td style="text-align:center; font-weight: bold;">SubTotal: </td>
-                    <td style="font-weight: bold;">{{ number_format($sumCantArticulo, 3) }}</td>
-                    <td></td>
-                    <td></td>
-                    <td style="font-weight: bold;">{{ number_format($sumImporte, 2) }}</td>
-                </tr>
-            </tfoot>
-        </table>
         <br>
+
+        <caption>Dia {{ $fecha }}</caption>
+        <caption>Hora: {{ \Carbon\Carbon::now()->format('g:i:s A') }}</caption>
+        <caption>En caja {{ $numCaja == 0 ? 'TODAS' : $numCaja }}</caption>
+
+        <br>
+
+        <caption style="font-size: 18px; font-weight: bold;">{{ $titulo }} </caption>
+
+        {{-- <hr> --}}
+        <br>
+        <br>
+
+        @foreach ($cortesTienda as $corteTienda)
+            @foreach ($corteTienda->Customer as $customer)
+            @endforeach
+            <table>
+                <caption style="text-align: left;">{{ $customer->NomClienteCloud }}</caption>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Articulo</th>
+                        <th>Cantidad</th>
+                        <th style="text-align: center;">Precio</th>
+                        <th style="text-align: center;">Iva</th>
+                        <th style="text-align: center;">Importe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $sumCantArticulo = 0;
+                        $sumImporte = 0;
+                    @endphp
+                    @foreach ($corteTienda->CorteTienda as $detalleCorte)
+                        <tr class="striped">
+                            <td>{{ $detalleCorte->CodArticulo }}</td>
+                            <td>{{ $detalleCorte->NomArticulo }}</td>
+                            <td>{{ number_format($detalleCorte->CantArticulo, 4) }}</td>
+                            <td style="text-align: right;"><span style="display: inline-block">$</span> <span
+                                    style="display: inline-block; min-width: 40px;">{{ number_format($detalleCorte->PrecioArticulo, 2) }}</span>
+                            </td>
+                            <td style="text-align: right;"><span style="display: inline-block">$</span> <span
+                                    style="display: inline-block; min-width: 40px;">{{ number_format($detalleCorte->IvaArticulo, 2) }}</span>
+                            </td>
+                            <td style="text-align: right;"><span style="display: inline-block">$</span> <span
+                                    style="display: inline-block; min-width: 100px;">{{ number_format($detalleCorte->ImporteArticulo, 2) }}</span>
+                            </td>
+                        </tr>
+                        @php
+                            $sumCantArticulo = $sumCantArticulo + $detalleCorte->CantArticulo;
+                            $sumImporte = $sumImporte + $detalleCorte->ImporteArticulo;
+                        @endphp
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    @foreach ($totalMonedero as $monedero)
+                        @if ($corteTienda->Bill_To == $monedero->Bill_To)
+                            <tr>
+                                <td colspan="2" style="font-weight: bold; color: red">Dinero Electrónico: </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td style="font-weight: bold; text-align: right; color: red"><span
+                                        style="display: inline-block">$</span> <span
+                                        style="display: inline-block; min-width: 40px;">{{ number_format($monedero->importe, 2) }}</span>
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
+                    <tr class="totales">
+                        <td colspan="2" style="font-weight: bold;">SubTotal: </td>
+                        <td style="font-weight: bold;">{{ number_format($sumCantArticulo, 3) }}</td>
+                        <td></td>
+                        <td></td>
+                        <td style="text-align: right;font-weight: bold;"><span style="display: inline-block">$</span>
+                            <span
+                                style="display: inline-block; min-width: 100px; border-bottom: 1px solid black;">{{ number_format($sumImporte, 2) }}</span>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
         @endforeach
     </div>
-    <div class="container">
+
+    {{-- Solicitudes de factura --}}
+    <div style="page-break-after: always;">
         @foreach ($facturas as $factura)
-        <table id="tblFactura">
-            @if (empty($factura->Bill_To) && empty($factura->IdClienteCloud))
-            <caption style="text-align: left">FALTA LIGAR CLIENTE - {{ $factura->NomCliente }}</caption>
-            @else
-            <caption style="text-align: left">{{ $factura->NomCliente }}</caption>
-            @endif
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Articulo</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Iva</th>
-                    <th>Importe</th>
-                </tr>
-            </thead>
+            <table id="tbl-corte">
+                <caption style="text-align: left">{{ $factura->NomCliente }}</caption>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Articulo</th>
+                        <th>Cantidad</th>
+                        <th style="text-align: center;">Precio</th>
+                        <th style="text-align: center;">Iva</th>
+                        <th style="text-align: center;">Importe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $sumCantArticulo = 0;
+                        $sumImporte = 0;
+                    @endphp
+                    @foreach ($factura->FacturaCorteDiario as $detalleFactura)
+                        <tr class="striped">
+                            <td>{{ $detalleFactura->CodArticulo }}</td>
+                            <td>{{ $detalleFactura->NomArticulo }}</td>
+                            <td>{{ number_format($detalleFactura->PivotDetalle->CantArticulo, 4) }}</td>
+                            <td style="text-align: right;"><span style="display: inline-block">$</span> <span
+                                    style="display: inline-block; min-width: 40px;">{{ number_format($detalleFactura->PivotDetalle->PrecioArticulo, 2) }}</span>
+                            </td>
+                            <td style="text-align: right;"><span style="display: inline-block">$</span> <span
+                                    style="display: inline-block; min-width: 40px;">{{ number_format($detalleFactura->PivotDetalle->IvaArticulo, 2) }}</span>
+                            </td>
+                            <td style="text-align: right;"><span style="display: inline-block">$</span> <span
+                                    style="display: inline-block; min-width: 100px;">{{ number_format($detalleFactura->PivotDetalle->ImporteArticulo, 2) }}</span>
+                            </td>
+                            {{-- <td>{{ number_format($detalleFactura->PivotDetalle->PrecioArticulo, 2) }}</td>
+                            <td>{{ number_format($detalleFactura->PivotDetalle->IvaArticulo, 2) }}</td>
+                            <td>{{ number_format($detalleFactura->PivotDetalle->ImporteArticulo, 2) }}</td> --}}
+                        </tr>
+                        @php
+                            $sumCantArticulo = $sumCantArticulo + $detalleFactura->PivotDetalle->CantArticulo;
+                            $sumImporte = $sumImporte + $detalleFactura->PivotDetalle->ImporteArticulo;
+                        @endphp
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr class="totales">
+                        <td colspan="2" style="font-weight: bold;">SubTotal: </td>
+                        <td style="font-weight: bold;">{{ number_format($sumCantArticulo, 3) }}</td>
+                        <td></td>
+                        <td></td>
+                        <td style="text-align: right;font-weight: bold;"><span style="display: inline-block">$</span>
+                            <span
+                                style="display: inline-block; min-width: 100px; border-bottom: 1px solid black;">{{ number_format($sumImporte, 2) }}</span>
+                        </td>
+                        {{-- <td style="font-weight: bold;">{{ number_format($sumImporte, 2) }}</td> --}}
+                    </tr>
+                </tfoot>
+            </table>
+        @endforeach
+    </div>
+
+    <!--SUMATORIAS FINALES-->
+    <div id="">
+        <table style="margin-bottom: 12px">
             <tbody>
                 @php
-                $sumCantArticulo = 0;
-                $sumImporte = 0;
+                    $totalImporte = 0;
                 @endphp
-                @foreach ($factura->Factura as $detalleFactura)
-                <tr class="striped">
-                    <td>{{ $detalleFactura->CodArticulo }}</td>
-                    <td>{{ $detalleFactura->NomArticulo }}</td>
-                    <td>{{ number_format($detalleFactura->PivotDetalle->CantArticulo, 4) }}</td>
-                    <td>{{ number_format($detalleFactura->PivotDetalle->PrecioArticulo, 2) }}</td>
-                    <td>{{ number_format($detalleFactura->PivotDetalle->IvaArticulo, 2) }}</td>
-                    <td>{{ number_format($detalleFactura->PivotDetalle->ImporteArticulo, 2) }}</td>
-                </tr>
-                @php
-                $sumCantArticulo = $sumCantArticulo + $detalleFactura->PivotDetalle->CantArticulo;
-                $sumImporte = $sumImporte + $detalleFactura->PivotDetalle->ImporteArticulo;
-                @endphp
+                @foreach ($totalMonedero as $monedero)
+                    <tr>
+                        <td style="text-align: left; width: 80%;">
+                            {{ ucfirst(strtolower($monedero->NomClienteCloud)) }} </td>
+                        <td style="text-align: right;">
+                            <span style="display: inline-block">$</span>
+                            <span style="display: inline-block; min-width: 100px;">
+                                {{ number_format($monedero->importe, 2) }}
+                            </span>
+                        </td>
+                    </tr>
+                    @php
+                        $totalImporte += $monedero->importe;
+                    @endphp
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
-                    <td></td>
-                    <td style="text-align: center; font-weight: bold;">SubTotal: </td>
-                    <td style="font-weight: bold;">{{ number_format($sumCantArticulo, 3) }}</td>
-                    <td></td>
-                    <td></td>
-                    <td style="font-weight: bold;">{{ number_format($sumImporte, 2) }}</td>
+                    <td style="font-weight: bold;">Total Dinero Electrónico: </td>
+                    <td style="font-weight: bold; text-align: right; ">
+                        <span style="display: inline-block">$</span>
+                        <span style="display: inline-block; min-width: 100px; border-bottom: 1px solid black;">
+                            {{ number_format($totalImporte, 2) }}
+                        </span>
+                    </td>
                 </tr>
             </tfoot>
         </table>
-        <br>
-        @endforeach
-    </div>
-    <br>
-    <!--SUMATORIAS FINALES-->
-    <div id="DivSumatorias" class="container">
-        <table id="sumatorias">
+        <table style="margin-bottom: 12px">
             <tbody>
                 <tr>
-                    <td style="text-align: right">Dinero Electrónico Crédito Quincenal: </td>
-                    <td style="text-align: right">${{ number_format($totalMonederoQuincenal, 2) }}</td>
-                </tr>
-                <tr>
-                    <td style="text-align: right">Dinero Electrónico Crédito Semanal: </td>
-                    <td style="text-align: right">${{ number_format($totalMonederoSemanal, 2) }}</td>
-                </tr>
-                <tr>
-                    <td style="text-align: right">Total Dinero Electrónico: </td>
-                    <td style="font-weight: bold; color: red; text-align: right;">${{ number_format(($totalMonederoQuincenal + $totalMonederoSemanal), 2) }}</td>
-                </tr>
-            </tbody>
-            <br>
-            <tbody>
-                <tr>
-                    <td style="text-align: right">Crédito Quincenal: </td>
+                    <td style="text-align: left; width: 80%;">Crédito Quincenal: </td>
                     <td style="text-align: right">${{ number_format($creditoQuincenal, 2) }}</td>
                 </tr>
                 <tr>
-                    <td style="text-align: right">Crédito Semanal: </td>
+                    <td style="text-align: left; width: 80%;">Crédito Semanal: </td>
                     <td style="text-align: right">${{ number_format($creditoSemanal, 2) }}</td>
                 </tr>
-                <tr>
-                    <td style="text-align: right">Total Créditos: </td>
-                    <td style="font-weight: bold; color: red; text-align: right;">${{ number_format($creditoSemanal +
-                        $creditoQuincenal, 2) }}</td>
+                <tr class="totales">
+                    <td style="text-align: left; font-weight: bold; width: 80%;">Total Créditos: </td>
+                    <td style="text-align: right; font-weight: bold;">
+                        <span style="display: inline-block">$</span>
+                        <span style="display: inline-block; min-width: 100px; border-bottom: 1px solid black;">
+                            {{ number_format($creditoSemanal + $creditoQuincenal, 2) }}
+                        </span>
+                    </td>
                 </tr>
             </tbody>
-            <br>
+        </table>
+        <table style="margin-bottom: 12px">
             <tbody>
                 <tr>
-                    <td style="text-align: right">Tarjeta Débito: </td>
+                    <td style="text-align: left; width: 80%;">Tarjeta Débito: </td>
                     <td style="text-align: right">${{ number_format($totalTarjetaDebito, 2) }}</td>
                 </tr>
                 <tr>
-                    <td style="text-align: right">Tarjeta Crédito: </td>
+                    <td style="text-align: left; width: 80%;">Tarjeta Crédito: </td>
                     <td style="text-align: right">${{ number_format($totalTarjetaCredito, 2) }}</td>
                 </tr>
-                <tr>
-                    <td style="text-align: right">Total Tarjeta: </td>
-                    <td style="font-weight: bold; color: red; text-align: right">${{ number_format($totalTarjetaDebito +
-                        $totalTarjetaCredito, 2) }}</td>
+                <tr class="totales">
+                    <td style="text-align: left; font-weight: bold; width: 80%;">Total Tarjeta: </td>
+                    <td style="text-align: right; font-weight: bold;">
+                        <span style="display: inline-block">$</span>
+                        <span style="display: inline-block; min-width: 100px; border-bottom: 1px solid black;">
+                            {{ number_format($totalTarjetaDebito + $totalTarjetaCredito, 2) }}
+                        </span>
+                    </td>
                 </tr>
             </tbody>
-            <br>
+        </table>
+        <table style="margin-bottom: 12px">
             <tbody>
                 <tr>
-                    <td style="text-align: right">Total Transferencia: </td>
-                    <td style="font-weight: bold; color: red; text-align: right">${{ number_format($totalTransferencia, 2) }}</td>
+                    <td style="text-align: left; width: 80%;">Total Transferencia: </td>
+                    <td style="text-align: right">
+                        ${{ number_format($totalTransferencia, 2) }}</td>
                 </tr>
                 <tr>
-                    <td style="text-align: right">Total Factura: </td>
-                    <td style="font-weight: bold; color: red; text-align: right">${{ number_format($totalFactura, 2) }}</td>
+                    <td style="text-align: left; width: 80%;">Total Factura: </td>
+                    <td style="text-align: right">${{ number_format($totalFactura, 2) }}
+                    </td>
                 </tr>
-                <tr>
-                    <td style="text-align: right">Total Efectivo: </td>
-                    <td style="font-weight: bold; color: red; text-align:right">${{ number_format($totalEfectivo, 2) }}
+                <tr class="totales">
+                    <td style="text-align: left; font-weight: bold; width: 80%;">Total Efectivo: </td>
+                    <td style="text-align:right; font-weight: bold;">
+                        <span style="display: inline-block">$</span>
+                        <span style="display: inline-block; min-width: 100px; border-bottom: 1px solid black;">
+                            {{ number_format($totalEfectivo, 2) }}
+                        </span>
+                    </td>
+                </tr>
+                <tr class="totales">
+                    <td style="text-align: left; font-weight: bold; width: 80%;">Total General: </td>
+                    <td style="text-align:right; font-weight: bold;">
+                        <span style="display: inline-block">$</span>
+                        <span style="display: inline-block; min-width: 100px; border-bottom: 1px solid black;">
+                            {{-- {{ number_format($totalEfectivo, 2) }} --}}
+                            {{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
+                        </span>
                     </td>
                 </tr>
             </tbody>

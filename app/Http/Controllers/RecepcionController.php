@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\RecepcionProductoMail;
+use App\Imports\ExcelImport;
 use App\Models\Articulo;
 use App\Models\CapRecepcion;
 use App\Models\CapturaManualTmp;
 use App\Models\CatPaquete;
 use App\Models\CorreoTienda;
-use App\Models\DatAsignacionPreparados;
 use App\Models\DatAsignacionPreparadosLocal;
 use App\Models\DatCaja;
 use App\Models\DatRecepcion;
@@ -16,10 +15,11 @@ use App\Models\HistorialMovimientoProducto;
 use App\Models\InventarioTienda;
 use App\Models\RecepcionSinInternet;
 use App\Models\Tienda;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Mail;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RecepcionController extends Controller
 {
@@ -38,6 +38,8 @@ class RecepcionController extends Controller
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
             ->where('CapRecepcion.Almacen', $tienda->Almacen)
             ->where('CapRecepcion.IdStatusRecepcion', 1)
+            ->whereNull('CapRecepcion.FechaRecepcion')
+            ->whereNull('CapRecepcion.FechaCancelacion')
             ->where(function ($query) {
                 $query->whereNull('CapRecepcion.IdTiendaDestino');
                 $query->orWhere('CapRecepcion.IdTiendaDestino', Auth::user()->usuarioTienda->IdTienda);
@@ -63,7 +65,8 @@ class RecepcionController extends Controller
                 " select Referencia, '', '" . $tienda->Almacen . "', 0, 0, '0', a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo" .
                 " from CapRecepcionManualTmp as a" .
                 " left join CatArticulos as b on b.CodArticulo=a.CodArticulo" .
-                " where a.IdTienda = '" . $tienda->IdTienda . "' "
+                " where a.IdTienda = '" . $tienda->IdTienda . "' " .
+                " and b.Status = 0"
         );
 
         $totalRecepcion = DatRecepcion::where('IdCapRecepcion', $idRecepcion)
@@ -101,12 +104,13 @@ class RecepcionController extends Controller
                 ->where('b.CodArticulo', $filtroArticulo)
                 ->get();
 
-            if ($dRecepcion->count() == 0) {
-                $articulos = Articulo::where('CodArticulo', $filtroArticulo)
-                    ->get();
-            } else {
-                $articuloPendiente = 0;
-            }
+            // if ($dRecepcion->count() == 0) {
+            $articulos = Articulo::where('CodArticulo', $filtroArticulo)
+                ->where('Status', 0)
+                ->get();
+            // } else {
+            //     $articuloPendiente = 0;
+            // }
         } else {
             $articulos = Articulo::where('NomArticulo', 'like', '%' . $filtroArticulo . '%')
                 ->whereRaw("CodArticulo not in" .
@@ -117,6 +121,7 @@ class RecepcionController extends Controller
                     " where a.Almacen = 'ALP-114'" .
                     " and a.IdStatusRecepcion = 1" .
                     " and c.NomArticulo like '%" . $filtroArticulo . "%')")
+                ->where('Status', 0)
                 ->get();
         }
 
@@ -154,6 +159,7 @@ class RecepcionController extends Controller
         $articulosManual = DB::table('CapRecepcionManualTmp as a')
             ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
             ->where('a.IdTienda', $idTienda)
+            ->where('b.Status', 0)
             ->get();
 
         return view('Recepcion.CapturaManualTmp', compact('articulosManual'));
@@ -434,8 +440,10 @@ class RecepcionController extends Controller
 
     public function ReporteRecepciones(Request $request)
     {
-        $fecha1 = $request->input('fecha1', date('Y-m-d'));
-        $fecha2 = $request->input('fecha2', date('Y-m-d'));
+        // $fecha1 = $request->input('fecha1', date('Y-m-d'));
+        // $fecha2 = $request->input('fecha2', date('Y-m-d'));
+        $fecha1 = $request->fecha1;
+        $fecha2 = $request->fecha2;
         $chkReferencia = $request->chkReferencia;
         $referencia = $request->referencia;
 
@@ -443,26 +451,37 @@ class RecepcionController extends Controller
         $tienda = Tienda::where('IdTienda', $idTienda)
             ->first();
 
-        if (!empty($chkReferencia)) {
-            $recepciones = CapRecepcion::with(['DetalleRecepcion' => function ($query) {
-                $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
-                    ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
-            }, 'StatusRecepcion'])
-                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
-                ->where('CapRecepcion.Almacen', $tienda->Almacen)
-                ->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->where('CapRecepcion.PackingList', $referencia)
-                ->get();
-        } else {
-            $recepciones = CapRecepcion::with(['DetalleRecepcion' => function ($query) {
-                $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
-                    ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
-            }, 'StatusRecepcion'])
-                ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
-                ->where('CapRecepcion.Almacen', $tienda->Almacen)
-                ->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-                ->get();
-        }
+        $recepciones = CapRecepcion::with(['DetalleRecepcion' => function ($query) {
+            $query->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatRecepcion.CodArticulo')
+                ->leftJoin('CatStatusRecepcion', 'CatStatusRecepcion.IdStatusRecepcion', 'DatRecepcion.IdStatusRecepcion');
+        }, 'StatusRecepcion'])
+            ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'CapRecepcion.IdTiendaOrigen')
+            ->where('CapRecepcion.Almacen', $tienda->Almacen)
+            ->where('CapRecepcion.IdStatusRecepcion', '<>', 1)
+            ->when(!empty($chkReferencia), function ($q) use ($referencia) {
+                return $q->where('CapRecepcion.PackingList', 'like', '%' . $referencia . '%');
+            })
+            ->when(isset($fecha1) && !isset($fecha2), function ($q) use ($fecha1) {
+                return $q->whereDate('CapRecepcion.FechaLlegada', '>=', $fecha1);
+            })
+            ->when(!isset($fecha1) && isset($fecha2), function ($q) use ($fecha2) {
+                return $q->whereDate('CapRecepcion.FechaLlegada', '<=', $fecha2);
+            })
+            ->when(isset($fecha1) && isset($fecha2), function ($q) use ($fecha1, $fecha2) {
+                return $q->whereRaw("cast(CapRecepcion.FechaLlegada as date) between '" . $fecha1 . "' and '" . $fecha2 . "'");
+            })
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->where('CapRecepcion.IdStatusRecepcion', 2)
+                        ->whereNotNull('CapRecepcion.FechaRecepcion');
+                })->orWhere(function ($q) {
+                    $q->where('CapRecepcion.IdStatusRecepcion', 3)
+                        ->whereNotNull('CapRecepcion.FechaCancelacion');
+                });
+            })
+            ->orderBy('CapRecepcion.IdCapRecepcion', 'DESC')
+            ->paginate(10)
+            ->withQueryString();
 
         // return $recepciones;
 
@@ -614,5 +633,57 @@ class RecepcionController extends Controller
 
         DB::commit();
         return back()->with('msjAdd', 'Se recepcionó el producto correctamente');
+    }
+
+    //Funcion importar datos excel
+    public function importExcel(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            if (!$request->hasFile('excel_file')) {
+                throw new Exception('file does not exist');
+            }
+
+            $file = $request->file('excel_file');
+            $import = new ExcelImport();
+            Excel::import($import, $file);
+
+            $importedData = $import->getImportedData();
+            $codigosNotFound = [];
+
+            //Insertar datos
+            foreach ($importedData as $data) {
+                $articulo = Articulo::where('CodArticulo', '' . $data['codigo'])->first();
+
+                if ($data['stock'] > 0 && $articulo) {
+                    CapturaManualTmp::insert([
+                        'IdTienda' => Auth::user()->usuarioTienda->IdTienda,
+                        'CodArticulo' => $data['codigo'],
+                        'CantArticulo' => $data['stock'],
+                        'Referencia' => 'MANUAL',
+                        'IdMovimiento' => 3,
+                    ]);
+                }
+                if ($data['stock'] > 0 && !$articulo) {
+                    array_push($codigosNotFound, $data['codigo']);
+                }
+            }
+            DB::commit();
+
+            if (count($codigosNotFound) > 0) {
+                return redirect('/RecepcionProducto')->with('msjupdate', 'Algunos articulos, no fueron encontrados: ' . implode(', ', $codigosNotFound));
+            } else {
+                return redirect('/RecepcionProducto')->with('msjAdd', 'Datos importados correctamente');
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function vistaDemo()
+    {
+        return view('Recepcion.ReadExcel');
     }
 }

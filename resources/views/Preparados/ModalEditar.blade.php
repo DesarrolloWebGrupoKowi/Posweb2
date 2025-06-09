@@ -21,8 +21,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">Cerrar</button>
-                    <input type="submit" class="btn btn-sm btn-primary" value="Editar Preparado">
+                    <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    <input type="submit" class="btn btn-sm btn-warning" value="Editar Preparado">
                 </div>
             </form>
         </div>

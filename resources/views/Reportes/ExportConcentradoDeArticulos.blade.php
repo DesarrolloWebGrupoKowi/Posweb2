@@ -7,8 +7,9 @@
             <th>Código</th>
             <th>Articulo</th>
             <th>Cantidad</th>
-            <th>Importe</th>
             <th>Precio</th>
+            <th>Iva</th>
+            <th>Importe</th>
         </tr>
     </thead>
     <tbody>
@@ -25,8 +26,9 @@
                     <td>{{ $item->CodArticulo }}</td>
                     <td>{{ $item->NomArticulo }}</td>
                     <td>{{ $item->Peso }}</td>
-                    <td>{{ $item->Importe }}</td>
                     <td>{{ $item->PrecioArticulo }}</td>
+                    <td>{{ $item->Iva }}</td>
+                    <td>{{ $item->Importe }}</td>
                 </tr>
             @endforeach
         @endif

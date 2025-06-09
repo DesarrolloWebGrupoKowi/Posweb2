@@ -4,18 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\Models\Tienda;
 use App\Models\Cliente;
-use App\Models\DatEncabezado;
-use App\Models\Ciudad;
-use App\Models\Estado;
 use App\Models\SolicitudFactura;
 use App\Models\CorteTienda;
-use App\Models\UsoCFDI;
-use App\Models\TipoPago;
-use App\Models\NotificacionClienteCloud;
-use App\Models\ConstanciaSituacionFiscal;
 
 class SolicitudesFacturaController extends Controller
 {
@@ -54,19 +46,64 @@ class SolicitudesFacturaController extends Controller
             array_push($ids, $tienda->IdTienda);
         }
 
-        $solicitudes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
+        $solicitudes = SolicitudFactura::select(
+            'SolicitudFactura.Id',
+            'SolicitudFactura.IdSolicitudFactura',
+            'DatEncabezado.IdTicket',
+            'CatTiendas.NomTienda',
+            'SolicitudFactura.FechaSolicitud',
+            'SolicitudFactura.TipoPersona',
+            'SolicitudFactura.NomCliente',
+            'SolicitudFactura.RFC',
+            'SolicitudFactura.MetodoPago',
+            'SolicitudFactura.UsoCFDI',
+            'SolicitudFactura.Status'
+        )
+            ->whereHas('DetalleTicket', function ($query) {
+                $query->whereColumn('DatCortesTienda.IdTipoPago', 'SolicitudFactura.IdTipoPago');
+            })
+            ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'SolicitudFactura.IdEncabezado')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
             ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('NomCliente', 'LIKE', '%' . $searchQuery . '%')
-            ->where('SolicitudFactura.Status', '0')
-            ->whereNotNull('Editar')
+            ->where(function ($query) {
+                $query->whereNull('SolicitudFactura.Editar')
+                    ->orWhere('SolicitudFactura.Status', '1');
+            })
             ->whereIn('SolicitudFactura.IdTienda', $ids)
             ->where('SolicitudFactura.IdTienda', 'LIKE', $idTienda)
-            ->paginate(10);
+            ->orderBy('SolicitudFactura.FechaSolicitud', 'desc')
+            ->groupBy(
+                'SolicitudFactura.Id',
+                'SolicitudFactura.IdSolicitudFactura',
+                'DatEncabezado.IdTicket',
+                'CatTiendas.NomTienda',
+                'SolicitudFactura.FechaSolicitud',
+                'SolicitudFactura.TipoPersona',
+                'SolicitudFactura.NomCliente',
+                'SolicitudFactura.RFC',
+                'SolicitudFactura.MetodoPago',
+                'SolicitudFactura.UsoCFDI',
+                'SolicitudFactura.Status'
+            )
+            ->paginate(10)
+            ->onEachSide(1);
 
-        return view('SolicitudesFactura.SolicitudesFactura', compact('solicitudes', 'tiendas', 'idTienda'));
+        $solicitudesPendientes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'DatEncabezado.IdTicket')
+            ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'SolicitudFactura.IdEncabezado')
+            ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
+            ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
+            ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
+            ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
+            ->where('SolicitudFactura.Status', '0')
+            ->whereNotNull('SolicitudFactura.Editar')
+            ->whereIn('SolicitudFactura.IdTienda', $ids)
+            ->orderBy('SolicitudFactura.FechaSolicitud', 'desc')
+            ->get();
+
+        return view('SolicitudesFactura.SolicitudesFactura', compact('solicitudes', 'solicitudesPendientes', 'tiendas', 'idTienda'));
     }
 
     public function VerSolicitud($id, Request $request)
@@ -78,13 +115,23 @@ class SolicitudesFacturaController extends Controller
             ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
             ->where('Id', $id)
-            ->whereNotNull('Editar')
+            // ->whereNotNull('Editar')/*  */
             ->first();
 
-        $clientes = Cliente::where('RFC', $solicitud->RFC)
-            ->get();
+        // $clienteSolicitud = Cliente::with([
+        //     'CorreoCliente' => function ($query) {
+        //         $query->select('IdClienteCloud', 'Email');
+        //         $query->groupBy('IdClienteCloud', 'Email');
+        //     }
+        // ])
+        //     ->where('RFC', $solicitud->RFC)
+        //     // ->where('Bill_To', $solicitud->Bill_To)
+        //     ->get();
 
-        return view('SolicitudesFactura.SolicitudFactura', compact('solicitud', 'clientes'));
+        // $clientes = Cliente::where('RFC', $solicitud->RFC)
+        //     ->get();
+
+        return view('SolicitudesFactura.SolicitudFactura', compact('solicitud'));
     }
 
     public function Relacionar($id, $billTo, Request $request)
@@ -118,10 +165,15 @@ class SolicitudesFacturaController extends Controller
 
     public function Cancelar($id, Request $request)
     {
-        SolicitudFactura::where('Id', $id)->update([
-            'Status' => 1,
-        ]);
-
-        return redirect('SolicitudesFactura')->with('msjAdd', 'Solicitud de factura cancelada correctamente');
+        try {
+            SolicitudFactura::where('Id', $id)->update([
+                'Status' => 1,
+                'IdUsuarioCancelacion' => Auth::user()->IdUsuario,
+                'FechaCancelacion' => date('d-m-Y H:i:s')
+            ]);
+            return redirect('SolicitudesFactura')->with('msjAdd', 'Solicitud de factura cancelada correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
     }
 }

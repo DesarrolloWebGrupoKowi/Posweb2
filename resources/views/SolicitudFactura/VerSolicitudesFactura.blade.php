@@ -41,9 +41,10 @@
                         <th>Nombre</th>
                         <th>RFC</th>
                         <th>Correo</th>
-                        <th style="text-align: center">Constancia</th>
-                        <th style="text-align: center">Estado de Facturación</th>
-                        <th class="rounded-end">Subir Constancia</th>
+                        <th>Constancia</th>
+                        {{-- <th style="text-align: center">Estado de Facturación</th> --}}
+                        <th>Subir Constancia</th>
+                        <th class="rounded-end"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +58,7 @@
                             </td>
                             <td>{{ $solicitudFactura->RFC }}</td>
                             <td>{{ $solicitudFactura->Email }}</td>
-                            <td style="text-align: center">
+                            <td>
                                 @if (empty($solicitudFactura->ConstanciaSituacionFiscal))
                                     No Tiene Constancia
                                 @else
@@ -67,7 +68,7 @@
                                     </a>
                                 @endif
                             </td>
-                            <td style="text-align: center">
+                            {{-- <td style="text-align: center">
                                 @if (empty($solicitudFactura->IdClienteCloud))
                                     <strong>
                                         <span style="color: red">@include('components.icons.info')</span> Falta Ligar Cliente
@@ -75,7 +76,7 @@
                                 @else
                                     <strong>@include('components.icons.clock') En Proceso de Facturación</strong>
                                 @endif
-                            </td>
+                            </td> --}}
                             <td class="text-center">
                                 @if (empty($solicitudFactura->ConstanciaSituacionFiscal) &&
                                         empty($solicitudFactura->IdClienteCloud) &&
@@ -85,6 +86,13 @@
                                         @include('components.icons.upload')
                                     </button>
                                     @include('SolicitudFactura.ModalEditarSolicitud')
+                                @endif
+                            </td>
+                            <td>
+                                @if ($solicitudFactura->Subir == 1)
+                                    <span class="tags-green" title="En linea"> @include('components.icons.cloud-check') </span>
+                                @else
+                                    <span class="tags-red" title="Fuera de linea"> @include('components.icons.cloud-slash') </span>
                                 @endif
                             </td>
                         </tr>

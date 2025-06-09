@@ -169,6 +169,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Mostrar Articulos
     Route::get('/CatArticulos', 'App\Http\Controllers\ArticulosController@CatArticulos');
 
+    //Export detalle de precios a excel
+    Route::get('/ExportExcelCatArticulos', 'App\Http\Controllers\ArticulosController@ExportExcel');
+
     //Crear Articulo
     Route::post('/CrearArticulo', 'App\Http\Controllers\ArticulosController@CrearArticulo');
 
@@ -185,7 +188,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('AgregarArticulo/{id}', 'App\Http\Controllers\ArticulosController@AgregarArticulo');
 
     //Articulo Item
-    Route::get('BuscarArticulo', 'App\Http\Controllers\ArticulosController@BuscarArticulo');
+    Route::get('BuscarArticulo', 'App\Http\Controllers\ArticulosController@BuscarArticulo')->name('BuscarArticulo');
 
     //LigarArticulo
     Route::post('LigarArticulo', 'App\Http\Controllers\ArticulosController@LigarArticulo');
@@ -209,6 +212,8 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //InterfazCreditos
     Route::get('/InterfazCreditos', 'App\Http\Controllers\InterfazCreditosController@InterfazCreditos');
+    //InterfazCreditosExcel
+    Route::get('/InterfazCreditosExcel', 'App\Http\Controllers\InterfazCreditosController@InterfazCreditosExcel');
     //InterfazarCreditos
     Route::post('/InterfazarCreditos/{fecha1}/{fecha2}/{idTipoNomina}/{numNomina}', 'App\Http\Controllers\InterfazCreditosController@InterfazarCreditos');
     //PrepagoCreditos
@@ -359,6 +364,12 @@ Route::group(['middleware' => 'auth'], function () {
     //LigarCliente
     Route::get('/LigarCliente', 'App\Http\Controllers\LigarClientesController@LigarCliente');
 
+    //Cancelar solicitud
+    Route::post('/ClientesNuevos/Cancelar/{id}', 'App\Http\Controllers\LigarClientesController@Cancelar');
+
+    //Finalizar solicitud
+    Route::get('/ClientesNuevos/Finalizar/{id}', 'App\Http\Controllers\LigarClientesController@Finalizar');
+
     //GuardarLigueCliente
     Route::post('/GuardarLigueCliente/{idSolicitudFactura}/{bill_To}', 'App\Http\Controllers\LigarClientesController@GuardarLigueCliente');
 
@@ -388,6 +399,13 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //RecepcionProducto
     Route::get('/RecepcionProducto', 'App\Http\Controllers\RecepcionController@RecepcionProducto');
+
+
+    //Read excel file
+    Route::post('/importExcel', 'App\Http\Controllers\RecepcionController@importExcel');
+
+    Route::get('/ReadExcel', 'App\Http\Controllers\RecepcionController@vistaDemo');
+    //Route::view('/readExcel', 'Recepcion.ReadExcel');
 
     //RecepcionarProducto
     Route::post('/RecepcionarProducto/{idRecepcion}', 'App\Http\Controllers\RecepcionController@RecepcionarProducto');
@@ -469,6 +487,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/ImprimirTicketVenta/{idEncabezado}/{restante}/{pago}', 'App\Http\Controllers\PoswebController@ImprimirTicketVenta')->name('ImprimirTicketVenta');
 
     //ReimprimirTicket
+
     Route::get('ReimprimirTicket', 'App\Http\Controllers\PoswebController@ReimprimirTicket')->name('ReimprimirTicket');
 
     //ImprimirTicket
@@ -544,6 +563,9 @@ Route::group(['middleware' => 'auth'], function () {
     //VentaEmpleados
     Route::get('VentaEmpleados', 'App\Http\Controllers\EmpleadosController@VentaEmpleados');
 
+    //VentaEmpleadosExcel
+    Route::get('VentaEmpleadosExcel', 'App\Http\Controllers\EmpleadosController@VentaEmpleadosExcel');
+
     //VentasCredito
     Route::get('/VentasCredito', 'App\Http\Controllers\EmpleadosController@VentasCredito');
 
@@ -556,6 +578,19 @@ Route::group(['middleware' => 'auth'], function () {
 
     //EditarLimiteCredito
     Route::get('EditarLimiteCredito/{tipoNomina}', 'App\Http\Controllers\LimiteCreditoController@EditarLimiteCredito');
+
+    //+============================================================================================================================================+//
+    //CatLimiteCreditoEspecial
+    Route::get('CatLimiteCreditoEspecial', 'App\Http\Controllers\LimiteCreditoEspecialController@index');
+
+    //AgregarEmpleado
+    Route::post('CatLimiteCreditoEspecial', 'App\Http\Controllers\LimiteCreditoEspecialController@create');
+
+    //EditarEmpleado
+    Route::put('CatLimiteCreditoEspecial/{Id}', 'App\Http\Controllers\LimiteCreditoEspecialController@update');
+
+    //EliminarEmpleado
+    Route::delete('CatLimiteCreditoEspecial/{Id}', 'App\Http\Controllers\LimiteCreditoEspecialController@delete');
     //+============================================================================================================================================+//
 
     //CatMonederoElectronico
@@ -749,6 +784,9 @@ Route::group(['middleware' => 'auth'], function () {
     //InterfazarMermas
     Route::post('/InterfazarMermas/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazMermasController@InterfazarMermas')->name('InterfazarMermas');
 
+    //InterfazCreditosExcel
+    Route::get('/InterfazMermasExcel', 'App\Http\Controllers\InterfazMermasController@InterfazMermasExcel');
+
     //+============================================================================================================================================+//
     //VerCortesTienda
     Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerCortesTienda')->name('VerCortesTienda');
@@ -759,16 +797,36 @@ Route::group(['middleware' => 'auth'], function () {
     //GenerarCorteOraclePDF
     Route::get('/GenerarCorteOraclePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@GenerarCorteOraclePDF')->name('GenerarCorteOraclePDF');
 
+    //Procesar pedidos
+    Route::get('/procesarclientescontado/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesContado')->name('ProcesarClientesContado');
+
+    //Procesar facturas
+    Route::get('/procesarclientesfacturas/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesFacturas')->name('ProcesarClientesFacturas');
+
+    //VerCortesTienda
+    Route::get('/InformacionVentas', 'App\Http\Controllers\ReportesController@ReporteInformacionVentas')->name('InformacionVentas');
 
     //+============================================================================================================================================+//
     //ReporteMermasAdmin
     Route::get('/ReporteMermasAdmin', 'App\Http\Controllers\ReportesController@ReporteMermasAdmin')->name('ReporteMermasAdmin');
+
+    //ReporteMermasAdmin
+    Route::get('/ReporteMermasAdminExcel', 'App\Http\Controllers\ReportesController@ReporteMermasAdminExcel')->name('ReporteMermasAdminExcel');
+
+    //ReporteRosticeroAdmin
+    Route::get('/ReporteRosticeroAdmin', 'App\Http\Controllers\ReportesController@ReporteRosticeroAdmin')->name('ReporteRosticeroAdmin');
 
     //ReporteConcentradoDeArticulos
     Route::get('/ReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeArticulos')->name('ReporteConcentradoDeArticulos');
 
     //ReporteConcentradoDeArticulos
     Route::get('/ExportReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeArticulos')->name('ExportReporteConcentradoDeArticulos');
+
+    //ReporteConcentradoDeTickets
+    Route::get('/ReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeTickets')->name('ReporteConcentradoDeTickets');
+
+    // //ExportReporteConcentradoDeTickets
+    Route::get('/ExportReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeTickets')->name('ExportReporteConcentradoDeTickets');
 
     //ReportePorTipoDePrecio
     Route::get('/ReportePorTipoDePrecio', 'App\Http\Controllers\ReportesController@ReportePorTipoDePrecio')->name('ReportePorTipoDePrecio');
@@ -832,6 +890,8 @@ Route::group(['middleware' => 'auth'], function () {
     //+============================================================================================================================================+//
     //AsignarPreparados
     Route::get('/AsignarPreparados', 'App\Http\Controllers\AsignarPreparadosController@Preparados')->name('AsignarPreparados.index');
+    //AsignarPreparados/{id}
+    Route::get('/AsignarPreparados/{id}', 'App\Http\Controllers\AsignarPreparadosController@VerPreparado')->name('AsignarPreparados.id');
     //RegresarPreparado
     Route::post('/RegresarPreparado/{id}', 'App\Http\Controllers\AsignarPreparadosController@RegresarPreparado');
     //FinalizarPreparado
@@ -923,6 +983,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Eliminar Rosticero
     Route::delete('/EliminarRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarRosticero');
+
+    //Eliminar Rosticero
+    Route::put('/CambiarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@CambiarDetalleRosticero');
 
     //Eliminar Rosticero
     Route::delete('/EliminarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarDetalleRosticero');

@@ -130,8 +130,24 @@
                     @endforeach
                 </tbody>
                 <tfoot>
+                    @foreach ($totalMonedero as $monedero)
+                        @if ($corteTienda->Bill_To == $monedero->Bill_To)
+                            <tr>
+                                <td></td>
+                                <td style="text-align:center; font-weight: bold;">Dinero Electrónico: </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td style="color: red; font-weight: bold; text-align:  right; padding-right: 10px;">
+                                    $ {{ number_format($monedero->importe, 2) }}
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        @endif
+                    @endforeach
                     <!--MONEDERO ELECTRONICO QUINCENAL-->
-                    @if ($corteTienda->IdTipoNomina == 4)
+                    {{-- @if ($corteTienda->IdTipoNomina == 4)
                         <tr>
                             <td></td>
                             <td style="text-align:center; font-weight: bold;">Dinero Electrónico: </td>
@@ -144,11 +160,11 @@
                             <td></td>
                             <td></td>
                         </tr>
-                    @endif
+                    @endif --}}
                     <!--TERMINA MONEDERO ELECTRONICO QUINCENAL-->
 
                     <!--MONEDERO ELECTRONICO SEMANAL-->
-                    @if ($corteTienda->IdTipoNomina == 3)
+                    {{-- @if ($corteTienda->IdTipoNomina == 3)
                         <tr>
                             <td></td>
                             <td style="text-align:center; font-weight: bold;">Dinero Electrónico: </td>
@@ -161,7 +177,7 @@
                             <td></td>
                             <td></td>
                         </tr>
-                    @endif
+                    @endif --}}
                     <!--TERMINA MONEDERO ELECTRONICO SEMANAL-->
                     <tr>
                         <td></td>
@@ -281,18 +297,23 @@
 <div id="DivSumatorias" class="container">
     <table id="sumatorias">
         <tbody>
-            <tr>
-                <td style="text-align: right">Dinero Electrónico Crédito Quincenal: </td>
-                <td style="text-align: right">${{ number_format($totalMonederoQuincenal, 2) }}</td>
-            </tr>
-            <tr>
-                <td style="text-align: right">Dinero Electrónico Crédito Semanal: </td>
-                <td style="text-align: right">${{ number_format($totalMonederoSemanal, 2) }}</td>
-            </tr>
+            @php
+                $totalImporte = 0;
+            @endphp
+            @foreach ($totalMonedero as $monedero)
+                <tr>
+                    <td style="text-align: right">{{ $monedero->NomClienteCloud }}: </td>
+                    <td style="text-align: right">${{ number_format($monedero->importe, 2) }}</td>
+                </tr>
+                @php
+                    $totalImporte += $monedero->importe;
+                @endphp
+            @endforeach
             <tr>
                 <td style="text-align: right">Total Dinero Electrónico: </td>
                 <td style="font-weight: bold; color: red; text-align: right;">
-                    ${{ number_format($totalMonederoQuincenal + $totalMonederoSemanal, 2) }}</td>
+                    ${{ number_format($totalImporte, 2) }}
+                </td>
             </tr>
         </tbody>
         <br>

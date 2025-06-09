@@ -53,7 +53,7 @@ class SolicitudFactura extends Model
             ->as('PivotDetalle');
     }
 
-    public function Factura()
+    public function FacturaCorteDiario()
     {
         return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
             ->select(
@@ -66,6 +66,26 @@ class SolicitudFactura extends Model
                     // DB::raw("XXH2.STATUS as STATUS"),
                     // DB::raw("XXH2.MENSAJE_ERROR as MENSAJE_ERROR"),
                     // DB::raw("XXH2.Batch_Name as Batch_Name"),
+                ]
+            )
+            ->where('DatCortesTienda.StatusVenta', 0)
+            ->withPivot('CantArticulo', 'PrecioArticulo', 'ImporteArticulo', 'IvaArticulo')
+            ->as('PivotDetalle');
+    }
+
+    public function Factura()
+    {
+        return $this->belongsToMany(Articulo::class, CorteTienda::class, 'IdSolicitudFactura', 'IdArticulo', 'IdSolicitudFactura')
+            ->select(
+                [
+                    DB::raw("CatArticulos.CodArticulo"),
+                    DB::raw("CatArticulos.NomArticulo"),
+                    DB::raw("DatCortesTienda.IdListaPrecio"),
+                    DB::raw("DatCortesTienda.IdTipoPago"),
+                    DB::raw("DatCortesTienda.Source_Transaction_Identifier"),
+                    DB::raw("XXH2.STATUS as STATUS"),
+                    DB::raw("XXH2.MENSAJE_ERROR as MENSAJE_ERROR"),
+                    DB::raw("XXH2.Batch_Name as Batch_Name"),
                 ]
             )
             ->where('DatCortesTienda.StatusVenta', 0)
@@ -109,6 +129,12 @@ class SolicitudFactura extends Model
                 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.MENSAJE_ERROR',
                 'CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS.Batch_Name'
             );
+    }
+
+    public function DetalleTicket()
+    {
+        return $this->hasMany(CorteTienda::class, 'IdEncabezado', 'IdEncabezado')
+            ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatCortesTienda.IdArticulo');
     }
 
     public function PedidoOracle()

@@ -28,9 +28,10 @@ class CorteTienda extends Model
                         'StatusVenta',
                         'Bill_To',
                         'StatusVenta',
-                        'FechaVenta'];
+                        'FechaVenta',
+                        'IdUsuario'];
     public $timestamps = false;
-    
+
 
     public function Empleado(){
         return $this->hasOne(Empleado::class, 'NumNomina', 'NumNomina');

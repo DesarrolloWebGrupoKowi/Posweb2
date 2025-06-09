@@ -32,6 +32,10 @@ class Empleado extends Model
         return $this->hasMany(CreditoEmpleado::class, 'NumNomina', 'NumNomina');
     }
 
+    public function VentasExternas(){
+        return $this->hasMany(VentaCreditoEmpleado::class, 'NumNomina', 'NumNomina');
+    }
+
     public function Ventas(){
         return $this->hasMany(CorteTienda::class, 'NumNomina', 'NumNomina');
     }
