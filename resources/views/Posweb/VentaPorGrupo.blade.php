@@ -36,6 +36,15 @@
                     </span>
                     <span class="input-group-text card" style="line-height: 18px">Reporte Agrupado</span>
                 </div>
+                <div class="col-auto">
+                    <input type="radio" class="btn-check" name="optionsOnline" id="danger-outlined" autocomplete="off"
+                        value="off" {{ $optionsOnline == 'off' ? 'checked' : '' }}>
+                    <label class="btn btn-outline-danger" for="danger-outlined">@include('components.icons.cloud-slash')</label>
+
+                    <input type="radio" class="btn-check" name="optionsOnline" id="success-outlined" autocomplete="off"
+                        value="on" {{ $optionsOnline == 'on' ? 'checked' : '' }}>
+                    <label class="btn btn-outline-success" for="success-outlined">@include('components.icons.cloud-check')</label>
+                </div>
                 <button class="btn btn-dark-outline">
                     @include('components.icons.search')
                 </button>
