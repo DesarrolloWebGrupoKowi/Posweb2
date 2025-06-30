@@ -2697,11 +2697,12 @@ class PoswebController extends Controller
         empty($request->fecha1) ? $fecha1 = date('Y-m-d') : $fecha1 = $request->fecha1;
         empty($request->fecha2) ? $fecha2 = date('Y-m-d') : $fecha2 = $request->fecha2;
         empty($request->idGrupo) ? $idGrupo = 1 : $idGrupo = $request->idGrupo;
+        $optionsOnline = $request->optionsOnline ?? 'off';
 
         $agrupado = $request->agrupado;
 
         if ($agrupado == 'on') {
-            $ventasPorGrupo = DB::table('DatEncabezado as a')
+            $ventasPorGrupo = DB::connection($optionsOnline == 'on' ? 'server' : null)->table('DatEncabezado as a')
                 ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                 ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
                 ->select(DB::raw('c.CodArticulo, c.NomArticulo, SUM(b.CantArticulo) as CantArticulo,
@@ -2714,7 +2715,7 @@ class PoswebController extends Controller
                 ->orderBy('c.CodArticulo')
                 ->get();
         } else {
-            $ventasPorGrupo = DB::table('DatEncabezado as a')
+            $ventasPorGrupo = DB::connection($optionsOnline == 'on' ? 'server' : null)->table('DatEncabezado as a')
                 ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
                 ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
                 ->select('c.CodArticulo', 'C.NomArticulo', 'b.CantArticulo', 'b.PrecioArticulo', 'b.ImporteArticulo')
@@ -2726,7 +2727,7 @@ class PoswebController extends Controller
                 ->get();
         }
 
-        $totalPeso = DB::table('DatEncabezado as a')
+        $totalPeso = DB::connection($optionsOnline == 'on' ? 'server' : null)->table('DatEncabezado as a')
             ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
             ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
             ->select('c.CodArticulo', 'C.NomArticulo', 'b.CantArticulo', 'b.PrecioArticulo', 'b.ImporteArticulo')
@@ -2737,7 +2738,7 @@ class PoswebController extends Controller
             ->orderBy('c.CodArticulo')
             ->sum('b.CantArticulo');
 
-        $totalImporte = DB::table('DatEncabezado as a')
+        $totalImporte = DB::connection($optionsOnline == 'on' ? 'server' : null)->table('DatEncabezado as a')
             ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
             ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
             ->select('c.CodArticulo', 'C.NomArticulo', 'b.CantArticulo', 'b.PrecioArticulo', 'b.ImporteArticulo')
@@ -2750,7 +2751,7 @@ class PoswebController extends Controller
 
         //return $totalPeso;
 
-        return view('Posweb.VentaPorGrupo', compact('grupos', 'ventasPorGrupo', 'fecha1', 'fecha2', 'idGrupo', 'agrupado', 'tienda', 'totalPeso', 'totalImporte'));
+        return view('Posweb.VentaPorGrupo', compact('grupos', 'ventasPorGrupo', 'fecha1', 'fecha2', 'idGrupo', 'agrupado', 'tienda', 'totalPeso', 'totalImporte', 'optionsOnline'));
     }
 
     public function ReporteVentasListaPrecio(Request $request)
