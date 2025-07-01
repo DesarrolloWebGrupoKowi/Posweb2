@@ -27,6 +27,19 @@
                             <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha2"
                                 id="fech2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
                         </div>
+                        @if (Auth::user()->IdTipoUsuario == 2)
+                            <div class="col-auto">
+                                <input type="radio" class="btn-check" name="optionsOnline" id="danger-outlined"
+                                    autocomplete="off" value="off" {{ $optionsOnline == 'off' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-danger"
+                                    for="danger-outlined">@include('components.icons.cloud-slash')</label>
+
+                                <input type="radio" class="btn-check" name="optionsOnline" id="success-outlined"
+                                    autocomplete="off" value="on" {{ $optionsOnline == 'on' ? 'checked' : '' }}>
+                                <label class="btn btn-outline-success"
+                                    for="success-outlined">@include('components.icons.cloud-check')</label>
+                            </div>
+                        @endif
                         <div class="col-auto">
                             <button class="btn btn-dark-outline" title="Buscar">
                                 @include('components.icons.search')
