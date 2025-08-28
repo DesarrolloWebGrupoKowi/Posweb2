@@ -450,6 +450,7 @@ class ReportesController extends Controller
     public function ReporteConcentradoPorTiendaYFamilia(Request $request)
     {
         $idTienda = $request->idTienda;
+        $optionsOnline = $request->optionsOnline ?? 'off';
         $fecha1 = !$request->fecha1 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha1;
         $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
 
@@ -467,22 +468,25 @@ class ReportesController extends Controller
 
         $idTiendas = $tiendas->pluck('IdTienda');
 
-        $concentrado = DatEncabezado::leftJoin('DatDetalle as b', 'b.IdEncabezado', 'DatEncabezado.IdEncabezado')
+        // $concentrado = DatEncabezado::connection($optionsOnline == 'on' ? 'server' : null)
+        $concentrado = DB::connection($optionsOnline == 'on' ? 'server' : null)
+            ->table('DatEncabezado as a')
+            ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
             ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
             ->leftJoin('CatGrupos as d', 'd.IdGrupo', 'c.IdGrupo')
-            ->leftJoin('CatTiendas as f', 'DatEncabezado.IdTienda', 'f.IdTienda')
+            ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
             // ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
             ->select(DB::raw("f.NomTienda,
                 d.NomGrupo,
                 SUM(b.CantArticulo) as kilos,
                 SUM(b.ImporteArticulo) as importe"))
-            ->where('DatEncabezado.StatusVenta', 0)
-            ->whereIn('DatEncabezado.IdTienda', $idTiendas)
+            ->where('a.StatusVenta', 0)
+            ->whereIn('a.IdTienda', $idTiendas)
             ->when($idTienda, function ($query) use ($idTienda) {
-                $query->where('DatEncabezado.IdTienda', $idTienda);
+                $query->where('a.IdTienda', $idTienda);
             })
             ->whereNotNull('d.NomGrupo')
-            ->whereRaw("cast(DatEncabezado.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->groupBy('f.NomTienda', 'd.NomGrupo')
             ->orderBy('f.NomTienda', 'desc')
             ->get();
@@ -514,7 +518,7 @@ class ReportesController extends Controller
             $kilos['TOTAL'] += $item->kilos;
         }
 
-        return view('Reportes.ConcentradoPorTiendaYFamilia', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado', 'totales', 'kilos'));
+        return view('Reportes.ConcentradoPorTiendaYFamilia', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'optionsOnline', 'concentrado', 'totales', 'kilos'));
     }
 
     public function ExportReporteConcentradoPorTiendaYFamilia(Request $request)

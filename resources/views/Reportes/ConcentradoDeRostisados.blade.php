@@ -80,6 +80,9 @@
                 <tbody>
                     @include('components.table-empty', ['items' => $concentrado, 'colspan' => 10])
                     @foreach ($concentrado as $tConcentrado)
+                        @php
+                            $cantiadad = $tConcentrado->Detalle->where('Status', 0)->where('Vendida', 1)->sum('Cantidad')
+                        @endphp
                         <tr>
                             <td>{{ $tConcentrado->IdRosticero }}</td>
                             {{-- <td>{{ $tConcentrado->NomTienda }}</td> --}}
@@ -88,12 +91,15 @@
                             <td>{{ $tConcentrado->CantidadMatPrima }}</td>
                             <td>{{ $tConcentrado->CodigoVenta }} - {{ $tConcentrado->ArticuloVenta }}</td>
                             {{-- <td>{{ $tConcentrado->CodigoVenta }}</td> --}}
-                            <td>{{ $tConcentrado->CantidadVenta }}</td>
+                            <td>
+                                {{-- {{ $tConcentrado->CantidadVenta }} --}}
+                                {{ $cantiadad }}
+                            </td>
                             <td>{{ $tConcentrado->MermaStnd }}</td>
                             <td>
                                 <span
-                                    class="{{ $tConcentrado->MermaReal > $tConcentrado->MermaStnd ? 'text-danger' : '' }}">
-                                    {{ $tConcentrado->MermaReal }}
+                                    class="{{ $tConcentrado->CantidadMatPrima - $cantiadad > $tConcentrado->MermaStnd ? 'text-danger' : '' }}">
+                                    {{ $tConcentrado->CantidadMatPrima - $cantiadad }}
                                 </span>
                             </td>
                             {{-- <td>{{ $tConcentrado->CantidadVenta }}</td> --}}

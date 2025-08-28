@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DatDetalleRosticero;
 use Illuminate\Http\Request;
 use App\Models\DatRosticero;
 use App\Models\Tienda;
@@ -212,11 +213,18 @@ class InterfazRosticeroController extends Controller
                 ->get();
 
             foreach ($rostisados as $keyRostisado => $rostisado) {
+
+                $cantidadVenta = DatDetalleRosticero::where('IdRosticero', $rostisado->IdRosticero)
+                    ->where('Status', 0)
+                    ->where('Vendida', 1)
+                    ->sum('cantidad');
+
                 TransactionCloudInterface::insert([
                     'ORGANIZATION_NAME' => $organization_Name,
                     'ITEM_NUMBER' => $rostisado->CodigoVenta,
                     'SUBINVENTORY_CODE' => $almacen,
-                    'TRANSACTION_QUANTITY' => $rostisado->CantidadVenta,
+                    // 'TRANSACTION_QUANTITY' => $rostisado->CantidadVenta,
+                    'TRANSACTION_QUANTITY' => $cantidadVenta,
                     'TRANSACTION_UOM' => 'KG',
                     'DATE_EXPIRATION' => $DATE_EXPIRATION,
                     'TRANSACTION_DATE' => date('d-m-Y H:i:s'),
