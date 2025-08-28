@@ -2,9 +2,12 @@
 @section('title', 'Interfazar Rosticero')
 @section('dashboardWidth', 'width-general')
 @section('contenido')
-    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
-        <div class="p-4 border-0 card" style="border-radius: 10px">
+        <div
+            class="card border-0 p-4"
+            style="border-radius: 10px"
+        >
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Interfazar Rosticero'])
             </div>
@@ -13,25 +16,54 @@
             </div>
         </div>
 
-        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
-            <form class="flex-wrap gap-2 pb-2 d-flex align-items-center justify-content-end" action="/InterfazarRosticero"
-                method="GET">
+        <div
+            class="content-table content-table-full card border-0 p-4"
+            style="border-radius: 10px"
+        >
+            <form
+                class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2"
+                action="/InterfazarRosticero"
+                method="GET"
+            >
                 <div class="col-auto">
-                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda" required>
+                    <select
+                        class="form-select rounded"
+                        style="line-height: 18px"
+                        name="idTienda"
+                        id="idTienda"
+                        required
+                    >
                         <option value="">Seleccione Tienda</option>
                         @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                            <option
+                                {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!}
+                                value="{{ $tienda->IdTienda }}"
+                            >{{ $tienda->NomTienda }}
                             </option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" required>
+                    <input
+                        class="form-control rounded"
+                        style="line-height: 18px"
+                        type="date"
+                        name="fecha1"
+                        id="fecha1"
+                        value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}"
+                        required
+                    >
                 </div>
                 <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha2"
-                        id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}" required>
+                    <input
+                        class="form-control rounded"
+                        style="line-height: 18px"
+                        type="date"
+                        name="fecha2"
+                        id="fecha2"
+                        value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}"
+                        required
+                    >
                 </div>
                 <div class="col-auto">
                     <button class="btn btn-dark-outline">
@@ -71,7 +103,11 @@
                             <td>{{ $rostisado->NomArticulo }}</td>
                             <td>{{ $rostisado->NomTienda }}</td>
                             <td>{{ $rostisado->CantidadMatPrima }}</td>
-                            <td>{{ $rostisado->CantidadVenta }}</td>
+                            <td>
+                                {{-- {{ $rostisado->CantidadVenta }}
+                                - --}}
+                                {{ $rostisado->Detalle->where('Status', 0)->where('Vendida', 1)->sum('Cantidad') }}
+                            </td>
                             <td>
                                 @if (!$rostisado->FechaInterfazBaja)
                                     <span class="tags-green">Baja</span>
@@ -88,8 +124,11 @@
                                         $baja = !$rostisado->FechaInterfazBaja;
                                         $alta = !$rostisado->FechaInterfazAlta;
                                     @endphp
-                                    <button class="btn text-secondary" data-bs-toggle="modal"
-                                        data-bs-target="#ModalLotes{{ $rostisado->IdDatRosticero }}">
+                                    <button
+                                        class="btn text-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ModalLotes{{ $rostisado->IdDatRosticero }}"
+                                    >
                                         @include('components.icons.database')
                                     </button>
                                     @include('InterfazRosticero.ModalLotes')
@@ -101,16 +140,23 @@
             </table>
             @include('components.paginate', ['items' => $rostisados])
 
-            <div class="mb-1 d-flex justify-content-center">
+            <div class="d-flex justify-content-center mb-1">
                 <div class="col-auto">
                     @if ($baja)
-                        <button class="btn btn-outline-dark" data-bs-toggle="modal"
-                            data-bs-target="#ModalConfirmarInterfaz">
+                        <button
+                            class="btn btn-outline-dark"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ModalConfirmarInterfaz"
+                        >
                             Interfazar Bajas
                         </button>
                     @endif
                     @if ($alta)
-                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfazAlta">
+                        <button
+                            class="btn btn-warning"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ModalConfirmarInterfazAlta"
+                        >
                             Interfazar Altas
                         </button>
                     @endif
