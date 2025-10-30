@@ -178,8 +178,8 @@ class CancelacionTicketsController extends Controller
                 'sistemas@kowi.com.mx',
             ];
 
-            Mail::to($correos)
-                ->send(new CancelacionTicketMail($solicitudCancelacion));
+            // Mail::to($correos)
+            //     ->send(new CancelacionTicketMail($solicitudCancelacion));
 
             //return 'menito';
 
@@ -235,31 +235,31 @@ class CancelacionTicketsController extends Controller
                     ->update([
                         'StockArticulo' => $stock + $detalle->CantArticulo,
                     ]);
+
+                // insertar en el historial de movimientos de producto, con referencia del IdEncabezado
+                DatCorteInvTmp::insert([
+                    'IdTienda' => $idTienda,
+                    'IdCaja' => $idCaja,
+                    'Codigo' => $codArticulo,
+                    'Cantidad' => $detalle->CantArticulo,
+                    'Fecha_Creacion' => date('d-m-Y H:i:s'),
+                    'StatusProcesado' => 1,
+                    'IdMovimiento' => 12,
+                    'Referencia' => $idEncabezado
+                ]);
+
+                HistorialMovimientoProducto::insert([
+                    'IdTienda' => $idTienda,
+                    'CodArticulo' => $codArticulo,
+                    'CantArticulo' => $detalle->CantArticulo,
+                    'FechaMovimiento' => date('d-m-Y H:i:s'),
+                    'Referencia' => 'Cancelacion ' . $idEncabezado,
+                    'IdMovimiento' => 12,
+                    'IdUsuario' => Auth::user()->IdUsuario,
+                    'ReferenciaId' => $idEncabezado,
+                    'IDCAJA' => $idCaja
+                ]);
             }
-
-            // insertar en el historial de movimientos de producto, con referencia del IdEncabezado
-            DatCorteInvTmp::insert([
-                'IdTienda' => $idTienda,
-                'IdCaja' => $idCaja,
-                'Codigo' => $codArticulo,
-                'Cantidad' => $detalle->CantArticulo,
-                'Fecha_Creacion' => date('d-m-Y H:i:s'),
-                'StatusProcesado' => 1,
-                'IdMovimiento' => 12,
-                'Referencia' => $idEncabezado
-            ]);
-
-            HistorialMovimientoProducto::insert([
-                'IdTienda' => $idTienda,
-                'CodArticulo' => $codArticulo,
-                'CantArticulo' => $detalle->CantArticulo,
-                'FechaMovimiento' => date('d-m-Y H:i:s'),
-                'Referencia' => 'Cancelacion ' . $idEncabezado,
-                'IdMovimiento' => 12,
-                'IdUsuario' => Auth::user()->IdUsuario,
-                'ReferenciaId' => $idEncabezado,
-                'IDCAJA' => $idCaja
-            ]);
         } catch (\Throwable $th) {
             DB::rollback(); // hubo algun error
             return back()->with('msjdelete', 'Error: ' . $th->getMessage()); // me devuelvo con el mensaje de error
@@ -335,8 +335,8 @@ class CancelacionTicketsController extends Controller
                 'sistemas@kowi.com.mx',
             ];
 
-            Mail::to($correos)
-                ->send(new CancelacionTicketMail($solicitudCancelacion));
+            // Mail::to($correos)
+            //     ->send(new CancelacionTicketMail($solicitudCancelacion));
         } catch (\Throwable $th) {
             DB::rollback(); // hubo algun error
             return back()->with('msjdelete', 'Error: ' . $th->getMessage()); // me devuelvo con el mensaje de error

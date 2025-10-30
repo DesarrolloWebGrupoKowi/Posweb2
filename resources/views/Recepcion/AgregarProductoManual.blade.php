@@ -24,6 +24,7 @@
             <thead class="table-head">
                 <tr>
                     <th class="rounded-start">Código</th>
+                    <th>Plu</th>
                     <th>Articulo</th>
                     <th>Cantidad</th>
                     <th class="rounded-end">Seleccionar</th>
@@ -46,6 +47,7 @@
                             <input type="hidden" name="codArticulo" value="{{ $articulo->CodArticulo }}">
                             <tr>
                                 <td>{{ $articulo->CodArticulo }}</td>
+                                <td>{{ $articulo->CodEtiqueta }}</td>
                                 <td>{{ $articulo->NomArticulo }}</td>
                                 <td class="d-flex">
                                     <input type="number" min="0.01" step="any"
