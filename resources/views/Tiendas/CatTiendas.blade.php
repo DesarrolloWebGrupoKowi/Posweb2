@@ -4,11 +4,19 @@
 @section('contenido')
     <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
+        <div
+            class="card border-0 p-4"
+            style="border-radius: 10px"
+        >
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Catálogo de Tiendas'])
                 <div>
-                    <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-dark"
+                        data-bs-toggle="modal"
+                        data-bs-target="#ModalAgregar"
+                    >
                         Agregar tienda @include('components.icons.plus-circle')
                     </button>
                 </div>
@@ -19,21 +27,28 @@
             </div>
         </div>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex flex-wrap align-items-center justify-content-end gap-2 pb-2" action="/CatTiendas"
-                method="get">
-                <div class="input-group" style="max-width: 300px">
-                    <select class="form-select rounded" style="line-height: 18px" name="filtroEstado" id="filtroEstado">
-                        @foreach ($estados as $estado)
-                            <option {!! $estado->IdEstado == $filtroEstado ? 'selected' : '' !!} value="{{ $estado->IdEstado }}">{{ $estado->NomEstado }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="input-group" style="max-width: 300px">
-                    <select class="form-select rounded" style="line-height: 18px" name="filtroCiudad" id="filtroCiudad">
-                        <option selected value="0">Seleccione</option>
-                    </select>
+        <div
+            class="content-table content-table-full card border-0 p-4"
+            style="border-radius: 10px"
+        >
+            <form
+                class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2"
+                action="/CatTiendas"
+                method="get"
+            >
+                <div
+                    class="input-group"
+                    style="max-width: 300px"
+                >
+                    <input
+                        type="text"
+                        class="form-control rounded"
+                        style="line-height: 18px"
+                        name="filtroTienda"
+                        id="filtroTienda"
+                        placeholder="Buscar tienda..."
+                        value="{{ request()->get('filtroTienda', '') }}"
+                    >
                 </div>
                 <button class="btn btn-dark-outline">
                     @include('components.icons.search')
@@ -65,12 +80,18 @@
                                 <td>{{ $tienda->Direccion }}</td>
                                 <td>{{ $tienda->ccNomCiudad }}</td>
                                 <td>
-                                    <button class="btn-table" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEditar{{ $tienda->IdTienda }}">
+                                    <button
+                                        class="btn-table"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ModalEditar{{ $tienda->IdTienda }}"
+                                    >
                                         @include('components.icons.edit')
                                     </button>
-                                    <button class="btn-table btn-table-delete" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEliminar{{ $tienda->IdTienda }}">
+                                    <button
+                                        class="btn-table btn-table-delete"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ModalEliminar{{ $tienda->IdTienda }}"
+                                    >
                                         @include('components.icons.delete')
                                     </button>
                                 </td>

@@ -51,7 +51,7 @@
                                 </div>
                                 <div class="col-3">
                                     <div class="list-group">
-                                        <label class="form-label">Teléfono</label>
+                                        <label class="form-label">Teléfono (123-456-7890)</label>
                                         <input type="tel" name="Telefono" id="Telefono"
                                             class="form-control rounded" style="line-height: 18px"
                                             value="{{ $tienda->Telefono }}" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"

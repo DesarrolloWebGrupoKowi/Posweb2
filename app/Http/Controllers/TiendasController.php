@@ -11,55 +11,37 @@ class TiendasController extends Controller
 {
     public function CatTiendas(Request $request)
     {
-        $filtroEstado = trim($request->get('filtroEstado'));
-        $filtroCiudad = trim($request->get('filtroCiudad'));
+        $filtroTienda = $request->get('filtroTienda');
 
-        if ($filtroCiudad == 0) {
-            $tiendas = DB::table('CatTiendas')
-                ->leftJoin('CatCiudades', 'CatCiudades.IdCiudad', 'CatTiendas.IdCiudad')
-                ->leftJoin('CatEstados', 'CatEstados.IdEstado', 'CatCiudades.IdEstado')
-                ->leftJoin('CatPlazas', 'CatPlazas.IdPlaza', 'CatTiendas.IdPlaza')
-                ->where('CatEstados.IdEstado', 'like', '%' . $filtroEstado . '%')
-                ->select(
-                    'CatTiendas.*',
-                    'CatPlazas.IdPlaza as cpIdPlaza*',
-                    'CatPlazas.NomPlaza as cpNomPlaza',
-                    'CatCiudades.IdCiudad as ccIdCiudad',
-                    'CatCiudades.NomCiudad as ccNomCiudad',
-                    'CatEstados.IdEstado as ceIdEstado',
-                    'CatEstados.NomEstado as ceNomEstado',
-                )
-                ->paginate(10)
-                ->withQueryString();
-        } else {
-            $tiendas = DB::table('CatTiendas')
-                ->leftJoin('CatCiudades', 'CatCiudades.IdCiudad', 'CatTiendas.IdCiudad')
-                ->leftJoin('CatEstados', 'CatEstados.IdEstado', 'CatCiudades.IdEstado')
-                ->leftJoin('CatPlazas', 'CatPlazas.IdPlaza', 'CatTiendas.IdPlaza')
-                ->where('CatTiendas.IdCiudad', '=', $filtroCiudad)
-                ->select(
-                    'CatTiendas.*',
-                    'CatPlazas.IdPlaza as cpIdPlaza*',
-                    'CatPlazas.NomPlaza as cpNomPlaza',
-                    'CatCiudades.IdCiudad as ccIdCiudad',
-                    'CatCiudades.NomCiudad as ccNomCiudad',
-                    'CatEstados.IdEstado as ceIdEstado',
-                    'CatEstados.NomEstado as ceNomEstado',
-                )
-                ->paginate(10)
-                ->withQueryString();
-        }
+        $tiendas = DB::table('CatTiendas')
+            ->leftJoin('CatCiudades', 'CatCiudades.IdCiudad', 'CatTiendas.IdCiudad')
+            ->leftJoin('CatEstados', 'CatEstados.IdEstado', 'CatCiudades.IdEstado')
+            ->leftJoin('CatPlazas', 'CatPlazas.IdPlaza', 'CatTiendas.IdPlaza')
+            ->select(
+                'CatTiendas.*',
+                'CatPlazas.IdPlaza as cpIdPlaza*',
+                'CatPlazas.NomPlaza as cpNomPlaza',
+                'CatCiudades.IdCiudad as ccIdCiudad',
+                'CatCiudades.NomCiudad as ccNomCiudad',
+                'CatEstados.IdEstado as ceIdEstado',
+                'CatEstados.NomEstado as ceNomEstado',
+            )
+            ->when($filtroTienda, function ($query) use ($filtroTienda) {
+                $query->where(function ($q) use ($filtroTienda) {
+                    $q->where('CatPlazas.NomPlaza', 'like', '%' . $filtroTienda . '%')
+                        ->orWhere('CatCiudades.NomCiudad', 'like', '%' . $filtroTienda . '%')
+                        ->orWhere('CatEstados.NomEstado', 'like', '%' . $filtroTienda . '%')
+                        ->orWhere('CatTiendas.Organization_Name', 'like', '%' . $filtroTienda . '%')
+                        ->orWhere('CatTiendas.NomTienda', 'like', '%' . $filtroTienda . '%');
+                });
+            })
+            ->paginate(10);
         //return $tiendas;
 
-        $plazas = DB::table('CatPlazas')
-            ->where('Status', 0)
-            ->get();
-        $ciudades = Ciudad::all();
-        $estados = DB::table('CatEstados')
-            ->where('Status', '=', 0)
-            ->get();
+        $plazas = DB::table('CatPlazas')->where('Status', 0)->get();
+        $ciudades = Ciudad::get();
 
-        return view('Tiendas/CatTiendas', compact('tiendas', 'ciudades', 'estados', 'plazas', 'filtroEstado', 'filtroCiudad'));
+        return view('Tiendas/CatTiendas', compact('tiendas', 'filtroTienda', 'ciudades', 'plazas'));
     }
 
     public function CrearTienda(Request $request)
