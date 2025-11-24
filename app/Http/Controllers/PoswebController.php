@@ -1571,19 +1571,19 @@ class PoswebController extends Controller
                     // Validamos que la etiqueta se encuentre activa
                     if (!$detRostisado) {
                         // return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
+                    } else {
+                        $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
+                        $rotisado->update([
+                            'Disponible' => $rotisado->Disponible - $detRostisado->Cantidad,
+                            'subir' => 0
+                        ]);
+
+                        // Actualizamos la etiqueta para que no se pueda volver a usar
+                        $detRostisado->update([
+                            'subir' => 0,
+                            'Vendida' => 0,
+                        ]);
                     }
-
-                    $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
-                    $rotisado->update([
-                        'Disponible' => $rotisado->Disponible - $detRostisado->Cantidad,
-                        'subir' => 0
-                    ]);
-
-                    // Actualizamos la etiqueta para que no se pueda volver a usar
-                    $detRostisado->update([
-                        'subir' => 0,
-                        'Vendida' => 0,
-                    ]);
                 }
 
                 $idTienda = Auth::user()->usuarioTienda->IdTienda;
