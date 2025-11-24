@@ -1570,7 +1570,7 @@ class PoswebController extends Controller
 
                     // Validamos que la etiqueta se encuentre activa
                     if (!$detRostisado) {
-                        return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
+                        // return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
                     }
 
                     $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
