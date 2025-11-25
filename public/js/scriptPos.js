@@ -112,6 +112,7 @@ const solicitudesFactura = document.getElementById('solicitudesFactura');
 const adeudosEmpleado = document.getElementById('adeudosEmpleado');
 const paquetes = document.getElementById('paquetes');
 const btnReimprimirUltimo = document.getElementById('btnReimprimirUltimo');
+const btnPulso = document.getElementById('btnPulso');
 
 CorteTienda.addEventListener('click', function () {
     location.href = '/CorteDiario';
@@ -155,6 +156,10 @@ paquetes.addEventListener('click', function () {
 
 btnReimprimirUltimo.addEventListener('click', function () {
     location.href = '/ImprimirTicket';
+})
+
+btnPulso.addEventListener('click', function () {
+    location.href = '/MandarPulso';
 })
 
 const tipoPago = document.getElementById('tipoPago');
