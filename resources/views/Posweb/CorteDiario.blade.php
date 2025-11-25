@@ -56,7 +56,7 @@
             <!--SUMATORIAS FINALES-->
             <div class="row" style="font-size: small">
                 {{-- Dinero Electrónico --}}
-                <div class="col-12 col-md-6 col-lg-6 mb-4 mb-lg-0">
+                <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
                     <div class="card p-4 border-0" style="border-radius: 10px;">
                         <h6 class="text-dark">Dinero Electrónico</h6>
                         @php
@@ -122,23 +122,44 @@
                         </div>
                     </div>
                 </div>
+                {{-- Efectivo --}}
+                <div class="col-12 col-md-6 col-lg-2">
+                    <div class="card p-4 border-0" style="border-radius: 10px;">
+                        <h6 class="text-dark">Transferencia/Efectivo</h6>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Total Transferencia: </span>
+                            <span>${{ number_format($totalTransferencia, 2) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Total Efectivo: </span>
+                            <span>${{ number_format($totalEfectivo, 2) }} </span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Total: </span>
+                            <b class="{{ number_format($totalEfectivo + $totalTransferencia, 2) == 0 ? 'eliminar' : 'send' }}"
+                                style="font-size: 16px">
+                                ${{ number_format($totalEfectivo + $totalTransferencia, 2) }}
+                            </b>
+                        </div>
+                    </div>
+                </div>
                 {{-- Totales --}}
                 <div class="col-12 col-md-6 col-lg-2">
                     <div class="card p-4 border-0" style="border-radius: 10px;">
-                        <h6 class="text-dark">Totales</h6>
-                        <div class="d-flex justify-content-between">
+                        <h6 class="text-dark text-center">Total General</h6>
+                        {{-- <div class="d-flex justify-content-between">
                             <span class="text-secondary">Total Transferencia: </span>
                             <span>${{ number_format($totalTransferencia, 2) }}</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Total Factura: </span>
                             <span>${{ number_format($totalFactura, 2) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-secondary">Total Efectivo: </span>
+                        </div> --}}
+                        <div class="text-center">
+                            {{-- <span class="text-secondary">Total Efectivo: </span> --}}
                             <b class="{{ number_format($totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
                                 style="font-size: 16px">
-                                ${{ number_format($totalEfectivo, 2) }}
+                                ${{ number_format($totalEfectivo + $totalTransferencia + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
                             </b>
                         </div>
                     </div>

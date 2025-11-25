@@ -313,7 +313,7 @@
                         <span style="display: inline-block">$</span>
                         <span style="display: inline-block; min-width: 100px; border-bottom: 1px solid black;">
                             {{-- {{ number_format($totalEfectivo, 2) }} --}}
-                            {{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
+                            {{ number_format($totalEfectivo + $totalTransferencia + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
                         </span>
                     </td>
                 </tr>
