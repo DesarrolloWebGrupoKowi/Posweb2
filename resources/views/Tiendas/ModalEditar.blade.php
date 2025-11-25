@@ -14,6 +14,24 @@
                             <div class="row">
                                 <div class="col-9">
                                     <div class="list-group">
+                                        <label class="form-label">Nombre</label>
+                                        <input class="form-control rounded" style="line-height: 18px" type="text"
+                                            name="NomTienda" id="NomTienda" value="{{ $tienda->NomTienda }}"
+                                            onkeyup="mayusculas(this)" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="list-group">
+                                        <label class="form-label">Nombre corto</label>
+                                        <input class="form-control rounded" style="line-height: 18px" type="text"
+                                            name="NombreCorto" id="NombreCorto" value="{{ $tienda->NombreCorto }}"
+                                            onkeyup="mayusculas(this)" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-9">
+                                    <div class="list-group">
                                         <label class="form-label">Direccion</label>
                                         <input class="form-control rounded" style="line-height: 18px" type="text"
                                             name="Direccion" id="Direccion" value="{{ $tienda->Direccion }}"

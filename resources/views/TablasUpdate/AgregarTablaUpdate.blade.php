@@ -22,11 +22,21 @@
                                         </div>
                                     </div>
                                 @else
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="seleccionarTodos">
+                                            <label class="form-check-label fw-bold" for="seleccionarTodos">
+                                                Seleccionar todos
+                                            </label>
+                                        </div>
+                                    </div>
                                     @foreach ($tablas as $tabla)
                                         <div class="col-4">
-                                            <input class="form-check-input" type="checkbox" name="nomTablas[]"
-                                                id="nomTablas" value="{{ $tabla->NomTabla }}">
-                                            {{ $tabla->NomTabla }}
+                                            <input class="form-check-input checkbox-nomTabla" type="checkbox" name="nomTablas[]"
+                                                id="nomTablas_{{ $loop->index }}" value="{{ $tabla->NomTabla }}">
+                                            <label class="form-check-label" for="nomTablas_{{ $loop->index }}">
+                                                {{ $tabla->NomTabla }}
+                                            </label>
                                         </div>
                                     @endforeach
                                 @endif
@@ -48,3 +58,44 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Funcionalidad para seleccionar/deseleccionar todos los checkboxes de nomTablas
+    (function() {
+        function initSeleccionarTodos() {
+            const modal = document.getElementById('AgregarTablaUpdate');
+            if (modal) {
+                // Event delegation para el checkbox "seleccionar todos"
+                modal.addEventListener('click', function(e) {
+                    if (e.target && e.target.id === 'seleccionarTodos') {
+                        const checkboxesNomTablas = modal.querySelectorAll('.checkbox-nomTabla');
+                        checkboxesNomTablas.forEach(checkbox => {
+                            checkbox.checked = e.target.checked;
+                        });
+                    }
+                });
+
+                // Event delegation para los checkboxes individuales
+                modal.addEventListener('click', function(e) {
+                    if (e.target && e.target.classList.contains('checkbox-nomTabla')) {
+                        setTimeout(function() {
+                            const seleccionarTodos = modal.querySelector('#seleccionarTodos');
+                            const checkboxesNomTablas = modal.querySelectorAll('.checkbox-nomTabla');
+                            if (seleccionarTodos) {
+                                const todosMarcados = Array.from(checkboxesNomTablas).every(cb => cb.checked);
+                                seleccionarTodos.checked = todosMarcados;
+                            }
+                        }, 10);
+                    }
+                });
+            }
+        }
+
+        // Intentar inicializar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSeleccionarTodos);
+        } else {
+            initSeleccionarTodos();
+        }
+    })();
+</script>

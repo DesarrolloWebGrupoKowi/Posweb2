@@ -77,6 +77,7 @@ class TiendasController extends Controller
         $direccion = $request->get('Direccion');
         $plaza = $request->get('IdPlaza');
         $colonia = $request->get('Colonia');
+        $nombreCorto = $request->get('NombreCorto');
         $correo = $request->get('Correo');
         $telefono = $request->get('Telefono');
         $centroCosto = $request->get('CentroCosto');
@@ -97,6 +98,7 @@ class TiendasController extends Controller
                 'Direccion' => $direccion,
                 'IdPlaza' => $plaza,
                 'Colonia' => $colonia,
+                'NombreCorto' => $nombreCorto,
                 'Correo' => $correo,
                 'Telefono' => $telefono,
                 'CentroCosto' => $centroCosto,
