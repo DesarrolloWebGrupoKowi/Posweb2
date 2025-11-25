@@ -27,9 +27,9 @@
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Código</th>
+                        <th class="rounded-start">Plu</th>
+                        <th>Código</th>
                         <th>Articulo</th>
-                        <th>Código etiqueta</th>
                         <th class="rounded-end">Stock</th>
                     </tr>
                 </thead>
@@ -37,9 +37,9 @@
                     @include('components.table-empty', ['items' => $stocks, 'colspan' => 3])
                     @foreach ($stocks as $stock)
                         <tr>
+                            <td> {{ $stock->CodEtiqueta }} </td>
                             <td> {{ $stock->CodArticulo }} </td>
                             <td> {{ $stock->NomArticulo }} </td>
-                            <td> {{ $stock->CodEtiqueta }} </td>
                             <td style="color: {!! $stock->StockArticulo == 0 ? 'red; font-weight:bold;' : '' !!}">{{ $stock->StockArticulo }}</td>
                         </tr>
                     @endforeach
