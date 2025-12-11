@@ -93,6 +93,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('EliminarTienda/{id}', 'App\Http\Controllers\TiendasController@EliminarTienda');
 
     //+============================================================================================================================================+//
+    //Mostrar Tiendas Que Van A Procesar Cortes
+    Route::get('CatTiendasProcesar', 'App\Http\Controllers\TiendasController@CatTiendasProcesar');
+
+    //Actualizando Procesar Corte
+    Route::post('CatTiendas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorte');
+
+    //+============================================================================================================================================+//
     //Mostrar Tipo de Usuarios
     Route::get('/CatTipoUsuarios', 'App\Http\Controllers\TipoUsuariosController@CatTipoUsuarios');
 
@@ -441,6 +448,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Posweb Pantalla Principal
     Route::get('/Pos', 'App\Http\Controllers\PoswebController@Pos')->name('Pos');
 
+    //Tickets pendientes de subir
+    Route::get('/tickets/pendientes', 'App\Http\Controllers\PoswebController@TicketsPendientes');
+
     //EliminarPago
     Route::post('/EliminarPago/{idDatTipoPago}', 'App\Http\Controllers\PoswebController@EliminarPago');
 
@@ -492,6 +502,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     //ImprimirTicket
     Route::get('/ImprimirTicket', 'App\Http\Controllers\PoswebController@ImprimirTicket');
+
+    //MandarPulso
+    Route::get('/MandarPulso', 'App\Http\Controllers\PoswebController@MandarPulso');
 
     //VentaTicketDiario
     Route::get('/VentaTicketDiario', 'App\Http\Controllers\PoswebController@VentaTicketDiario');
@@ -1009,11 +1022,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/HistorialRosticero', 'App\Http\Controllers\RosticeroController@HistorialRosticero');
 }); //->Termina Middleware Rosticero
 
-// pagina de error 404
-Route::fallback(function () {
-    return view('Errores.Error404');
-});
-
 Route::get('/Login', 'App\Http\Controllers\Auth\LoginController@Login')->middleware('guest')->name('login');
 
 Route::post('/authenticate', 'App\Http\Controllers\Auth\LoginController@authenticate');
@@ -1031,3 +1039,8 @@ Route::post('/SubirArchivo', 'App\Http\Controllers\PruebasController@SubirArchiv
 
 //Runner test
 Route::post('/runnertest', 'App\Http\Controllers\PruebasController@SubirArchivo');
+
+// pagina de error 404
+Route::fallback(function () {
+    return view('Errores.Error404');
+});

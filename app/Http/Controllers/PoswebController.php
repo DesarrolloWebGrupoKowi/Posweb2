@@ -187,6 +187,7 @@ class PoswebController extends Controller
             ->havingRaw('COUNT(*) > 1')
             ->get();
 
+        $ticketsLocal = DatEncabezado::where('Subir', 0)->count();
         // $codigosEtiqueta = DatDetalleRosticero::whereIn('CodigoEtiqueta', $codigosEtiqueta)
         //     ->where('Status', 0)
         //     ->where('Vendida', 1)
@@ -217,8 +218,14 @@ class PoswebController extends Controller
             'paquetes',
             'pedidosPendientes',
             'frecuenteSocio',
-            'codigosEtiqueta'
+            'codigosEtiqueta',
+            'ticketsLocal'
         ));
+    }
+
+    public function TicketsPendientes()
+    {
+        return $ticketsLocal = DatEncabezado::where('Subir', 0)->count();
     }
 
     public function EliminarPago($idDatTipoPago)
@@ -1341,6 +1348,8 @@ class PoswebController extends Controller
                     DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                     DB::commit();
 
+                    \App\Jobs\SubirVentaJob::dispatch();
+
                     return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
                 }
                 // si se realiza un pago parcial (multipago) -> pago menos del total de la venta //
@@ -1570,20 +1579,20 @@ class PoswebController extends Controller
 
                     // Validamos que la etiqueta se encuentre activa
                     if (!$detRostisado) {
-                        return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
+                        // return redirect()->route('Pos')->with('Pos', 'Rostisado no disponible para venta.');
+                    } else {
+                        $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
+                        $rotisado->update([
+                            'Disponible' => $rotisado->Disponible - $detRostisado->Cantidad,
+                            'subir' => 0
+                        ]);
+
+                        // Actualizamos la etiqueta para que no se pueda volver a usar
+                        $detRostisado->update([
+                            'subir' => 0,
+                            'Vendida' => 0,
+                        ]);
                     }
-
-                    $rotisado = DatRosticero::where('IdRosticero', $detRostisado->IdRosticero)->first();
-                    $rotisado->update([
-                        'Disponible' => $rotisado->Disponible - $detRostisado->Cantidad,
-                        'subir' => 0
-                    ]);
-
-                    // Actualizamos la etiqueta para que no se pueda volver a usar
-                    $detRostisado->update([
-                        'subir' => 0,
-                        'Vendida' => 0,
-                    ]);
                 }
 
                 $idTienda = Auth::user()->usuarioTienda->IdTienda;
@@ -1794,6 +1803,8 @@ class PoswebController extends Controller
                 // imprimir ticket venta
                 DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                 DB::commit();
+
+                \App\Jobs\SubirVentaJob::dispatch();
 
                 Log::info('-->');
                 Log::info('Se manda imprimir el ticket');
@@ -2600,6 +2611,17 @@ class PoswebController extends Controller
         $impresora->close();
 
         return redirect()->back()->with('msjAdd', 'Se Imprimio el Ticket: ' . $idTicket);
+    }
+
+    public function MandarPulso(Request $request)
+    {
+        $nombreImpresora = "PosWeb2";
+        $connector = new WindowsPrintConnector($nombreImpresora);
+        $impresora = new Printer($connector);
+        $impresora->pulse();
+        $impresora->close();
+
+        return redirect()->back();
     }
 
     public function VentaTicketDiario(Request $request)

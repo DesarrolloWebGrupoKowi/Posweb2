@@ -53,34 +53,34 @@
                                 </span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1"
-                                style="background: #1e293b; border-radius: 12px; width: 200px;">
+                                style="background: #1e293b; border-radius: 8px; width: 200px;">
                                 @if (!request()->routeIs('miperfil'))
                                 @endif
 
                                 @if (!request()->routeIs('dashboard'))
                                     <li>
-                                        <a href="/Dashboard" class="py-2 text-white dropdown-item">
-                                            @include('components.icons.bars') Dashboard
+                                        <a href="/Dashboard" class="py-2 text-white dropdown-item" style="font-size: .9rem">
+                                            Dashboard
                                         </a>
                                     </li>
                                 @endif
                                 @if (Auth::user()->tipoUsuario->IdTipoUsuario == 2)
                                     <li>
-                                        <a href="/ActualizacionPrecios" class="py-2 text-white dropdown-item">
-                                            @include('components.icons.upload') Admin Scale
+                                        <a href="/ActualizacionPrecios" class="py-2 text-white dropdown-item" style="font-size: .9rem">
+                                            Admin Scale
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="/Update" class="py-2 text-white dropdown-item">
-                                            @include('components.icons.switch') Sincronizar datos
+                                        <a href="/Update" class="py-2 text-white dropdown-item" style="font-size: .9rem">
+                                            Sincronizar datos
                                         </a>
                                     </li>
                                 @endif
                                 <li>
-                                    <a class="py-2 text-white dropdown-item" href="/Logout"
+                                    <a class="mt-2 py-2 text-white dropdown-item" style="font-size: .9rem" href="/Logout"
                                         onclick="event.preventDefault();
                                                 document.getElementById('logout-form').submit();">
-                                        @include('components.icons.logout') Cerrar Sesión
+                                        Cerrar sesión
                                     </a>
                                     <form id="logout-form" action="/Logout" method="POST" class="d-none">
                                         @csrf
@@ -95,65 +95,67 @@
     </nav>
 
     <div class="mb-4" style="padding-top: 59px">
-        @if (!request()->routeIs('dashboard') && Auth::user()->tipoUsuario->IdTipoUsuario == 2)
-            <div style="background: #cbd5e1; position: sticky; top:59px; z-index: 9;">
-                <div class="container-fluid @yield('dashboardWidth')">
-                    <a href="/Dashboard" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.tools')Dashboard
-                    </a>
-                    <a href="/Pos" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.check')Punto de venta
-                    </a>
-                    <a href="/CorteDiario" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.list')Corte diario
-                    </a>
-                    <a href="/VentaTicketDiario"
-                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.check-all')Tickets
-                    </a>
-                    <a href="/SolicitudFactura" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.cloud-check')Facturación
-                    </a>
-                    <a href="/SolicitudCancelacionTicket"
-                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.x')Cancelación
-                    </a>
-                    <a href="/RecepcionProducto"
-                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.bars')Recepción
-                    </a>
-                    <a href="/TransaccionProducto"
-                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.switch')Transsacciones
-                    </a>
-                    <a href="/CapMermas" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.down')Mermas
-                    </a>
-                    <a href="/Pedidos" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.cart')Pedidos
-                    </a>
-                    <a href="/AsignarPreparados"
-                        class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.text-file')Preparados
-                    </a>
-                    <a href="/VerRosticero" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
-                        style="color: #1e293b; font-weight: 500">
-                        @include('components.icons.next')Rosticero
-                    </a>
+        @auth
+            @if (!request()->routeIs('dashboard') && Auth::user()->tipoUsuario->IdTipoUsuario == 2)
+                <div style="background: #cbd5e1; position: sticky; top:59px; z-index: 9;">
+                    <div class="container-fluid @yield('dashboardWidth')">
+                        <a href="/Dashboard" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.tools')Dashboard
+                        </a>
+                        <a href="/Pos" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.check')Punto de venta
+                        </a>
+                        <a href="/CorteDiario" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.list')Corte diario
+                        </a>
+                        <a href="/VentaTicketDiario"
+                            class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.check-all')Tickets
+                        </a>
+                        <a href="/SolicitudFactura" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.cloud-check')Facturación
+                        </a>
+                        <a href="/SolicitudCancelacionTicket"
+                            class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.x')Cancelación
+                        </a>
+                        <a href="/RecepcionProducto"
+                            class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.bars')Recepción
+                        </a>
+                        <a href="/TransaccionProducto"
+                            class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.switch')Transsacciones
+                        </a>
+                        <a href="/CapMermas" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.down')Mermas
+                        </a>
+                        <a href="/Pedidos" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.cart')Pedidos
+                        </a>
+                        <a href="/AsignarPreparados"
+                            class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.text-file')Preparados
+                        </a>
+                        <a href="/VerRosticero" class="py-0 bg-transparent border-0 btn btn-primary btn-sm rounded-pill"
+                            style="color: #1e293b; font-weight: 500">
+                            @include('components.icons.next')Rosticero
+                        </a>
+                    </div>
                 </div>
-            </div>
-        @endif
+            @endif
+        @endauth
         @yield('contenido')
     </div>
 

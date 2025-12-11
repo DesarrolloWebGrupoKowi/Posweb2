@@ -3,85 +3,123 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Kowi</title>
+
     <link rel="shortcut icon" href="{{ asset('img/logokowi-v2.png') }}">
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
     <link href="{{ asset('material-icon/material-icon.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('Icons/font-awesome.min.css') }}">
-    <link rel="stylesheet" href="css/styleDashboardNew.css">
-    <link rel="stylesheet" href="css/styleLogin.css">
-    <title>Login</title>
+
+    {{-- ✅ CSS personalizado mínimo --}}
+    <style>
+        body {
+            background-size: cover;
+            background-position: top center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f1f5f9;
+            background: linear-gradient(to right,
+                    #fed7aa 0%,
+                    #94a3b8 50%,
+                    hsla(211, 58%, 79%, 1) 100%);
+            background-image: url('../img/kowi.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-card {
+            max-width: 420px;
+            margin: 5vh auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group-text {
+            background-color: #fff;
+        }
+
+        .error-text {
+            font-size: 0.9rem;
+            color: #dc3545;
+            margin-top: 4px;
+        }
+    </style>
 </head>
 
 <body>
-
-    <div class="container-fluid" style="width: 600px;">
-        <div class="row" style="padding: 20px;">
-            <div class="card">
-                <div class="container-float" style="text-align: center">
-                    <h4 class="card-title">Ingrese Usuario</h4>
-                    <p class="card-category">
-                        {{ ucfirst(\Carbon\Carbon::now()->locale('es')->isoFormat('dddd D \d\e MMMM \d\e\l Y')) }}
-                    </p>
-                </div>
-                <div class="container">
-                    @include('Alertas.Alertas')
-                </div>
-                <div class="container-fluid" style="padding: 20px;">
-                    <form action="/authenticate" method="POST">
-                        @csrf
-                        {{-- <div style="text-align: center">
-                            <div class="mb-3">
-                                <img src="{{ asset('img/logokowi.png') }}" class="rounded-circle" width="100">
-                            </div>
-                            <h4>Ingrese Credenciales</h4>
-                        </div> --}}
-                        <label class="fw-bold text-secondary mb-1" style="font-size: 1rem">Nombre de usuario</label>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text"><i style="color: gray"
-                                    class="material-icons">person</i></span>
-                            <input type="text" class="form-control" name="NomUsuario" value="{{ old('NomUsuario') }}"
-                                placeholder="Nombre de Usuario" autofocus>
-                        </div>
-
-                        <label class="fw-bold text-secondary mb-1" style="font-size: 1rem">Contraseña</label>
-                        <div class="input-group mb-4">
-                            <span class="input-group-text">
-                                <i style="color: gray" class="material-icons">fingerprint</i>
-                            </span>
-                            <input type="password" class="form-control" name="Password" placeholder="Contraseña">
-                        </div>
-                        <div class="mb-3 btnLogin d-flex justify-content-center" style="text-align: center;">
-                            <button id="loginBtn" class="btn btn-sm btn-dark">
-                                <i class="fa fa-sign-in"></i> Iniciar Sesión
-                            </button>
-                            <button type="button" id="iniciandoSesionBtn" class="btn btn-sm btn-dark" hidden>
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                Iniciando Sesión
-                            </button>
-                        </div>
-                    </form>
-                </div>
+    <div class="container">
+        <div class="card login-card p-4">
+            <div class="text-center mb-3">
+                <img src="{{ asset('img/logokowi-v2.png') }}" width="70" alt="Logo">
+                <h5 class="mt-3 mb-1">Inicie Sesión</h5>
+                <small class="text-muted">
+                    {{ ucfirst(\Carbon\Carbon::now()->locale('es')->isoFormat('dddd D [de] MMMM [de] Y')) }}
+                </small>
             </div>
+
+            <form action="{{ url('/authenticate') }}" method="POST">
+                @csrf
+
+                {{-- Usuario --}}
+                <label class="fw-semibold mb-1 text-secondary">Nombre de usuario</label>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">
+                        <i class="material-icons" style="color: gray;">person</i>
+                    </span>
+                    <input type="text" class="form-control @error('NomUsuario') is-invalid @enderror"
+                        name="NomUsuario" value="{{ old('NomUsuario') }}" placeholder="Nombre de Usuario" autofocus>
+                </div>
+                @error('NomUsuario')
+                    <div class="error-text">{{ $message }}</div>
+                @enderror
+
+                {{-- Contraseña --}}
+                <label class="fw-semibold mb-1 mt-3 text-secondary">Contraseña</label>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">
+                        <i class="material-icons" style="color: gray;">fingerprint</i>
+                    </span>
+                    <input type="password" class="form-control @error('Password') is-invalid @enderror" name="Password"
+                        placeholder="Contraseña">
+                </div>
+                @error('Password')
+                    <div class="error-text">{{ $message }}</div>
+                @enderror
+
+                {{-- Error general de login --}}
+                {{-- @if ($errors->has('NomUsuario') && !$errors->has('Password'))
+                    <div class="error-text text-center mt-2">
+                        {{ $errors->first('NomUsuario') }}
+                    </div>
+                @endif --}}
+
+                {{-- Botones --}}
+                <div class="d-flex justify-content-center mt-4">
+                    <button id="loginBtn" type="submit" class="btn btn-dark w-100">
+                        <i class="material-icons" style="vertical-align: middle; font-size:18px;">login</i>
+                        Iniciar Sesión
+                    </button>
+
+                    <button type="button" id="iniciandoSesionBtn" class="btn btn-dark w-100" hidden>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Iniciando sesión...
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    @yield('contenido')
-
+    {{-- Scripts mínimos --}}
+    <script src="{{ asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script>
         document.getElementById('loginBtn').addEventListener('click', function() {
             document.getElementById('loginBtn').hidden = true;
             document.getElementById('iniciandoSesionBtn').hidden = false;
         });
     </script>
-
-    <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
-    <script src="{{ asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/script.js') }}"></script>
-    <script src="{{ asset('js/tiendasScript.js') }}"></script>
-
 </body>
 
 </html>

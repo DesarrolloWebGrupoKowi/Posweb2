@@ -95,9 +95,18 @@
                     </button>
                 </div>
                 <div class="d-flex gap-2 mt-2">
-                    <button id="btnReimprimirUltimo" class="btnOpcion">
-                        <i class="fa fa-print" aria-hidden="true"></i> REIMPRIMIR
-                    </button>
+                    <div class="d-flex gap-2 btnOpcion bg-white" style="border: none">
+                        <button id="btnReimprimirUltimo" class="btnOpcion">
+                            <i class="fa fa-print" aria-hidden="true"></i>
+                            <small>Reimprimir</small>
+                        </button>
+
+                        <button id="btnPulso" class="btnOpcion">
+                            <i class="fa fa-hand-o-up" aria-hidden="true"></i><br>
+                            <small>Pulso</small>
+                        </button>
+                    </div>
+
                     <button id="btnPedidos" class="position-relative shadow btnOpcion">
                         <i class="fa fa-cart-plus"></i> PEDIDOS
                         @if ($pedidosPendientes > 0)
@@ -197,6 +206,10 @@
             {{-- Tabla --}}
             <div id="pos" class="content-table card p-4 border"
                 style="border-radius: 20px; width: 100%; height: calc(100vh - 48px - 256px); overflow-y: scroll;">
+                <div id="ticketsPosContainer" class="d-none">
+                    @include('Posweb.tickets-pendientes')
+                </div>
+
                 <table>
                     <thead class="table-head">
                         <tr>

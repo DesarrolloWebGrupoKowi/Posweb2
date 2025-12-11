@@ -171,6 +171,7 @@ class PreciosController extends Controller
             'DatPrecios.CodArticulo',
             'CatArticulos.NomArticulo',
             'CatArticulos.IdArticulo',
+            'CatArticulos.CodEtiqueta',
             DB::raw('(SELECT PrecioArticulo from DatPrecios as dp where CodArticulo = DatPrecios.CodArticulo and IdListaPrecio = 1) Menudeo'),
             DB::raw('(SELECT PrecioArticulo from DatPrecios as dp where CodArticulo = DatPrecios.CodArticulo and IdListaPrecio = 2) Minorista'),
             DB::raw('(SELECT PrecioArticulo from DatPrecios as dp where CodArticulo = DatPrecios.CodArticulo and IdListaPrecio = 3) Detalle'),
@@ -180,7 +181,7 @@ class PreciosController extends Controller
             ->where('CatArticulos.NomArticulo', 'LIKE', '%' . $txtFiltro . '%')
             ->orWhere('CatArticulos.CodArticulo', 'LIKE', '%' . $txtFiltro . '%')
             ->orWhere('CatArticulos.IdArticulo', 'LIKE', '%' . $txtFiltro . '%')
-            ->groupBy('DatPrecios.CodArticulo', 'CatArticulos.NomArticulo', 'CatArticulos.IdArticulo')
+            ->groupBy('DatPrecios.CodArticulo', 'CatArticulos.NomArticulo', 'CatArticulos.CodEtiqueta', 'CatArticulos.IdArticulo')
             ->paginate(10)->withQueryString();
 
         // return $precios;
