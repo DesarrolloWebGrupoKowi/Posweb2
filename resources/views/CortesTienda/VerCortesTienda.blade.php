@@ -218,20 +218,20 @@
                 {{-- Totales --}}
                 <div class="pb-4 col-12 col-md-6 col-lg-2">
                     <div class="p-4 border-0 card" style="border-radius: 10px">
-                        <h6 class="text-dark">Totales</h6>
+                        <h6 class="text-dark">Transferencia/Efectivo</h6>
                         <div class="d-flex justify-content-between">
-                            <span class="text-secondary">Total Transferencia: </span>
+                            <span class="text-secondary">Transferencia: </span>
                             <span>${{ number_format($totalTransferencia, 2) }}</span>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span class="text-secondary">Total Factura: </span>
-                            <span>${{ number_format($totalFactura, 2) }}</span>
+                            <span class="text-secondary">Efectivo: </span>
+                            <span>${{ number_format($totalEfectivo, 2) }}</span>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span class="text-secondary">Total Efectivo: </span>
-                            <b class="{{ number_format($totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
+                            <span class="text-secondary">Total: </span>
+                            <b class="{{ number_format($totalTransferencia + $totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
                                 style="font-size: 16px">
-                                ${{ number_format($totalEfectivo, 2) }}
+                                ${{ number_format($totalTransferencia + $totalEfectivo, 2) }}
                             </b>
                         </div>
                     </div>
@@ -242,7 +242,7 @@
                         <h6 class="text-dark">Total General</h6>
                         <b class="{{ number_format($totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
                             style="font-size: 16px">
-                            ${{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
+                            ${{ number_format($totalEfectivo + $totalTransferencia + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
                         </b>
                         {{-- <span>${{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}</span> --}}
                     </div>

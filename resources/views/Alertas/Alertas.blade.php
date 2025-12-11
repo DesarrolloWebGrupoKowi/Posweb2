@@ -108,3 +108,9 @@
         </div>
     </div>
 @endif
+
+<div id="alert-mini" class="alert alert-success rounded d-none"
+    style="position: fixed; top: 70px; right: 20px; z-index: 9999; padding: 10px 15px;">
+    @include('components.icons.check-all')
+    <span id="alert-mini-text">Guardado</span>
+</div>

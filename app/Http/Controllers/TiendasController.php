@@ -132,4 +132,50 @@ class TiendasController extends Controller
 
         return back()->with('msjdelete', 'Tienda ' . $tiendaDelete->NomTienda . ' Eliminada Con Exito!');
     }
+
+
+    public function CatTiendasProcesar(Request $request)
+    {
+        $filtroTienda = $request->get('filtroTienda');
+
+        $tiendas = DB::table('CatTiendas')
+            ->leftJoin('CatCiudades', 'CatCiudades.IdCiudad', 'CatTiendas.IdCiudad')
+            ->leftJoin('CatEstados', 'CatEstados.IdEstado', 'CatCiudades.IdEstado')
+            ->leftJoin('CatPlazas', 'CatPlazas.IdPlaza', 'CatTiendas.IdPlaza')
+            ->select(
+                'CatTiendas.*',
+                'CatPlazas.IdPlaza as cpIdPlaza*',
+                'CatPlazas.NomPlaza as cpNomPlaza',
+                'CatCiudades.IdCiudad as ccIdCiudad',
+                'CatCiudades.NomCiudad as ccNomCiudad',
+                'CatEstados.IdEstado as ceIdEstado',
+                'CatEstados.NomEstado as ceNomEstado',
+            )
+            ->when($filtroTienda, function ($query) use ($filtroTienda) {
+                $query->where(function ($q) use ($filtroTienda) {
+                    $q->where('CatPlazas.NomPlaza', 'like', '%' . $filtroTienda . '%')
+                        ->orWhere('CatCiudades.NomCiudad', 'like', '%' . $filtroTienda . '%')
+                        ->orWhere('CatEstados.NomEstado', 'like', '%' . $filtroTienda . '%')
+                        ->orWhere('CatTiendas.Organization_Name', 'like', '%' . $filtroTienda . '%')
+                        ->orWhere('CatTiendas.NomTienda', 'like', '%' . $filtroTienda . '%');
+                });
+            })
+            ->get();
+        //return $tiendas;
+
+        return view('Tiendas/CatTiendasProcesar', compact('tiendas', 'filtroTienda'));
+    }
+
+    public function actualizarProcesarCorte(Request $request, $id)
+    {
+        $tienda = Tienda::find($id);
+        if (!$tienda) {
+            return response()->json(['ok' => false, 'msg' => 'Tienda no encontrada']);
+        }
+
+        $tienda->procesarcorte = $request->procesarcorte;
+        $tienda->save();
+
+        return response()->json(['ok' => true]);
+    }
 }

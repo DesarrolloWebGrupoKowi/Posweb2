@@ -93,6 +93,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('EliminarTienda/{id}', 'App\Http\Controllers\TiendasController@EliminarTienda');
 
     //+============================================================================================================================================+//
+    //Mostrar Tiendas Que Van A Procesar Cortes
+    Route::get('CatTiendasProcesar', 'App\Http\Controllers\TiendasController@CatTiendasProcesar');
+
+    //Actualizando Procesar Corte
+    Route::post('CatTiendas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorte');
+
+    //+============================================================================================================================================+//
     //Mostrar Tipo de Usuarios
     Route::get('/CatTipoUsuarios', 'App\Http\Controllers\TipoUsuariosController@CatTipoUsuarios');
 

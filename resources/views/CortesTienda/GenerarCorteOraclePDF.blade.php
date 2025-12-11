@@ -356,14 +356,20 @@
                 <td style="font-weight: bold; color: red; text-align: right">
                     ${{ number_format($totalTransferencia, 2) }}</td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td style="text-align: right">Total Factura: </td>
                 <td style="font-weight: bold; color: red; text-align: right">${{ number_format($totalFactura, 2) }}
                 </td>
-            </tr>
+            </tr> --}}
             <tr>
                 <td style="text-align: right">Total Efectivo: </td>
                 <td style="font-weight: bold; color: red; text-align:right">${{ number_format($totalEfectivo, 2) }}
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: right">Total General: </td>
+                <td style="font-weight: bold; color: red; text-align:right">
+                    ${{ number_format($totalEfectivo + $totalTransferencia + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
                 </td>
             </tr>
         </tbody>

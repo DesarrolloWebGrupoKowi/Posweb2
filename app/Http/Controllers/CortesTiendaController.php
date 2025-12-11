@@ -140,7 +140,7 @@ class CortesTiendaController extends Controller
                     ->where('IdTienda', $idTienda)
                     ->whereDate('FechaVenta', $fecha1)
                     ->where('StatusVenta', 0)
-                    ->whereIn('IdTipoPago', [2, 7])
+                    ->whereIn('IdTipoPago', [2])
                     ->where('TipoNomina', 4)
                     ->sum('ImporteArticulo');
 
@@ -714,7 +714,7 @@ class CortesTiendaController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereIn('IdTipoPago', [2, 7])
+                ->whereIn('IdTipoPago', [2])
                 ->where('TipoNomina', 4)
                 ->sum('ImporteArticulo');
 
@@ -876,7 +876,7 @@ class CortesTiendaController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereIn('IdTipoPago', [2, 7])
+                ->whereIn('IdTipoPago', [2])
                 ->where('TipoNomina', 4)
                 // ->where('a.IdDatCaja', $idDatCaja)
                 ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {

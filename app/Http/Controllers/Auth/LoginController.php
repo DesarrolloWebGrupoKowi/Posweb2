@@ -39,8 +39,8 @@ class LoginController extends Controller
 
         // Verificar si existe al menos una tienda activa
         $hayTiendaActiva = DB::table('CatTiendas')
-            ->where('TiendaActiva', 1)
-            ->exists();
+            ->where('TiendaActiva', 0)
+            ->get();
 
         // Obtener el usuario por nombre de usuario
         $usuario = DB::table('CatUsuarios')
@@ -48,7 +48,8 @@ class LoginController extends Controller
             ->first();
 
         // Si NO hay tienda activa
-        if (!$hayTiendaActiva) {
+        if (count($hayTiendaActiva) == 0) {
+            // return 'ndloas';
             if ($usuario && $usuario->IdTipoUsuario == 2) {
                 return back()->withErrors([
                     'NomUsuario' => 'Usuario no pertenece a tienda activa.'
@@ -70,6 +71,12 @@ class LoginController extends Controller
                     'NomUsuario' => 'El usuario no pertenece a una tienda activa.'
                 ]);
             }
+        }
+
+        if (!$usuario) {
+            return back()->withErrors([
+                'NomUsuario' => 'Credenciales incorrectas.'
+            ]);
         }
 
         // return dd($credenciales);
