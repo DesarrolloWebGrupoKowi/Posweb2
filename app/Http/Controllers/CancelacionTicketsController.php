@@ -260,13 +260,40 @@ class CancelacionTicketsController extends Controller
                     'IDCAJA' => $idCaja
                 ]);
             }
+
+            DB::commit(); // todo salio bien
+
+            $correos = 'cponce@kowi.com.mx;soporte@kowi.com.mx;sistemas@kowi.com.mx;daniel.hernandez@kowi.com.mx;';
+            // $correos = 'daniel.hernandez@kowi.com.mx;lmvalenz@kowi.com.mx;';
+
+            $asunto = 'Cancelación de Ticket #' . $solicitudCancelacion->encabezado->IdTicket
+                . ' - ' . date('d/m/Y H:i', strtotime($solicitudCancelacion->FechaSolicitud));
+
+            $mensaje =
+                "============================================\r\n"
+                . "        CANCELACIÓN DE TICKET\r\n"
+                . "============================================\r\n\r\n"
+
+                . "Ticket                : {$solicitudCancelacion->encabezado->IdTicket}\r\n"
+                . "Encabezado     : {$idEncabezado}\r\n"
+                . "Tienda              : {$solicitudCancelacion->Tienda->NomTienda}\r\n"
+                . "Fecha                : " . date('d/m/Y H:i') . "\r\n"
+                . "Cancelado por : " . Auth::user()->empleado->Nombre . ' ' . Auth::user()->empleado->Apellidos . "\r\n\r\n"
+
+                . "--------------------------------------------\r\n"
+                . "Motivo de cancelación:\r\n"
+                . "--------------------------------------------\r\n"
+                . "{$motivoCancelacion}\r\n\r\n"
+
+                . "Este mensaje fue generado automáticamente por el sistema.\r\n";
+
+            DB::statement("Execute SP_ENVIAR_MAIL ?,?,?", [$correos, $asunto, $mensaje]);
+
+            return back()->with('msjAdd', 'Se Canceló Correctamente el Ticket!'); // me dvuelvo con el mensaje de éxito
         } catch (\Throwable $th) {
             DB::rollback(); // hubo algun error
             return back()->with('msjdelete', 'Error: ' . $th->getMessage()); // me devuelvo con el mensaje de error
         }
-
-        DB::commit(); // todo salio bien
-        return back()->with('msjAdd', 'Se Canceló Correctamente el Ticket!'); // me dvuelvo con el mensaje de éxito
     }
 
     public function CancelarCancelarTicket(Request $request, $idEncabezado)
