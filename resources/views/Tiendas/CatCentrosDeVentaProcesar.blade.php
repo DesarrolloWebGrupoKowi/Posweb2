@@ -1,5 +1,5 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Procesar Cortes Rutas')
+@section('title', 'Procesar Cortes Ecommerce')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
     <style>
@@ -53,7 +53,7 @@
             style="border-radius: 10px"
         >
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Procesar Cortes Rutas'])
+                @include('components.title', ['titulo' => 'Procesar Cortes Ecommerce'])
             </div>
         </div>
         <div>
@@ -64,18 +64,6 @@
             class="content-table content-table-full card border-0 p-4"
             style="border-radius: 10px"
         >
-            {{-- <form class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2" action="/CatRutasProcesar"
-                method="get">
-                <div class="input-group" style="max-width: 300px">
-                    <input type="text" class="form-control rounded" style="line-height: 18px" name="filtroTienda"
-                        id="filtroTienda" placeholder="Buscar sucursal..." value="{{ request()->get('filtroTienda', '') }}"
-                        autofocus>
-                </div>
-                <button class="btn btn-dark-outline">
-                    @include('components.icons.search')
-                </button>
-            </form> --}}
-
             <table>
                 <thead class="table-head">
                     <tr>
@@ -83,33 +71,47 @@
                         <th>Nombre Mayoreo</th>
                         <th>Usuario</th>
                         <th>Ultima Actualización</th>
+                        <th>Estatus</th>
                         <th class="rounded-end">Activa</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (count($sucursales) <= 0)
+                    @if (count($centrosVenta) <= 0)
                         <tr>
                             <td colspan="6">No Hay Sucursales!</td>
                         </tr>
                     @else
-                        @foreach ($sucursales as $sucursal)
+                        @foreach ($centrosVenta as $centroVenta)
                             <tr>
-                                <td>{{ $sucursal->MAYOREO }}</td>
-                                <td>{{ $sucursal->DESCRIPCION_MAY }}</td>
+                                <td>{{ $centroVenta->Almacen_Oracle }}</td>
+                                <td>{{ $centroVenta->Descripcion }}</td>
                                 <td
                                     class="col-usuario"
-                                    data-id="{{ $sucursal->MAYOREO }}"
+                                    data-id="{{ $centroVenta->Almacen_Oracle }}"
                                 >
-                                    {{ $sucursal->ceNombre }} {{ $sucursal->ceApellidos }}
+                                    {{ $centroVenta->ceNombre }} {{ $centroVenta->ceApellidos }}
                                 </td>
                                 <td
                                     class="col-fecha"
-                                    data-id="{{ $sucursal->MAYOREO }}"
+                                    data-id="{{ $centroVenta->Almacen_Oracle }}"
                                 >
-                                    @if ($sucursal->fechaprocesarcorte)
-                                        {{ \Carbon\Carbon::parse($sucursal->fechaprocesarcorte)->format('d/m/Y, h:i A') }}
+                                    @if ($centroVenta->fechaprocesarcorte)
+                                        {{ \Carbon\Carbon::parse($centroVenta->fechaprocesarcorte)->format('d/m/Y, h:i A') }}
                                     @else
                                         -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($centroVenta->Status == 1)
+                                        <span
+                                            class="tags-green"
+                                            title="Activa"
+                                        > Activa </span>
+                                    @else
+                                        <span
+                                            class="tags-red"
+                                            title="Inactiva"
+                                        > Inactiva </span>
                                     @endif
                                 </td>
                                 <td>
@@ -117,10 +119,14 @@
                                         <input
                                             type="checkbox"
                                             class="toggle-estado"
-                                            data-id="{{ $sucursal->MAYOREO }}"
-                                            {{ $sucursal->procesarcorte == 0 ? 'checked' : '' }}
+                                            data-id="{{ $centroVenta->Almacen_Oracle }}"
+                                            {{ $centroVenta->procesarcorte == 0 ? 'checked' : '' }}
+                                            {{ $centroVenta->Status == 0 ? 'disabled' : '' }}
                                         >
-                                        <span class="slider round"></span>
+                                        <span
+                                            class="slider round"
+                                            style="{{ $centroVenta->Status == 0 ? 'opacity: 0.3;' : '' }}"
+                                        ></span>
                                     </label>
                                 </td>
 
@@ -145,7 +151,7 @@
                     console.log(id, nuevoEstado);
 
                     try {
-                        const response = await fetch(`/CatRutas/procesarcorte/${id}`, {
+                        const response = await fetch(`/CatCentrosVenta/procesarcorte/${id}`, {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
@@ -161,24 +167,24 @@
 
                         if (data.ok) {
                             mostrarAlertaMini("Estado actualizado");
-                            const sucursal = data.sucursal;
+                            const centroVenta = data.centroVenta;
                             // Usuario
                             const tdUsuario = document.querySelector(
-                                `.col-usuario[data-id="${sucursal.MAYOREO}"]`
+                                `.col-usuario[data-id="${centroVenta.Almacen_Oracle}"]`
                             );
 
-                            if (tdUsuario && sucursal.ceNombre) {
+                            if (tdUsuario && centroVenta.ceNombre) {
                                 tdUsuario.textContent =
-                                    `${sucursal.ceNombre} ${sucursal.ceApellidos}`;
+                                    `${centroVenta.ceNombre} ${centroVenta.ceApellidos}`;
                             }
 
                             // Fecha
                             const tdFecha = document.querySelector(
-                                `.col-fecha[data-id="${sucursal.MAYOREO}"]`
+                                `.col-fecha[data-id="${centroVenta.Almacen_Oracle}"]`
                             );
 
-                            if (tdFecha && sucursal.fechaprocesarcorte) {
-                                tdFecha.textContent = formatearFecha(sucursal
+                            if (tdFecha && centroVenta.fechaprocesarcorte) {
+                                tdFecha.textContent = formatearFecha(centroVenta
                                     .fechaprocesarcorte);
                             }
                         } else {

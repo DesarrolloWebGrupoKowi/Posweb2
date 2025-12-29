@@ -48,7 +48,10 @@
     </style>
 
     <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
-        <div class="card border-0 p-4" style="border-radius: 10px">
+        <div
+            class="card border-0 p-4"
+            style="border-radius: 10px"
+        >
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Procesar Cortes Tiendas'])
             </div>
@@ -57,13 +60,48 @@
             @include('Alertas.Alertas')
         </div>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2" action="/CatTiendasProcesar"
-                method="get">
-                <div class="input-group" style="max-width: 300px">
-                    <input type="text" class="form-control rounded" style="line-height: 18px" name="filtroTienda"
-                        id="filtroTienda" placeholder="Buscar tienda..." value="{{ request()->get('filtroTienda', '') }}"
-                        autofocus>
+        <div
+            class="content-table content-table-full card border-0 p-4"
+            style="border-radius: 10px"
+        >
+            <form
+                class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2"
+                action="/CatTiendasProcesar"
+                method="get"
+            >
+                <div
+                    class="input-group"
+                    style="max-width: 300px"
+                >
+                    <input
+                        type="text"
+                        class="form-control rounded"
+                        style="line-height: 18px"
+                        name="filtroTienda"
+                        id="filtroTienda"
+                        placeholder="Buscar tienda..."
+                        value="{{ request()->get('filtroTienda', '') }}"
+                        autofocus
+                    >
+                </div>
+                <div>
+                    <select
+                        name="filtroStatus"
+                        id="filtroStatus"
+                        class="form-select rounded"
+                        style="line-height: 18px"
+                        style="min-width: 120px;"
+                    >
+                        <option value="">Estatus</option>
+                        <option
+                            value="0"
+                            {{ request()->get('filtroStatus', '') === '0' ? 'selected' : '' }}
+                        >Activa</option>
+                        <option
+                            value="1"
+                            {{ request()->get('filtroStatus', '') === '1' ? 'selected' : '' }}
+                        >Inactiva</option>
+                    </select>
                 </div>
                 <button class="btn btn-dark-outline">
                     @include('components.icons.search')
@@ -75,10 +113,11 @@
                     <tr>
                         <th class="rounded-start">Id</th>
                         <th>Tienda</th>
-                        <th>Telefono</th>
-                        <th>Dirección</th>
                         <th>Ciudad</th>
-                        <th class="rounded-end">Activa</th>
+                        <th>Usuario</th>
+                        <th>Ultima Actualización</th>
+                        <th>Estatus</th>
+                        <th class="rounded-end">Procesar Cortes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,14 +130,53 @@
                             <tr>
                                 <td>{{ $tienda->IdTienda }}</td>
                                 <td>{{ $tienda->NomTienda }}</td>
-                                <td>{{ $tienda->Telefono }}</td>
-                                <td>{{ $tienda->Direccion }}</td>
                                 <td>{{ $tienda->ccNomCiudad }}</td>
+                                <td
+                                    class="col-usuario"
+                                    data-id="{{ $tienda->IdTienda }}"
+                                >
+                                    @if ($tienda->ceNombre)
+                                        {{ $tienda->ceNombre }} {{ $tienda->ceApellidos }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td
+                                    class="col-fecha"
+                                    data-id="{{ $tienda->IdTienda }}"
+                                >
+                                    @if ($tienda->fechaprocesarcorte)
+                                        {{ \Carbon\Carbon::parse($tienda->fechaprocesarcorte)->format('d/m/Y, h:i A') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($tienda->Status == 0)
+                                        <span
+                                            class="tags-green"
+                                            title="Activa"
+                                        > Activa </span>
+                                    @else
+                                        <span
+                                            class="tags-red"
+                                            title="Inactiva"
+                                        > Inactiva </span>
+                                    @endif
+                                </td>
                                 <td>
                                     <label class="switch">
-                                        <input type="checkbox" class="toggle-estado" data-id="{{ $tienda->IdTienda }}"
-                                            {{ $tienda->procesarcorte == 0 ? 'checked' : '' }}>
-                                        <span class="slider round"></span>
+                                        <input
+                                            type="checkbox"
+                                            class="toggle-estado"
+                                            data-id="{{ $tienda->IdTienda }}"
+                                            {{ $tienda->procesarcorte == 0 ? 'checked' : '' }}
+                                            {{ $tienda->Status == 1 ? 'disabled' : '' }}
+                                        >
+                                        <span
+                                            class="slider round"
+                                            style="{{ $tienda->Status == 1 ? 'opacity: 0.3;' : '' }}"
+                                        ></span>
                                     </label>
                                 </td>
 
@@ -138,6 +216,27 @@
 
                         if (data.ok) {
                             mostrarAlertaMini("Estado actualizado");
+
+                            const tienda = data.tienda;
+                            // Usuario
+                            const tdUsuario = document.querySelector(
+                                `.col-usuario[data-id="${tienda.IdTienda}"]`
+                            );
+
+                            if (tdUsuario && tienda.ceNombre) {
+                                tdUsuario.textContent =
+                                    `${tienda.ceNombre} ${tienda.ceApellidos}`;
+                            }
+
+                            // Fecha
+                            const tdFecha = document.querySelector(
+                                `.col-fecha[data-id="${tienda.IdTienda}"]`
+                            );
+
+                            if (tdFecha && tienda.fechaprocesarcorte) {
+                                tdFecha.textContent = formatearFecha(tienda.fechaprocesarcorte);
+                            }
+
                         } else {
                             alert("Hubo un error guardando el estado");
                             this.checked = !this.checked;
@@ -167,6 +266,18 @@
                 alerta.classList.add("d-none");
                 alerta.classList.remove("show");
             }, 2000);
+        }
+
+        function formatearFecha(fecha) {
+            const d = new Date(fecha.replace(' ', 'T'));
+
+            return d.toLocaleString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).toUpperCase();
         }
     </script>
 

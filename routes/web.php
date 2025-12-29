@@ -93,18 +93,25 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('EliminarTienda/{id}', 'App\Http\Controllers\TiendasController@EliminarTienda');
 
     //+============================================================================================================================================+//
-    //Mostrar Tiendas Que Van A Procesar Cortes
+    //Mostrar Tiendas Que Van A Procesar Cortes (TIENDAS)
     Route::get('CatTiendasProcesar', 'App\Http\Controllers\TiendasController@CatTiendasProcesar');
 
-    //Actualizando Procesar Corte
+    //Actualizando Procesar Corte (TIENDAS)
     Route::post('CatTiendas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorte');
 
     //+============================================================================================================================================+//
-    //Mostrar Tiendas Que Van A Procesar Cortes Rutas
+    //Mostrar Tiendas Que Van A Procesar Cortes Rutas (RUTAS)
     Route::get('CatRutasProcesar', 'App\Http\Controllers\TiendasController@CatRutasProcesar');
 
-    //Actualizando Procesar Corte Rutas
+    //Actualizando Procesar Corte Rutas (RUTAS)
     Route::post('CatRutas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorteRutas');
+
+    //+============================================================================================================================================+//
+    //Mostrar Centros De Venta Que Van A Procesar Cortes (ECCOMERCE)
+    Route::get('CatCentrosVentaProcesar', 'App\Http\Controllers\TiendasController@CatCentrosVentaProcesar');
+
+    //Actualizando Procesar Corte Centros De Venta (ECCOMERCE)
+    Route::post('CatCentrosVenta/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorteCentrosVenta');
 
     //+============================================================================================================================================+//
     //Mostrar Tipo de Usuarios

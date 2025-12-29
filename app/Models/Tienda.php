@@ -31,10 +31,16 @@ class Tienda extends Model
                             'ServicioaDomicilio',
                             'CostoaDomicilio',
                             'Comentario',
-                            'Status'
+                            'Status',
+                            'fechaprocesarcorte',
+                            'usuarioprocesarcorte',
                            ];
     public $timestamps = false;
     protected $primaryKey = 'IdTienda';
+
+    // protected $casts = [
+    //     'fechaprocesarcorte' => 'datetime',
+    // ];
 
     public function ClienteCloud(){
         return $this->belongsToMany(ClienteCLoud::class, ClienteCloudTienda::class, 'IdTienda', 'IdCLienteCloud', 'IdTienda', 'IdCLienteCloud')

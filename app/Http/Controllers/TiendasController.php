@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Ciudad;
 use App\Models\Tienda;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TiendasController extends Controller
@@ -136,11 +138,14 @@ class TiendasController extends Controller
     public function CatTiendasProcesar(Request $request)
     {
         $filtroTienda = $request->get('filtroTienda');
+        $filtroStatus = $request->get('filtroStatus');
 
         $tiendas = DB::table('CatTiendas')
             ->leftJoin('CatCiudades', 'CatCiudades.IdCiudad', 'CatTiendas.IdCiudad')
             ->leftJoin('CatEstados', 'CatEstados.IdEstado', 'CatCiudades.IdEstado')
             ->leftJoin('CatPlazas', 'CatPlazas.IdPlaza', 'CatTiendas.IdPlaza')
+            ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'CatTiendas.usuarioprocesarcorte')
+            ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina')
             ->select(
                 'CatTiendas.*',
                 'CatPlazas.IdPlaza as cpIdPlaza*',
@@ -149,6 +154,9 @@ class TiendasController extends Controller
                 'CatCiudades.NomCiudad as ccNomCiudad',
                 'CatEstados.IdEstado as ceIdEstado',
                 'CatEstados.NomEstado as ceNomEstado',
+                'CatUsuarios.NomUsuario as cuNomUsuario',
+                'CatEmpleados.Nombre as ceNombre',
+                'CatEmpleados.Apellidos as ceApellidos',
             )
             ->when($filtroTienda, function ($query) use ($filtroTienda) {
                 $query->where(function ($q) use ($filtroTienda) {
@@ -158,6 +166,9 @@ class TiendasController extends Controller
                         ->orWhere('CatTiendas.Organization_Name', 'like', '%' . $filtroTienda . '%')
                         ->orWhere('CatTiendas.NomTienda', 'like', '%' . $filtroTienda . '%');
                 });
+            })
+            ->when($filtroStatus !== null && $filtroStatus !== '', function ($query) use ($filtroStatus) {
+                $query->where('CatTiendas.Status', 'like', $filtroStatus);
             })
             ->get();
 
@@ -171,18 +182,81 @@ class TiendasController extends Controller
             return response()->json(['ok' => false, 'msg' => 'Tienda no encontrada']);
         }
 
-        $tienda->procesarcorte = $request->procesarcorte;
-        $tienda->save();
+        try {
+            $tienda->procesarcorte = $request->procesarcorte;
+            $tienda->fechaprocesarcorte = DB::raw("CAST(GETDATE() AS smalldatetime)");
+            $tienda->usuarioprocesarcorte = Auth::user()->IdUsuario;
+            $tienda->save();
 
-        return response()->json(['ok' => true]);
+            // Recargar datos reales desde SQL Server
+            // $tienda->refresh();
+        } catch (\Exception $e) {
+            return response()->json([
+                'ok' => false,
+                'msg' => 'Error al guardar los cambios en la tienda',
+            ]);
+        }
+
+        $tiendaConUsuario = Tienda::from('CatTiendas as t')
+            ->leftJoin('CatUsuarios as u', 'u.IdUsuario', '=', 't.usuarioprocesarcorte')
+            ->leftJoin('CatEmpleados as e', 'e.NumNomina', '=', 'u.NumNomina')
+            ->where('t.IdTienda', $id)
+            ->select([
+                't.IdTienda',
+                't.procesarcorte',
+                't.fechaprocesarcorte',
+                't.usuarioprocesarcorte',
+                DB::raw("RTRIM(LTRIM(e.Nombre)) as ceNombre"),
+                DB::raw("RTRIM(LTRIM(e.Apellidos)) as ceApellidos"),
+            ])
+            ->first();
+        return response()->json(['ok' => true, 'tienda' => $tiendaConUsuario]);
     }
 
+    //+============================================================================================================================================+//
+    //Mostrar Tiendas Que Van A Procesar Cortes Rutas (RUTAS)
     public function CatRutasProcesar(Request $request)
     {
         $sucursales = DB::connection('server4.20')->table('XXKW_DB_SUCURSAL')
             ->leftJoin('XXKW_AUT_MAYOREOS_VW', 'XXKW_AUT_MAYOREOS_VW.SUB_INVENT_MAY', 'XXKW_DB_SUCURSAL.MAYOREO')
             ->select('*')
             ->get();
+
+        $idsUsuarios = $sucursales
+            ->pluck('usuarioprocesarcorte')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $usuarios = DB::table('CatUsuarios')
+            ->whereIn('IdUsuario', $idsUsuarios)
+            ->get()
+            ->keyBy('IdUsuario');
+
+
+        $numsNomina = $usuarios
+            ->pluck('NumNomina')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $empleados = DB::table('CatEmpleados')
+            ->whereIn('NumNomina', $numsNomina)
+            ->get()
+            ->keyBy('NumNomina');
+
+        $sucursales->transform(function ($sucursal) use ($usuarios, $empleados) {
+
+            $usuario = $usuarios[$sucursal->usuarioprocesarcorte] ?? null;
+            $empleado = $usuario
+                ? ($empleados[$usuario->NumNomina] ?? null)
+                : null;
+
+            $sucursal->ceNombre = $empleado->Nombre ?? null;
+            $sucursal->ceApellidos = $empleado->Apellidos ?? null;
+
+            return $sucursal;
+        });
 
         return view('Tiendas/CatRutasProcesar', compact('sucursales'));
     }
@@ -198,8 +272,58 @@ class TiendasController extends Controller
         $updated = DB::connection('server4.20')
             ->table('XXKW_DB_SUCURSAL')
             ->where('MAYOREO', $id)
-            ->update(['procesarcorte' => $request->procesarcorte]);
+            ->update([
+                'procesarcorte' => $request->procesarcorte,
+                'fechaprocesarcorte' => DB::raw("CAST(GETDATE() AS smalldatetime)"),
+                'usuarioprocesarcorte' => Auth::user()->IdUsuario,
+            ]);
 
-        return response()->json(['ok' => true]);
+        $sucursal = DB::connection('server4.20')->table('XXKW_DB_SUCURSAL')->where('MAYOREO', $id)->first();
+        $usuario = DB::table('CatUsuarios')->where('IdUsuario', $sucursal->usuarioprocesarcorte)->first();
+        $empleado = DB::table('CatEmpleados')->where('NumNomina', $usuario->NumNomina)->first();
+
+        $sucursal->ceNombre = $empleado->Nombre ?? null;
+        $sucursal->ceApellidos = $empleado->Apellidos ?? null;
+
+        return response()->json(['ok' => true, 'sucursal' => $sucursal]);
+    }
+
+    //+============================================================================================================================================+//
+    //Mostrar Centros De Venta Que Van A Procesar Cortes (ECCOMERCE)
+    public function CatCentrosVentaProcesar(Request $request)
+    {
+        $centrosVenta = DB::table('SERVER.ecommerceapp.dbo.DatCentroVenta')
+            ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'DatCentroVenta.usuarioprocesarcorte')
+            ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina')
+            ->select('DatCentroVenta.*', 'CatEmpleados.Nombre as ceNombre', 'CatEmpleados.Apellidos as ceApellidos')
+            ->get();
+
+        return view('Tiendas/CatCentrosDeVentaProcesar', compact('centrosVenta'));
+    }
+
+    public function actualizarProcesarCorteCentrosVenta(Request $request, $id)
+    {
+        $centroVenta = DB::table('SERVER.ecommerceapp.dbo.DatCentroVenta')->where('Almacen_Oracle', $id)->first();
+
+        if (!$centroVenta) {
+            return response()->json(['ok' => false, 'msg' => 'Centro de venta no encontrada']);
+        }
+
+        $updated = DB::table('SERVER.ecommerceapp.dbo.DatCentroVenta')
+            ->where('Almacen_Oracle', $id)
+            ->update([
+                'procesarcorte' => $request->procesarcorte,
+                'fechaprocesarcorte' => DB::raw("CAST(GETDATE() AS smalldatetime)"),
+                'usuarioprocesarcorte' => Auth::user()->IdUsuario,
+            ]);
+
+        $centroVenta = DB::table('SERVER.ecommerceapp.dbo.DatCentroVenta')
+            ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'DatCentroVenta.usuarioprocesarcorte')
+            ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina')
+            ->select('DatCentroVenta.*', 'CatEmpleados.Nombre as ceNombre', 'CatEmpleados.Apellidos as ceApellidos')
+            ->where('DatCentroVenta.Almacen_Oracle', $id)
+            ->first();
+
+        return response()->json(['ok' => true, 'centroVenta' => $centroVenta]);
     }
 }
