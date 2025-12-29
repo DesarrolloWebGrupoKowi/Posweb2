@@ -133,7 +133,6 @@ class TiendasController extends Controller
         return back()->with('msjdelete', 'Tienda ' . $tiendaDelete->NomTienda . ' Eliminada Con Exito!');
     }
 
-
     public function CatTiendasProcesar(Request $request)
     {
         $filtroTienda = $request->get('filtroTienda');
@@ -161,7 +160,6 @@ class TiendasController extends Controller
                 });
             })
             ->get();
-        //return $tiendas;
 
         return view('Tiendas/CatTiendasProcesar', compact('tiendas', 'filtroTienda'));
     }
@@ -175,6 +173,32 @@ class TiendasController extends Controller
 
         $tienda->procesarcorte = $request->procesarcorte;
         $tienda->save();
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function CatRutasProcesar(Request $request)
+    {
+        $sucursales = DB::connection('server4.20')->table('XXKW_DB_SUCURSAL')
+            ->leftJoin('XXKW_AUT_MAYOREOS_VW', 'XXKW_AUT_MAYOREOS_VW.SUB_INVENT_MAY', 'XXKW_DB_SUCURSAL.MAYOREO')
+            ->select('*')
+            ->get();
+
+        return view('Tiendas/CatRutasProcesar', compact('sucursales'));
+    }
+
+    public function actualizarProcesarCorteRutas(Request $request, $id)
+    {
+        $sucursal = DB::connection('server4.20')->table('XXKW_DB_SUCURSAL')->where('MAYOREO', $id)->first();
+
+        if (!$sucursal) {
+            return response()->json(['ok' => false, 'msg' => 'Sucursal no encontrada']);
+        }
+
+        $updated = DB::connection('server4.20')
+            ->table('XXKW_DB_SUCURSAL')
+            ->where('MAYOREO', $id)
+            ->update(['procesarcorte' => $request->procesarcorte]);
 
         return response()->json(['ok' => true]);
     }
