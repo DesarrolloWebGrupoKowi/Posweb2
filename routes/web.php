@@ -100,6 +100,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('CatTiendas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorte');
 
     //+============================================================================================================================================+//
+    //Mostrar Tiendas Que Van A Procesar Cortes Rutas
+    Route::get('CatRutasProcesar', 'App\Http\Controllers\TiendasController@CatRutasProcesar');
+
+    //Actualizando Procesar Corte Rutas
+    Route::post('CatRutas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorteRutas');
+
+    //+============================================================================================================================================+//
     //Mostrar Tipo de Usuarios
     Route::get('/CatTipoUsuarios', 'App\Http\Controllers\TipoUsuariosController@CatTipoUsuarios');
 
