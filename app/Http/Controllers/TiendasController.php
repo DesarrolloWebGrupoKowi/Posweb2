@@ -213,6 +213,47 @@ class TiendasController extends Controller
         return response()->json(['ok' => true, 'tienda' => $tiendaConUsuario]);
     }
 
+    public function historialCatTiendas($id)
+    {
+        // Obtener parámetros de paginación
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
+        // Calcular offset
+        $offset = ($page - 1) * $perPage;
+
+        // Obtener total de registros
+        $total = DB::table('DatHistorialProcesarCorte')
+            ->where('IdTienda', $id)
+            ->count();
+
+        // Obtener historial paginado
+        $historial = DB::table('DatHistorialProcesarCorte')
+            ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'DatHistorialProcesarCorte.usuarioprocesarcorte')
+            ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina')
+            ->select(
+                'DatHistorialProcesarCorte.*',
+                'CatEmpleados.Nombre as ceNombre',
+                'CatEmpleados.Apellidos as ceApellidos'
+            )
+            ->where('IdTienda', $id)
+            ->orderBy('IdHistorialProcesarCorte', 'desc')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        // Calcular si hay más páginas
+        $hasMorePages = ($page * $perPage) < $total;
+
+        return response()->json([
+            'historial' => $historial,
+            'total' => $total,
+            'currentPage' => (int)$page,
+            'perPage' => (int)$perPage,
+            'hasMorePages' => $hasMorePages
+        ]);
+    }
+
     //+============================================================================================================================================+//
     //Mostrar Tiendas Que Van A Procesar Cortes Rutas (RUTAS)
     public function CatRutasProcesar(Request $request)
@@ -288,8 +329,92 @@ class TiendasController extends Controller
         return response()->json(['ok' => true, 'sucursal' => $sucursal]);
     }
 
+    public function historialRutas($id)
+    {
+        // Obtener parámetros de paginación
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
+        // Calcular offset
+        $offset = ($page - 1) * $perPage;
+
+        // 1. Obtener el historial de la conexión server4.20
+        $total = DB::connection('server4.20')
+            ->table('DatHistorialProcesarCorte')
+            ->where('Mayoreo', $id) // Nota: En tu tabla parece que usas 'Mayoreo' no 'IdDatCentroVenta'
+            ->count();
+
+        $historial = DB::connection('server4.20')
+            ->table('DatHistorialProcesarCorte')
+            ->select('*')
+            ->where('Mayoreo', $id)
+            ->orderBy('fechaprocesarcorte', 'desc')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        // 2. Obtener IDs de usuarios únicos del historial
+        $idsUsuarios = $historial
+            ->pluck('usuarioprocesarcorte')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        // 3. Obtener usuarios desde la base de datos local
+        $usuarios = [];
+        if (!empty($idsUsuarios)) {
+            $usuarios = DB::table('CatUsuarios')
+                ->whereIn('IdUsuario', $idsUsuarios)
+                ->get()
+                ->keyBy('IdUsuario');
+        }
+
+        // 4. Obtener números de nómina de los usuarios
+        $numsNomina = collect($usuarios)
+            ->pluck('NumNomina')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        // 5. Obtener empleados desde la base de datos local
+        $empleados = [];
+        if (!empty($numsNomina)) {
+            $empleados = DB::table('CatEmpleados')
+                ->whereIn('NumNomina', $numsNomina)
+                ->get()
+                ->keyBy('NumNomina');
+        }
+
+        // 6. Enriquecer el historial con datos de usuarios y empleados
+        $historial->transform(function ($item) use ($usuarios, $empleados) {
+            $usuario = $usuarios[$item->usuarioprocesarcorte] ?? null;
+            $empleado = $usuario && isset($empleados[$usuario->NumNomina])
+                ? $empleados[$usuario->NumNomina]
+                : null;
+
+            // Agregar información de usuario y empleado al historial
+            $item->ceNombre = $empleado->Nombre ?? null;
+            $item->ceApellidos = $empleado->Apellidos ?? null;
+
+            return $item;
+        });
+
+        // Calcular si hay más páginas
+        $hasMorePages = ($page * $perPage) < $total;
+
+        return response()->json([
+            'historial' => $historial,
+            'total' => $total,
+            'currentPage' => (int)$page,
+            'perPage' => (int)$perPage,
+            'hasMorePages' => $hasMorePages
+        ]);
+    }
+
     //+============================================================================================================================================+//
-    //Mostrar Centros De Venta Que Van A Procesar Cortes (ECCOMERCE)
+    //Mostrar Centros De Venta Que Van A Procesar Cortes (ECOMMERCE)
     public function CatCentrosVentaProcesar(Request $request)
     {
         $centrosVenta = DB::table('SERVER.ecommerceapp.dbo.DatCentroVenta')
@@ -325,5 +450,47 @@ class TiendasController extends Controller
             ->first();
 
         return response()->json(['ok' => true, 'centroVenta' => $centroVenta]);
+    }
+
+    public function historialCentrosVenta($id)
+    {
+        // Obtener parámetros de paginación
+        $perPage = request('per_page', 10);
+        $page = request('page', 1);
+
+        // Calcular offset
+        $offset = ($page - 1) * $perPage;
+
+        // Obtener total de registros
+        $total = DB::table('SERVER.ecommerceapp.dbo.DatHistorialProcesarCorte')
+            ->where('IdDatCentroVenta', $id)
+            ->count();
+
+        // Obtener historial paginado
+        $historial = DB::table('SERVER.ecommerceapp.dbo.DatHistorialProcesarCorte')
+            ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'DatHistorialProcesarCorte.usuarioprocesarcorte')
+            ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina')
+            ->select(
+                'DatHistorialProcesarCorte.*',
+                'CatEmpleados.Nombre as ceNombre',
+                'CatEmpleados.Apellidos as ceApellidos'
+            )
+            ->where('IdDatCentroVenta', $id)
+            // ->orderBy('fechaprocesarcorte', 'desc')
+            ->orderBy('IdHistorialProcesarCorte', 'desc')
+            ->skip($offset)
+            ->take($perPage)
+            ->get();
+
+        // Calcular si hay más páginas
+        $hasMorePages = ($page * $perPage) < $total;
+
+        return response()->json([
+            'historial' => $historial,
+            'total' => $total,
+            'currentPage' => (int)$page,
+            'perPage' => (int)$perPage,
+            'hasMorePages' => $hasMorePages
+        ]);
     }
 }
