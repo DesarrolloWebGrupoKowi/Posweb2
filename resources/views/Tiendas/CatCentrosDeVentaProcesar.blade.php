@@ -1,5 +1,5 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Procesar Cortes Tiendas')
+@section('title', 'Procesar Cortes Ecommerce')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
     <style>
@@ -238,7 +238,7 @@
             style="border-radius: 10px"
         >
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Procesar Cortes Tiendas'])
+                @include('components.title', ['titulo' => 'Procesar Cortes Ecommerce'])
             </div>
         </div>
         <div>
@@ -249,100 +249,50 @@
             class="content-table content-table-full card border-0 p-4"
             style="border-radius: 10px"
         >
-            <form
-                class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2"
-                action="/CatTiendasProcesar"
-                method="get"
-            >
-                <div
-                    class="input-group"
-                    style="max-width: 300px"
-                >
-                    <input
-                        type="text"
-                        class="form-control rounded"
-                        style="line-height: 18px"
-                        name="filtroTienda"
-                        id="filtroTienda"
-                        placeholder="Buscar tienda..."
-                        value="{{ request()->get('filtroTienda', '') }}"
-                        autofocus
-                    >
-                </div>
-                <div>
-                    <select
-                        name="filtroStatus"
-                        id="filtroStatus"
-                        class="form-select rounded"
-                        style="line-height: 18px"
-                        style="min-width: 120px;"
-                    >
-                        <option value="">Estatus</option>
-                        <option
-                            value="0"
-                            {{ request()->get('filtroStatus', '') === '0' ? 'selected' : '' }}
-                        >Activa</option>
-                        <option
-                            value="1"
-                            {{ request()->get('filtroStatus', '') === '1' ? 'selected' : '' }}
-                        >Inactiva</option>
-                    </select>
-                </div>
-                <button class="btn btn-dark-outline">
-                    @include('components.icons.search')
-                </button>
-            </form>
-
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Id</th>
-                        <th>Tienda</th>
-                        <th>Ciudad</th>
+                        <th class="rounded-start">Subinventario</th>
+                        <th>Nombre Mayoreo</th>
                         <th>Usuario</th>
                         <th>Ultima Actualización</th>
                         <th>Estatus</th>
-                        <th class="rounded-end">Procesar Cortes</th>
+                        <th class="rounded-end">Activa</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (count($tiendas) <= 0)
+                    @if (count($centrosVenta) <= 0)
                         <tr>
-                            <td colspan="6">No Hay Tiendas!</td>
+                            <td colspan="6">No Hay Sucursales!</td>
                         </tr>
                     @else
-                        @foreach ($tiendas as $tienda)
+                        @foreach ($centrosVenta as $centroVenta)
                             <tr
                                 class="row-clickable"
-                                data-id="{{ $tienda->IdTienda }}"
-                                data-nombre="{{ $tienda->NomTienda }}"
-                                data-subinventario="{{ $tienda->IdTienda }}"
+                                data-id="{{ $centroVenta->IdDatCentroVenta }}"
+                                data-nombre="{{ $centroVenta->Descripcion }}"
+                                data-subinventario="{{ $centroVenta->Almacen_Oracle }}"
                             >
-                                <td>{{ $tienda->IdTienda }}</td>
-                                <td>{{ $tienda->NomTienda }}</td>
-                                <td>{{ $tienda->ccNomCiudad }}</td>
+                                <td>{{ $centroVenta->Almacen_Oracle }}</td>
+                                <td>{{ $centroVenta->Descripcion }}</td>
                                 <td
                                     class="col-usuario"
-                                    data-id="{{ $tienda->IdTienda }}"
+                                    data-id="{{ $centroVenta->Almacen_Oracle }}"
                                 >
-                                    @if ($tienda->ceNombre)
-                                        {{ $tienda->ceNombre }} {{ $tienda->ceApellidos }}
-                                    @else
-                                        -
-                                    @endif
+                                    {{ $centroVenta->ceNombre }} {{ $centroVenta->ceApellidos }}
                                 </td>
                                 <td
                                     class="col-fecha"
-                                    data-id="{{ $tienda->IdTienda }}"
+                                    data-id="{{ $centroVenta->Almacen_Oracle }}"
                                 >
-                                    @if ($tienda->fechaprocesarcorte)
-                                        {{ \Carbon\Carbon::parse($tienda->fechaprocesarcorte)->format('d/m/Y, h:i A') }}
+                                    @if ($centroVenta->fechaprocesarcorte)
+                                        {{ \Carbon\Carbon::parse($centroVenta->fechaprocesarcorte)->format('d/m/Y, h:i A') }}
                                     @else
                                         -
                                     @endif
                                 </td>
                                 <td>
-                                    @if ($tienda->Status == 0)
+                                    @if ($centroVenta->Status == 1)
                                         <span
                                             class="tags-green"
                                             title="Activa"
@@ -359,17 +309,16 @@
                                         <input
                                             type="checkbox"
                                             class="toggle-estado"
-                                            data-id="{{ $tienda->IdTienda }}"
-                                            {{ $tienda->procesarcorte == 0 ? 'checked' : '' }}
-                                            {{ $tienda->Status == 1 ? 'disabled' : '' }}
+                                            data-id="{{ $centroVenta->Almacen_Oracle }}"
+                                            {{ $centroVenta->procesarcorte == 0 ? 'checked' : '' }}
+                                            {{ $centroVenta->Status == 0 ? 'disabled' : '' }}
                                         >
                                         <span
                                             class="slider round"
-                                            style="{{ $tienda->Status == 1 ? 'opacity: 0.3;' : '' }}"
+                                            style="{{ $centroVenta->Status == 0 ? 'opacity: 0.3;' : '' }}"
                                         ></span>
                                     </label>
                                 </td>
-
                             </tr>
                         @endforeach
                     @endif
@@ -488,7 +437,7 @@
 
                     // Obtener historial del servidor con paginación
                     const response = await fetch(
-                        `/CatTiendas/historial/${id}?page=${currentPage}&per_page=10`, {
+                        `/CatCentrosVenta/historial/${id}?page=${currentPage}&per_page=10`, {
                             headers: {
                                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
                             }
@@ -645,14 +594,16 @@
                 }
             }
 
+            // Eventos para los switches (mantener tu lógica existente)
             document.querySelectorAll(".toggle-estado").forEach(input => {
-                input.addEventListener("change", async function() {
+                input.addEventListener("change", async function(e) {
+                    e.stopPropagation(); // Prevenir que se active el click de la fila
 
                     const id = this.dataset.id;
                     const nuevoEstado = this.checked ? 0 : 1;
 
                     try {
-                        const response = await fetch(`/CatTiendas/procesarcorte/${id}`, {
+                        const response = await fetch(`/CatCentrosVenta/procesarcorte/${id}`, {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
@@ -668,25 +619,38 @@
 
                         if (data.ok) {
                             mostrarAlertaMini("Estado actualizado");
+                            const centroVenta = data.centroVenta;
 
-                            const tienda = data.tienda;
                             // Usuario
                             const tdUsuario = document.querySelector(
-                                `.col-usuario[data-id="${tienda.IdTienda}"]`
+                                `.col-usuario[data-id="${centroVenta.Almacen_Oracle}"]`
                             );
 
-                            if (tdUsuario && tienda.ceNombre) {
+                            if (tdUsuario && centroVenta.ceNombre) {
                                 tdUsuario.textContent =
-                                    `${tienda.ceNombre} ${tienda.ceApellidos}`;
+                                    `${centroVenta.ceNombre} ${centroVenta.ceApellidos}`;
                             }
 
                             // Fecha
                             const tdFecha = document.querySelector(
-                                `.col-fecha[data-id="${tienda.IdTienda}"]`
+                                `.col-fecha[data-id="${centroVenta.Almacen_Oracle}"]`
                             );
 
-                            if (tdFecha && tienda.fechaprocesarcorte) {
-                                tdFecha.textContent = formatearFecha(tienda.fechaprocesarcorte);
+                            if (tdFecha && centroVenta.fechaprocesarcorte) {
+                                tdFecha.textContent = formatearFecha(centroVenta
+                                    .fechaprocesarcorte);
+                            }
+
+                            // Si el panel está abierto para este centro, recargar historial
+                            if (sidePanel.classList.contains('open') && currentId === id) {
+                                // Reiniciar paginación
+                                currentPage = 1;
+                                hasMorePages = true;
+
+                                const row = document.querySelector(
+                                    `.row-clickable[data-id="${id}"]`);
+                                loadHistory(id, row.dataset.nombre, row.dataset.subinventario,
+                                    true);
                             }
 
                         } else {
@@ -694,16 +658,18 @@
                             this.checked = !this.checked;
                         }
 
-
                     } catch (error) {
                         console.error(error);
                         alert("Error de comunicación con el servidor");
-                        this.checked = !this.checked; // Revertir
+                        this.checked = !this.checked;
                     }
                 });
             });
 
+            // Función para formatear fechas
             function formatearFecha(fecha) {
+                if (!fecha) return '-';
+
                 const d = new Date(fecha.replace(' ', 'T'));
 
                 return d.toLocaleString('es-MX', {
@@ -725,12 +691,10 @@
             alerta.classList.remove("d-none");
             alerta.classList.add("show");
 
-            // Ocultar después de 2 segundos
             setTimeout(() => {
                 alerta.classList.add("d-none");
                 alerta.classList.remove("show");
             }, 2000);
         }
     </script>
-
 @endsection
