@@ -111,7 +111,8 @@ h2 {
 .btn-dark-outline {
     display: inline-flex;
     background: white;
-    border: 1px solid #1e293b;
+    /* border: 1px solid #1e293b; */
+    border: 1px solid #9ca3af;
     color: #1e293b;
     line-height: 1.8rem;
 }

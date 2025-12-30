@@ -93,11 +93,34 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('EliminarTienda/{id}', 'App\Http\Controllers\TiendasController@EliminarTienda');
 
     //+============================================================================================================================================+//
-    //Mostrar Tiendas Que Van A Procesar Cortes
+    //Mostrar Tiendas Que Van A Procesar Cortes (TIENDAS)
     Route::get('CatTiendasProcesar', 'App\Http\Controllers\TiendasController@CatTiendasProcesar');
 
-    //Actualizando Procesar Corte
+    //Actualizando Procesar Corte (TIENDAS)
     Route::post('CatTiendas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorte');
+
+    //Historial de Procesar Corte Tiendas (TIENDAS)
+    Route::get('CatTiendas/historial/{id}', 'App\Http\Controllers\TiendasController@historialCatTiendas');
+
+    //+============================================================================================================================================+//
+    //Mostrar Tiendas Que Van A Procesar Cortes Rutas (RUTAS)
+    Route::get('CatRutasProcesar', 'App\Http\Controllers\TiendasController@CatRutasProcesar');
+
+    //Actualizando Procesar Corte Rutas (RUTAS)
+    Route::post('CatRutas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorteRutas');
+
+    //Historial de Procesar Corte Rutas (RUTAS)
+    Route::get('CatRutas/historial/{id}', 'App\Http\Controllers\TiendasController@historialRutas');
+
+    //+============================================================================================================================================+//
+    //Mostrar Centros De Venta Que Van A Procesar Cortes (ECOMMERCE)
+    Route::get('CatCentrosVentaProcesar', 'App\Http\Controllers\TiendasController@CatCentrosVentaProcesar');
+
+    //Actualizando Procesar Corte Centros De Venta (ECOMMERCE)
+    Route::post('CatCentrosVenta/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorteCentrosVenta');
+
+    //Historial de Procesar Corte Centros De Venta (ECOMMERCE)
+    Route::get('CatCentrosVenta/historial/{id}', 'App\Http\Controllers\TiendasController@historialCentrosVenta');
 
     //+============================================================================================================================================+//
     //Mostrar Tipo de Usuarios

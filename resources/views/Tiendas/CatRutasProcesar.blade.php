@@ -1,5 +1,5 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Procesar Cortes Tiendas')
+@section('title', 'Procesar Cortes Rutas')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
     <style>
@@ -238,7 +238,7 @@
             style="border-radius: 10px"
         >
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Procesar Cortes Tiendas'])
+                @include('components.title', ['titulo' => 'Procesar Cortes Rutas'])
             </div>
         </div>
         <div>
@@ -249,109 +249,57 @@
             class="content-table content-table-full card border-0 p-4"
             style="border-radius: 10px"
         >
-            <form
-                class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2"
-                action="/CatTiendasProcesar"
-                method="get"
-            >
-                <div
-                    class="input-group"
-                    style="max-width: 300px"
-                >
-                    <input
-                        type="text"
-                        class="form-control rounded"
-                        style="line-height: 18px"
-                        name="filtroTienda"
-                        id="filtroTienda"
-                        placeholder="Buscar tienda..."
-                        value="{{ request()->get('filtroTienda', '') }}"
-                        autofocus
-                    >
-                </div>
-                <div>
-                    <select
-                        name="filtroStatus"
-                        id="filtroStatus"
-                        class="form-select rounded"
-                        style="line-height: 18px"
-                        style="min-width: 120px;"
-                    >
-                        <option value="">Estatus</option>
-                        <option
-                            value="0"
-                            {{ request()->get('filtroStatus', '') === '0' ? 'selected' : '' }}
-                        >Activa</option>
-                        <option
-                            value="1"
-                            {{ request()->get('filtroStatus', '') === '1' ? 'selected' : '' }}
-                        >Inactiva</option>
-                    </select>
+            {{-- <form class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2" action="/CatRutasProcesar"
+                method="get">
+                <div class="input-group" style="max-width: 300px">
+                    <input type="text" class="form-control rounded" style="line-height: 18px" name="filtroTienda"
+                        id="filtroTienda" placeholder="Buscar sucursal..." value="{{ request()->get('filtroTienda', '') }}"
+                        autofocus>
                 </div>
                 <button class="btn btn-dark-outline">
                     @include('components.icons.search')
                 </button>
-            </form>
+            </form> --}}
 
             <table>
                 <thead class="table-head">
                     <tr>
-                        <th class="rounded-start">Id</th>
-                        <th>Tienda</th>
-                        <th>Ciudad</th>
+                        <th class="rounded-start">Subinventario</th>
+                        <th>Nombre Mayoreo</th>
                         <th>Usuario</th>
                         <th>Ultima Actualización</th>
-                        <th>Estatus</th>
-                        <th class="rounded-end">Procesar Cortes</th>
+                        <th class="rounded-end">Activa</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (count($tiendas) <= 0)
+                    @if (count($sucursales) <= 0)
                         <tr>
-                            <td colspan="6">No Hay Tiendas!</td>
+                            <td colspan="6">No Hay Sucursales!</td>
                         </tr>
                     @else
-                        @foreach ($tiendas as $tienda)
+                        @foreach ($sucursales as $sucursal)
                             <tr
                                 class="row-clickable"
-                                data-id="{{ $tienda->IdTienda }}"
-                                data-nombre="{{ $tienda->NomTienda }}"
-                                data-subinventario="{{ $tienda->IdTienda }}"
+                                data-id="{{ $sucursal->MAYOREO }}"
+                                data-nombre="{{ $sucursal->DESCRIPCION_MAY }}"
+                                data-subinventario="{{ $sucursal->MAYOREO }}"
                             >
-                                <td>{{ $tienda->IdTienda }}</td>
-                                <td>{{ $tienda->NomTienda }}</td>
-                                <td>{{ $tienda->ccNomCiudad }}</td>
+                                <td>{{ $sucursal->MAYOREO }}</td>
+                                <td>{{ $sucursal->DESCRIPCION_MAY }}</td>
                                 <td
                                     class="col-usuario"
-                                    data-id="{{ $tienda->IdTienda }}"
+                                    data-id="{{ $sucursal->MAYOREO }}"
                                 >
-                                    @if ($tienda->ceNombre)
-                                        {{ $tienda->ceNombre }} {{ $tienda->ceApellidos }}
-                                    @else
-                                        -
-                                    @endif
+                                    {{ $sucursal->ceNombre }} {{ $sucursal->ceApellidos }}
                                 </td>
                                 <td
                                     class="col-fecha"
-                                    data-id="{{ $tienda->IdTienda }}"
+                                    data-id="{{ $sucursal->MAYOREO }}"
                                 >
-                                    @if ($tienda->fechaprocesarcorte)
-                                        {{ \Carbon\Carbon::parse($tienda->fechaprocesarcorte)->format('d/m/Y, h:i A') }}
+                                    @if ($sucursal->fechaprocesarcorte)
+                                        {{ \Carbon\Carbon::parse($sucursal->fechaprocesarcorte)->format('d/m/Y, h:i A') }}
                                     @else
                                         -
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($tienda->Status == 0)
-                                        <span
-                                            class="tags-green"
-                                            title="Activa"
-                                        > Activa </span>
-                                    @else
-                                        <span
-                                            class="tags-red"
-                                            title="Inactiva"
-                                        > Inactiva </span>
                                     @endif
                                 </td>
                                 <td>
@@ -359,14 +307,10 @@
                                         <input
                                             type="checkbox"
                                             class="toggle-estado"
-                                            data-id="{{ $tienda->IdTienda }}"
-                                            {{ $tienda->procesarcorte == 0 ? 'checked' : '' }}
-                                            {{ $tienda->Status == 1 ? 'disabled' : '' }}
+                                            data-id="{{ $sucursal->MAYOREO }}"
+                                            {{ $sucursal->procesarcorte == 0 ? 'checked' : '' }}
                                         >
-                                        <span
-                                            class="slider round"
-                                            style="{{ $tienda->Status == 1 ? 'opacity: 0.3;' : '' }}"
-                                        ></span>
+                                        <span class="slider round"></span>
                                     </label>
                                 </td>
 
@@ -488,11 +432,12 @@
 
                     // Obtener historial del servidor con paginación
                     const response = await fetch(
-                        `/CatTiendas/historial/${id}?page=${currentPage}&per_page=10`, {
+                        `/CatRutas/historial/${id}?page=${currentPage}&per_page=10`, {
                             headers: {
                                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
                             }
                         });
+
                     const data = await response.json();
 
                     // Actualizar título del panel (CORREGIDO)
@@ -652,7 +597,7 @@
                     const nuevoEstado = this.checked ? 0 : 1;
 
                     try {
-                        const response = await fetch(`/CatTiendas/procesarcorte/${id}`, {
+                        const response = await fetch(`/CatRutas/procesarcorte/${id}`, {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json",
@@ -668,27 +613,26 @@
 
                         if (data.ok) {
                             mostrarAlertaMini("Estado actualizado");
-
-                            const tienda = data.tienda;
+                            const sucursal = data.sucursal;
                             // Usuario
                             const tdUsuario = document.querySelector(
-                                `.col-usuario[data-id="${tienda.IdTienda}"]`
+                                `.col-usuario[data-id="${sucursal.MAYOREO}"]`
                             );
 
-                            if (tdUsuario && tienda.ceNombre) {
+                            if (tdUsuario && sucursal.ceNombre) {
                                 tdUsuario.textContent =
-                                    `${tienda.ceNombre} ${tienda.ceApellidos}`;
+                                    `${sucursal.ceNombre} ${sucursal.ceApellidos}`;
                             }
 
                             // Fecha
                             const tdFecha = document.querySelector(
-                                `.col-fecha[data-id="${tienda.IdTienda}"]`
+                                `.col-fecha[data-id="${sucursal.MAYOREO}"]`
                             );
 
-                            if (tdFecha && tienda.fechaprocesarcorte) {
-                                tdFecha.textContent = formatearFecha(tienda.fechaprocesarcorte);
+                            if (tdFecha && sucursal.fechaprocesarcorte) {
+                                tdFecha.textContent = formatearFecha(sucursal
+                                    .fechaprocesarcorte);
                             }
-
                         } else {
                             alert("Hubo un error guardando el estado");
                             this.checked = !this.checked;
