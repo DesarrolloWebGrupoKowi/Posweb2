@@ -81,6 +81,7 @@ class InterfazMermasController extends Controller
                     'e.IdTipoArticulo',
                     'c.Futuro'
                 )
+                ->where('e.Status', 0)
                 ->where('a.IdTienda', $idTienda)
                 ->whereRaw("CAST(a.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                 ->groupBy(
@@ -189,6 +190,7 @@ class InterfazMermasController extends Controller
                     'c.Futuro'
                 )
                 ->where('a.IdTienda', $idTienda)
+                ->where('e.Status', 0)
                 ->whereRaw("CAST(a.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
                 ->groupBy(
                     'a.CodArticulo',
