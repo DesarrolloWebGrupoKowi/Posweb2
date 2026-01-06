@@ -166,6 +166,7 @@ class DescuentosController extends Controller
             $fechaInicio = $descuento->FechaInicio;
             $fechaFin = $descuento->FechaFin;
             $idTienda = $descuento->IdTienda;
+            $idPlaza = $descuento->IdPlaza;
 
             // Eliminamos el detalle del descuento, para agregarlo de nuevo
             DatDetDescuentos::where('IdEncDescuento', $idDescuento)->delete();
@@ -185,6 +186,7 @@ class DescuentosController extends Controller
                     ->where('DatEncDescuentos.FechaInicio', '<=', $fechaInicio)
                     ->where('DatEncDescuentos.FechaFin', '>=', $fechaFin)
                     ->where('DatEncDescuentos.IdTienda', $idTienda)
+                    ->where('DatEncDescuentos.IdPlaza', $idPlaza)
                     ->where('DatDetDescuentos.IdArticulo', $articulo)
                     ->get();
 
