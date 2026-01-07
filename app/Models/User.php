@@ -41,4 +41,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function empleado()
+    {
+        return $this->hasOne(Empleado::class, 'user_id', 'id');
+        // Ajusta los campos según tu base
+    }
 }

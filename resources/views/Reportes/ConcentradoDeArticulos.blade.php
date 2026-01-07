@@ -21,6 +21,7 @@
                         <input type="hidden" name="txtFiltro" value="{{ $txtFiltro }}">
                         <input type="hidden" name="optionsOnline" value="{{ $optionsOnline }}">
                         <input type="hidden" name="agrupado" value="{{ $agrupado }}">
+                        <input type="hidden" name="agrupadoArticulo" value="{{ $agrupadoArticulo }}">
                         <button type="submit" class="input-group-text text-decoration-none btn-excel">
                             Exportar @include('components.icons.excel')
                         </button>
@@ -34,53 +35,90 @@
             <!--CONTAINER FILTROS-->
             <form class="gap-2 pb-2 d-flex align-items-center justify-content-end flex-wrap"
                 action="/ReporteConcentradoDeArticulos" method="GET">
+                <!-- Controles de filtro principales -->
                 <div class="col-auto">
-                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda">
-                        <option value="">Seleccione Tienda</option>
+                    <select class="form-select form-select-sm" name="idTienda" id="idTienda">
+                        <option value="">Tienda</option>
                         @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">
+                                {{ $tienda->NomTienda }}
                             </option>
                         @endforeach
                     </select>
                 </div>
+
                 <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="text" name="txtFiltro"
-                        id="txtFiltro" value="{{ $txtFiltro }}" placeholder="CODIGO O ARTICULO">
+                    <input class="form-control form-control-sm" style="width: 180px;" type="text" name="txtFiltro"
+                        id="txtFiltro" value="{{ $txtFiltro }}" placeholder="Código/Artículo">
                 </div>
+
                 <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
+                    <input class="form-control form-control-sm" type="date" name="fecha1" id="fecha1"
+                        value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
                 </div>
+
                 <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha2"
-                        id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                    <input class="form-control form-control-sm" type="date" name="fecha2" id="fecha2"
+                        value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
                 </div>
+
+                <!-- Checkboxes como botones toggle compactos -->
+                <div class="col-auto">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="checkbox" class="btn-check" value="on" id="agrupado" name="agrupado"
+                            {{ $agrupado ? 'checked' : '' }}>
+                        <label class="btn btn-outline-secondary" for="agrupado" title="Agrupado por fecha">
+                            📅 Fecha
+                        </label>
+
+                        <input type="checkbox" class="btn-check" value="on" id="agrupadoArticulo"
+                            name="agrupadoArticulo" {{ $agrupadoArticulo ? 'checked' : '' }}>
+                        <label class="btn btn-outline-secondary" for="agrupadoArticulo" title="Agrupado por artículo">
+                            📦 Artículo
+                        </label>
+                    </div>
+                </div>
+
                 @if (Auth::user()->IdTipoUsuario == 2)
                     <div class="col-auto">
-                        <input type="radio" class="btn-check" name="optionsOnline" id="danger-outlined" autocomplete="off"
-                            value="off" {{ $optionsOnline == 'off' ? 'checked' : '' }}>
-                        <label class="btn btn-outline-danger" for="danger-outlined">@include('components.icons.cloud-slash')</label>
-
-                        <input type="radio" class="btn-check" name="optionsOnline" id="success-outlined"
-                            autocomplete="off" value="on" {{ $optionsOnline == 'on' ? 'checked' : '' }}>
-                        <label class="btn btn-outline-success" for="success-outlined">@include('components.icons.cloud-check')</label>
-                    </div>
-                    <div class="col-auto">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="on" id="agrupado" name="agrupado"
-                                {{ $agrupado ? 'checked' : '' }}>
-                            <label class="form-check-label" for="agrupado">
-                                Agrupado por fecha
+                        <div class="btn-group btn-group-sm" role="group">
+                            <input type="radio" class="btn-check" name="optionsOnline" id="danger-outlined" value="off"
+                                {{ $optionsOnline == 'off' ? 'checked' : '' }}>
+                            <label class="btn btn-outline-danger" for="danger-outlined" title="Modo offline">
+                                @include('components.icons.cloud-slash')
+                            </label>
+                            <input type="radio" class="btn-check" name="optionsOnline" id="success-outlined"
+                                value="on" {{ $optionsOnline == 'on' ? 'checked' : '' }}>
+                            <label class="btn btn-outline-success" for="success-outlined" title="Modo online">
+                                @include('components.icons.cloud-check')
                             </label>
                         </div>
                     </div>
                 @endif
+
                 <div class="col-auto">
-                    <button class="btn btn-dark-outline" title="Buscar">
+                    <button class="btn btn-outline-dark btn-sm bg-dark text-white" title="Buscar">
                         @include('components.icons.search')
                     </button>
                 </div>
             </form>
+
+            <style>
+                /* Opcional: Ajustar tamaño de controles en pantallas pequeñas */
+                @media (max-width: 768px) {
+
+                    .form-select-sm,
+                    .form-control-sm {
+                        font-size: 0.875rem;
+                        padding: 0.25rem 0.5rem;
+                    }
+
+                    .btn-group-sm .btn {
+                        padding: 0.25rem 0.5rem;
+                        font-size: 0.875rem;
+                    }
+                }
+            </style>
 
             <div class="content-table content-table-full" style="max-height: calc(65vh);">
                 <table class="w-100">
@@ -95,7 +133,9 @@
                             <th>Código</th>
                             <th>Articulo</th>
                             <th>Cantidad</th>
-                            <th>Precio</th>
+                            @if (!$agrupadoArticulo)
+                                <th>Precio</th>
+                            @endif
                             <th>Iva</th>
                             <th class="rounded-end">Importe</th>
                         </tr>
@@ -125,7 +165,9 @@
                                     <td>{{ $tConcentrado->CodArticulo }}</td>
                                     <td>{{ $tConcentrado->NomArticulo }}</td>
                                     <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
-                                    <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
+                                    @if (!$agrupadoArticulo)
+                                        <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
+                                    @endif
                                     <td>{{ number_format($tConcentrado->Iva, 2) }}</td>
                                     <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
                                 </tr>
@@ -147,7 +189,9 @@
                                 <td></td>
                             @endif
                             <td><strong>{{ number_format($totalPeso, 3) }}</strong></td>
-                            <td></td>
+                            @if (!$agrupadoArticulo)
+                                <td></td>
+                            @endif
                             <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
                             <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
                         </tr>

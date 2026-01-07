@@ -706,8 +706,11 @@ Route::group(['middleware' => 'auth'], function () {
     //GuardarTransaccion
     Route::post('/GuardarTransaccion', 'App\Http\Controllers\TransaccionProductoController@GuardarTransaccion');
 
-    //GuardarTransaccion
+    //HistorialTransaccion
     Route::get('/HistorialTransaccion', 'App\Http\Controllers\TransaccionProductoController@HistorialTransaccion');
+
+    //HistorialTransaccionExcel
+    Route::get('/HistorialTransaccionExcel', 'App\Http\Controllers\TransaccionProductoController@HistorialTransaccion');
 
     //+============================================================================================================================================+//
     //TransaccionesTienda
