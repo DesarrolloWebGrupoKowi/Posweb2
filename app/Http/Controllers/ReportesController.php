@@ -141,6 +141,7 @@ class ReportesController extends Controller
             ->whereIn('a.IdTienda', $idTiendas)
             ->when($idTienda, fn($q) => $q->where('a.IdTienda', $idTienda))
             ->where('a.StatusVenta', 0)
+            ->whereNotNull('c.CodArticulo')
             ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->when($txtFiltro, function ($q) use ($txtFiltro) {
                 $q->where(function ($sub) use ($txtFiltro) {
@@ -276,6 +277,7 @@ class ReportesController extends Controller
             ->whereIn('a.IdTienda', $idTiendas)
             ->when($idTienda, fn($q) => $q->where('a.IdTienda', $idTienda))
             ->where('a.StatusVenta', 0)
+            ->whereNotNull('c.CodArticulo')
             ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->when($txtFiltro, function ($q) use ($txtFiltro) {
                 $q->where(function ($sub) use ($txtFiltro) {
