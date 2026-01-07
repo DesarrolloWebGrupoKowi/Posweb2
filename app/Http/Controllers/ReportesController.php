@@ -765,6 +765,7 @@ class ReportesController extends Controller
 
     public function ReporteMermasAdmin(Request $request)
     {
+        $txtFiltro = $request->txtFiltro;
         $idTienda = $request->idTienda;
         $fecha1 =  $request->fecha1;
         $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
@@ -816,16 +817,23 @@ class ReportesController extends Controller
             ->when($fecha2, function ($query) use ($fecha2) {
                 $query->whereDate('CapMermas.FechaCaptura', '<=', $fecha2);
             })
+            ->when($txtFiltro, function ($query) use ($txtFiltro) {
+                $query->where(function ($q) use ($txtFiltro) {
+                    $q->where('ca.CodArticulo', 'like', '%' . $txtFiltro . '%')
+                        ->orWhere('ca.NomArticulo', 'like', '%' . $txtFiltro . '%');
+                });
+            })
             ->orderBy('CapMermas.FechaCaptura', 'desc')
             ->paginate(10);
 
-        return view('Reportes.ConcentradoDeMermas', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+        return view('Reportes.ConcentradoDeMermas', compact('tiendas', 'idTienda', 'txtFiltro', 'fecha1', 'fecha2', 'concentrado'));
     }
 
     public function ReporteMermasAdminExcel(Request $request)
     {
         try {
             DB::beginTransaction();
+            $txtFiltro = $request->txtFiltro;
             $idTienda = $request->idTienda;
             $fecha1 =  $request->fecha1;
             $fecha2 = !$request->fecha2 ? Carbon::now()->parse(date(now()))->format('Y-m-d') : $request->fecha2;
@@ -859,6 +867,12 @@ class ReportesController extends Controller
                 })
                 ->when($fecha2, function ($query) use ($fecha2) {
                     $query->whereDate('CapMermas.FechaCaptura', '<=', $fecha2);
+                })
+                ->when($txtFiltro, function ($query) use ($txtFiltro) {
+                    $query->where(function ($q) use ($txtFiltro) {
+                        $q->where('ca.CodArticulo', 'like', '%' . $txtFiltro . '%')
+                            ->orWhere('ca.NomArticulo', 'like', '%' . $txtFiltro . '%');
+                    });
                 })
                 ->orderBy('CapMermas.FechaCaptura', 'desc')
                 ->get();
