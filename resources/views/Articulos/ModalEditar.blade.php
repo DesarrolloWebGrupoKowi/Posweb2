@@ -57,7 +57,7 @@
                         </div>
                         <div class="col-4 mb-3">
                             <label for="txtFactor">Factor</label>
-                            <input type="number" id="txtFactor" name="txtFactor" class="form-control rounded"
+                            <input type="number" id="txtFactor" name="txtFactor" class="form-control rounded" step="any"
                                 placeholder="Factor" value="{{ $articulo->Factor }}">
                         </div>
                         <div class="col-4 mb-3">
