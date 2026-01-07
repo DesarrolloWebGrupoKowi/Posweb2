@@ -55,8 +55,18 @@
                     <div>
                         <div class="input-group mb-3">
                             <span class="input-group-text" style="line-height: 18px">Código Articulo</span>
-                            <input class="form-control rounded" style="line-height: 18px" id="codArticulo"
-                                name="codArticulo" type="text" placeholder="Escribe">
+                            {{-- <input class="form-control rounded" style="line-height: 18px" id="codArticulo"
+                                name="codArticulo" type="text" placeholder="Escribe"> --}}
+                            <input class="rounded form-control" style="line-height: 18px" list="articulos"
+                                name="codArticulo" id="codArticulo" placeholder="Escriba" autocomplete="off" required>
+                            <datalist id="articulos">
+                                @foreach ($stock as $articulo)
+                                    <option value="{{ $articulo->CodArticulo }}">
+                                        {{ str_pad($articulo->CodEtiqueta, 4, '0', STR_PAD_LEFT) }} -
+                                        {{ $articulo->NomArticulo }}
+                                    </option>
+                                @endforeach
+                            </datalist>
                             <span id="nomArticulo" class="input-group-text bg-white" style="line-height: 18px">...</span>
                         </div>
                     </div>

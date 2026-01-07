@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\HistorialTransaccionesExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,8 @@ use App\Models\DatTransferencia;
 use App\Models\DatTransferenciaDetalle;
 use App\Models\MovimientoProducto;
 use App\Models\HistorialMovimientoProducto;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransaccionProductoController extends Controller
 {
@@ -36,13 +39,22 @@ class TransaccionProductoController extends Controller
             $tiendas = Tienda::where('Status', 0)
                 ->whereIn('IdTienda', $destinosTienda)
                 ->get();
+
+            $stock = DB::table('DatInventario as a')
+                ->leftJoin('CatArticulos as b', 'b.CodArticulo', 'a.CodArticulo')
+                ->select('b.CodArticulo', 'b.NomArticulo', 'b.CodEtiqueta', 'a.StockArticulo')
+                ->where('a.IdTienda', $idTienda)
+                ->where('a.StockArticulo', '>', 0)
+                ->where('b.Status', 0)
+                ->orderBy('b.NomArticulo')
+                ->get();
         } catch (\Throwable $th) {
             DB::rollback();
             return 'Error Controlado: ' . $th->getMessage();
         }
 
         DB::commit();
-        return view('TransaccionProducto.TransaccionProducto', compact('nomTienda', 'tiendas'));
+        return view('TransaccionProducto.TransaccionProducto', compact('nomTienda', 'tiendas', 'stock'));
     }
 
     public function BuscarArticuloTransaccion(Request $request)
@@ -214,21 +226,89 @@ class TransaccionProductoController extends Controller
         $paginate = $request->input('paginate', 10);
         $fecha1 = $request->input('fecha1');
         $fecha2 = $request->input('fecha2', date('Y-m-d'));
+        $idTiendaDestino = $request->input('idTiendaDestino');
+        $codigo = $request->input('codigo');
+        $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
-        $transferencias = DatTransferencia::with('Detalle')->select(
+        $destinosTienda = TransaccionTienda::where('IdTienda', $idTienda)
+            ->pluck('IdTiendaDestino');
+
+        $tiendas = Tienda::where('Status', 0)
+            ->whereIn('IdTienda', $destinosTienda)
+            ->get();
+
+        $transferencias = DatTransferencia::select(
             'DatTransferencia.*',
-            'a.NomTienda as tiendaOrigen',
+            'DatTransferencia.IdTransferencia',
+            'DatTransferencia.FechaTransferencia',
+            'DatTransferencia.IdTiendaDestino',
             'b.NomTienda as tiendaDestino',
-            'c.NomUsuario'
+            'c.NomUsuario',
+
+            // Campos del detalle
+            'd.CodArticulo',
+            'a.NomArticulo',
+            'd.*'
         )
-            ->leftjoin('CatTiendas as a', 'a.IdTienda', 'DatTransferencia.IdTiendaOrigen')
-            ->leftjoin('CatTiendas as b', 'b.IdTienda', 'DatTransferencia.IdTiendaDestino')
-            ->leftjoin('CatUsuarios as c', 'c.IdUsuario', 'DatTransferencia.IdUsuario')
+            ->leftJoin('DatTransferenciaDetalle as d', 'd.IdTransferencia', 'DatTransferencia.IdTransferencia')
+            ->leftJoin('CatArticulos as a', 'a.CodArticulo', 'd.CodArticulo')
+            ->leftJoin('CatTiendas as b', 'b.IdTienda', 'DatTransferencia.IdTiendaDestino')
+            ->leftJoin('CatUsuarios as c', 'c.IdUsuario', 'DatTransferencia.IdUsuario')
             ->whereRaw("cast(FechaTransferencia as date) between '" . $fecha1 . "' and '" . $fecha2 . "' ")
-            ->orderBy('FechaTransferencia', 'DESC')
+            ->when($codigo, function ($query) use ($codigo) {
+                return $query->where('d.CodArticulo', $codigo);
+            })
+            ->when($idTiendaDestino, function ($query) use ($idTiendaDestino) {
+                return $query->where('IdTiendaDestino', $idTiendaDestino);
+            })
+            ->orderBy('DatTransferencia.FechaTransferencia', 'DESC')
             ->paginate($paginate)
             ->withQueryString();
 
-        return view('TransaccionProducto.ReporteTransaccionProducto', compact('transferencias', 'fecha1', 'fecha2'));
+
+        return view('TransaccionProducto.ReporteTransaccionProducto', compact('transferencias', 'fecha1', 'fecha2', 'idTiendaDestino', 'codigo', 'tiendas'));
+    }
+
+    public function HistorialTransaccionExcel(Request $request)
+    {
+        $fecha1 = $request->input('fecha1');
+        $fecha2 = $request->input('fecha2', date('Y-m-d'));
+        $idTiendaDestino = $request->input('idTiendaDestino');
+        $codigo = $request->input('codigo');
+
+        $transferencias = DatTransferencia::select(
+            'DatTransferencia.*',
+            'DatTransferencia.IdTransferencia',
+            'DatTransferencia.FechaTransferencia',
+            'DatTransferencia.IdTiendaDestino',
+            'b.NomTienda as tiendaDestino',
+            'e.NomTienda as tiendaOrigen',
+            'c.NomUsuario',
+
+            // Campos del detalle
+            'd.CodArticulo',
+            'a.NomArticulo',
+            'd.*'
+        )
+            ->leftJoin('DatTransferenciaDetalle as d', 'd.IdTransferencia', 'DatTransferencia.IdTransferencia')
+            ->leftJoin('CatArticulos as a', 'a.CodArticulo', 'd.CodArticulo')
+            ->leftJoin('CatTiendas as b', 'b.IdTienda', 'DatTransferencia.IdTiendaDestino')
+            ->leftJoin('CatTiendas as e', 'e.IdTienda', 'DatTransferencia.IdTiendaOrigen')
+            ->leftJoin('CatUsuarios as c', 'c.IdUsuario', 'DatTransferencia.IdUsuario')
+            ->whereRaw("cast(FechaTransferencia as date) between '" . $fecha1 . "' and '" . $fecha2 . "' ")
+            ->when($codigo, function ($query) use ($codigo) {
+                return $query->where('d.CodArticulo', $codigo);
+            })
+            ->when($idTiendaDestino, function ($query) use ($idTiendaDestino) {
+                return $query->where('IdTiendaDestino', $idTiendaDestino);
+            })
+            ->orderBy('DatTransferencia.FechaTransferencia', 'DESC')
+            ->get();
+
+        // return $transferencias;
+
+        // return $ventasEmpleado;
+        $name = Carbon::now()->parse(date(now()))->format('Ymd') . 'HistorialTrasacciones.xlsx';
+        return Excel::download(new HistorialTransaccionesExport($transferencias), $name);
     }
 }

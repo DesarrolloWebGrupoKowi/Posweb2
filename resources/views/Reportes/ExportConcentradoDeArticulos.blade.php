@@ -3,11 +3,16 @@
         <tr>
             <th>Ciudad</th>
             <th>Tienda</th>
+            @if ($agrupado)
+                <th>Fecha</th>
+            @endif
             <th>Grupo</th>
             <th>Código</th>
             <th>Articulo</th>
             <th>Cantidad</th>
-            <th>Precio</th>
+            @if (!$agrupadoArticulo)
+                <th>Precio</th>
+            @endif
             <th>Iva</th>
             <th>Importe</th>
         </tr>
@@ -22,11 +27,16 @@
                 <tr>
                     <td>{{ $item->NomCiudad }}</td>
                     <td>{{ $item->NomTienda }}</td>
+                    @if ($agrupado)
+                        <td>{{ $item->FechaVenta }}</td>
+                    @endif
                     <td>{{ $item->NomGrupo }}</td>
                     <td>{{ $item->CodArticulo }}</td>
                     <td>{{ $item->NomArticulo }}</td>
                     <td>{{ $item->Peso }}</td>
-                    <td>{{ $item->PrecioArticulo }}</td>
+                    @if (!$agrupadoArticulo)
+                        <td>{{ $item->PrecioArticulo }}</td>
+                    @endif
                     <td>{{ $item->Iva }}</td>
                     <td>{{ $item->Importe }}</td>
                 </tr>

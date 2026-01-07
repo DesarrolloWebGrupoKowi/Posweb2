@@ -433,6 +433,9 @@ table thead {
 
 table>tbody>tr>td {
     font-weight: 500;
+    /* border-bottom: 1px solid #0002; */
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 /* Paginacion */
