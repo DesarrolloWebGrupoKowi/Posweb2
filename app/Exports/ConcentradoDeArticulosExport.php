@@ -8,13 +8,21 @@ use Maatwebsite\Excel\Concerns\FromView;
 class ConcentradoDeArticulosExport implements FromView
 {
     private $concentrado;
-    public function __construct($concentrado)
+    private $agrupado;
+    private $agrupadoArticulo;
+    public function __construct($concentrado,  $agrupado, $agrupadoArticulo)
     {
         $this->concentrado = $concentrado;
+        $this->agrupado = $agrupado;
+        $this->agrupadoArticulo = $agrupadoArticulo;
     }
 
     public function view(): View
     {
-        return view('Reportes.ExportConcentradoDeArticulos', ['data' => $this->concentrado]);
+        return view('Reportes.ExportConcentradoDeArticulos', [
+            'data' => $this->concentrado,
+            'agrupado' => $this->agrupado,
+            'agrupadoArticulo' => $this->agrupadoArticulo
+        ]);
     }
 }
