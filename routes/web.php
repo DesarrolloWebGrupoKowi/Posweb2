@@ -827,6 +827,25 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/InterfazMermasExcel', 'App\Http\Controllers\InterfazMermasController@InterfazMermasExcel');
 
     //+============================================================================================================================================+//
+    //Dashboard de tiendas
+    Route::get('DashTiendas', 'App\Http\Controllers\DashTiendasController@Tiendas')->name('DashTiendas');
+
+    //Informacion para mostrar en la grafica del dashboard
+    Route::get('DashTiendas/graficas', 'App\Http\Controllers\DashTiendasController@Grafica')->name('DashTiendas.grafica');
+
+    //Dashboard de tienda
+    Route::get('DashTienda', 'App\Http\Controllers\DashTiendaController@Index')->name('DashTienda');
+
+    //Informacion para mostrar en la grafica del dashboard
+    Route::get('DashTienda/grafica', 'App\Http\Controllers\DashTiendaController@Grafica')->name('DashTienda.grafica');
+
+    //Dashboard de tienda
+    Route::get('DashCorte', 'App\Http\Controllers\DashCorteController@Index')->name('DashCorte');
+
+    //Dashboard de tienda
+    Route::get('DashTiendaAdmin', 'App\Http\Controllers\DashTiendaAdminController@Index')->name('DashTiendaAdmin');
+
+    //+============================================================================================================================================+//
     //VerCortesTienda
     Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerCortesTienda')->name('VerCortesTienda');
 
