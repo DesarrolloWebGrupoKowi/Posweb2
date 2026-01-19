@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 class DashTiendasController extends Controller
 {
     protected $tiendaService;
+    protected $tiendasIds;
 
     public function __construct(TiendaService $tiendaService)
     {
@@ -31,6 +32,7 @@ class DashTiendasController extends Controller
         }
 
         $tiendasForm = $this->tiendaService->obtenerTiendasOpcional();
+        $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
 
         if ($tiendasForm->isEmpty()) {
             return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
@@ -51,7 +53,7 @@ class DashTiendasController extends Controller
                 ')
         )
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', '=', 'DatCortesTienda.IdTienda')
-            // ->whereIn('DatEncabezado.IdTienda', $tiendas)
+            ->whereIn('DatCortesTienda.IdTienda', $this->tiendasIds)
             ->where('DatCortesTienda.StatusVenta', 0)
             ->whereDate('DatCortesTienda.FechaVenta', $fecha)
             ->groupBy('DatCortesTienda.IdTienda', 'CatTiendas.NombreCorto', 'CatTiendas.NomTienda')
@@ -167,7 +169,7 @@ class DashTiendasController extends Controller
         )
             ->leftJoin('DatDetalle', 'DatDetalle.IdEncabezado', '=', 'DatEncabezado.IdEncabezado')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', '=', 'DatEncabezado.IdTienda')
-            // ->whereIn('DatEncabezado.IdTienda', $tiendas)
+            ->whereIn('DatEncabezado.IdTienda', $this->tiendasIds)
             ->where('DatEncabezado.StatusVenta', 0)
             ->whereDate('DatEncabezado.FechaVenta', $fecha)
             ->groupBy('DatEncabezado.IdTienda', 'CatTiendas.NombreCorto')
@@ -176,7 +178,7 @@ class DashTiendasController extends Controller
 
         $ventasHoy = $ventasPorTienda->sum('total_ventas');
 
-        $totalTiendas = DB::table('CatTiendas')->where('Status', 0)->count();
+        $totalTiendas = DB::table('CatTiendas')->whereIn('IdTienda', $this->tiendasIds)->where('Status', 0)->count();
         $totalTiendasActivas = $ventasPorTienda->count();
 
         $kilosHoy = $ventasPorTienda->sum('total_kilos');
@@ -195,9 +197,11 @@ class DashTiendasController extends Controller
             // Facturas
             'facturas_pendientes' => DB::table('SolicitudFactura')
                 ->whereNotNull('Editar')
+                ->whereIn('IdTienda', $this->tiendasIds)
                 ->whereDate('FechaSolicitud', $hoy)
                 ->count(),
             'facturas_hoy' => DB::table('SolicitudFactura')
+                ->whereIn('IdTienda', $this->tiendasIds)
                 ->whereDate('FechaSolicitud', $hoy)
                 ->count(),
 
@@ -224,7 +228,7 @@ class DashTiendasController extends Controller
         )
             ->leftJoin('DatDetalle', 'DatDetalle.IdEncabezado', '=', 'DatEncabezado.IdEncabezado')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', '=', 'DatEncabezado.IdTienda')
-            // ->whereIn('DatEncabezado.IdTienda', $tiendas)
+            ->whereIn('DatEncabezado.IdTienda', $this->tiendasIds)
             ->where('DatEncabezado.StatusVenta', 0)
             ->whereDate('DatEncabezado.FechaVenta', $fechaFin)
             ->groupBy('DatEncabezado.IdTienda', 'CatTiendas.NombreCorto')
@@ -257,7 +261,7 @@ class DashTiendasController extends Controller
                     ')
         )
             ->leftJoin('DatDetalle', 'DatDetalle.IdEncabezado', '=', 'DatEncabezado.IdEncabezado')
-            // ->whereIn('DatEncabezado.IdTienda', $tiendas)
+            ->whereIn('DatEncabezado.IdTienda', $this->tiendasIds)
             ->where('DatEncabezado.StatusVenta', 0)
             ->whereDate('DatEncabezado.FechaVenta', '>', Carbon::parse($fechaFin)->subMonth())
             ->groupBy(DB::raw('CONVERT(VARCHAR(10), DatEncabezado.FechaVenta, 103)'))  // Agrupamos solo por la fecha sin la parte de hora
@@ -284,6 +288,7 @@ class DashTiendasController extends Controller
         return DB::table('DatEncabezado as e')
             ->leftJoin('DatDetalle as d', 'e.IdEncabezado', '=', 'd.IdEncabezado')
             ->leftJoin('CatArticulos as a', 'a.IdArticulo', '=', 'd.IdArticulo')
+            ->whereIn('e.IdTienda', $this->tiendasIds)
             ->where('e.StatusVenta', 0)
             ->where('e.FechaVenta', '>=', Carbon::parse($fecha)->format('d-m-Y') . ' 00:00:00')
             ->where('e.FechaVenta', '<=', Carbon::parse($fecha)->format('d-m-Y') . ' 23:59:59')
@@ -304,6 +309,7 @@ class DashTiendasController extends Controller
         return DB::table('CapMermas')
             ->join('CatArticulos', 'CatArticulos.CodArticulo', '=', 'CapMermas.CodArticulo')
             ->whereDate('CapMermas.FechaCaptura', $fecha)
+            ->whereIn('CapMermas.IdTienda', $this->tiendasIds)
             ->select(
                 'CatArticulos.CodArticulo',
                 'CatArticulos.NomArticulo',
@@ -319,6 +325,7 @@ class DashTiendasController extends Controller
     private function calcularVariacion($ayer, $ventasHoy)
     {
         $valor2 = DB::table('DatEncabezado')
+            ->whereIn('IdTienda', $this->tiendasIds)
             ->where('StatusVenta', 0)
             ->whereDate('FechaVenta', $ayer)
             ->sum('ImporteVenta');

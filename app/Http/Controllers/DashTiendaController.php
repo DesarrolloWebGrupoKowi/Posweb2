@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 class DashTiendaController extends Controller
 {
     protected $tiendaService;
+    protected $tiendasIds;
 
     public function __construct(TiendaService $tiendaService)
     {
@@ -23,6 +24,7 @@ class DashTiendaController extends Controller
         $tiendaId = $request->get('tienda_id', Tienda::first()->IdTienda ?? null);
         $reporte = $request->get('reporte', 0);
         $fecha = $request->get('fecha_fin', Carbon::now()->format('Y-m-d'));
+        $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
 
         if (!$request->get('tienda_id') || $request->get('tienda_id') == -1) {
             return redirect()->route('DashTiendas', [
@@ -147,9 +149,12 @@ class DashTiendaController extends Controller
 
     private function obtenerGraficaVentas($tiendaId, $fecha, $periodo = 'hoy')
     {
+        $tiendasIds = $this->tiendaService->obtenerTiendasIds();
+
         $data = [];
         $labels = [];
         $query = CorteTienda::where('IdTienda', $tiendaId)
+            ->whereIn('DatCortesTienda.IdTienda', $tiendasIds)
             ->selectRaw('SUM(ImporteArticulo) as ventas');
 
         switch ($periodo) {
@@ -179,13 +184,11 @@ class DashTiendaController extends Controller
 
             case '7d':
                 // Ventas por día de los últimos 7 días
-                $fechaInicio = Carbon::parse($fecha)->subDays(8);
+                $fechaInicio = Carbon::parse($fecha)->subDays(8)->startOfDay();
                 $query = $query
                     ->selectRaw('YEAR(FechaVenta) as ano')
                     ->selectRaw("CONCAT(DATENAME(MONTH, FechaVenta), ' ', DATEPART(DAY, FechaVenta)) as tiempo")
-                    ->where('FechaVenta', '>=', $fechaInicio->startOfDay()->format('d-m-Y'))
-                    ->where('FechaVenta', '<=', Carbon::parse($fecha)->endOfDay())
-                    // ->groupByRaw('')
+                    ->whereDate('FechaVenta', '>=', $fechaInicio)
                     ->groupByRaw("YEAR(FechaVenta), CONCAT(DATENAME(MONTH, FechaVenta), ' ', DATEPART(DAY, FechaVenta))")
                     ->orderBy('ano')
                     ->orderBy('tiempo')
@@ -193,11 +196,10 @@ class DashTiendaController extends Controller
                 break;
 
             case '30d':
-                $fechaInicio = Carbon::parse($fecha)->subDays(29);
+                $fechaInicio = Carbon::parse($fecha)->subDays(29)->startOfDay();
                 $query = $query
                     ->selectRaw("CONCAT(YEAR(FechaVenta), ' SEM ', DATEPART(WEEK, FechaVenta)) as tiempo")
-                    ->where('FechaVenta', '>=', $fechaInicio->startOfDay()->format('d-m-Y'))
-                    ->where('FechaVenta', '<=', Carbon::parse($fecha)->endOfDay())
+                    ->whereDate('FechaVenta', '>=', $fechaInicio)
                     ->groupByRaw("CONCAT(YEAR(FechaVenta), ' SEM ', DATEPART(WEEK, FechaVenta))")
                     ->orderBy('tiempo')
                     ->get();
@@ -223,6 +225,7 @@ class DashTiendaController extends Controller
         $query = CorteTienda::leftjoin('CatTipoPago', 'CatTipoPago.IdTipoPago', 'DatCortesTienda.IdTipoPago ')
             ->selectRaw('DatCortesTienda.IdTipoPago, CatTipoPago.NomTipoPago, SUM(ImporteArticulo) as cantidad')
             ->where('IdTienda', $tiendaId)
+            ->whereIn('DatCortesTienda.IdTienda', $this->tiendasIds)
             ->whereDate('FechaVenta', $fecha)
             ->groupBy('DatCortesTienda.IdTipoPago', 'CatTipoPago.NomTipoPago')
             ->orderBy('DatCortesTienda.IdTipoPago')
@@ -262,6 +265,7 @@ class DashTiendaController extends Controller
             )
             ->where('ct.IdTienda', $tiendaId)
             ->whereDate('ct.FechaVenta', $fecha)
+            ->whereIn('ct.IdTienda', $this->tiendasIds)
             ->where('ct.StatusVenta', 0)
             ->whereNull('ct.IdSolicitudFactura')
             ->groupBy(
@@ -293,6 +297,7 @@ class DashTiendaController extends Controller
             )
             ->where('ct.IdTienda', $tiendaId)
             ->whereDate('ct.FechaVenta', $fecha)
+            ->whereIn('ct.IdTienda', $this->tiendasIds)
             ->where('ct.StatusVenta', 0)
             ->whereNotNull('ct.IdSolicitudFactura')
             ->groupBy(
