@@ -19,6 +19,7 @@ class DashCorteController extends Controller
     private $idCaja;
     protected $tiendaService;
     private $idReporte;
+    protected $tiendasIds;
 
     public function __construct(TiendaService $tiendaService)
     {
@@ -32,8 +33,10 @@ class DashCorteController extends Controller
         $this->idTienda = $request->get('tienda_id', $this->getTiendaDefault());
         $this->idCaja = $request->get('idCaja', 0);
         $this->idReporte = $request->get('reporte', 0);
+        $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
 
-        $tiendaActual = Tienda::find($this->idTienda);
+        $tiendaActual = Tienda::whereIn('IdTienda', $this->tiendasIds)
+            ->find($this->idTienda);
 
         if (!$request->get('tienda_id') || $request->get('tienda_id') == -1) {
             return redirect()->route('DashTiendas', [
@@ -109,6 +112,7 @@ class DashCorteController extends Controller
     private function obtenerBillsTo()
     {
         return CorteTienda::where('IdTienda', $this->idTienda)
+            ->whereIn('IdTienda', $this->tiendasIds)
             ->whereDate('FechaVenta', $this->fecha)
             ->where('StatusVenta', 0)
             ->whereNull('IdSolicitudFactura')
@@ -155,6 +159,7 @@ class DashCorteController extends Controller
         ])
             ->select('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
             ->groupBy('IdClienteCloud', 'Bill_To', 'IdTipoNomina')
+            ->whereIn('IdTienda', $this->tiendasIds)
             ->where('IdTienda', $this->idTienda)
             ->whereIn('Bill_To', $billsTo)
             ->get();
@@ -197,6 +202,7 @@ class DashCorteController extends Controller
                 DB::raw('SUM(a.ImporteArticulo) as importe')
             )
             ->where('a.IdTienda', $this->idTienda)
+            ->whereIn('a.IdTienda', $this->tiendasIds)
             ->whereDate('a.FechaVenta', $this->fecha)
             ->where('a.IdTipoPago', 7)
             ->where('a.StatusVenta', 0)
@@ -211,6 +217,7 @@ class DashCorteController extends Controller
     private function calcularTotalPorTipoPago($tipoPago)
     {
         return CorteTienda::where('IdTienda', $this->idTienda)
+            ->whereIn('IdTienda', $this->tiendasIds)
             ->whereDate('FechaVenta', $this->fecha)
             ->where('IdTipoPago', $tipoPago)
             ->where('StatusVenta', 0)
@@ -226,6 +233,7 @@ class DashCorteController extends Controller
         return DB::table('DatCortesTienda as a')
             ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
             ->where('IdTienda', $this->idTienda)
+            ->whereIn('IdTienda', $this->tiendasIds)
             ->whereDate('FechaVenta', $this->fecha)
             ->where('StatusVenta', 0)
             ->where('IdTipoPago', 2)
@@ -240,6 +248,7 @@ class DashCorteController extends Controller
     private function calcularTotalFacturas()
     {
         return CorteTienda::where('IdTienda', $this->idTienda)
+            ->whereIn('IdTienda', $this->tiendasIds)
             ->whereDate('FechaVenta', $this->fecha)
             ->where('StatusVenta', 0)
             ->whereNotNull('IdSolicitudFactura')
@@ -276,6 +285,7 @@ class DashCorteController extends Controller
             }
         ])
             ->where('IdTienda', $this->idTienda)
+            ->whereIn('SolicitudFactura.IdTienda', $this->tiendasIds)
             // ->where('Status', 0)
             ->whereDate('FechaSolicitud', $this->fecha)
             ->get();
@@ -296,6 +306,7 @@ class DashCorteController extends Controller
     private function obtenerNombreTienda()
     {
         return Tienda::where('IdTienda', $this->idTienda)
+            ->whereIn('IdTienda', $this->tiendasIds)
             ->value('NomTienda');
     }
 }
