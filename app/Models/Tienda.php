@@ -14,27 +14,27 @@ class Tienda extends Model
     use HasFactory;
     protected $table = 'CatTiendas';
     protected $fillable = [
-                            'NomTienda',
-                            'Correo',
-                            'Direccion',
-                            'Colonia',
-                            'Telefono',
-                            'RFC',
-                            'IdListaPrecios',
-                            'TiendaActiva',
-                            'Inventario',
-                            'CentroCosto',
-                            'Almacen',
-                            'Organization_Name',
-                            'Subinventory_Code',
-                            'Order_Type_Cloud',
-                            'ServicioaDomicilio',
-                            'CostoaDomicilio',
-                            'Comentario',
-                            'Status',
-                            'fechaprocesarcorte',
-                            'usuarioprocesarcorte',
-                           ];
+        'NomTienda',
+        'Correo',
+        'Direccion',
+        'Colonia',
+        'Telefono',
+        'RFC',
+        'IdListaPrecios',
+        'TiendaActiva',
+        'Inventario',
+        'CentroCosto',
+        'Almacen',
+        'Organization_Name',
+        'Subinventory_Code',
+        'Order_Type_Cloud',
+        'ServicioaDomicilio',
+        'CostoaDomicilio',
+        'Comentario',
+        'Status',
+        'fechaprocesarcorte',
+        'usuarioprocesarcorte',
+    ];
     public $timestamps = false;
     protected $primaryKey = 'IdTienda';
 
@@ -42,13 +42,27 @@ class Tienda extends Model
     //     'fechaprocesarcorte' => 'datetime',
     // ];
 
-    public function ClienteCloud(){
+    public function ClienteCloud()
+    {
         return $this->belongsToMany(ClienteCLoud::class, ClienteCloudTienda::class, 'IdTienda', 'IdCLienteCloud', 'IdTienda', 'IdCLienteCloud')
-                    ->withPivot('Ship_To', 'Bill_To')
-                    ->as('PivotCustomer');
+            ->withPivot('Ship_To', 'Bill_To')
+            ->as('PivotCustomer');
     }
 
-    public function TiposPago(){
+    public function TiposPago()
+    {
         return $this->belongsToMany(TipoPago::class, TipoPagoTienda::class, 'IdTienda', 'IdTipoPago', 'IdTienda');
+    }
+
+    public function EmpleadoProcesarcorte()
+    {
+        return $this->hasOneThrough(
+            Empleado::class,   // Modelo final
+            Usuario::class,    // Modelo intermedio
+            'IdUsuario',       // FK en CatUsuarios
+            'NumNomina',       // FK en CatEmpleados
+            'usuarioprocesarcorte', // FK en CatTiendas
+            'NumNomina'        // PK relacionada en CatUsuarios
+        );
     }
 }

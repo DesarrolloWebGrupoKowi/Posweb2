@@ -1,8 +1,8 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Concentrado de Articulos')
-@section('dashboardWidth', 'width-general')
+@section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
+    <div class="gap-4 pt-4 container-fluid width-95 d-flex flex-column">
 
         <div class="p-4 border-0 card" style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
