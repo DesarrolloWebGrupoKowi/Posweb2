@@ -500,7 +500,7 @@ class PruebasController extends Controller
 
     public function pruebasjob(Request $request)
     {
-        \App\Jobs\SubirVentaJob::dispatch();
+        \App\Jobs\TestJob::dispatch();
         return 'Job enviado';
     }
 }
