@@ -497,4 +497,10 @@ class PruebasController extends Controller
                             ->get();
         return $usuarios;
     }
+
+    public function pruebasjob(Request $request)
+    {
+        \App\Jobs\TestJob::dispatch();
+        return 'Job enviado';
+    }
 }

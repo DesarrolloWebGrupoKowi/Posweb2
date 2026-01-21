@@ -1077,6 +1077,8 @@ Route::get('/pruebas', 'App\Http\Controllers\PruebasController@pruebas');
 
 Route::get('/pruebas2', 'App\Http\Controllers\PruebasController@pruebas2');
 
+Route::get('/pruebasjob', 'App\Http\Controllers\PruebasController@pruebasjob');
+
 Route::get('/promesas', 'App\Http\Controllers\PruebasController@promesas');
 
 //SubirArchivo

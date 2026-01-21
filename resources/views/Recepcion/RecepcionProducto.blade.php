@@ -121,7 +121,7 @@
                                     <td>
                                         <div class="d-flex">
                                             @if (!$cantidadPreparado)
-                                                <input style="width: 15vh" type="number" min="0.1" step="any"
+                                                <input style="width: 15vh" type="number" min="0" step="any"
                                                     class="form-control form-control-sm"
                                                     name="cantRecepcionada[{{ $dRecepcion->CodArticulo }}]"
                                                     value="{{ $dRecepcion->CantEnviada }}">
