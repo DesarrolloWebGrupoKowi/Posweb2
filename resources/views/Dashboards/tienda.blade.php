@@ -616,8 +616,8 @@
             const tiendaId = $('input[name="tienda_id"]').val();
             const fechaFin = $('input[name="fecha_fin"]').val();
 
-            console.log('Actualizando grafica');
-            console.log(tiendaId);
+            // console.log('Actualizando grafica');
+            // console.log(tiendaId);
             $.ajax({
                 url: '{{ route('DashTienda.grafica') }}',
                 type: 'GET',
@@ -627,9 +627,9 @@
                     fecha_fin: fechaFin
                 },
                 success: function(response) {
-                    console.log(response);
-                    console.log(response.labels);
-                    console.log(response.data);
+                    // console.log(response);
+                    // console.log(response.labels);
+                    // console.log(response.data);
 
                     ventasChart.data.labels = response.labels;
                     ventasChart.data.datasets[0].data = response.data;
