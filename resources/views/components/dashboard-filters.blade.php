@@ -19,6 +19,9 @@
     method="GET"
     class="col-12 col-lg d-lg-flex justify-content-end">
     <div class="row">
+        {{-- Input hidden para las graficas de ventas diarias --}}
+        <input type="hidden" name="tienda_id" value="{{ $tiendaSeleccionada }}">
+
         {{-- Campo de Tienda --}}
         <div class="col-12 col-md col-lg mb-2">
             <div class="input-group"
