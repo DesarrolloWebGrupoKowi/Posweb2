@@ -26,22 +26,22 @@
 
                 <!-- Solicitudes Facturas -->
                 <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div class="card border-0 shadow-sm h-100">
+                    <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="card-subtitle mb-2 text-muted fw-500">Solicitudes Facturas</h6>
+                                    <h6 class="card-subtitle text-muted fw-500 mb-2">Solicitudes Facturas</h6>
                                     <h3 class="card-title mb-0 text-gray-800">
                                         {{ $kpis['solicitudes_factura'] ?? 0 }}
                                     </h3>
-                                    <small class="d-block mt-1 text-muted">
+                                    <small class="d-block text-muted mt-1">
                                         <span
                                             class="{{ $kpis['facturas_pendientes'] ?? 0 > 0 ? 'text-warning' : 'text-success' }}">
                                             {{ $kpis['facturas_pendientes'] ?? 0 }} pendientes de ligar
                                         </span>
                                     </small>
                                 </div>
-                                <div class="bg-purple-50 rounded-circle d-flex align-items-center justify-content-center"
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
                                     style="background-color: rgba(124, 58, 237, 0.1); min-width: 44px; height: 44px;">
                                     <div style="color: #7c3aed;"
                                         class="d-flex justify-content-center">
@@ -55,18 +55,18 @@
 
                 <!-- Tickets -->
                 <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div class="card border-0 shadow-sm h-100"
+                    <div class="card h-100 border-0 shadow-sm"
                         style="border: 1px solid #e5e7eb; background: white;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="card-subtitle mb-2 text-muted fw-500">Tickets</h6>
+                                    <h6 class="card-subtitle text-muted fw-500 mb-2">Tickets</h6>
                                     <h3 class="card-title mb-0 text-gray-800">{{ $kpis['tickets'] ?? 0 }}</h3>
-                                    <small class="d-block mt-1 text-muted">
+                                    <small class="d-block text-muted mt-1">
                                         Ticket promedio: ${{ number_format($kpis['promedio_ticket'] ?? 0, 2) }}
                                     </small>
                                 </div>
-                                <div class="bg-purple-50 rounded-circle d-flex align-items-center justify-content-center"
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
                                     style="background-color: rgba(3, 84, 63, 0.1); min-width: 44px; height: 44px;">
                                     <div style="color: #03543f;"
                                         class="d-flex justify-content-center">
@@ -80,20 +80,20 @@
 
                 <!-- Kilos Vendidos -->
                 <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div class="card border-0 shadow-sm h-100"
+                    <div class="card h-100 border-0 shadow-sm"
                         style="border: 1px solid #e5e7eb; background: white;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="card-subtitle mb-2 text-muted fw-500">Kilos Vendidos</h6>
+                                    <h6 class="card-subtitle text-muted fw-500 mb-2">Kilos Vendidos</h6>
                                     <h3 class="card-title mb-0 text-gray-800">
                                         {{ number_format($kpis['kilos_hoy'] ?? 0, 1) }} kg</h3>
-                                    <small class="d-block mt-1 text-muted">
+                                    <small class="d-block text-muted mt-1">
                                         {{ $kpis['kilos_promedio'] ? number_format($kpis['kilos_promedio'] / $kpis['tickets'] ?? 0, 2) : 0 }}
                                         kg/transacción
                                     </small>
                                 </div>
-                                <div class="bg-purple-50 rounded-circle d-flex align-items-center justify-content-center"
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
                                     style="background-color: rgba(114, 59, 19, 0.1); min-width: 44px; height: 44px;">
                                     <div style="color: #723b13;"
                                         class="d-flex justify-content-center">
@@ -107,19 +107,19 @@
 
                 <!-- Ventas Diarias -->
                 <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div class="card border-0 shadow-sm h-100"
+                    <div class="card h-100 border-0 shadow-sm"
                         style="border: 1px solid #e5e7eb; background: white;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="card-subtitle mb-2 text-muted fw-500">Ventas Hoy</h6>
+                                    <h6 class="card-subtitle text-muted fw-500 mb-2">Ventas Hoy</h6>
                                     <h3 class="card-title mb-0 text-gray-800">
                                         ${{ number_format($kpis['ventas_hoy'] ?? 0, 2) }}</h3>
-                                    <small class="d-block mt-1 text-muted">
+                                    <small class="d-block text-muted mt-1">
                                         {{ $kpis['ventas_vs_ayer'] ?? 0 }}% vs día anterior
                                     </small>
                                 </div>
-                                <div class="bg-purple-50 rounded-circle d-flex align-items-center justify-content-center"
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
                                     style="background-color: rgba(30, 66, 159, 0.1); min-width: 44px; height: 44px;">
                                     <div style="color: #1e429f;"
                                         class="d-flex justify-content-center">
@@ -151,9 +151,9 @@
 
                     @if (count($corteTienda) == 0 && count($corteTiendaSolicitudes) == 0)
                         <!-- Estado vacío - Sin datos -->
-                        <div class="text-center py-5">
+                        <div class="py-5 text-center">
                             <div class="mb-4">
-                                <div class="mx-auto mb-3 empty-state-icon">
+                                <div class="empty-state-icon mx-auto mb-3">
                                     <!-- Icono -->
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                         class="h-100 w-100"
@@ -166,7 +166,7 @@
                                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                     </svg>
                                 </div>
-                                <h5 class="text-gray-500 mb-2">No hay ventas registradas</h5>
+                                <h5 class="mb-2 text-gray-500">No hay ventas registradas</h5>
                                 <p class="text-muted mb-4">
                                     @if (request()->get('fecha_fin', date('Y-m-d')) == date('Y-m-d'))
                                         Hoy no se han registrado ventas para esta tienda
@@ -222,10 +222,10 @@
                                             $totalVentas += $item->total_importe;
                                             $totalKilos += $item->total_cantidad;
                                         @endphp
-                                        <tr>
+                                        <tr id="row-{{ $item->Source_Transaction_Identifier ?? 'temp-' . $loop->index }}">
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div class="p-1 rounded me-2"
+                                                    <div class="me-2 rounded p-1"
                                                         style="background-color: rgba(30, 66, 159, 0.1);">
                                                         <div style="color: #1e429f; width: 16px; height: 16px;">
                                                             @include('components.icons.box')
@@ -244,13 +244,13 @@
                                                 </span>
                                             </td>
                                             <td class="fw-500">
-                                                <span
+                                                <span id="status-{{ $item->Source_Transaction_Identifier }}"
                                                     class="{{ $item->STATUS === 'PROCESADO' ? 'tags-green' : 'tags-red' }}">
                                                     {{ $item->STATUS && $item->STATUS !== 'NULL' ? $item->STATUS : 'SIN PROCESAR' }}
                                                 </span>
                                             </td>
-                                            <td class="text-end fw-500">{{ $item->total_cantidad ?? 0 }} kg</td>
-                                            <td class="text-end fw-500">${{ number_format($item->total_importe, 2) }}</td>
+                                            <td class="fw-500 text-end">{{ $item->total_cantidad ?? 0 }} kg</td>
+                                            <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
                                             <td class="text-center">
                                                 @if ($item->STATUS === 'PROCESADO')
                                                     @php
@@ -273,20 +273,40 @@
                                                         @include('components.icons.download')
                                                         <span class="d-none d-md-inline">ZIP</span>
                                                     </a>
+                                                @elseif ($item->Source_Transaction_Identifier && $item->STATUS != 'PROCESADO')
+                                                    <button type="button"
+                                                        id="btnEnviarPedido{{ $item->Source_Transaction_Identifier }}"
+                                                        class="btn btn-sm btn-outline-primary btn-enviar"
+                                                        title="Enviar pedido a Oracle"
+                                                        data-pedido="{{ $item->Source_Transaction_Identifier }}"
+                                                        data-row-id="row-{{ $item->Source_Transaction_Identifier }}"
+                                                        data-original-status="{{ $item->STATUS }}"
+                                                        data-original-mensaje="{{ $item->MENSAJE_ERROR ?? '' }}">
+                                                        @include('components.icons.send')
+                                                        <span class="d-none d-md-inline">ENVIAR</span>
+                                                    </button>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
                                         </tr>
-                                        {{-- Fila de mensaje del POS --}}
+                                        <!-- Fila de mensaje del POS -->
                                         @if (!empty($item->MENSAJE_ERROR))
-                                            <tr class="bg-light">
+                                            <tr id="msg-{{ $item->Source_Transaction_Identifier }}"
+                                                class="bg-light">
                                                 <td colspan="6"
-                                                    class="ps-5 py-1">
+                                                    class="py-1 ps-5">
                                                     <small
+                                                        id="mensaje-container-{{ $item->Source_Transaction_Identifier }}"
                                                         class="{{ $item->STATUS === 'ERROR' ? 'text-danger' : 'text-success' }}">
-                                                        <strong>{{ $item->STATUS === 'ERROR' ? 'Error' : 'Mensaje' }}:</strong>
-                                                        {{ $item->MENSAJE_ERROR }}
+                                                        <strong
+                                                            id="mensaje-titulo-{{ $item->Source_Transaction_Identifier }}">
+                                                            {{ $item->STATUS === 'ERROR' ? 'Error:' : 'Mensaje:' }}
+                                                        </strong>
+                                                        <span
+                                                            id="mensaje-texto-{{ $item->Source_Transaction_Identifier }}">
+                                                            {{ $item->MENSAJE_ERROR }}
+                                                        </span>
                                                     </small>
                                                 </td>
                                             </tr>
@@ -298,17 +318,17 @@
                                             $totalVentas += $item->total_importe;
                                             $totalKilos += $item->total_cantidad;
                                         @endphp
-                                        <tr>
+                                        <tr id="row-{{ $item->Source_Transaction_Identifier ?? 'temp-' . $loop->index }}">
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div class="p-1 rounded me-2"
+                                                    <div class="me-2 rounded p-1"
                                                         style="background-color: rgba(30, 66, 159, 0.1);">
                                                         <div style="color: #1e429f; width: 16px; height: 16px;">
                                                             @include('components.icons.user')
                                                         </div>
                                                     </div>
                                                     <div class="d-flex flex-column">
-                                                        {{-- <div class="fw-medium">{{ $item->Bill_To }}</div> --}}
+                                                        <!-- <div class="fw-medium">{{ $item->Bill_To }}</div> -->
                                                         <div class="text-truncate puntitos"
                                                             title="{{ $item->NomCliente }}">
                                                             {{ $item->NomCliente }}
@@ -329,13 +349,13 @@
                                                 </span>
                                             </td>
                                             <td class="fw-500">
-                                                <span
+                                                <span id="status-{{ $item->Source_Transaction_Identifier }}"
                                                     class="{{ $item->STATUS === 'PROCESADO' ? 'tags-green' : 'tags-red' }}">
                                                     {{ $item->STATUS && $item->STATUS !== 'NULL' ? $item->STATUS : 'SIN PROCESAR' }}
                                                 </span>
                                             </td>
-                                            <td class="text-end fw-500">{{ $item->total_cantidad ?? 0 }} kg</td>
-                                            <td class="text-end fw-500">${{ number_format($item->total_importe, 2) }}</td>
+                                            <td class="fw-500 text-end">{{ $item->total_cantidad ?? 0 }} kg</td>
+                                            <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
                                             <td class="text-center">
                                                 @if ($item->STATUS === 'PROCESADO')
                                                     @php
@@ -358,20 +378,40 @@
                                                         @include('components.icons.download')
                                                         <span class="d-none d-md-inline">ZIP</span>
                                                     </a>
+                                                @elseif ($item->Source_Transaction_Identifier && $item->STATUS != 'PROCESADO')
+                                                    <button type="button"
+                                                        id="btnEnviarPedido{{ $item->Source_Transaction_Identifier }}"
+                                                        class="btn btn-sm btn-outline-primary btn-enviar"
+                                                        title="Enviar pedido a Oracle"
+                                                        data-pedido="{{ $item->Source_Transaction_Identifier }}"
+                                                        data-row-id="row-{{ $item->Source_Transaction_Identifier }}"
+                                                        data-original-status="{{ $item->STATUS }}"
+                                                        data-original-mensaje="{{ $item->MENSAJE_ERROR ?? '' }}">
+                                                        @include('components.icons.send')
+                                                        <span class="d-none d-md-inline">ENVIAR</span>
+                                                    </button>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
                                         </tr>
-                                        {{-- Fila de mensaje del POS --}}
+                                        <!-- Fila de mensaje del POS -->
                                         @if (!empty($item->MENSAJE_ERROR))
-                                            <tr class="bg-light">
+                                            <tr id="msg-{{ $item->Source_Transaction_Identifier }}"
+                                                class="bg-light">
                                                 <td colspan="6"
-                                                    class="ps-5 py-1">
+                                                    class="py-1 ps-5">
                                                     <small
+                                                        id="mensaje-container-{{ $item->Source_Transaction_Identifier }}"
                                                         class="{{ $item->STATUS === 'ERROR' ? 'text-danger' : 'text-success' }}">
-                                                        <strong>{{ $item->STATUS === 'ERROR' ? 'Error' : 'Mensaje' }}:</strong>
-                                                        {{ $item->MENSAJE_ERROR }}
+                                                        <strong
+                                                            id="mensaje-titulo-{{ $item->Source_Transaction_Identifier }}">
+                                                            {{ $item->STATUS === 'ERROR' ? 'Error:' : 'Mensaje:' }}
+                                                        </strong>
+                                                        <span
+                                                            id="mensaje-texto-{{ $item->Source_Transaction_Identifier }}">
+                                                            {{ $item->MENSAJE_ERROR }}
+                                                        </span>
                                                     </small>
                                                 </td>
                                             </tr>
@@ -383,8 +423,8 @@
                                         <tr class="table-light">
                                             <td colspan="3"
                                                 class="fw-bold text-end">TOTALES:</td>
-                                            <td class="text-end fw-bold">{{ number_format($totalKilos, 2) }} kg</td>
-                                            <td class="text-end fw-bold">${{ number_format($totalVentas, 2) }}</td>
+                                            <td class="fw-bold text-end">{{ number_format($totalKilos, 2) }} kg</td>
+                                            <td class="fw-bold text-end">${{ number_format($totalVentas, 2) }}</td>
                                             <td></td>
                                         </tr>
                                     @endif
@@ -399,14 +439,14 @@
             <div class="col-xxl-5">
                 <div class="row">
                     <!-- Gráfica de Ventas por Tienda -->
-                    <div class="col-12 mb-4 col-xl-6 mb-xl-0 col-xxl-12 mb-xxl-4">
+                    <div class="col-12 col-xl-6 mb-xl-0 col-xxl-12 mb-xxl-4 mb-4">
                         <div class="card border-0 p-4"
                             style="border-radius: 10px; height: 350px; background-color: white; border: 1px solid #e5e7eb;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="mb-0 text-gray-800">VENTAS DIARIAS POR HORA</h5>
                                 <div class="btn-group">
                                     <button type="button"
-                                        class="btn btn-sm btn-dark-outline periodo-btn border-gray-300 {{ request()->get('fecha_fin', date('Y-m-d')) == date('Y-m-d') ? 'active' : '' }}"
+                                        class="btn btn-sm btn-dark-outline periodo-btn {{ request()->get('fecha_fin', date('Y-m-d')) == date('Y-m-d') ? 'active' : '' }} border-gray-300"
                                         data-periodo="hoy">Hoy</button>
                                     <button type="button"
                                         class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
@@ -420,7 +460,7 @@
                                 style="height: 300px;">
                                 @if (empty($graficaVentas['data']) || array_sum($graficaVentas['data']) == 0)
                                     <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                        <div class="text-gray-400 mb-3"
+                                        <div class="mb-3 text-gray-400"
                                             style="font-size: 3rem;">
                                             <i class="fas fa-chart-line"></i>
                                         </div>
@@ -442,7 +482,7 @@
                                 style="height: 250px;">
                                 @if (empty($graficaDistribucionPagos['data']) || array_sum($graficaDistribucionPagos['data']) == 0)
                                     <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                        <div class="text-gray-400 mb-3"
+                                        <div class="mb-3 text-gray-400"
                                             style="font-size: 3rem;">
                                             <i class="fas fa-chart-pie"></i>
                                         </div>
@@ -609,6 +649,172 @@
                 actualizarGrafica($(this).data('periodo'));
             });
 
+            document.querySelectorAll('.btn-enviar').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const pedidoId = this.getAttribute('data-pedido');
+                    const rowId = this.getAttribute('data-row-id');
+                    const button = this;
+
+                    // Deshabilitar el botón mientras se procesa
+                    button.disabled = true;
+                    const originalHTML = button.innerHTML;
+                    button.innerHTML =
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
+
+                    try {
+                        // Construir la URL para el POST
+                        // const pos = pedidoId.substring(0, 3) + '_' + pedidoId.substring(3);
+                        const pos = pedidoId;
+                        const urlPost =
+                            `http://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${pos}&Origen=POS`;
+
+                        console.log('Enviando POST a:', urlPost);
+
+                        // Hacer la petición POST
+                        const response = await fetch(urlPost, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(
+                                `Error HTTP: ${response.status} ${response.statusText}`);
+                        }
+
+                        const result = await response.json();
+                        console.log('Respuesta recibida:', result);
+
+                        // Actualizar la interfaz según la respuesta
+                        actualizarFilaConRespuesta(pedidoId, result, button);
+
+                    } catch (error) {
+                        console.error('Error:', error);
+
+                        // Crear un objeto de resultado de error para mantener consistencia
+                        const errorResult = {
+                            ok: false,
+                            status: 'Error',
+                            message: error.message
+                        };
+
+                        actualizarFilaConRespuesta(pedidoId, errorResult, button);
+
+                        // Restaurar el botón en caso de error de red
+                        button.disabled = false;
+                        button.innerHTML = originalHTML;
+                    }
+                });
+            });
+
+            function actualizarFilaConRespuesta(pedidoId, resultado, button) {
+                // Determinar el nuevo estado basado en la respuesta
+                let nuevoEstado = resultado.ok ? 'PROCESADO' : 'ERROR';
+                let mensaje = resultado.message || (resultado.ok ? 'Procesado correctamente' : 'Error desconocido');
+                let esExito = resultado.ok;
+
+                // 1. Actualizar el estado en la tabla
+                const spanEstado = document.getElementById(`status-${pedidoId}`);
+                if (spanEstado) {
+                    spanEstado.className = nuevoEstado === 'PROCESADO' ? 'tags-green' : 'tags-red';
+                    spanEstado.textContent = nuevoEstado;
+                }
+
+                // 2. Actualizar o crear la fila de mensaje
+                const trMensajeId = `msg-${pedidoId}`;
+                const trMensajeExistente = document.getElementById(trMensajeId);
+                const filaPrincipal = document.getElementById(`row-${pedidoId}`);
+
+                // Si ya existe un mensaje, actualizarlo
+                if (trMensajeExistente) {
+                    const smallElement = trMensajeExistente.querySelector('small');
+                    const spanMensaje = trMensajeExistente.querySelector('#mensaje-texto-' + pedidoId);
+
+                    if (smallElement) {
+                        smallElement.className = nuevoEstado === 'ERROR' ? 'text-danger' : 'text-success';
+                        // IMPORTANTE: Cambiar "Mensaje:" por "Error:" cuando hay error
+                        smallElement.querySelector('strong').textContent = nuevoEstado === 'ERROR' ? 'Error:' :
+                            'Mensaje:';
+                    }
+
+                    if (spanMensaje) {
+                        spanMensaje.textContent = mensaje;
+                    }
+                } else if (mensaje) {
+                    // Si no existe pero hay mensaje, crear nueva fila
+                    const nuevaFilaMensaje = document.createElement('tr');
+                    nuevaFilaMensaje.id = trMensajeId;
+                    nuevaFilaMensaje.className = 'bg-light';
+
+                    // Determinar el texto del strong según si es error o éxito
+                    const textoStrong = nuevoEstado === 'ERROR' ? 'Error:' : 'Mensaje:';
+                    const claseColor = nuevoEstado === 'ERROR' ? 'text-danger' : 'text-success';
+
+                    nuevaFilaMensaje.innerHTML = `
+                        <td colspan="6" class="py-1 ps-5">
+                            <small class="${claseColor}">
+                                <strong>${textoStrong}</strong>
+                                <span id="mensaje-texto-${pedidoId}">${mensaje}</span>
+                            </small>
+                        </td>
+                    `;
+
+                    // Insertar después de la fila principal
+                    if (filaPrincipal && filaPrincipal.parentNode) {
+                        filaPrincipal.parentNode.insertBefore(nuevaFilaMensaje, filaPrincipal.nextSibling);
+                    }
+                } else if (esExito && !mensaje) {
+                    // Si fue exitoso pero no hay mensaje, eliminar la fila de mensaje si existe
+                    if (trMensajeExistente) {
+                        trMensajeExistente.remove();
+                    }
+                }
+
+                console.log('llego a actualizar fila con respuesta');
+                console.log(esExito);
+                console.log(resultado.dato);
+                console.log(resultado.dato.sourceTransactionNumber);
+
+                // 3. Actualizar los botones si el pedido fue procesado exitosamente
+                if (esExito && resultado.dato && resultado.dato.sourceTransactionNumber) {
+                    // if (esExito && resultado.dato) {
+                    // Mantener el formato del POS para las URLs de descarga
+                    const posFormat = resultado.dato.sourceTransactionNumber;
+                    const tdAcciones = button.parentNode;
+
+                    tdAcciones.innerHTML = `
+                        <a
+                            href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden=${posFormat}"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-primary"
+                            title="Descargar Factura PDF"
+                        >
+                            @include('components.icons.download')
+                            <span class="d-none d-md-inline">PDF</span>
+                        </a>
+                        <a
+                            href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden=${posFormat}"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-primary"
+                            title="Descargar Factura Zip"
+                        >
+                            @include('components.icons.download')
+                            <span class="d-none d-md-inline">ZIP</span>
+                        </a>
+                    `;
+                } else {
+                    // Si hubo error, restaurar el botón para que pueda intentar de nuevo
+                    const originalHTML = `
+                        @include('components.icons.send')
+                        <span class="d-none d-md-inline">ENVIAR</span>
+                    `;
+
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                }
+            }
 
         });
 
