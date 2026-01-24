@@ -93,14 +93,10 @@
                                         kg/transacción
                                     </small>
                                 </div>
-                                <div
-                                    class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
-                                    style="background-color: rgba(114, 59, 19, 0.1); min-width: 44px; height: 44px;"
-                                >
-                                    <div
-                                        style="color: #723b13;"
-                                        class="d-flex justify-content-center"
-                                    >
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
+                                    style="background-color: rgba(114, 59, 19, 0.1); min-width: 44px; height: 44px;">
+                                    <div style="color: #723b13;"
+                                        class="d-flex justify-content-center">
                                         @include('components.icons.box')
                                     </div>
                                 </div>
@@ -111,10 +107,8 @@
 
                 <!-- Ventas Diarias -->
                 <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div
-                        class="card h-100 border-0 shadow-sm"
-                        style="border: 1px solid #e5e7eb; background: white;"
-                    >
+                    <div class="card h-100 border-0 shadow-sm"
+                        style="border: 1px solid #e5e7eb; background: white;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
@@ -125,14 +119,10 @@
                                         {{ $kpis['ventas_vs_ayer'] ?? 0 }}% vs día anterior
                                     </small>
                                 </div>
-                                <div
-                                    class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
-                                    style="background-color: rgba(30, 66, 159, 0.1); min-width: 44px; height: 44px;"
-                                >
-                                    <div
-                                        style="color: #1e429f;"
-                                        class="d-flex justify-content-center"
-                                    >
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
+                                    style="background-color: rgba(30, 66, 159, 0.1); min-width: 44px; height: 44px;">
+                                    <div style="color: #1e429f;"
+                                        class="d-flex justify-content-center">
                                         @include('components.icons.cash')
                                     </div>
                                 </div>
@@ -150,17 +140,13 @@
         <div class="row g-4">
             <!-- Corte tienda -->
             <div class="col-xxl-7">
-                <div
-                    class="card border-0 p-4"
-                    style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;"
-                >
+                <div class="card border-0 p-4"
+                    style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0 text-gray-800">CORTE TIENDA {{ $tiendaActual->NomTienda ?? 'Tienda' }}
                         </h5>
-                        <x-dashboard-buttons-procesar
-                            :corteTienda="$corteTienda"
-                            :corteTiendaSolicitudes="$corteTiendaSolicitudes"
-                        />
+                        <x-dashboard-buttons-procesar :corteTienda="$corteTienda"
+                            :corteTiendaSolicitudes="$corteTiendaSolicitudes" />
                     </div>
 
                     @if (count($corteTienda) == 0 && count($corteTiendaSolicitudes) == 0)
@@ -169,19 +155,15 @@
                             <div class="mb-4">
                                 <div class="empty-state-icon mx-auto mb-3">
                                     <!-- Icono -->
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
+                                    <svg xmlns="http://www.w3.org/2000/svg"
                                         class="h-100 w-100"
                                         fill="none"
                                         viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round"
                                             stroke-linejoin="round"
                                             stroke-width="1"
-                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                                        />
+                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                     </svg>
                                 </div>
                                 <h5 class="mb-2 text-gray-500">No hay ventas registradas</h5>
@@ -196,25 +178,19 @@
 
                                 @if (request()->get('fecha_fin', date('Y-m-d')) != date('Y-m-d'))
                                     <div class="d-flex justify-content-center gap-3">
-                                        <a
-                                            href="?fecha_fin={{ date('Y-m-d') }}&tienda_id={{ request()->get('tienda_id') }}"
-                                            class="btn btn-primary"
-                                        >
+                                        <a href="?fecha_fin={{ date('Y-m-d') }}&tienda_id={{ request()->get('tienda_id') }}"
+                                            class="btn btn-primary">
                                             Ver ventas de hoy
                                         </a>
-                                        <a
-                                            href="?fecha_fin={{ \Carbon\Carbon::parse(request()->get('fecha_fin', date('Y-m-d')))->subDay()->format('Y-m-d') }}&tienda_id={{ request()->get('tienda_id') }}"
-                                            class="btn btn-outline-secondary"
-                                        >
+                                        <a href="?fecha_fin={{ \Carbon\Carbon::parse(request()->get('fecha_fin', date('Y-m-d')))->subDay()->format('Y-m-d') }}&tienda_id={{ request()->get('tienda_id') }}"
+                                            class="btn btn-outline-secondary">
                                             @include('components.icons.arrow-left')Día anterior
                                         </a>
                                     </div>
                                 @else
-                                    <button
-                                        type="button"
+                                    <button type="button"
                                         id="refreshBtn"
-                                        class="btn btn-primary"
-                                    >
+                                        class="btn btn-primary">
                                         @include('components.icons.refresh')
                                         Actualizar
                                     </button>
@@ -249,34 +225,27 @@
                                         <tr id="row-{{ $item->Source_Transaction_Identifier ?? 'temp-' . $loop->index }}">
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div
-                                                        class="me-2 rounded p-1"
-                                                        style="background-color: rgba(30, 66, 159, 0.1);"
-                                                    >
+                                                    <div class="me-2 rounded p-1"
+                                                        style="background-color: rgba(30, 66, 159, 0.1);">
                                                         <div style="color: #1e429f; width: 16px; height: 16px;">
                                                             @include('components.icons.box')
                                                         </div>
                                                     </div>
-                                                    <span
-                                                        class="text-truncate puntitos"
-                                                        title="{{ $item->Bill_To }}"
-                                                    >
+                                                    <span class="text-truncate puntitos"
+                                                        title="{{ $item->Bill_To }}">
                                                         {{ $item->NomClienteCloud }}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td class="fw-500">
                                                 <span
-                                                    class="{{ $item->Source_Transaction_Identifier ? 'tags-blue' : 'tags-red' }}"
-                                                >
+                                                    class="{{ $item->Source_Transaction_Identifier ? 'tags-blue' : 'tags-red' }}">
                                                     {{ $item->Source_Transaction_Identifier ?? 'SIN PEDIDO' }}
                                                 </span>
                                             </td>
                                             <td class="fw-500">
-                                                <span
-                                                    id="status-{{ $item->Source_Transaction_Identifier }}"
-                                                    class="{{ $item->STATUS === 'PROCESADO' ? 'tags-green' : 'tags-red' }}"
-                                                >
+                                                <span id="status-{{ $item->Source_Transaction_Identifier }}"
+                                                    class="{{ $item->STATUS === 'PROCESADO' ? 'tags-green' : 'tags-red' }}">
                                                     {{ $item->STATUS && $item->STATUS !== 'NULL' ? $item->STATUS : 'SIN PROCESAR' }}
                                                 </span>
                                             </td>
@@ -290,35 +259,29 @@
                                                             '_' .
                                                             substr($item->Source_Transaction_Identifier, 3);
                                                     @endphp
-                                                    <a
-                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
                                                         target="_blank"
                                                         class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura PDF"
-                                                    >
+                                                        title="Descargar Factura PDF">
                                                         @include('components.icons.download')
                                                         <span class="d-none d-md-inline">PDF</span>
                                                     </a>
-                                                    <a
-                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden={{ $POS }}"
+                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden={{ $POS }}"
                                                         target="_blank"
                                                         class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura Zip"
-                                                    >
+                                                        title="Descargar Factura Zip">
                                                         @include('components.icons.download')
                                                         <span class="d-none d-md-inline">ZIP</span>
                                                     </a>
                                                 @elseif ($item->Source_Transaction_Identifier && $item->STATUS != 'PROCESADO')
-                                                    <button
-                                                        type="button"
+                                                    <button type="button"
                                                         id="btnEnviarPedido{{ $item->Source_Transaction_Identifier }}"
                                                         class="btn btn-sm btn-outline-primary btn-enviar"
                                                         title="Enviar pedido a Oracle"
                                                         data-pedido="{{ $item->Source_Transaction_Identifier }}"
                                                         data-row-id="row-{{ $item->Source_Transaction_Identifier }}"
                                                         data-original-status="{{ $item->STATUS }}"
-                                                        data-original-mensaje="{{ $item->MENSAJE_ERROR ?? '' }}"
-                                                    >
+                                                        data-original-mensaje="{{ $item->MENSAJE_ERROR ?? '' }}">
                                                         @include('components.icons.send')
                                                         <span class="d-none d-md-inline">ENVIAR</span>
                                                     </button>
@@ -329,26 +292,19 @@
                                         </tr>
                                         <!-- Fila de mensaje del POS -->
                                         @if (!empty($item->MENSAJE_ERROR))
-                                            <tr
-                                                id="msg-{{ $item->Source_Transaction_Identifier }}"
-                                                class="bg-light"
-                                            >
-                                                <td
-                                                    colspan="6"
-                                                    class="py-1 ps-5"
-                                                >
+                                            <tr id="msg-{{ $item->Source_Transaction_Identifier }}"
+                                                class="bg-light">
+                                                <td colspan="6"
+                                                    class="py-1 ps-5">
                                                     <small
                                                         id="mensaje-container-{{ $item->Source_Transaction_Identifier }}"
-                                                        class="{{ $item->STATUS === 'ERROR' ? 'text-danger' : 'text-success' }}"
-                                                    >
+                                                        class="{{ $item->STATUS === 'ERROR' ? 'text-danger' : 'text-success' }}">
                                                         <strong
-                                                            id="mensaje-titulo-{{ $item->Source_Transaction_Identifier }}"
-                                                        >
+                                                            id="mensaje-titulo-{{ $item->Source_Transaction_Identifier }}">
                                                             {{ $item->STATUS === 'ERROR' ? 'Error:' : 'Mensaje:' }}
                                                         </strong>
                                                         <span
-                                                            id="mensaje-texto-{{ $item->Source_Transaction_Identifier }}"
-                                                        >
+                                                            id="mensaje-texto-{{ $item->Source_Transaction_Identifier }}">
                                                             {{ $item->MENSAJE_ERROR }}
                                                         </span>
                                                     </small>
@@ -365,20 +321,16 @@
                                         <tr id="row-{{ $item->Source_Transaction_Identifier ?? 'temp-' . $loop->index }}">
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div
-                                                        class="me-2 rounded p-1"
-                                                        style="background-color: rgba(30, 66, 159, 0.1);"
-                                                    >
+                                                    <div class="me-2 rounded p-1"
+                                                        style="background-color: rgba(30, 66, 159, 0.1);">
                                                         <div style="color: #1e429f; width: 16px; height: 16px;">
                                                             @include('components.icons.user')
                                                         </div>
                                                     </div>
                                                     <div class="d-flex flex-column">
                                                         <!-- <div class="fw-medium">{{ $item->Bill_To }}</div> -->
-                                                        <div
-                                                            class="text-truncate puntitos"
-                                                            title="{{ $item->NomCliente }}"
-                                                        >
+                                                        <div class="text-truncate puntitos"
+                                                            title="{{ $item->NomCliente }}">
                                                             {{ $item->NomCliente }}
                                                         </div>
                                                     </div>
@@ -386,8 +338,7 @@
                                             </td>
                                             <td class="fw-500">
                                                 <span
-                                                    class="{{ $item->Source_Transaction_Identifier ? 'tags-blue' : 'tags-red' }}"
-                                                >
+                                                    class="{{ $item->Source_Transaction_Identifier ? 'tags-blue' : 'tags-red' }}">
                                                     @if ($item->Source_Transaction_Identifier)
                                                         {{ $item->Source_Transaction_Identifier }}
                                                     @elseif ($item->Editar != null)
@@ -398,10 +349,8 @@
                                                 </span>
                                             </td>
                                             <td class="fw-500">
-                                                <span
-                                                    id="status-{{ $item->Source_Transaction_Identifier }}"
-                                                    class="{{ $item->STATUS === 'PROCESADO' ? 'tags-green' : 'tags-red' }}"
-                                                >
+                                                <span id="status-{{ $item->Source_Transaction_Identifier }}"
+                                                    class="{{ $item->STATUS === 'PROCESADO' ? 'tags-green' : 'tags-red' }}">
                                                     {{ $item->STATUS && $item->STATUS !== 'NULL' ? $item->STATUS : 'SIN PROCESAR' }}
                                                 </span>
                                             </td>
@@ -415,35 +364,29 @@
                                                             '_' .
                                                             substr($item->Source_Transaction_Identifier, 3);
                                                     @endphp
-                                                    <a
-                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
                                                         target="_blank"
                                                         class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura PDF"
-                                                    >
+                                                        title="Descargar Factura PDF">
                                                         @include('components.icons.download')
                                                         <span class="d-none d-md-inline">PDF</span>
                                                     </a>
-                                                    <a
-                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden={{ $POS }}"
+                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden={{ $POS }}"
                                                         target="_blank"
                                                         class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura Zip"
-                                                    >
+                                                        title="Descargar Factura Zip">
                                                         @include('components.icons.download')
                                                         <span class="d-none d-md-inline">ZIP</span>
                                                     </a>
                                                 @elseif ($item->Source_Transaction_Identifier && $item->STATUS != 'PROCESADO')
-                                                    <button
-                                                        type="button"
+                                                    <button type="button"
                                                         id="btnEnviarPedido{{ $item->Source_Transaction_Identifier }}"
                                                         class="btn btn-sm btn-outline-primary btn-enviar"
                                                         title="Enviar pedido a Oracle"
                                                         data-pedido="{{ $item->Source_Transaction_Identifier }}"
                                                         data-row-id="row-{{ $item->Source_Transaction_Identifier }}"
                                                         data-original-status="{{ $item->STATUS }}"
-                                                        data-original-mensaje="{{ $item->MENSAJE_ERROR ?? '' }}"
-                                                    >
+                                                        data-original-mensaje="{{ $item->MENSAJE_ERROR ?? '' }}">
                                                         @include('components.icons.send')
                                                         <span class="d-none d-md-inline">ENVIAR</span>
                                                     </button>
@@ -454,26 +397,19 @@
                                         </tr>
                                         <!-- Fila de mensaje del POS -->
                                         @if (!empty($item->MENSAJE_ERROR))
-                                            <tr
-                                                id="msg-{{ $item->Source_Transaction_Identifier }}"
-                                                class="bg-light"
-                                            >
-                                                <td
-                                                    colspan="6"
-                                                    class="py-1 ps-5"
-                                                >
+                                            <tr id="msg-{{ $item->Source_Transaction_Identifier }}"
+                                                class="bg-light">
+                                                <td colspan="6"
+                                                    class="py-1 ps-5">
                                                     <small
                                                         id="mensaje-container-{{ $item->Source_Transaction_Identifier }}"
-                                                        class="{{ $item->STATUS === 'ERROR' ? 'text-danger' : 'text-success' }}"
-                                                    >
+                                                        class="{{ $item->STATUS === 'ERROR' ? 'text-danger' : 'text-success' }}">
                                                         <strong
-                                                            id="mensaje-titulo-{{ $item->Source_Transaction_Identifier }}"
-                                                        >
+                                                            id="mensaje-titulo-{{ $item->Source_Transaction_Identifier }}">
                                                             {{ $item->STATUS === 'ERROR' ? 'Error:' : 'Mensaje:' }}
                                                         </strong>
                                                         <span
-                                                            id="mensaje-texto-{{ $item->Source_Transaction_Identifier }}"
-                                                        >
+                                                            id="mensaje-texto-{{ $item->Source_Transaction_Identifier }}">
                                                             {{ $item->MENSAJE_ERROR }}
                                                         </span>
                                                     </small>
@@ -485,10 +421,8 @@
                                     <!-- Fila de totales -->
                                     @if (count($corteTienda) > 0 || count($corteTiendaSolicitudes) > 0)
                                         <tr class="table-light">
-                                            <td
-                                                colspan="3"
-                                                class="fw-bold text-end"
-                                            >TOTALES:</td>
+                                            <td colspan="3"
+                                                class="fw-bold text-end">TOTALES:</td>
                                             <td class="fw-bold text-end">{{ number_format($totalKilos, 2) }} kg</td>
                                             <td class="fw-bold text-end">${{ number_format($totalVentas, 2) }}</td>
                                             <td></td>
@@ -506,40 +440,28 @@
                 <div class="row">
                     <!-- Gráfica de Ventas por Tienda -->
                     <div class="col-12 col-xl-6 mb-xl-0 col-xxl-12 mb-xxl-4 mb-4">
-                        <div
-                            class="card border-0 p-4"
-                            style="border-radius: 10px; height: 350px; background-color: white; border: 1px solid #e5e7eb;"
-                        >
+                        <div class="card border-0 p-4"
+                            style="border-radius: 10px; height: 350px; background-color: white; border: 1px solid #e5e7eb;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="mb-0 text-gray-800">VENTAS DIARIAS POR HORA</h5>
                                 <div class="btn-group">
-                                    <button
-                                        type="button"
+                                    <button type="button"
                                         class="btn btn-sm btn-dark-outline periodo-btn {{ request()->get('fecha_fin', date('Y-m-d')) == date('Y-m-d') ? 'active' : '' }} border-gray-300"
-                                        data-periodo="hoy"
-                                    >Hoy</button>
-                                    <button
-                                        type="button"
+                                        data-periodo="hoy">Hoy</button>
+                                    <button type="button"
                                         class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
-                                        data-periodo="7d"
-                                    >7 días</button>
-                                    <button
-                                        type="button"
+                                        data-periodo="7d">7 días</button>
+                                    <button type="button"
                                         class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
-                                        data-periodo="30d"
-                                    >30 días</button>
+                                        data-periodo="30d">30 días</button>
                                 </div>
                             </div>
-                            <div
-                                class="position-relative"
-                                style="height: 300px;"
-                            >
+                            <div class="position-relative"
+                                style="height: 300px;">
                                 @if (empty($graficaVentas['data']) || array_sum($graficaVentas['data']) == 0)
                                     <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                        <div
-                                            class="mb-3 text-gray-400"
-                                            style="font-size: 3rem;"
-                                        >
+                                        <div class="mb-3 text-gray-400"
+                                            style="font-size: 3rem;">
                                             <i class="fas fa-chart-line"></i>
                                         </div>
                                         <p class="text-muted mb-0">No hay datos de ventas para mostrar</p>
@@ -553,21 +475,15 @@
 
                     <!-- Distribución de Tipos de Pago -->
                     <div class="col-12 col-xl-6 col-xxl-12">
-                        <div
-                            class="card border-0 p-4"
-                            style="border-radius: 10px; height: 350px; background-color: white; border: 1px solid #e5e7eb;"
-                        >
+                        <div class="card border-0 p-4"
+                            style="border-radius: 10px; height: 350px; background-color: white; border: 1px solid #e5e7eb;">
                             <h5 class="mb-3 text-gray-800">DISTRIBUCIÓN DE PAGOS</h5>
-                            <div
-                                class="position-relative"
-                                style="height: 250px;"
-                            >
+                            <div class="position-relative"
+                                style="height: 250px;">
                                 @if (empty($graficaDistribucionPagos['data']) || array_sum($graficaDistribucionPagos['data']) == 0)
                                     <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                        <div
-                                            class="mb-3 text-gray-400"
-                                            style="font-size: 3rem;"
-                                        >
+                                        <div class="mb-3 text-gray-400"
+                                            style="font-size: 3rem;">
                                             <i class="fas fa-chart-pie"></i>
                                         </div>
                                         <p class="text-muted mb-0">No hay datos de pagos para mostrar</p>
