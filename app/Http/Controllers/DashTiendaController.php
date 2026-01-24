@@ -9,6 +9,9 @@ use App\Services\TiendaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class DashTiendaController extends Controller
 {
@@ -326,5 +329,62 @@ class DashTiendaController extends Controller
         if ($valor2 == 0) return 0;
 
         return round((($ventasHoy - $valor2) / $valor2) * 100, 1);
+    }
+
+    // Metodos para enviar pedidos a Oracle
+    public function enviarPedidoOracle(Request $request, $orden)
+    {
+        try {
+            // Validar que la orden tenga el formato correcto
+            // $request->validate([
+            //     'orden' => 'required|string|max:50',
+            // ]);
+            if (empty($orden)) {
+                throw ValidationException::withMessages([
+                    'orden' => 'La orden es requerida'
+                ]);
+            }
+
+            // Construir la URL del endpoint HTTP (oracle)
+            $urlOracle = "http://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta={$orden}&Origen=POS";
+
+            Log::info('Proxy: Enviando pedido a Oracle', [
+                'orden' => $orden,
+                'url' => $urlOracle
+            ]);
+
+            // Hacer la petición al endpoint HTTP
+            $response = Http::timeout(60) // 60 segundos timeout
+                ->retry(3, 1000) // 3 intentos, 1 segundo entre intentos
+                ->get($urlOracle);
+
+            // Registrar la respuesta para depuración
+            Log::info('Proxy: Respuesta recibida de Oracle', [
+                'orden' => $orden,
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            // Devolver la respuesta tal cual de Oracle
+            return response()->json(
+                $response->json(),
+                $response->status(),
+                ['Content-Type' => 'application/json; charset=utf-8'],
+                JSON_UNESCAPED_UNICODE
+            );
+        } catch (\Exception $e) {
+            Log::error('Proxy: Error al enviar pedido a Oracle', [
+                'orden' => $orden,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'ok' => false,
+                'status' => 'Error',
+                'message' => 'Error en el proxy: ' . $e->getMessage(),
+                'errors' => null
+            ], 500);
+        }
     }
 }
