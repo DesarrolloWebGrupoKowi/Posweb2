@@ -665,17 +665,22 @@
                         // Construir la URL para el POST
                         // const pos = pedidoId.substring(0, 3) + '_' + pedidoId.substring(3);
                         const pos = pedidoId;
-                        const urlPost =
-                            `http://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${pos}&Origen=POS`;
+                        const urlPost = `/DashTienda/enviar-pedido/${pos}`;
+                        // `http://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${pos}&Origen=POS`;
 
                         console.log('Enviando POST a:', urlPost);
+                        console.log('CSRF Token:', document.querySelector(
+                            'meta[name="csrf-token"]').getAttribute('content'));
 
                         // Hacer la petición POST
                         const response = await fetch(urlPost, {
-                            method: 'GET',
+                            method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'Accept': 'application/json'
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').getAttribute(
+                                    'content')
                             }
                         });
 

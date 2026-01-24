@@ -839,6 +839,9 @@ Route::group(['middleware' => 'auth'], function () {
     //Informacion para mostrar en la grafica del dashboard
     Route::get('DashTienda/grafica', 'App\Http\Controllers\DashTiendaController@Grafica')->name('DashTienda.grafica');
 
+    // Enviar pedido a Oracle (proxy)
+    Route::post('DashTienda/enviar-pedido/{orden}', 'App\Http\Controllers\DashTiendaController@enviarPedidoOracle')->name('DashTienda.enviar-pedido');
+
     //Dashboard de tienda
     Route::get('DashCorte', 'App\Http\Controllers\DashCorteController@Index')->name('DashCorte');
 
