@@ -4,7 +4,7 @@
 ])
 
 @if (request()->get('fecha_fin', date('Y-m-d')) != date('Y-m-d') &&
-        Auth::id() == 11 &&
+        // Auth::id() == 11 &&
         !(count($corteTienda) == 0 && count($corteTiendaSolicitudes) == 0))
     <div class="btn-group">
         <a href="/procesarclientescontado/{{ request()->get('fecha_fin', date('Y-m-d')) }}/{{ request()->get('tienda_id') }}/-1"
