@@ -240,7 +240,7 @@
                                             <td class="fw-500">
                                                 <span
                                                     class="{{ $item->Source_Transaction_Identifier ? 'tags-blue' : 'tags-red' }}">
-                                                    {{ $item->Source_Transaction_Identifier ?? 'SIN PEDIDO' }}
+                                                    {{ $item->Source_Transaction_Number ?? 'SIN PEDIDO' }}
                                                 </span>
                                             </td>
                                             <td class="fw-500">
@@ -266,12 +266,12 @@
                                                         @include('components.icons.download')
                                                         <span class="d-none d-md-inline">PDF</span>
                                                     </a>
-                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden={{ $POS }}"
+                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
                                                         target="_blank"
                                                         class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura Zip">
+                                                        title="Descargar Factura XML">
                                                         @include('components.icons.download')
-                                                        <span class="d-none d-md-inline">ZIP</span>
+                                                        <span class="d-none d-md-inline">XML</span>
                                                     </a>
                                                 @elseif ($item->Source_Transaction_Identifier && $item->STATUS != 'PROCESADO')
                                                     <button type="button"
@@ -340,7 +340,7 @@
                                                 <span
                                                     class="{{ $item->Source_Transaction_Identifier ? 'tags-blue' : 'tags-red' }}">
                                                     @if ($item->Source_Transaction_Identifier)
-                                                        {{ $item->Source_Transaction_Identifier }}
+                                                        {{ $item->Source_Transaction_Number }}
                                                     @elseif ($item->Editar != null)
                                                         SIN LIGAR
                                                     @else
@@ -371,12 +371,12 @@
                                                         @include('components.icons.download')
                                                         <span class="d-none d-md-inline">PDF</span>
                                                     </a>
-                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden={{ $POS }}"
+                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
                                                         target="_blank"
                                                         class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura Zip">
+                                                        title="Descargar Factura XML">
                                                         @include('components.icons.download')
-                                                        <span class="d-none d-md-inline">ZIP</span>
+                                                        <span class="d-none d-md-inline">XML</span>
                                                     </a>
                                                 @elseif ($item->Source_Transaction_Identifier && $item->STATUS != 'PROCESADO')
                                                     <button type="button"

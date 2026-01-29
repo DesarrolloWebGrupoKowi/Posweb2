@@ -261,6 +261,7 @@ class DashTiendaController extends Controller
                 'ct.Bill_To',
                 'cc.NomClienteCloud',
                 'ct.Source_Transaction_Identifier',
+                'XXXV.Source_Transaction_Number',
                 'XXXV.STATUS',
                 'XXXV.MENSAJE_ERROR',
                 DB::raw('SUM(ct.ImporteArticulo) as total_importe'),
@@ -275,6 +276,7 @@ class DashTiendaController extends Controller
                 'ct.Bill_To',
                 'cc.NomClienteCloud',
                 'ct.Source_Transaction_Identifier',
+                'XXXV.Source_Transaction_Number',
                 'XXXV.STATUS',
                 'XXXV.MENSAJE_ERROR'
             )
@@ -292,6 +294,7 @@ class DashTiendaController extends Controller
                 'ct.Bill_To',
                 'sf.NomCliente',
                 'ct.Source_Transaction_Identifier',
+                'XXXV.Source_Transaction_Number',
                 'XXXV.STATUS',
                 'XXXV.MENSAJE_ERROR',
                 'sf.Editar',
@@ -308,6 +311,7 @@ class DashTiendaController extends Controller
                 'ct.Bill_To',
                 'sf.NomCliente',
                 'ct.Source_Transaction_Identifier',
+                'XXXV.Source_Transaction_Number',
                 'XXXV.STATUS',
                 'XXXV.MENSAJE_ERROR',
                 'sf.Editar'
