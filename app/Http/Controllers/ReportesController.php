@@ -45,7 +45,7 @@ class ReportesController extends Controller
         } elseif (!empty($usuarioTienda->IdTienda)) {
             $tiendas = Tienda::where('IdTienda', $usuarioTienda->IdTienda)->where('Status', 0)->orderBy('IdTienda')->get();
         } elseif ($usuarioTienda->Todas == 0) {
-            $tiendas = Tienda::where('Status', 0)->orderBy('IdTienda')->get();
+            $tiendas = Tienda::orderBy('IdTienda')->get();
         } else {
             $tiendas = collect(); // Por si no entra a ningún caso
         }
@@ -184,7 +184,7 @@ class ReportesController extends Controller
         } elseif (!empty($usuarioTienda->IdTienda)) {
             $tiendas = Tienda::where('IdTienda', $usuarioTienda->IdTienda)->where('Status', 0)->orderBy('IdTienda')->get();
         } elseif ($usuarioTienda->Todas == 0) {
-            $tiendas = Tienda::where('Status', 0)->orderBy('IdTienda')->get();
+            $tiendas = Tienda::orderBy('IdTienda')->get();
         } else {
             $tiendas = collect(); // Por si no entra a ningún caso
         }
@@ -600,7 +600,7 @@ class ReportesController extends Controller
         } elseif (!empty($usuarioTienda->IdTienda)) {
             $tiendas = Tienda::where('IdTienda', $usuarioTienda->IdTienda)->where('Status', 0)->orderBy('IdTienda')->get();
         } elseif ($usuarioTienda->Todas == 0) {
-            $tiendas = Tienda::where('Status', 0)->orderBy('IdTienda')->get();
+            $tiendas = Tienda::orderBy('IdTienda')->get();
         } else {
             $tiendas = collect(); // Por si no entra a ningún caso
         }
