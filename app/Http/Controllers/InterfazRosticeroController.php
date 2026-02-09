@@ -47,7 +47,9 @@ class InterfazRosticeroController extends Controller
 
 
 
-        $rostisados = DatRosticero::with(['Detalle', 'Lotes' => function ($lote) use ($almacen, $organization_Name) {
+        $rostisados = DatRosticero::with(['Detalle' => function($detalle){
+            $detalle->where('DatDetalleRosticero.Status', 0);
+        }, 'Lotes' => function ($lote) use ($almacen, $organization_Name) {
             $lote->leftJoin('server.CLOUD_TABLES.dbo.XXKW_ONHAND_TIENDAS', 'XXKW_ONHAND_TIENDAS.INVENTORY_ITEM_ID', 'XXKW_ITEMS.INVENTORY_ITEM_ID')
                 // $lote->leftJoin('CLOUD_TABLES.dbo.XXKW_ONHAND_TIENDAS', 'XXKW_ONHAND_TIENDAS.INVENTORY_ITEM_ID', 'XXKW_ITEMS.INVENTORY_ITEM_ID')
                 ->where('XXKW_ONHAND_TIENDAS.SUBINVENTORY_CODE', $almacen)
