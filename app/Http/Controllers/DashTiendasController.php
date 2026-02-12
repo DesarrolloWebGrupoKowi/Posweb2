@@ -49,10 +49,11 @@ class DashTiendasController extends Controller
                     SUM(CASE WHEN DatCortesTienda.CantArticulo IS NOT NULL THEN DatCortesTienda.CantArticulo ELSE 0 END) AS total_kilos,
                     COUNT(DISTINCT CASE WHEN DatCortesTienda.IdSolicitudFactura IS NOT NULL THEN DatCortesTienda.IdEncabezado ELSE NULL END) AS solicitudes_factura,
                     COUNT(DISTINCT CASE WHEN DatCortesTienda.Source_Transaction_Identifier IS NULL THEN DatCortesTienda.IdEncabezado ELSE NULL END) AS tickets_sin_pedido,
-                    COUNT(DISTINCT CASE WHEN DatCortesTienda.Bill_To IS NULL THEN DatCortesTienda.IdEncabezado ELSE NULL END) AS tickets_sin_bill
+                    COUNT(DISTINCT CASE WHEN DatCortesTienda.IdSolicitudFactura IS NOT NULL AND DatCortesTienda.Bill_To IS NULL AND SolicitudFactura.Bill_To IS NULL THEN DatCortesTienda.IdEncabezado ELSE NULL END) AS tickets_sin_bill
                 ')
         )
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', '=', 'DatCortesTienda.IdTienda')
+            ->leftJoin('SolicitudFactura', 'SolicitudFactura.IdSolicitudFactura', '=', 'DatCortesTienda.IdSolicitudFactura')
             ->whereIn('DatCortesTienda.IdTienda', $this->tiendasIds)
             ->where('DatCortesTienda.StatusVenta', 0)
             ->whereDate('DatCortesTienda.FechaVenta', $fecha)
@@ -98,6 +99,7 @@ class DashTiendasController extends Controller
 
         // Determinar el tipo de agrupación según el rango de fechas
         // $diferenciaDias = Carbon::parse($fechaFin)->diffInDays(Carbon::parse($fechaInicio));
+        $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
 
         $ventasPorTienda = DatEncabezado::select(
             DB::raw('
@@ -109,6 +111,7 @@ class DashTiendasController extends Controller
         )
             ->leftJoin('DatDetalle', 'DatDetalle.IdEncabezado', '=', 'DatEncabezado.IdEncabezado')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', '=', 'DatEncabezado.IdTienda')
+            ->whereIn('DatEncabezado.IdTienda', $this->tiendasIds)
             ->where('DatEncabezado.StatusVenta', 0)
             ->whereBetween(
                 DB::raw('CAST(DatEncabezado.FechaVenta AS DATE)'),
