@@ -581,7 +581,7 @@
 
         $(document).ready(function() {
             // Inicializar gráfica de ventas
-            const ctxVentas = document.getElementById('ventasChart').getContext('2d');
+            const ctxVentas = document?.getElementById('ventasChart')?.getContext('2d');
             ventasChart = new Chart(ctxVentas, {
                 type: 'line',
                 data: {
@@ -618,7 +618,7 @@
             });
 
             // Inicializar gráfica de pagos
-            const ctxPagos = document.getElementById('pagosChart').getContext('2d');
+            const ctxPagos = document?.getElementById('pagosChart')?.getContext('2d');
             pagosChart = new Chart(ctxPagos, {
                 type: 'doughnut',
                 data: {

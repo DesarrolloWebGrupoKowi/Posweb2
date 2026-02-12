@@ -158,6 +158,7 @@ class DashTiendaController extends Controller
         $labels = [];
         $query = CorteTienda::where('IdTienda', $tiendaId)
             ->whereIn('DatCortesTienda.IdTienda', $tiendasIds)
+            ->where('DatCortesTienda.StatusVenta', 0)
             ->selectRaw('SUM(ImporteArticulo) as ventas');
 
         switch ($periodo) {
@@ -190,11 +191,14 @@ class DashTiendaController extends Controller
                 $fechaInicio = Carbon::parse($fecha)->subDays(8)->startOfDay();
                 $query = $query
                     ->selectRaw('YEAR(FechaVenta) as ano')
+                    ->selectRaw("DATENAME(MONTH, FechaVenta) as mes")
+                    ->selectRaw("DATEPART(DAY, FechaVenta) as dia")
                     ->selectRaw("CONCAT(DATENAME(MONTH, FechaVenta), ' ', DATEPART(DAY, FechaVenta)) as tiempo")
                     ->whereDate('FechaVenta', '>=', $fechaInicio)
-                    ->groupByRaw("YEAR(FechaVenta), CONCAT(DATENAME(MONTH, FechaVenta), ' ', DATEPART(DAY, FechaVenta))")
+                    ->groupByRaw("YEAR(FechaVenta), DATENAME(MONTH, FechaVenta), DATEPART(DAY, FechaVenta)")
                     ->orderBy('ano')
-                    ->orderBy('tiempo')
+                    ->orderBy('mes')
+                    ->orderBy('dia')
                     ->get();
                 break;
 
@@ -227,6 +231,7 @@ class DashTiendaController extends Controller
         $labels = [];
         $query = CorteTienda::leftjoin('CatTipoPago', 'CatTipoPago.IdTipoPago', 'DatCortesTienda.IdTipoPago ')
             ->selectRaw('DatCortesTienda.IdTipoPago, CatTipoPago.NomTipoPago, SUM(ImporteArticulo) as cantidad')
+            ->where('DatCortesTienda.StatusVenta', 0)
             ->where('IdTienda', $tiendaId)
             ->whereIn('DatCortesTienda.IdTienda', $this->tiendasIds)
             ->whereDate('FechaVenta', $fecha)
@@ -291,6 +296,7 @@ class DashTiendaController extends Controller
             ->leftjoin('SolicitudFactura as sf', 'sf.IdSolicitudFactura', 'ct.IdSolicitudFactura')
             ->select(
                 'ct.IdEncabezado',
+                'ct.IdSolicitudFactura',
                 'ct.Bill_To',
                 'sf.NomCliente',
                 'ct.Source_Transaction_Identifier',
@@ -308,6 +314,7 @@ class DashTiendaController extends Controller
             ->whereNotNull('ct.IdSolicitudFactura')
             ->groupBy(
                 'ct.IdEncabezado',
+                'ct.IdSolicitudFactura',
                 'ct.Bill_To',
                 'sf.NomCliente',
                 'ct.Source_Transaction_Identifier',
