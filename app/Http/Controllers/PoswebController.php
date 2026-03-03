@@ -2663,6 +2663,19 @@ class PoswebController extends Controller
         return view('Posweb.VentaTicketDiario', compact('tienda', 'tickets', 'fecha', 'txtFolio', 'total', 'totalIva'));
     }
 
+    public function VentaTicketDiarioSubir()
+    {
+        try {
+            // Ejecutar el procedimiento almacenado
+            DB::statement("EXEC Sp_Subida_Ventas");
+
+            // Redirigir de vuelta a la pantalla con el idTicket
+            return back()->with('msjAdd', 'La solicitud se subió correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error al subir la solicitud: ' . $th->getMessage());
+        }
+    }
+
     public function ConcentradoVentas(Request $request)
     {
         $tienda = Tienda::find(Auth::user()->usuarioTienda->IdTienda);

@@ -387,6 +387,9 @@ Route::group(['middleware' => 'auth'], function () {
     //SubirConstanciaSolicitud
     Route::post('/SubirConstanciaSolicitud/{idSolicitudFactura}', 'App\Http\Controllers\SolicitudFacturaController@SubirConstanciaSolicitud');
 
+    //Subir solicitudes de factura PROD
+    Route::post('/SolicitudesFactura/Subir', 'App\Http\Controllers\SolicitudFacturaController@SolicitudFacturaSubir');
+
     //+============================================================================================================================================+//
     //ClientesNuevos
     Route::get('/ClientesNuevos', 'App\Http\Controllers\LigarClientesController@ClientesNuevos');
@@ -531,6 +534,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     //VentaTicketDiario
     Route::get('/VentaTicketDiario', 'App\Http\Controllers\PoswebController@VentaTicketDiario');
+
+    //Subir Venta por ticket diario
+    Route::post('/VentaTicketDiario/Subir', 'App\Http\Controllers\PoswebController@VentaTicketDiarioSubir');
 
     //ConcentradoVentas
     Route::get('/ConcentradoVentas', 'App\Http\Controllers\PoswebController@ConcentradoVentas');
@@ -726,6 +732,9 @@ Route::group(['middleware' => 'auth'], function () {
     //SolicitudCancelacionTicket
     Route::get('/SolicitudCancelacionTicket', 'App\Http\Controllers\CancelacionTicketsController@SolicitudCancelacionTicket');
 
+    //SolicitudCancelacionTicket
+    Route::post('/SolicitudCancelacionTicket/Subir', 'App\Http\Controllers\CancelacionTicketsController@SolicitudCancelacionTicketSubir');
+
     //SolicitarCancelacion
     Route::post('/SolicitarCancelacion/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@SolicitarCancelacion');
 
@@ -841,6 +850,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Enviar pedido a Oracle (proxy)
     Route::post('DashTienda/enviar-pedido/{orden}', 'App\Http\Controllers\DashTiendaController@enviarPedidoOracle')->name('DashTienda.enviar-pedido');
+
+    // Enviar correo al Cliente (proxy)
+    Route::post('DashTienda/enviar-correo', 'App\Http\Controllers\DashTiendaController@enviarCorreoOracle')->name('DashTienda.enviar-correo-cliente');
 
     //Dashboard de tienda
     Route::get('DashCorte', 'App\Http\Controllers\DashCorteController@Index')->name('DashCorte');

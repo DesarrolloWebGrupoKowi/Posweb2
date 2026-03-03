@@ -61,6 +61,7 @@ class RecepcionController extends Controller
                 ' left join CatTiendas as d on d.IdTienda = c.IdTiendaOrigen' .
                 " where a.IdCapRecepcion = " . $idRecepcion . "" .
                 " and a.IdStatusRecepcion = 1" .
+                " and b.Status = 0" .
                 " union all" .
                 " select Referencia, '', '" . $tienda->Almacen . "', 0, 0, '0', a.CodArticulo, a.CantArticulo, 0, 1, 0, b.NomArticulo" .
                 " from CapRecepcionManualTmp as a" .

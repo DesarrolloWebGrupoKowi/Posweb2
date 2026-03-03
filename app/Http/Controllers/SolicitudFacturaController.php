@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Caja;
 use App\Models\CatMetodoPago;
+use App\Models\CatRegimenFiscal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +43,8 @@ class SolicitudFacturaController extends Controller
 
         $metodosPago = CatMetodoPago::where('Status', 0)
             ->get();
+
+        $regimenFiscal = CatRegimenFiscal::where('Status', 0)->get();
 
         $cliente = DB::table('CatClientes as a')
             ->leftJoin('CatClienteEmail as b', 'b.IdClienteCloud', 'a.IdClienteCloud')
@@ -95,7 +98,22 @@ class SolicitudFacturaController extends Controller
 
         //return $ticket;
 
-        return view('SolicitudFactura.SolicitudFactura', compact('auxTicketFacturado', 'tienda', 'rfcCliente', 'cliente', 'numTicket', 'ticket', 'estadoTienda', 'nomCliente', 'usosCFDI', 'tiposPagoTicket', 'banderaMultiPagoFact', 'chkTipoPagoTicket', 'metodosPago'));
+        return view('SolicitudFactura.SolicitudFactura', compact(
+            'auxTicketFacturado',
+            'tienda',
+            'rfcCliente',
+            'cliente',
+            'numTicket',
+            'ticket',
+            'estadoTienda',
+            'nomCliente',
+            'usosCFDI',
+            'tiposPagoTicket',
+            'banderaMultiPagoFact',
+            'chkTipoPagoTicket',
+            'metodosPago',
+            'regimenFiscal'
+        ));
     }
 
     public function VerSolicitudesFactura(Request $request)
@@ -104,8 +122,7 @@ class SolicitudFacturaController extends Controller
         $fecha1 = $request->txtFecha1;
         $fecha2 = $request->txtFecha2;
 
-       $solicitudesFactura = SolicitudFactura::with('ConstanciaSituacionFiscal')
-            ->where('IdTienda', $idTienda)
+        $solicitudesFactura = SolicitudFactura::where('IdTienda', $idTienda)
             ->when(isset($fecha1) && !isset($fecha2), function ($q) use ($fecha1) {
                 return $q->whereDate('FechaSolicitud', '>=', $fecha1);
             })
@@ -129,6 +146,8 @@ class SolicitudFacturaController extends Controller
 
         $metodosPago = CatMetodoPago::where('Status', 0)
             ->get();
+
+        $regimenFiscal = CatRegimenFiscal::where('Status', 0)->get();
 
         if ($correo == 'NoTieneCorreo') {
             $cliente = DB::table('CatClientes as a')
@@ -186,7 +205,18 @@ class SolicitudFacturaController extends Controller
 
         //return $tiposPagoTicket;
 
-        return view('SolicitudFactura.VerificarSolicitudFactura', compact('rfcCliente', 'bill_To', 'cliente', 'ticket', 'tiposPagoTicket', 'nomCliente', 'banderaMultiPagoFact', 'usosCFDI', 'metodosPago'));
+        return view('SolicitudFactura.VerificarSolicitudFactura', compact(
+            'rfcCliente',
+            'bill_To',
+            'cliente',
+            'ticket',
+            'tiposPagoTicket',
+            'nomCliente',
+            'banderaMultiPagoFact',
+            'usosCFDI',
+            'metodosPago',
+            'regimenFiscal'
+        ));
     }
 
     public function GuardarSolicitudFactura(Request $request)
@@ -205,9 +235,9 @@ class SolicitudFacturaController extends Controller
             'cfdi' => 'required'
         ]);
 
-        if (!empty($checks) && empty($request->file('cSituacionFiscal'))) {
-            return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.');
-        }
+        // if (!empty($checks) && empty($request->file('cSituacionFiscal'))) {
+        //     return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.');
+        // }
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
@@ -279,6 +309,7 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => $request->metodopag,
+                        'RegimenFiscal' => $request->regimenfiscal,
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -429,6 +460,7 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => strtoupper($request->metodopag),
+                        'RegimenFiscal' => $request->regimenfiscal,
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -562,6 +594,7 @@ class SolicitudFacturaController extends Controller
                     'Bill_To' => null,
                     'UsoCFDI' => strtoupper($request->cfdi),
                     'MetodoPago' => strtoupper($request->metodopag),
+                    'RegimenFiscal' => $request->regimenfiscal,
                     'Editar' => 0,
                     'IdCaja' => $idCaja,
                     'Status' => 0,
@@ -692,6 +725,7 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => strtoupper($request->metodopag),
+                        'RegimenFiscal' => $request->regimenfiscal,
                         'Editar' => 0,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -788,5 +822,18 @@ class SolicitudFacturaController extends Controller
 
         DB::commit();
         return back();
+    }
+
+    public function SolicitudFacturaSubir()
+    {
+        try {
+            // Ejecutar el procedimiento almacenado
+            DB::statement("EXEC Sp_Subida_Solicitud");
+
+            // Redirigir de vuelta a la pantalla con el idTicket
+            return back()->with('msjAdd', 'La solicitud se subió correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error al subir la solicitud: ' . $th->getMessage());
+        }
     }
 }
