@@ -106,7 +106,7 @@
                             <td>
                                 {{-- {{ $rostisado->CantidadVenta }}
                                 - --}}
-                                {{ $rostisado->Detalle->where('Status', 0)->where('Vendida', 1)->sum('Cantidad') }}
+                                {{ $rostisado->Detalle->where('Status', 0)->whereNull('CantMermaRecalentado')->where('Vendida', 1)->sum('Cantidad') }}
                             </td>
                             <td>
                                 @if (!$rostisado->FechaInterfazBaja)

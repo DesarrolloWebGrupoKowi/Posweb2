@@ -218,6 +218,7 @@ class InterfazRosticeroController extends Controller
 
                 $cantidadVenta = DatDetalleRosticero::where('IdRosticero', $rostisado->IdRosticero)
                     ->where('Status', 0)
+                    ->whereNull('CantMermaRecalentado')
                     ->where('Vendida', 1)
                     ->sum('cantidad');
 

@@ -192,26 +192,66 @@ class DashTiendaController extends Controller
             case '7d':
                 // Ventas por día de los últimos 7 días
                 $fechaInicio = Carbon::parse($fecha)->subDays(8)->startOfDay();
+                // $query = $query
+                //     ->selectRaw('YEAR(FechaVenta) as ano')
+                //     ->selectRaw("DATENAME(MONTH, FechaVenta) as mes")
+                //     ->selectRaw("DATEPART(DAY, FechaVenta) as dia")
+                //     ->selectRaw("CONCAT(DATENAME(MONTH, FechaVenta), ' ', DATEPART(DAY, FechaVenta)) as tiempo")
+                //     ->whereDate('FechaVenta', '>=', $fechaInicio)
+                //     ->groupByRaw("YEAR(FechaVenta), DATENAME(MONTH, FechaVenta), DATEPART(DAY, FechaVenta)")
+                //     ->orderBy('ano')
+                //     ->orderBy('mes')
+                //     ->orderBy('dia')
+                //     ->get();
                 $query = $query
-                    ->selectRaw('YEAR(FechaVenta) as ano')
-                    ->selectRaw("DATENAME(MONTH, FechaVenta) as mes")
-                    ->selectRaw("DATEPART(DAY, FechaVenta) as dia")
-                    ->selectRaw("CONCAT(DATENAME(MONTH, FechaVenta), ' ', DATEPART(DAY, FechaVenta)) as tiempo")
+                    ->selectRaw("
+                    DATEPART(HOUR, FechaVenta) AS hora,
+                    RIGHT('0' + CAST(
+                        CASE
+                            WHEN DATEPART(HOUR, FechaVenta) = 0 THEN 12
+                            WHEN DATEPART(HOUR, FechaVenta) > 12 THEN DATEPART(HOUR, FechaVenta) - 12
+                            ELSE DATEPART(HOUR, FechaVenta)
+                        END AS VARCHAR
+                    ), 2)
+                    + ' ' +
+                    CASE
+                        WHEN DATEPART(HOUR, FechaVenta) BETWEEN 0 AND 11 THEN 'AM'
+                        ELSE 'PM'
+                    END AS tiempo
+                ")
                     ->whereDate('FechaVenta', '>=', $fechaInicio)
-                    ->groupByRaw("YEAR(FechaVenta), DATENAME(MONTH, FechaVenta), DATEPART(DAY, FechaVenta)")
-                    ->orderBy('ano')
-                    ->orderBy('mes')
-                    ->orderBy('dia')
+                    ->groupByRaw('DATEPART(HOUR, FechaVenta)')
+                    ->orderBy('hora')
                     ->get();
                 break;
 
             case '30d':
                 $fechaInicio = Carbon::parse($fecha)->subDays(29)->startOfDay();
+                // $query = $query
+                //     ->selectRaw("CONCAT(YEAR(FechaVenta), ' SEM ', DATEPART(WEEK, FechaVenta)) as tiempo")
+                //     ->whereDate('FechaVenta', '>=', $fechaInicio)
+                //     ->groupByRaw("CONCAT(YEAR(FechaVenta), ' SEM ', DATEPART(WEEK, FechaVenta))")
+                //     ->orderBy('tiempo')
+                //     ->get();
                 $query = $query
-                    ->selectRaw("CONCAT(YEAR(FechaVenta), ' SEM ', DATEPART(WEEK, FechaVenta)) as tiempo")
+                    ->selectRaw("
+                DATEPART(HOUR, FechaVenta) AS hora,
+                RIGHT('0' + CAST(
+                    CASE
+                        WHEN DATEPART(HOUR, FechaVenta) = 0 THEN 12
+                        WHEN DATEPART(HOUR, FechaVenta) > 12 THEN DATEPART(HOUR, FechaVenta) - 12
+                        ELSE DATEPART(HOUR, FechaVenta)
+                    END AS VARCHAR
+                ), 2)
+                + ' ' +
+                CASE
+                    WHEN DATEPART(HOUR, FechaVenta) BETWEEN 0 AND 11 THEN 'AM'
+                    ELSE 'PM'
+                END AS tiempo
+            ")
                     ->whereDate('FechaVenta', '>=', $fechaInicio)
-                    ->groupByRaw("CONCAT(YEAR(FechaVenta), ' SEM ', DATEPART(WEEK, FechaVenta))")
-                    ->orderBy('tiempo')
+                    ->groupByRaw('DATEPART(HOUR, FechaVenta)')
+                    ->orderBy('hora')
                     ->get();
                 break;
         }
@@ -314,6 +354,7 @@ class DashTiendaController extends Controller
             ->whereDate('ct.FechaVenta', $fecha)
             ->whereIn('ct.IdTienda', $this->tiendasIds)
             ->where('ct.StatusVenta', 0)
+            ->where('sf.Status', 0)
             ->whereNotNull('ct.IdSolicitudFactura')
             ->groupBy(
                 'ct.IdEncabezado',
