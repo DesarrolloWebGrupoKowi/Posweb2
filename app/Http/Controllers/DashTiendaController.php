@@ -45,6 +45,9 @@ class DashTiendaController extends Controller
 
         // Tienda actual
         $tiendaActual = Tienda::find($tiendaId);
+        // $tiendaActual = Tienda::leftJoin('DatCorreosTienda as cc', 'cc.IdTienda', '=', 'CatTiendas.IdTienda')
+        // ->select('CatTiendas.*', 'cc.FacturistaCorreo')
+        // ->find($tiendaId);
 
         $tiendas = $this->tiendaService->obtenerTiendasOpcional();
 
@@ -296,9 +299,9 @@ class DashTiendaController extends Controller
             ->leftjoin('SolicitudFactura as sf', 'sf.IdSolicitudFactura', 'ct.IdSolicitudFactura')
             ->select(
                 'ct.IdEncabezado',
-                'ct.IdSolicitudFactura',
                 'ct.Bill_To',
                 'sf.NomCliente',
+                'sf.Email',
                 'ct.Source_Transaction_Identifier',
                 'XXXV.Source_Transaction_Number',
                 'XXXV.STATUS',
@@ -314,9 +317,9 @@ class DashTiendaController extends Controller
             ->whereNotNull('ct.IdSolicitudFactura')
             ->groupBy(
                 'ct.IdEncabezado',
-                'ct.IdSolicitudFactura',
                 'ct.Bill_To',
                 'sf.NomCliente',
+                'sf.Email',
                 'ct.Source_Transaction_Identifier',
                 'XXXV.Source_Transaction_Number',
                 'XXXV.STATUS',
@@ -395,6 +398,103 @@ class DashTiendaController extends Controller
                 'status' => 'Error',
                 'message' => 'Error en el proxy: ' . $e->getMessage(),
                 'errors' => null
+            ], 500);
+        }
+    }
+
+    // Metodos para enviar correos al cliente
+    public function enviarCorreoOracle(Request $request)
+    {
+        try {
+            // Validar los datos recibidos
+            $validated = $request->validate([
+                'orden' => 'required|string',
+                'correo_destino' => 'required|email',
+                'correo_facturista' => 'nullable|string',
+                'correo_tienda' => 'nullable|string',
+                'telefono' => 'nullable|string',
+                'enviar_copia_facturista' => 'nullable|boolean'
+            ]);
+
+            // Construir los parámetros para la API
+            $baseUrl = 'http://oraclefacturasrest.kowi.com.mx/api/Documentos/Email';
+
+            // Preparar parámetros
+            $params = [
+                'Orden' => $validated['orden'],
+                // 'CorreoDestino' => $validated['correo_destino'],
+                'CorreoDestino' => 'daniel.hernandez@kowi.com.mx',
+                'CorreoFacturista' => '',
+                // 'CorreoTienda' => $validated['correo_tienda'] ?? '',
+                'CorreoTienda' => 'daniel.hernandez@kowi.com.mx',
+                'Telefono' => $validated['telefono'] ?? ''
+            ];
+
+            Log::info('Enviando correo a Oracle API', [
+                'params' => $params
+            ]);
+
+            // Agregar correo facturista solo si está marcado el checkbox
+            if ($request->has('enviar_copia_facturista') && $request->enviar_copia_facturista == '1') {
+                $params['CorreoFacturista'] = $validated['correo_facturista'] ?? '';
+            }
+
+            // Filtrar parámetros vacíos
+            $params = array_filter($params, function ($value) {
+                return !empty($value);
+            });
+
+            // Construir la URL con parámetros
+            $queryString = http_build_query($params);
+            $apiUrl = $baseUrl . '?' . $queryString;
+
+            Log::info('Enviando correo a Oracle API', [
+                'url' => $apiUrl,
+                'params' => $params
+            ]);
+
+            // Hacer la petición GET a la API
+            $response = Http::withOptions([
+                'verify' => false,
+            ])->timeout(60)->get($apiUrl);
+
+            // Log de la respuesta
+            Log::info('Respuesta de Oracle API', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            // // Verificar si la respuesta fue exitosa
+            if ($response->successful()) {
+                $responseData = $response->json();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Correo enviado exitosamente',
+                    'data' => $responseData
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al enviar el correo: ' . $response->status(),
+                    'error' => $response->body()
+                ], 400);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error al enviar correo: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request_data' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno del servidor: ' . $e->getMessage()
             ], 500);
         }
     }
