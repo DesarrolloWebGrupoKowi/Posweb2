@@ -29,7 +29,8 @@ class Cliente extends Model
                         'CodigoPostal',
                         'Email',
                         'Telefono',
-                        'Location_Status'
+                        'Location_Status',
+                        'Regimen'
                     ];
     public $timestamps = false;
     protected $primaryKey = 'IdCatCliente';

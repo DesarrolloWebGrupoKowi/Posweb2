@@ -358,7 +358,7 @@
                             id="regimenfiscal"
                             required>
                             @foreach ($regimenFiscal as $regimen)
-                                <option value="{{ $regimen->RegimenFiscal }}">
+                                <option value="{{ $regimen->RegimenFiscal }}" {{ $nomCliente->Regimen == $regimen->RegimenFiscal ? 'selected' : '' }}>
                                     {{ $regimen->NomRegimenFiscal }}
                                 </option>
                             @endforeach
