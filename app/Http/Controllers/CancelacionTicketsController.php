@@ -512,14 +512,18 @@ class CancelacionTicketsController extends Controller
                 'Status' => 0,
                 'subir' => 0,
             ]);
+
+            // Cerramos el commit en base de datos
+            DB::commit();
+
+            // Ejecutamos el job para subir la solicitud a la nube
+            \App\Jobs\SubirSolicitudCancelacionJob::dispatch();
+
+            return back()->with('msjAdd', 'La solicitud de cancelación de tickete, se realizó correctamente');
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
-
-        DB::commit();
-
-        return back()->with('msjAdd', 'La solicitud de cancelación de tickete, se realizó correctamente');
     }
 
     public function HistorialCancelacionTickets(Request $request)
