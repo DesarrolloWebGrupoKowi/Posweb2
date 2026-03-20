@@ -27,6 +27,7 @@ class ClientesController extends Controller
     {
         try {
             DB::statement("EXEC Sp_Descarga_CatClientes");
+            DB::statement("EXEC Sp_Descarga_CatClienteEmail");
             return back()->with('msjAdd', 'Clientes actualizados correctamente');
         } catch (\Throwable $th) {
             return back()->with('msjdelete', 'Error al actualizar clientes: ' . $th->getMessage());
