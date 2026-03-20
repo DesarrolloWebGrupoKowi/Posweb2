@@ -104,3 +104,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
 });
+
+// Evita doble submit: bloquea el botón *en el submit del form* (no en click),
+// porque deshabilitar el submitter durante el click puede cancelar el envío en algunos navegadores.
+function pwLockSubmitButton(button) {
+    if (!button) return;
+    if (button.hasAttribute('disabled') || button.disabled) return;
+
+    const text = (button.textContent || '').trim() || 'Enviando';
+
+    // Espera al siguiente "tick" para no interferir con el submit nativo.
+    setTimeout(() => {
+        // Si el DOM cambió o ya se deshabilitó, no hacemos nada.
+        if (!button || button.disabled || button.hasAttribute('disabled')) return;
+
+        button.disabled = true;
+        button.innerHTML = `
+            <span class="d-flex align-items-center gap-2 bg-transparent text-white">
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                ${text}...
+            </span>
+        `;
+    }, 0);
+}
+
+document.addEventListener('submit', (e) => {
+    // Solo aplicamos a forms que tengan el botón objetivo.
+    const form = e.target;
+    if (!form || !form.querySelector) return;
+
+    const rotateBtn = form.querySelector('.btn-loading');
+    if (!rotateBtn) return;
+
+    // event.submitter (moderno) nos dice exactamente qué botón disparó el submit
+    const submitter = e.submitter || rotateBtn;
+    if (submitter && submitter.classList.contains('btn-loading')) {
+        pwLockSubmitButton(submitter);
+    }
+}, true);

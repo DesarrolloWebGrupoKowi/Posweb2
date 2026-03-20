@@ -14,8 +14,9 @@ class ClientesController extends Controller
     {
         $paginate = $request->paginate ? $request->paginate : 10;
         $txtFiltro = $request->get('txtFiltro');
-        $clientes = Cliente::where('RFC', 'LIKE', $txtFiltro)
+        $clientes = Cliente::where('RFC', 'LIKE', '%' . $txtFiltro . '%')
             ->orWhere('NomCliente', 'LIKE', '%' . $txtFiltro . '%')
+            ->orWhere('Locacion', 'LIKE', '%' . $txtFiltro . '%')
             ->paginate($paginate)
             ->withQueryString();
 

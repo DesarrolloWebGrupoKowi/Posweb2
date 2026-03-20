@@ -11,6 +11,14 @@
                     @include('components.title', ['titulo' => 'Solicitar Factura'])
                 </div>
                 <div class="d-flex gap-2">
+                    <a href="/CatClientes"
+                        class="btn btn-sm"
+                        style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 6px; padding: 8px 16px;">
+                        <span class="d-flex align-items-center gap-2">
+                            @include('components.icons.user')
+                            Clientes
+                        </span>
+                    </a>
                     <a href="/VerSolicitudesFactura"
                         class="btn btn-sm"
                         style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 6px; padding: 8px 16px;">

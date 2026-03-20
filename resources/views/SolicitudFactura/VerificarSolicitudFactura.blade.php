@@ -23,6 +23,17 @@
             </div>
         </div>
 
+        @if (!is_null($solicitudFactura))
+            {{-- Abre automáticamente el modal cuando el ticket ya tiene solicitud --}}
+            <button type="button"
+                class="modalOpen d-none"
+                data-bs-toggle="modal"
+                data-bs-target="#ModalSolicitudFacturaExistente">
+                Abrir
+            </button>
+            @include('SolicitudFactura.ModalSolicitudFacturaExistente')
+        @endif
+
         <form action="/GuardarSolicitudFactura"
             method="POST"
             enctype="multipart/form-data">
@@ -358,7 +369,8 @@
                             id="regimenfiscal"
                             required>
                             @foreach ($regimenFiscal as $regimen)
-                                <option value="{{ $regimen->RegimenFiscal }}" {{ $nomCliente->Regimen == $regimen->RegimenFiscal ? 'selected' : '' }}>
+                                <option value="{{ $regimen->RegimenFiscal }}"
+                                    {{ $nomCliente->Regimen == $regimen->RegimenFiscal ? 'selected' : '' }}>
                                     {{ $regimen->NomRegimenFiscal }}
                                 </option>
                             @endforeach
@@ -372,7 +384,7 @@
                         <button type="button"
                             class="btn btn-warning"
                             data-bs-toggle="modal"
-                            data-bs-target="#ModalConfirmarSolicitudCliente">
+                            data-bs-target="{{ !is_null($solicitudFactura) ? '#ModalSolicitudFacturaExistente' : '#ModalConfirmarSolicitudCliente' }}">
                             <i class="fa fa-save"></i> Guardar Solicitud
                         </button>
                     </div>

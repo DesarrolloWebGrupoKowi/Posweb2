@@ -365,7 +365,7 @@
                                             name="idTicket"
                                             value="{{ $idTicket ?? $ticket->IdTicket }}">
                                         <button type="submit"
-                                            class="btn btn-sm"
+                                            class="btn-loading btn btn-sm"
                                             style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.75rem;">
                                             <span class="d-flex align-items-center gap-1">
                                                 @include('components.icons.upload')
@@ -467,7 +467,7 @@
                                             class="d-inline">
                                             @csrf
                                             <button type="submit"
-                                                class="btn btn-sm"
+                                                class="btn-loading btn btn-sm"
                                                 style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.75rem;">
                                                 <span class="d-flex align-items-center gap-1">
                                                     @include('components.icons.upload')
@@ -509,7 +509,7 @@
                                         @csrf
                                         <button type="submit"
                                             type="button"
-                                            class="btn btn-sm"
+                                            class="btn-loading btn btn-sm"
                                             style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.75rem;"
                                             id="rotateButton">
                                             <span id="buttonIcon">
