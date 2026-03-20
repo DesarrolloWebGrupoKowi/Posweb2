@@ -345,6 +345,9 @@ Route::group(['middleware' => 'auth'], function () {
     //CatClientes
     Route::get('/CatClientes', 'App\Http\Controllers\ClientesController@CatClientes');
 
+    //CatClientesActualizar
+    Route::post('/CatClientes/Actualizar', 'App\Http\Controllers\ClientesController@CatClientesActualizar');
+
     //+============================================================================================================================================+//
     //CatClientesCloud
     Route::get('/CatClientesCloud', 'App\Http\Controllers\ClientesCloudController@CatClientesCloud');

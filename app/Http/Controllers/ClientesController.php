@@ -22,4 +22,14 @@ class ClientesController extends Controller
 
         return view('Clientes.CatClientes', compact('clientes', 'txtFiltro'));
     }
+
+    public function CatClientesActualizar(Request $request)
+    {
+        try {
+            DB::statement("EXEC Sp_Descarga_CatClientes");
+            return back()->with('msjAdd', 'Clientes actualizados correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error al actualizar clientes: ' . $th->getMessage());
+        }
+    }
 }
