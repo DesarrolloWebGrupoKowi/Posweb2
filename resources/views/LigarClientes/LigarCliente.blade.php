@@ -377,6 +377,12 @@
                         <span>{{ $solicitud->MetodoPago ? $solicitud->MetodoPago : 'Sin dato' }}</span>
                     </div>
                 </div>
+                <div class="col-sm-6 col-md-3">
+                    <label>Regimen Fiscal:</label>
+                    <div>
+                        <span>{{ $solicitud->NomRegimenFiscal ? $solicitud->NomRegimenFiscal : 'Sin dato' }}</span>
+                    </div>
+                </div>
             </div>
 
             <div class="mt-4 content-table content-table-full card">

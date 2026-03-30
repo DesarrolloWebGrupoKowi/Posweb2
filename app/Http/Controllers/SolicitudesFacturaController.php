@@ -108,12 +108,13 @@ class SolicitudesFacturaController extends Controller
 
     public function VerSolicitud($id, Request $request)
     {
-        $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco')
+        $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'rf.NomRegimenFiscal')
             ->with('ConstanciaSituacionFiscal')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
             ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
             ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
+            ->leftJoin('CatRegimenFiscal as rf', 'rf.RegimenFiscal', 'SolicitudFactura.RegimenFiscal')
             ->where('Id', $id)
             // ->whereNotNull('Editar')/*  */
             ->first();
