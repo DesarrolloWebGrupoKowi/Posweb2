@@ -483,7 +483,9 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> --}}
+    {{-- <script src="{{ asset('js/cdn.jsdelivr.net.js') }}"></script> --}}
+    <script src="{{ asset('js/chart.js') }}"></script>
     <script>
         let ventasChart = null;
         let ultimoMesChart = null;

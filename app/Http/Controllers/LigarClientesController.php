@@ -165,13 +165,14 @@ class LigarClientesController extends Controller
 
         // $ligarCliente = empty($cOracle) ? 1 : 0;
         try {
-            $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'DatEncabezado.IdTicket')
+            $solicitud = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'DatEncabezado.IdTicket', 'rf.NomRegimenFiscal')
                 ->with('ConstanciaSituacionFiscal')
                 ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'SolicitudFactura.IdEncabezado')
                 ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
                 ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
                 ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
                 ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
+                ->leftJoin('CatRegimenFiscal as rf', 'rf.RegimenFiscal', 'SolicitudFactura.RegimenFiscal')
                 ->where('IdSolicitudFactura', $request->idSolicitudFactura)
                 ->whereNotNull('Editar')
                 ->first();
