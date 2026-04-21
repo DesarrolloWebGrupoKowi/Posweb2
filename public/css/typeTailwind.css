@@ -76,7 +76,7 @@ h2 {
     text-transform: capitalize;
 }
 
-.btn-check:focus+.btn,
+.btn-check:focus + .btn,
 .btn:focus {
     outline: 0;
     box-shadow: none;
@@ -115,6 +115,11 @@ h2 {
     border: 1px solid #9ca3af;
     color: #1e293b;
     line-height: 1.8rem;
+}
+
+.btn-outline-dark-green:hover {
+    background: #065f46;
+    color: white;
 }
 
 .btn-excel {
@@ -158,7 +163,9 @@ button[disabled] i {
     text-align: center;
     border: 1px solid #64748b;
     border-radius: 0.25rem;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
     cursor: pointer;
     color: #64748b;
     line-height: 27px;
@@ -229,57 +236,65 @@ button[disabled] i {
 .tags-green {
     font-weight: 500;
     /* color: rgb(3 84 63); */
-    color: rgb(255, 255, 255);
+    /* color: rgb(255, 255, 255); */
     border-radius: 0.25rem;
     /* background-color: rgb(222 247 236); */
-    background-color: rgb(3 84 63);
+    /* background-color: rgb(3 84 63); */
     padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 21px;
+    background-color: rgba(3, 84, 63, 0.1);
+    color: #03543f;
 }
 
 .tags-blue {
     font-weight: 500;
     /* color: rgb(30 66 159); */
-    color: white;
+    /* color: white; */
     border-radius: 0.25rem;
     /* background-color: rgb(225 239 254); */
-    background-color: rgb(30 66 159);
+    /* background-color: rgb(30 66 159); */
     padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 21px;
+    background-color: rgba(30, 66, 159, 0.1);
+    color: #1e429f;
 }
 
 .tags-red {
     font-weight: 500;
     /* color: rgb(155 28 28); */
-    color: white;
+    /* color: white; */
     border-radius: 0.25rem;
     /* background-color: rgb(253 232 232); */
-    background-color: rgb(155 28 28);
+    /* background-color: rgb(155 28 28); */
     padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 21px;
+    background-color: rgba(190, 24, 93, 0.1);
+    color: #be185d;
 }
 
 .tags-yellow {
     font-weight: 500;
     /* color: rgb(114 59 19); */
-    color: white;
+    /* color: white; */
     border-radius: 0.25rem;
     /* background-color: rgb(253 246 178); */
-    background-color: rgb(114 59 19);
+    /* background-color: rgb(114 59 19); */
     padding: 0.125rem 0.625rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 21px;
+    background-color: rgba(202, 138, 4, 0.1);
+    color: #ca8a04;
 }
 
 .router {
@@ -404,7 +419,8 @@ tbody tr {
 
 tbody tr:hover {
     /* background-color: #f1f5f9; */
-    background-color: #e5e5e5;
+    /* background-color: #e5e5e5; */
+    background-color: rgba(30, 41, 59, 0.06);
 }
 
 .table-active {
@@ -431,7 +447,7 @@ table thead {
     font-size: smaller;
 }
 
-table>tbody>tr>td {
+table > tbody > tr > td {
     font-weight: 500;
     /* border-bottom: 1px solid #0002; */
     padding-top: 2px;
@@ -484,7 +500,6 @@ table>tbody>tr>td {
 }
 
 @media (max-width: 576px) {
-
     .pagination li a,
     .pagination li span {
         padding: 6px 10px;

@@ -13,32 +13,49 @@ class DashTiendasController extends Controller
 {
     protected $tiendaService;
     protected $tiendasIds;
+    protected $tiendas;
 
     public function __construct(TiendaService $tiendaService)
     {
         $this->tiendaService = $tiendaService;
+
+        $this->middleware(function ($request, $next) {
+            $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();
+            $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
+            return $next($request);
+        });
     }
+
 
     public function Tiendas(Request $request)
     {
-        $fecha = $request->get('fecha_fin', Carbon::now()->format('Y-m-d'));
+        $fecha = $request->get('fecha_fin');
         $tiendaId = $request->get('tienda_id');
+        $detallado = $request->get('detallado');
+        $pos = $request->get('pos');
+        $pos = str_replace('_', '', $pos);
 
-        if ($tiendaId && $tiendaId > 0) {
+        if (($tiendaId && $fecha && !$detallado) || ($pos && !$detallado)) {
             return redirect()->route('DashTienda', [
                 'tienda_id' => $tiendaId,
-                'fecha_fin' => $fecha
+                'fecha_fin' => $fecha,
+                'detallado' => $detallado,
+                'pos' => $pos
             ]);
         }
 
-        $tiendasForm = $this->tiendaService->obtenerTiendasOpcional();
-        $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
-
-        if ($tiendasForm->isEmpty()) {
-            return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
+        if (($tiendaId && $fecha && $detallado == 'on') || ($pos && $detallado == 'on')) {
+            return redirect()->route('DashCorte', [
+                'tienda_id' => $tiendaId,
+                'fecha_fin' => $fecha,
+                'detallado' => $detallado,
+                'pos' => $pos
+            ]);
         }
 
-        $tiendas = CorteTienda::select(
+        $tiendas = $this->tiendas;
+
+        $tiendasRendimiento = CorteTienda::select(
             DB::raw('
                     DatCortesTienda.IdTienda,
                     CatTiendas.NombreCorto AS tienda,
@@ -72,8 +89,8 @@ class DashTiendasController extends Controller
         $topMermas = $this->obtenerTopMermas($fecha);
 
         return view('Dashboards/Tiendas', compact(
-            'tiendasForm',
             'tiendas',
+            'tiendasRendimiento',
             'kpis',
             'graficaVentas',
             'graficaUltimoMes',
@@ -159,12 +176,17 @@ class DashTiendasController extends Controller
     // Métodos de cálculo principales
     private function calcularKpis($fecha)
     {
+        if (empty($fecha)) {
+            return collect();
+        }
+
         $hoy  = Carbon::parse($fecha)->format('Y-m-d');
         $ayer = Carbon::parse($fecha)->subDay()->format('Y-m-d');
 
         $ventasPorTienda = DatEncabezado::select(
             DB::raw('
                     CatTiendas.NombreCorto AS tienda,
+                    COUNT(DISTINCT DatEncabezado.IdEncabezado) AS tickets,
                     SUM(ImporteArticulo) AS total_ventas,
                     COUNT(CASE WHEN SolicitudFE = 0 THEN 1 END) AS solicitudes_factura,
                     SUM(CASE WHEN DatDetalle.CantArticulo IS NOT NULL THEN DatDetalle.CantArticulo ELSE 0 END) AS total_kilos
@@ -180,6 +202,10 @@ class DashTiendasController extends Controller
             ->get();
 
         $ventasHoy = $ventasPorTienda->sum('total_ventas');
+        $ticketsHoy = $ventasPorTienda->sum('tickets');
+
+        $promedioTickets = $ticketsHoy > 0 ? round($ventasHoy / $ticketsHoy, 2) : 0;
+
 
         $totalTiendas = DB::table('CatTiendas')->whereIn('IdTienda', $this->tiendasIds)->where('Status', 0)->count();
         $totalTiendasActivas = $ventasPorTienda->count();
@@ -189,6 +215,8 @@ class DashTiendasController extends Controller
         return [
             // Ventas de hoy
             'ventas_hoy' => $ventasHoy,
+            'tickets_hoy' => $ticketsHoy,
+            'promedio_tickets' => $promedioTickets,
 
             'ventas_vs_ayer' => $this->calcularVariacion($ayer, $ventasHoy),
 
@@ -255,6 +283,10 @@ class DashTiendasController extends Controller
 
     private function obtenerGraficaUltimoMes($fechaFin)
     {
+        if (empty($fechaFin)) {
+            return collect();
+        }
+
         $query = DatEncabezado::select(
             DB::raw('
                         CONVERT(VARCHAR(10), DatEncabezado.FechaVenta, 103) AS fecha,
@@ -288,6 +320,11 @@ class DashTiendasController extends Controller
 
     private function obtenerTopProductos($fecha)
     {
+        if (empty($fecha)) {
+            return collect();
+        }
+
+        // return Carbon::parse($fecha)->format('d-m-Y');
         return DB::table('DatEncabezado as e')
             ->leftJoin('DatDetalle as d', 'e.IdEncabezado', '=', 'd.IdEncabezado')
             ->leftJoin('CatArticulos as a', 'a.IdArticulo', '=', 'd.IdArticulo')

@@ -14,11 +14,23 @@ class ClientesController extends Controller
     {
         $paginate = $request->paginate ? $request->paginate : 10;
         $txtFiltro = $request->get('txtFiltro');
-        $clientes = Cliente::where('RFC', 'LIKE', $txtFiltro)
+        $clientes = Cliente::where('RFC', 'LIKE', '%' . $txtFiltro . '%')
             ->orWhere('NomCliente', 'LIKE', '%' . $txtFiltro . '%')
+            ->orWhere('Locacion', 'LIKE', '%' . $txtFiltro . '%')
             ->paginate($paginate)
             ->withQueryString();
 
         return view('Clientes.CatClientes', compact('clientes', 'txtFiltro'));
+    }
+
+    public function CatClientesActualizar(Request $request)
+    {
+        try {
+            DB::statement("EXEC Sp_Descarga_CatClientes");
+            DB::statement("EXEC Sp_Descarga_CatClienteEmail");
+            return back()->with('msjAdd', 'Clientes actualizados correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error al actualizar clientes: ' . $th->getMessage());
+        }
     }
 }

@@ -1,152 +1,209 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Solicitudes Factura')
-@section('dashboardWidth', 'width-general')
+@section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-2 pt-4">
-
-        <div class="card border border-5 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Solicitudes Factura'])
-            </div>
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
-
-        <div>
-            <form class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2 pt-4 pt-sm-0"
-                action="/SolicitudesFactura" method="GET">
-                <input type="hidden" class="idPagination" value="&idTienda={{ $idTienda }}">
-                <div class="col-12 col-sm-auto border border-5 p-2 bg-white" style="border-radius: 10px">
-                    <select class="form-select rounded" style="line-height: 18px; border:0px" name="idTienda"
-                        id="idTienda">
-                        <option value="">Seleccione Tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
+    <x-layout.page-container>
+        <!-- SECCIÓN 1: TITULO Y FILTROS -->
+        <x-layout.section-card>
+            <!-- Título y botones principales -->
+            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+                <x-title titulo="Solicitudes Factura" />
+                <div class="d-flex gap-2">
+                    <x-filters.buttons.refresh-button />
+                    <x-filters.buttons.home-button />
                 </div>
-                <div class="col-12 col-sm-auto text-center border border-5 p-2 bg-white" style="border-radius: 10px">
-                    <button class="w-100 btn text-white " style="line-height: 18px; background: #10b981">
-                        Buscar
-                    </button>
+            </div>
+            <!-- Formulario de filtros -->
+            <x-filters.filter-form>
+                <!-- Filtros Básicos -->
+                <x-filters.filter-group>
+                    <x-filters.inputs.select-input
+                        name="idTienda"
+                        label="Tienda"
+                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    />
+                    <x-filters.inputs.date-input
+                        name="fecha"
+                        label="Fecha"
+                        :value="request('fecha')"
+                        :autofocus="true"
+                    />
+                    <x-filters.inputs.text-input
+                        name="rfc"
+                        label="RFC"
+                        placeholder="Buscar por RFC"
+                    />
+                    <x-filters.inputs.text-input
+                        name="nombre"
+                        label="Nombre"
+                        placeholder="Buscar por Nombre"
+                    />
+                    {{-- <x-filters.inputs.text-input
+                        name="pos"
+                        label="Pedido"
+                        placeholder="Buscar por Pedido POS_000000"
+                    /> --}}
+                    {{-- <x-filters.inputs.checkbox-input
+                        name="sinProcesar"
+                        label="Sin Procesar"
+                        :checked="request('sinProcesar') == 'on'"
+                        helperText="Ver sin procesar"
+                    /> --}}
+                </x-filters.filter-group>
+                <x-slot:buttons>
+                    <x-filters.buttons.clear-button />
+                    {{-- <x-filters.buttons.advanced-button
+                        :active="$filtrosAvanzadosActivos"
+                        :hasBadge="true"
+                    /> --}}
+                    <x-filters.buttons.submit-button />
+                </x-slot:buttons>
+            </x-filters.filter-form>
+        </x-layout.section-card>
+
+        <!-- SECCIÓN: TABLAS -->
+        <div
+            class="flex-grow-1 d-flex gap-4"
+            style="min-height: 0;"
+        >
+            <div
+                class="d-flex flex-column"
+                style="flex: 2; min-width: 0; min-height: 0;"
+            >
+                <div
+                    class="card d-flex flex-column border-0 p-4"
+                    style="border-radius: 10px; min-height: 0;"
+                >
+                    <div class="table-responsive content-table-sm">
+                        <table class="table">
+                            <thead class="table-head">
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Ticket</th>
+                                    <th>Tienda</th>
+                                    <th>Fecha</th>
+                                    <th>RFC</th>
+                                    <th>Nombre</th>
+                                    <th>Total</th>
+                                    <th>Pedido</th>
+                                    {{-- <th>Cliente</th> --}}
+                                    {{-- <th>MP</th>
+                                <th>CFDI</th> --}}
+                                    <th>Estatus</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @include('components.table-empty', [
+                                    'items' => $solicitudes,
+                                    'colspan' => 23,
+                                ])
+                                @foreach ($solicitudes as $solicitud)
+                                    {{-- <tr style="line-height: .9rem"> --}}
+                                    <tr>
+                                        <td>{{ $solicitud->IdSolicitudFactura }}</td>
+                                        <td>{{ $solicitud->IdEncabezado }}</td>
+                                        <td style="min-width: 150px;">{{ $solicitud->NomTienda }}</td>
+                                        <td style="min-width: 120px;">
+                                            {{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
+                                        <td>{{ $solicitud->RFC }}</td>
+                                        <td style="min-width: 230px;">{{ $solicitud->NomCliente }}</td>
+                                        <td class="text-end">${{ number_format($solicitud->TotalFactura, 2) }}</td>
+                                        <td class="text-center">
+                                            @if ($solicitud->Source_Transaction_Identifier)
+                                                <span class="tags-blue">
+                                                    {{ $solicitud->Source_Transaction_Identifier }}
+                                                </span>
+                                            @elseif($solicitud->Editar !== null)
+                                                <span class="tags-red">
+                                                    SIN LIGAR
+                                                </span>
+                                                @if ($solicitud->Editar == '0')
+                                                    <span class="tags-red">
+                                                        NUEVO
+                                                    </span>
+                                                @else
+                                                    <span class="tags-red">
+                                                        ACTUALIZAR
+                                                    </span>
+                                                @endif
+                                            @else
+                                                <span class="tags-red">
+                                                    SIN PEDIDO
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($solicitud->Status == 1)
+                                                <span class="tags-red">Cancelada</span>
+                                            @elseif ($solicitud->Status == 0 && $solicitud->Editar != null)
+                                                <span class="tags-yellow">SIN PROCESAR</span>
+                                            @else
+                                                @if ($solicitud->InterfaceStatus == 'PROCESADO')
+                                                    <span class="tags-green">{{ $solicitud->InterfaceStatus }}</span>
+                                                @elseif ($solicitud->InterfaceStatus == 'ERROR')
+                                                    <span class="tags-red">{{ $solicitud->InterfaceStatus }}</span>
+                                                @elseif ($solicitud->InterfaceStatus == 'PENDIENTE')
+                                                    <span class="tags-yellow">{{ $solicitud->InterfaceStatus }}</span>
+                                                @else
+                                                    <span
+                                                        class="tags-yellow">{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}
+                                                    </span>
+                                                @endif
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                                {{-- <button
+                                                    class="btn btn-sm btn-outline-primary d-flex gap-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ModalTickets{{ $solicitud->Id }}"
+                                                    title="Detalle de ticket"
+                                                >
+                                                    @include('components.icons.list-ol')
+                                                    <span class="d-none d-md-inline">DETALLE</span>
+                                                </button> --}}
+                                                <a
+                                                    href="/SolicitudesFactura/{{ $solicitud->IdSolicitudFactura }}"
+                                                    {{-- target="_blank" --}}
+                                                    class="btn btn-sm btn-outline-primary d-flex gap-2"
+                                                    title="Ver detalle de solicitud"
+                                                >
+                                                    @include('components.icons.list')
+                                                    <span class="d-none d-md-inline">VER</span>
+                                                </a>
+                                                {{-- @if ($solicitud->Status == 0 && !$solicitud->InterfaceStatus == 'PROCESADO')
+                                                    <button
+                                                        class="btn btn-sm btn-outline-danger d-flex gap-2"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ModalCancelarSolicitud{{ $solicitud->Id }}"
+                                                        title="Cancelar solicitud"
+                                                    >
+                                                        @include('components.icons.delete')
+                                                        <span class="d-none d-md-inline">Cancelar</span>
+                                                    </button>
+                                                @endif --}}
+                                                {{-- @include('SolicitudesFactura.ModalTickets') --}}
+                                                @include('SolicitudesFactura.ModalCancelarSolicitud')
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    @include('components.paginate', ['items' => $solicitudes])
                 </div>
-            </form>
-
-            <div class="content-table content-table-flex-none card p-3 border border-5" style="border-radius: 10px">
-                <table>
-                    <thead class="table-head">
-                        <tr>
-                            <th class="rounded-start">Id</th>
-                            <th>Ticket</th>
-                            <th>Tienda</th>
-                            <th>Fecha</th>
-                            <th>Cliente</th>
-                            <th>Nombre</th>
-                            <th>RFC</th>
-                            <th>MP</th>
-                            <th>CFDI</th>
-                            <th>Status</th>
-                            <th class="rounded-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @include('components.table-empty', ['items' => $solicitudes, 'colspan' => 23])
-                        @foreach ($solicitudes as $solicitud)
-                            {{-- <tr style="line-height: .9rem"> --}}
-                            <tr>
-                                <td>{{ $solicitud->IdSolicitudFactura }}</td>
-                                <td>{{ $solicitud->IdTicket }}</td>
-                                <td>{{ $solicitud->NomTienda }}</td>
-                                <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
-                                <td>{{ $solicitud->TipoPersona }}</td>
-                                <td>{{ $solicitud->NomCliente }}</td>
-                                <td>{{ $solicitud->RFC }}</td>
-                                <td>{{ $solicitud->MetodoPago }}</td>
-                                <td>{{ $solicitud->UsoCFDI }}</td>
-                                <td>
-                                    @if ($solicitud->Status == 1)
-                                        <span class="tags-red">Cancelada</span>
-                                    @endif
-                                    @if ($solicitud->Status == 0 && $solicitud->Editar != null)
-                                        <span class="tags-red">Pendiente de relacionar</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <button class="btn-table btn-table-show border border-3" data-bs-toggle="modal"
-                                        data-bs-target="#ModalTickets{{ $solicitud->Id }}" title="Detalle de ticket">
-                                        @include('components.icons.list-ol')
-                                    </button>
-                                    <a href="/SolicitudesFactura/{{ $solicitud->Id }}" class="btn-table border border-3">
-                                        @include('components.icons.list')
-                                    </a>
-                                    @if ($solicitud->Status == 0)
-                                        <button class="btn-table btn-table-delete border border-3" data-bs-toggle="modal"
-                                            data-bs-target="#ModalCancelarSolicitud{{ $solicitud->Id }}"
-                                            title="Cancelar solicitud">
-                                            @include('components.icons.delete')
-                                        </button>
-                                    @endif
-                                    @include('SolicitudesFactura.ModalTickets')
-                                    @include('SolicitudesFactura.ModalCancelarSolicitud')
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-
-            </div>
-            @include('components.paginate', ['items' => $solicitudes])
-        </div>
-
-        <div class="pt-3 pb-5">
-            <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
-                Solicitudes pendientes de relacionar
-            </span>
-            <div class="content-table content-table-flex-none card p-3 border border-5" style="border-radius: 10px">
-                <table>
-                    <thead class="table-head">
-                        <tr>
-                            <th class="rounded-start">Id</th>
-                            <th>Ticket</th>
-                            <th>Tienda</th>
-                            <th>Fecha</th>
-                            <th>Cliente</th>
-                            <th>Nombre</th>
-                            <th>RFC</th>
-                            <th class="rounded-end">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @include('components.table-empty', [
-                            'items' => $solicitudesPendientes,
-                            'colspan' => 7,
-                        ])
-                        @foreach ($solicitudesPendientes as $solicitud)
-                            {{-- <tr style="line-height: .9rem"> --}}
-                            <tr>
-                                <td>{{ $solicitud->IdSolicitudFactura }}</td>
-                                <td>{{ $solicitud->IdTicket }}</td>
-                                <td>{{ $solicitud->NomTienda }}</td>
-                                <td>{{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
-                                <td>{{ $solicitud->TipoPersona }}</td>
-                                <td>{{ $solicitud->NomCliente }}</td>
-                                <td>{{ $solicitud->RFC }}</td>
-                                <td>
-                                    @if ($solicitud->Status == 1)
-                                        <span class="tags-red">Cancelada</span>
-                                    @endif
-                                    @if ($solicitud->Status == 0 && $solicitud->Editar != null)
-                                        <span class="tags-red">Pendiente de relacionar</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @include('SolicitudesFactura.ModalCancelarSolicitud')
-                        @endforeach
-                    </tbody>
-                </table>
             </div>
         </div>
-    </div>
+
+    </x-layout.page-container>
+    <style>
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background: rgb(30, 41, 59);
+            z-index: 2;
+        }
+    </style>
 @endsection

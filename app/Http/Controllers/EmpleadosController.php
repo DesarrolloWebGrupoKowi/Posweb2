@@ -7,16 +7,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Empleado;
 use App\Models\CorteTienda;
-use App\Models\CreditoEmpleado;
 use App\Models\LimiteCredito;
-use App\Models\Tienda;
-use App\Models\VentaCreditoEmpleado;
+use App\Services\TiendaService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class EmpleadosController extends Controller
 {
+    protected $tiendaService;
+    protected $tiendasIds;
+    protected $tiendas;
+
+    public function __construct(TiendaService $tiendaService)
+    {
+        $this->tiendaService = $tiendaService;
+
+        $this->middleware(function ($request, $next) {
+            $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();
+            $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
+            return $next($request);
+        });
+    }
+
     public function AdeudosEmpleado(Request $request)
     {
         $txtFiltro = $request->input('txtFiltro', '');
@@ -65,43 +78,33 @@ class EmpleadosController extends Controller
 
     public function VentaEmpleados(Request $request)
     {
-        $usuarioTienda = Auth::user()->usuarioTienda;
-
-        if ($usuarioTienda->doesntExist()) {
-            return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
-        }
-
-        if ($usuarioTienda->Todas == 0) {
-            $tiendas = Tienda::where('Status', 0)
-                ->orderBy('IdTienda')
-                ->get();
-        }
-        if (!empty($usuarioTienda->IdTienda)) {
-            $tiendas = Tienda::where('Status', 0)
-                ->where('IdTienda', $usuarioTienda->IdTienda)
-                ->orderBy('IdTienda')
-                ->get();
-        }
-        if (!empty($usuarioTienda->IdPlaza)) {
-            $tiendas = Tienda::where('IdPlaza', $usuarioTienda->IdPlaza)
-                ->where('Status', 0)
-                ->orderBy('IdTienda')
-                ->get();
-        }
+        $tiendas = $this->tiendas;
+        $tiendasIds = $this->tiendasIds;
 
         // return $request;
         $idTienda = $request->idTienda;
         $fecha1 = $request->fecha1;
         $fecha2 = $request->fecha2;
         $chkNomina = $request->chkNomina;
+        $soloAdeudos = $request->soloAdeudos;
         $numNomina = $request->numNomina;
+        $tipoNomina = $request->tipoNomina;
+        $codigoInterfaz = $request->codigoInterfaz;
+        $filtrosAvanzadosActivos = $request->filled('idTienda') ||
+            $request->filled('tipoNomina') ||
+            $request->filled('fechaInterfaz') ||
+            $request->filled('codigoInterfaz');
 
         $ventasEmpleado = DB::table('DatCortesTienda as a')
             ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
             ->leftJoin('CatTiendas as c', 'c.IdTienda', 'a.IdTienda')
             ->leftJoin('DatEncabezado as d', 'd.IdEncabezado', 'a.IdEncabezado')
             ->leftJoin('CatArticulos as e', 'e.IdArticulo', 'a.IdArticulo')
+            ->leftJoin('HistorialCreditos as f', 'f.IdHistorialCredito', 'a.Interfazado')
+            ->leftJoin('CatTipoPago as g', 'g.IdTipoPago', 'a.IdTipoPago')
             ->select(
+                'a.IdEncabezado',
+                'a.IdTipoPago',
                 'a.NumNomina',
                 'a.FechaVenta',
                 'c.NomTienda',
@@ -114,9 +117,19 @@ class EmpleadosController extends Controller
                 'e.NomArticulo',
                 'e.CodArticulo',
                 'a.StatusCredito',
-                'b.Status'
+                'b.Status',
+                'f.IdHistorialCredito',
+                'f.FechaInterfaz',
+                'g.NomTipoPago',
             )
-            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            // Filtro de fecha SOLO si vienen ambas fechas
+            ->when(!empty($fecha1) && !empty($fecha2), function ($query) use ($fecha1, $fecha2) {
+                $query->whereBetween(DB::raw('cast(a.FechaVenta as date)'), [$fecha1, $fecha2]);
+            })
+            // Si NO vienen fechas Y NO viene código de interfaz, forzar un resultado vacío
+            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz, function ($query) {
+                $query->whereRaw('1 = 0'); // Esto hace que la consulta no devuelva nada
+            })
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
             })
@@ -126,72 +139,131 @@ class EmpleadosController extends Controller
             ->when($chkNomina != 'on', function ($query) {
                 $query->whereNotNull('a.NumNomina');
             })
+            ->when($soloAdeudos == 'on', function ($query) {
+                $query->where('a.StatusCredito', 0);
+            })
+            ->when($tipoNomina, function ($query) use ($tipoNomina) {
+                $query->where('b.TipoNomina', $tipoNomina);
+            })
+            ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
+                $query->where('f.IdHistorialCredito', $codigoInterfaz);
+            })
             ->where('d.StatusVenta', 0)
             ->orderBy('a.FechaVenta')
             ->get();
+        // ->paginate(1000);
 
-        $importeTotal = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+        $importeTotal = CorteTienda::leftJoin('CatEmpleados as b', 'b.NumNomina', 'DatCortesTienda.NumNomina')
+            ->leftJoin('HistorialCreditos as f', 'f.IdHistorialCredito', 'DatCortesTienda.Interfazado')
+            ->whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->where('StatusVenta', 0)
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('IdTienda', $idTienda);
             })
             ->when($chkNomina == 'on', function ($query) use ($numNomina) {
-                $query->where('NumNomina', $numNomina);
+                $query->where('DatCortesTienda.NumNomina', $numNomina);
             })
             ->when($chkNomina != 'on', function ($query) {
-                $query->whereNotNull('NumNomina');
+                $query->whereNotNull('DatCortesTienda.NumNomina');
+            })
+            ->when($soloAdeudos == 'on', function ($query) {
+                $query->where('StatusCredito', 0);
+            })
+            ->when($tipoNomina, function ($query) use ($tipoNomina) {
+                $query->where('b.TipoNomina', $tipoNomina);
+            })
+            ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
+                $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
             ->sum('ImporteArticulo');
 
-        $importeCredito = CorteTienda::whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-            ->whereNotNull('StatusCredito')
+        $importeCredito = CorteTienda::leftJoin('CatEmpleados as b', 'b.NumNomina', 'DatCortesTienda.NumNomina')
+            ->leftJoin('HistorialCreditos as f', 'f.IdHistorialCredito', 'DatCortesTienda.Interfazado')
+            ->whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->where('StatusCredito', 0)
             ->where('StatusVenta', 0)
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('IdTienda', $idTienda);
             })
             ->when($chkNomina == 'on', function ($query) use ($numNomina) {
-                $query->where('NumNomina', $numNomina);
+                $query->where('DatCortesTienda.NumNomina', $numNomina);
             })
             ->when($chkNomina != 'on', function ($query) {
-                $query->whereNotNull('NumNomina');
+                $query->whereNotNull('DatCortesTienda.NumNomina');
+            })
+            ->when($soloAdeudos == 'on', function ($query) {
+                $query->where('StatusCredito', 0);
+            })
+            ->when($tipoNomina, function ($query) use ($tipoNomina) {
+                $query->where('b.TipoNomina', $tipoNomina);
+            })
+            ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
+                $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
             ->sum('ImporteArticulo');
 
         //return $ventasEmpleado;
 
-        return view('Empleados.VentaEmpleados', compact('tiendas', 'ventasEmpleado', 'fecha1', 'fecha2', 'importeTotal', 'importeCredito', 'chkNomina', 'numNomina', 'idTienda'));
+        return view('Empleados.VentaEmpleados', compact(
+            'tiendas',
+            'ventasEmpleado',
+            'importeTotal',
+            'importeCredito',
+            'filtrosAvanzadosActivos',
+        ));
     }
 
     public function VentaEmpleadosExcel(Request $request)
     {
         // return $request;
+        $tiendas = $this->tiendas;
+        $tiendasIds = $this->tiendasIds;
+
+        // return $request;
         $idTienda = $request->idTienda;
         $fecha1 = $request->fecha1;
         $fecha2 = $request->fecha2;
         $chkNomina = $request->chkNomina;
+        $soloAdeudos = $request->soloAdeudos;
         $numNomina = $request->numNomina;
+        $tipoNomina = $request->tipoNomina;
+        $codigoInterfaz = $request->codigoInterfaz;
 
         $ventasEmpleado = DB::table('DatCortesTienda as a')
             ->leftJoin('CatEmpleados as b', 'b.NumNomina', 'a.NumNomina')
             ->leftJoin('CatTiendas as c', 'c.IdTienda', 'a.IdTienda')
             ->leftJoin('DatEncabezado as d', 'd.IdEncabezado', 'a.IdEncabezado')
             ->leftJoin('CatArticulos as e', 'e.IdArticulo', 'a.IdArticulo')
+            ->leftJoin('HistorialCreditos as f', 'f.IdHistorialCredito', 'a.Interfazado')
+            ->leftJoin('CatTipoPago as g', 'g.IdTipoPago', 'a.IdTipoPago')
             ->select(
+                'a.IdEncabezado',
+                'a.IdTipoPago',
                 'a.NumNomina',
                 'a.FechaVenta',
                 'c.NomTienda',
                 'b.Nombre',
                 'b.Apellidos',
-                'b.Empresa',
                 'b.TipoNomina',
+                'b.Empresa',
                 'd.IdTicket',
                 'a.ImporteArticulo',
                 'e.NomArticulo',
                 'e.CodArticulo',
                 'a.StatusCredito',
-                'b.Status'
+                'b.Status',
+                'f.IdHistorialCredito',
+                'f.FechaInterfaz',
+                'g.NomTipoPago',
             )
-            ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            // Filtro de fecha SOLO si vienen ambas fechas
+            ->when(!empty($fecha1) && !empty($fecha2), function ($query) use ($fecha1, $fecha2) {
+                $query->whereBetween(DB::raw('cast(a.FechaVenta as date)'), [$fecha1, $fecha2]);
+            })
+            // Si NO vienen fechas Y NO viene código de interfaz, forzar un resultado vacío
+            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz, function ($query) {
+                $query->whereRaw('1 = 0'); // Esto hace que la consulta no devuelva nada
+            })
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
             })
@@ -200,6 +272,15 @@ class EmpleadosController extends Controller
             })
             ->when($chkNomina != 'on', function ($query) {
                 $query->whereNotNull('a.NumNomina');
+            })
+            ->when($soloAdeudos == 'on', function ($query) {
+                $query->where('a.StatusCredito', 0);
+            })
+            ->when($tipoNomina, function ($query) use ($tipoNomina) {
+                $query->where('b.TipoNomina', $tipoNomina);
+            })
+            ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
+                $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
             ->where('d.StatusVenta', 0)
             ->orderBy('a.FechaVenta')

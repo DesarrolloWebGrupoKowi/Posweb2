@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Caja;
 use App\Models\CatMetodoPago;
+use App\Models\CatRegimenFiscal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +43,8 @@ class SolicitudFacturaController extends Controller
 
         $metodosPago = CatMetodoPago::where('Status', 0)
             ->get();
+
+        $regimenFiscal = CatRegimenFiscal::where('Status', 0)->get();
 
         $cliente = DB::table('CatClientes as a')
             ->leftJoin('CatClienteEmail as b', 'b.IdClienteCloud', 'a.IdClienteCloud')
@@ -95,7 +98,22 @@ class SolicitudFacturaController extends Controller
 
         //return $ticket;
 
-        return view('SolicitudFactura.SolicitudFactura', compact('auxTicketFacturado', 'tienda', 'rfcCliente', 'cliente', 'numTicket', 'ticket', 'estadoTienda', 'nomCliente', 'usosCFDI', 'tiposPagoTicket', 'banderaMultiPagoFact', 'chkTipoPagoTicket', 'metodosPago'));
+        return view('SolicitudFactura.SolicitudFactura', compact(
+            'auxTicketFacturado',
+            'tienda',
+            'rfcCliente',
+            'cliente',
+            'numTicket',
+            'ticket',
+            'estadoTienda',
+            'nomCliente',
+            'usosCFDI',
+            'tiposPagoTicket',
+            'banderaMultiPagoFact',
+            'chkTipoPagoTicket',
+            'metodosPago',
+            'regimenFiscal'
+        ));
     }
 
     public function VerSolicitudesFactura(Request $request)
@@ -104,8 +122,7 @@ class SolicitudFacturaController extends Controller
         $fecha1 = $request->txtFecha1;
         $fecha2 = $request->txtFecha2;
 
-       $solicitudesFactura = SolicitudFactura::with('ConstanciaSituacionFiscal')
-            ->where('IdTienda', $idTienda)
+        $solicitudesFactura = SolicitudFactura::where('IdTienda', $idTienda)
             ->when(isset($fecha1) && !isset($fecha2), function ($q) use ($fecha1) {
                 return $q->whereDate('FechaSolicitud', '>=', $fecha1);
             })
@@ -129,6 +146,8 @@ class SolicitudFacturaController extends Controller
 
         $metodosPago = CatMetodoPago::where('Status', 0)
             ->get();
+
+        $regimenFiscal = CatRegimenFiscal::where('Status', 0)->get();
 
         if ($correo == 'NoTieneCorreo') {
             $cliente = DB::table('CatClientes as a')
@@ -184,9 +203,24 @@ class SolicitudFacturaController extends Controller
 
         $tiposPagoDistinct->count() > 1 ? $banderaMultiPagoFact = 0 : $banderaMultiPagoFact = 1;
 
+        // $idEncabezado
+        $solicitudFactura = SolicitudFactura::where('IdEncabezado', $idEncabezado)->first();
+
         //return $tiposPagoTicket;
 
-        return view('SolicitudFactura.VerificarSolicitudFactura', compact('rfcCliente', 'bill_To', 'cliente', 'ticket', 'tiposPagoTicket', 'nomCliente', 'banderaMultiPagoFact', 'usosCFDI', 'metodosPago'));
+        return view('SolicitudFactura.VerificarSolicitudFactura', compact(
+            'rfcCliente',
+            'bill_To',
+            'cliente',
+            'ticket',
+            'tiposPagoTicket',
+            'nomCliente',
+            'banderaMultiPagoFact',
+            'usosCFDI',
+            'metodosPago',
+            'regimenFiscal',
+            'solicitudFactura'
+        ));
     }
 
     public function GuardarSolicitudFactura(Request $request)
@@ -205,9 +239,9 @@ class SolicitudFacturaController extends Controller
             'cfdi' => 'required'
         ]);
 
-        if (!empty($checks) && empty($request->file('cSituacionFiscal'))) {
-            return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.');
-        }
+        // if (!empty($checks) && empty($request->file('cSituacionFiscal'))) {
+        //     return back()->with('msjdelete', 'La constancia fiscal es obligatoria cuando se pide un cambio.');
+        // }
 
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
@@ -219,6 +253,11 @@ class SolicitudFacturaController extends Controller
             ->first();
 
         $idEncabezado = $ticket->IdEncabezado;
+
+        $solicitudFactura = SolicitudFactura::where('IdEncabezado', $idEncabezado)->first();
+        if ($solicitudFactura) {
+            return back();
+        }
 
         $cliente = Cliente::where('Bill_To', $request->bill_To)
             ->where('Location_Status', 'A')
@@ -279,6 +318,7 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => $request->metodopag,
+                        'RegimenFiscal' => $request->regimenfiscal,
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -357,13 +397,18 @@ class SolicitudFacturaController extends Controller
                     ->update([
                         'SolicitudFE' => 0
                     ]);
+
+                // Cerramos el commit en base de datos
+                DB::commit();
+
+                // Ejecutamos el job para subir la solicitud a la nube
+                \App\Jobs\SubirSolicitudFacturaJob::dispatch();
+
+                return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: ' . $numTicket);
             } catch (\Throwable $th) {
                 DB::rollback();
                 return back()->with('msjdelete', 'Error: ' . $th->getMessage());
             }
-
-            DB::commit();
-            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: ' . $numTicket);
         }
         //SOLICITUDES CON MAS DE 1 METODO DE PAGO EN CLIENTE EXISTENTE
         else {
@@ -429,6 +474,7 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => empty($editarInfo) ? $cliente->Bill_To : null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => strtoupper($request->metodopag),
+                        'RegimenFiscal' => $request->regimenfiscal,
                         'Editar' => empty($editarInfo) ? null : 1,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -489,19 +535,23 @@ class SolicitudFacturaController extends Controller
                     ->update([
                         'SolicitudFE' => 0
                     ]);
+
+                // Cerramos el commit en base de datos
+                DB::commit();
+
+                // Ejecutamos el job para subir la solicitud a la nube
+                \App\Jobs\SubirSolicitudFacturaJob::dispatch();
+
+                return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: ' . $numTicket);
             } catch (\Throwable $th) {
                 DB::rollback();
                 return back()->with('msjdelete', 'Error: ' . $th->getMessage());
             }
-
-            DB::commit();
-            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: ' . $numTicket);
         }
     }
 
     public function GuardarSolicitudFacturaClienteNuevo(Request $request)
     {
-        // return $request->all();
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
         $numTicket = $request->numTicket;
@@ -512,6 +562,11 @@ class SolicitudFacturaController extends Controller
             ->first();
 
         $idEncabezado = $ticket->IdEncabezado;
+
+        $solicitudFactura = SolicitudFactura::where('IdEncabezado', $idEncabezado)->first();
+        if ($solicitudFactura) {
+            return back();
+        }
 
         $tiposPagoFactura = $request->chkTipoPagoTicket;
 
@@ -562,6 +617,7 @@ class SolicitudFacturaController extends Controller
                     'Bill_To' => null,
                     'UsoCFDI' => strtoupper($request->cfdi),
                     'MetodoPago' => strtoupper($request->metodopag),
+                    'RegimenFiscal' => $request->regimenfiscal,
                     'Editar' => 0,
                     'IdCaja' => $idCaja,
                     'Status' => 0,
@@ -624,13 +680,18 @@ class SolicitudFacturaController extends Controller
                     ->update([
                         'SolicitudFE' => 0
                     ]);
+
+                // Cerramos el commit en base de datos
+                DB::commit();
+
+                // Ejecutamos el job para subir la solicitud a la nube
+                \App\Jobs\SubirSolicitudFacturaJob::dispatch();
+
+                return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: ' . $numTicket);
             } catch (\Throwable $th) {
                 DB::rollback();
                 return back()->with('msjdelete', 'Error: ' . $th->getMessage());
             }
-
-            DB::commit();
-            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: ' . $numTicket);
         }
         //SOLICITUDES CON MAS DE 1 METODO DE PAGO EN CLIENTE NUEVO
         else {
@@ -692,6 +753,7 @@ class SolicitudFacturaController extends Controller
                         'Bill_To' => null,
                         'UsoCFDI' => strtoupper($request->cfdi),
                         'MetodoPago' => strtoupper($request->metodopag),
+                        'RegimenFiscal' => $request->regimenfiscal,
                         'Editar' => 0,
                         'IdCaja' => $idCaja,
                         'Status' => 0,
@@ -736,13 +798,18 @@ class SolicitudFacturaController extends Controller
                     ->update([
                         'SolicitudFE' => 0
                     ]);
+
+                // Cerramos el commit en base de datos
+                DB::commit();
+
+                // Ejecutamos el job para subir la solicitud a la nube
+                \App\Jobs\SubirSolicitudFacturaJob::dispatch();
+
+                return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: ' . $numTicket);
             } catch (\Throwable $th) {
                 DB::rollback();
                 return back()->with('msjdelete', 'Error: ' . $th->getMessage());
             }
-
-            DB::commit();
-            return redirect('SolicitudFactura')->with('msjAdd', 'Se Realizó la Solicitud de Factura del Ticket: ' . $numTicket);
         }
     }
 
@@ -788,5 +855,28 @@ class SolicitudFacturaController extends Controller
 
         DB::commit();
         return back();
+    }
+
+    public function SolicitudFacturaSubir()
+    {
+        try {
+            // Ejecutar el procedimiento almacenado
+            DB::statement("EXEC Sp_Subida_Solicitud");
+
+            // Redirigir de vuelta a la pantalla con el idTicket
+            return back()->with('msjAdd', 'La solicitud se subió correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error al subir la solicitud: ' . $th->getMessage());
+        }
+    }
+
+    public function CatClientesActualizar()
+    {
+        try {
+            DB::statement("EXEC Sp_Descarga_CatClientes");
+            return back()->with('msjAdd', 'Clientes actualizados correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error al actualizar clientes: ' . $th->getMessage());
+        }
     }
 }

@@ -386,6 +386,7 @@ class CancelacionTicketsController extends Controller
             },
             'TipoPago',
             'SolicitudCancelacionTicket',
+            'SolicitudFactura',
         ])
             ->select('DatEncabezado.*', 'CatEmpleados.Nombre', 'CatEmpleados.Apellidos')
             ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'DatEncabezado.IdUsuario')
@@ -430,7 +431,7 @@ class CancelacionTicketsController extends Controller
             $ticketConSolicitud = '';
         }
 
-        //return $ticketConSolicitud;
+        // return $ticket;
 
         return view('CancelacionTickets.SolicitudCancelacionTicket', compact(
             'idTicket',
@@ -442,6 +443,19 @@ class CancelacionTicketsController extends Controller
             'empleado',
             'frecuenteSocio'
         ));
+    }
+
+    public function SolicitudCancelacionTicketSubir()
+    {
+        try {
+            // Ejecutar el procedimiento almacenado
+            DB::statement("EXEC Sp_Subida_SolicitudCancelacionTicket");
+
+            // Redirigir de vuelta a la pantalla con el idTicket
+            return back()->with('msjAdd', 'La solicitud se subió correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error al subir la solicitud: ' . $th->getMessage());
+        }
     }
 
     public function SolicitarCancelacion($idEncabezado, Request $request)
@@ -498,14 +512,18 @@ class CancelacionTicketsController extends Controller
                 'Status' => 0,
                 'subir' => 0,
             ]);
+
+            // Cerramos el commit en base de datos
+            DB::commit();
+
+            // Ejecutamos el job para subir la solicitud a la nube
+            \App\Jobs\SubirSolicitudCancelacionJob::dispatch();
+
+            return back()->with('msjAdd', 'La solicitud de cancelación de tickete, se realizó correctamente');
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
-
-        DB::commit();
-
-        return back()->with('msjAdd', 'La solicitud de cancelación de tickete, se realizó correctamente');
     }
 
     public function HistorialCancelacionTickets(Request $request)
