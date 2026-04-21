@@ -243,12 +243,13 @@
                         <h6 class="fw-semibold mb-0">📊 Resumen de Ventas
                             {{ $solicitud->NomTienda ?? ($solicitud['NomTienda'] ?? 'N/A') }}
                         </h6>
-
-                        <div class="d-flex justify-content-center align-items-center">
-                            <span class="tags-blue">
-                                Facturación en Línea
-                            </span>
-                        </div>
+                        @if ($solicitud->UUID)
+                            <div class="d-flex justify-content-center align-items-center">
+                                <span class="tags-blue">
+                                    Facturación en Línea
+                                </span>
+                            </div>
+                        @endif
                         {{-- <div class="d-flex gap-3">
                             <div class="text-end">
                                 <small class="text-muted d-block">Total Importe</small>
