@@ -17,46 +17,68 @@ class DashTiendaController extends Controller
 {
     protected $tiendaService;
     protected $tiendasIds;
+    protected $tiendas;
 
     public function __construct(TiendaService $tiendaService)
     {
         $this->tiendaService = $tiendaService;
+
+        $this->middleware(function ($request, $next) {
+            $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();
+            $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
+            return $next($request);
+        });
     }
+
     public function Index(Request $request)
     {
-        $tiendaId = $request->get('tienda_id', Tienda::first()->IdTienda ?? null);
-        $reporte = $request->get('reporte', 0);
-        $fecha = $request->get('fecha_fin', Carbon::now()->format('Y-m-d'));
-        $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
+        // Datos del request
+        $tiendaId = $request->get('tienda_id');
+        $detallado = $request->get('detallado');
+        $fecha = $request->get('fecha_fin');
+        $pos = $request->get('pos');
+        $pos = str_replace('_', '', $pos);
 
-        if (!$request->get('tienda_id') || $request->get('tienda_id') == -1) {
+        // Para trabajr con la tienda actual y fecha actual, dependiendo de los parametros
+        $tiendaActual = null;
+        $fechaActual = null;
+
+        if ($tiendaId) {
+            $tiendaActual = Tienda::find($tiendaId);
+            $fechaActual = $fecha;
+        }
+
+        if ($pos) {
+            $item = CorteTienda::where('Source_Transaction_Identifier', $pos)->first();
+            $tiendaId = $tiendaId ? $tiendaId : $item->IdTienda;
+            $tiendaActual = Tienda::find($tiendaId);
+            $fechaActual = $fecha ? $fecha : $item->FechaVenta;
+        }
+
+        // Cuando se pida el form detallado, nos mande a la pantalla de detallado
+        if (!$pos && !$tiendaId && $fecha) {
             return redirect()->route('DashTiendas', [
-                'fecha_fin' => $fecha
+                'tienda_id' => $tiendaId,
+                'fecha_fin' => $fecha,
+                'detallado' => $detallado,
+                'pos' => $pos
             ]);
         }
 
-        if ($reporte == 2) {
+        if ($detallado == 'on') {
             return redirect()->route('DashCorte', [
                 'tienda_id' => $tiendaId,
                 'fecha_fin' => $fecha,
-                'idReporte' => $reporte
+                'detallado' => $detallado,
+                'pos' => $pos
             ]);
         }
 
-        // Tienda actual
-        $tiendaActual = Tienda::find($tiendaId);
-        // $tiendaActual = Tienda::leftJoin('DatCorreosTienda as cc', 'cc.IdTienda', '=', 'CatTiendas.IdTienda')
-        // ->select('CatTiendas.*', 'cc.FacturistaCorreo')
-        // ->find($tiendaId);
-
-        $tiendas = $this->tiendaService->obtenerTiendasOpcional();
-
-        if ($tiendas->isEmpty()) {
-            return back()->with('msjdelete', 'El usuario no tiene tiendas agregadas, vaya al modulo de Usuarios Por Tienda');
-        }
+        // Tiendas a las que tengo acceso
+        $tiendas = $this->tiendas;
 
         // KPIs Principales
-        $kpis = $this->calcularKpis($tiendaId, $fecha);
+        $kpis = $this->calcularKpis($tiendaId, $fecha, $pos);
         // $kpis = [];
 
         // Gráfica de ventas
@@ -64,27 +86,21 @@ class DashTiendaController extends Controller
         $graficaDistribucionPagos = $this->obtenerGraficaDistribucionPagos($tiendaId, $fecha);
 
         // Corte tienda, agrupado por bill, y POS
-        $corteTienda = $this->obtenerCorte($tiendaId, $fecha);
-        $corteTiendaSolicitudes = $this->obtenerCorteSolicitudes($tiendaId, $fecha);
+        $corteTienda = $this->obtenerCorteOptimizado($tiendaId, $fecha, $pos);
+        // return $corteTiendaSolicitudes = $this->obtenerCorteSolicitudes($tiendaId, $fecha, $pos);
+        $corteTiendaSolicitudes = $this->obtenerSolicitudFacturaOptimizado($tiendaId, $fecha, $pos);
 
-        // Top productos
-        // $topProductos = $this->obtenerTopProductos($tiendaId, $fecha);
-        $topProductos = [];
-
-        // Detalle de metricas por tienda
-        // $metricas = $this->obtenerDetalleMetricas($tiendaId);
-        $metricas = [];
+        // return $tiendaActual;
 
         return view('Dashboards/Tienda', compact(
             'tiendaActual',
+            'fechaActual',
             'tiendas',
             'kpis',
             'graficaVentas',
             'graficaDistribucionPagos',
             'corteTienda',
-            'corteTiendaSolicitudes',
-            'topProductos',
-            'metricas'
+            'corteTiendaSolicitudes'
         ));
     }
 
@@ -98,8 +114,22 @@ class DashTiendaController extends Controller
     }
 
     // Métodos de cálculo principales
-    private function calcularKpis($tiendaId, $fecha)
+    private function calcularKpis($tiendaId, $fecha, $pos)
     {
+        // Si hay POS, retornar KPIs en cero
+        if (!empty($pos)) {
+            return [
+                'ventas_hoy' => 0,
+                'ventas_vs_ayer' => 0,
+                'tickets' => 0,
+                'promedio_ticket' => 0,
+                'facturas_pendientes' => 0,
+                'solicitudes_factura' => 0,
+                'kilos_hoy' => 0,
+                'kilos_promedio' => 0,
+            ];
+        }
+
         // return $tiendaId;
         $hoy  = Carbon::parse($fecha)->format('Y-m-d');
         $ayer = Carbon::parse($fecha)->subDay()->format('Y-m-d');
@@ -117,9 +147,10 @@ class DashTiendaController extends Controller
         )
             ->leftJoin('DatDetalle', 'DatDetalle.IdEncabezado', '=', 'DatEncabezado.IdEncabezado')
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', '=', 'DatEncabezado.IdTienda')
-            ->whereIn('DatEncabezado.IdTienda', $tiendasIds)
-            ->where('DatEncabezado.IdTienda', $tiendaId)
             ->where('DatEncabezado.StatusVenta', 0)
+            ->whereIn('DatEncabezado.IdTienda', $tiendasIds)
+
+            ->where('DatEncabezado.IdTienda', $tiendaId)
             ->whereDate('DatEncabezado.FechaVenta', $fecha)
             ->groupBy('DatEncabezado.IdTienda', 'CatTiendas.NombreCorto')
             ->orderBy('DatEncabezado.IdTienda')
@@ -293,9 +324,136 @@ class DashTiendaController extends Controller
         ];
     }
 
-    private function obtenerCorte($tiendaId, $fecha)
+    private function obtenerCorteOptimizado($tiendaId, $fecha, $pos)
     {
-        return CorteTienda::from('DatCortesTienda as ct')
+        $query =  CorteTienda::from('DatCortesTienda as ct')
+            ->leftJoin('DatClientesCloudTienda as cct', function ($join) {
+                $join->on('cct.Bill_To', '=', 'ct.Bill_To')
+                    ->on('cct.IdTienda', '=', 'ct.IdTienda')
+                    ->on('cct.IdListaPrecio', '=', 'ct.IdListaPrecio')
+                    ->on('cct.IdTipoPago', '=', 'ct.IdTipoPago');
+            })
+            ->leftjoin('CatClientesCloud as cc', 'cc.IdClienteCloud', 'cct.IdClienteCloud')
+            ->select(
+                'ct.Bill_To',
+                'cc.NomClienteCloud',
+                'ct.Source_Transaction_Identifier',
+                DB::raw('SUM(ct.ImporteArticulo) as total_importe'),
+                DB::raw('SUM(ct.CantArticulo) as total_cantidad')
+            )
+            ->whereIn('ct.IdTienda', $this->tiendasIds)
+            ->where('ct.StatusVenta', 0)
+            ->whereNull('ct.IdSolicitudFactura');
+
+        if (!empty($pos)) {
+            $query->where('ct.Source_Transaction_Identifier', $pos);
+            if (!empty($tiendaId)) {
+                $query->where('ct.IdTienda', $tiendaId);
+            }
+            if (!empty($fecha)) {
+                $query->whereDate('ct.FechaVenta', $fecha);
+            }
+        } else {
+            $query->where('ct.IdTienda', $tiendaId)
+                ->whereDate('ct.FechaVenta', $fecha);
+        }
+
+        $resultados = $query->groupBy(
+            'ct.Bill_To',
+            'cc.NomClienteCloud',
+            'ct.Source_Transaction_Identifier',
+        )
+            ->orderBy('ct.Source_Transaction_Identifier')
+            ->get();
+
+        if ($resultados->isEmpty()) {
+            return collect();
+        }
+
+        return $resultados->map(function ($item) {
+            // Agregar OracleData al item existente
+            $item->OracleData = null;
+
+            if (!empty($item->Source_Transaction_Identifier)) {
+                $item->OracleData = DB::table('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS')
+                    ->select('STATUS', 'MENSAJE_ERROR', 'Batch_Name', 'Transaction_On', 'Source_Transaction_Number', 'Source_Transaction_Identifier')
+                    ->where('Source_Transaction_Identifier', $item->Source_Transaction_Identifier)
+                    ->first();
+            }
+
+            return $item;
+        })->values();
+    }
+
+    private function obtenerSolicitudFacturaOptimizado($tiendaId, $fecha, $pos)
+    {
+        $query = CorteTienda::from('DatCortesTienda as ct')
+            ->leftJoin('SolicitudFactura as sf', 'sf.IdSolicitudFactura', '=', 'ct.IdSolicitudFactura')
+            ->select(
+                'ct.IdEncabezado',
+                'ct.IdSolicitudFactura',
+                'ct.Bill_To',
+                'sf.NomCliente',
+                'sf.Email',
+                'ct.Source_Transaction_Identifier',
+                'sf.Editar',
+                // 'sf.UUID',
+                DB::raw('SUM(ct.ImporteArticulo) as total_importe'),
+                DB::raw('SUM(ct.CantArticulo) as total_cantidad')
+            )
+            ->where('ct.StatusVenta', 0)
+            ->where('sf.Status', 0)
+            ->whereNotNull('ct.IdSolicitudFactura')
+            ->whereIn('ct.IdTienda', $this->tiendasIds);
+
+        if (!empty($pos)) {
+            $query->where('ct.Source_Transaction_Identifier', $pos);
+            if (!empty($tiendaId)) {
+                $query->where('ct.IdTienda', $tiendaId);
+            }
+            if (!empty($fecha)) {
+                $query->whereDate('ct.FechaVenta', $fecha);
+            }
+        } else {
+            $query->where('ct.IdTienda', $tiendaId)
+                ->whereDate('ct.FechaVenta', $fecha);
+        }
+
+        $resultados = $query->groupBy(
+            'ct.IdEncabezado',
+            'ct.IdSolicitudFactura',
+            'ct.Bill_To',
+            'sf.NomCliente',
+            'sf.Email',
+            'ct.Source_Transaction_Identifier',
+            'sf.Editar',
+            // 'sf.UUID'
+        )
+            ->orderBy('ct.Source_Transaction_Identifier')
+            ->get();
+
+        if ($resultados->isEmpty()) {
+            return collect();
+        }
+
+        return $resultados->map(function ($item) {
+            // Agregar OracleData al item existente
+            $item->OracleData = null;
+
+            if (!empty($item->Source_Transaction_Identifier)) {
+                $item->OracleData = DB::table('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS')
+                    ->select('STATUS', 'MENSAJE_ERROR', 'Batch_Name', 'Transaction_On', 'Source_Transaction_Number', 'Source_Transaction_Identifier')
+                    ->where('Source_Transaction_Identifier', $item->Source_Transaction_Identifier)
+                    ->first();
+            }
+
+            return $item;
+        })->values();
+    }
+
+    private function obtenerCorte($tiendaId, $fecha, $pos)
+    {
+        $query =  CorteTienda::from('DatCortesTienda as ct')
             ->leftjoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXXV', 'XXXV.Source_Transaction_Identifier', 'ct.Source_Transaction_Identifier')
             // ->leftjoin('DatClientesCloudTienda as cct', 'cct.Bill_To', 'ct.Bill_To')
             ->leftJoin('DatClientesCloudTienda as cct', function ($join) {
@@ -312,29 +470,43 @@ class DashTiendaController extends Controller
                 'XXXV.Source_Transaction_Number',
                 'XXXV.STATUS',
                 'XXXV.MENSAJE_ERROR',
+                'XXXV.Transaction_On',
                 DB::raw('SUM(ct.ImporteArticulo) as total_importe'),
                 DB::raw('SUM(ct.CantArticulo) as total_cantidad')
             )
-            ->where('ct.IdTienda', $tiendaId)
-            ->whereDate('ct.FechaVenta', $fecha)
             ->whereIn('ct.IdTienda', $this->tiendasIds)
             ->where('ct.StatusVenta', 0)
-            ->whereNull('ct.IdSolicitudFactura')
-            ->groupBy(
-                'ct.Bill_To',
-                'cc.NomClienteCloud',
-                'ct.Source_Transaction_Identifier',
-                'XXXV.Source_Transaction_Number',
-                'XXXV.STATUS',
-                'XXXV.MENSAJE_ERROR'
-            )
+            ->whereNull('ct.IdSolicitudFactura');
+
+        if (!empty($pos)) {
+            $query->where('ct.Source_Transaction_Identifier', $pos);
+            if (!empty($tiendaId)) {
+                $query->where('ct.IdTienda', $tiendaId);
+            }
+            if (!empty($fecha)) {
+                $query->whereDate('ct.FechaVenta', $fecha);
+            }
+        } else {
+            $query->where('ct.IdTienda', $tiendaId)
+                ->whereDate('ct.FechaVenta', $fecha);
+        }
+
+        return $query->groupBy(
+            'ct.Bill_To',
+            'cc.NomClienteCloud',
+            'ct.Source_Transaction_Identifier',
+            'XXXV.Source_Transaction_Number',
+            'XXXV.STATUS',
+            'XXXV.MENSAJE_ERROR',
+            'XXXV.Transaction_On'
+        )
             ->orderBy('ct.Source_Transaction_Identifier')
             ->get();
     }
 
-    private function obtenerCorteSolicitudes($tiendaId, $fecha)
+    private function obtenerCorteSolicitudes($tiendaId, $fecha, $pos)
     {
-        return CorteTienda::from('DatCortesTienda as ct')
+        $query =  CorteTienda::from('DatCortesTienda as ct')
             ->leftjoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXXV', 'XXXV.Source_Transaction_Identifier', 'ct.Source_Transaction_Identifier')
             ->leftjoin('SolicitudFactura as sf', 'sf.IdSolicitudFactura', 'ct.IdSolicitudFactura')
             ->select(
@@ -346,27 +518,45 @@ class DashTiendaController extends Controller
                 'XXXV.Source_Transaction_Number',
                 'XXXV.STATUS',
                 'XXXV.MENSAJE_ERROR',
+                'XXXV.Transaction_On',
                 'sf.Editar',
+                // 'sf.UUID',
                 DB::raw('SUM(ct.ImporteArticulo) as total_importe'),
                 DB::raw('SUM(ct.CantArticulo) as total_cantidad')
             )
-            ->where('ct.IdTienda', $tiendaId)
-            ->whereDate('ct.FechaVenta', $fecha)
-            ->whereIn('ct.IdTienda', $this->tiendasIds)
             ->where('ct.StatusVenta', 0)
             ->where('sf.Status', 0)
             ->whereNotNull('ct.IdSolicitudFactura')
-            ->groupBy(
-                'ct.IdEncabezado',
-                'ct.Bill_To',
-                'sf.NomCliente',
-                'sf.Email',
-                'ct.Source_Transaction_Identifier',
-                'XXXV.Source_Transaction_Number',
-                'XXXV.STATUS',
-                'XXXV.MENSAJE_ERROR',
-                'sf.Editar'
-            )
+            ->whereIn('ct.IdTienda', $this->tiendasIds);
+
+        if (!empty($pos)) {
+            $query->where('ct.Source_Transaction_Identifier', $pos);
+            if (!empty($tiendaId)) {
+                $query->where('ct.IdTienda', $tiendaId);
+            }
+            if (!empty($fecha)) {
+                $query->whereDate('ct.FechaVenta', $fecha);
+            }
+        } else {
+            $query->where('ct.IdTienda', $tiendaId)
+                ->whereDate('ct.FechaVenta', $fecha);
+        }
+
+        // ->where('ct.IdTienda', $tiendaId)
+        // ->whereDate('ct.FechaVenta', $fecha)
+        return $query->groupBy(
+            'ct.IdEncabezado',
+            'ct.Bill_To',
+            'sf.NomCliente',
+            'sf.Email',
+            'ct.Source_Transaction_Identifier',
+            'XXXV.Source_Transaction_Number',
+            'XXXV.STATUS',
+            'XXXV.MENSAJE_ERROR',
+            'XXXV.Transaction_On',
+            'sf.Editar',
+            // 'sf.UUID'
+        )
             ->orderBy('ct.Source_Transaction_Identifier')
             ->get();
     }

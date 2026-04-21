@@ -3,7 +3,7 @@
 ])
 
 @if (isset($tiendaActual) && $tiendaActual->procesarcorte == 1)
-    <div class="process-status-card mb-4"
+    <div class="process-status-card"
         style="border-radius: 10px; background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%); border-left: 4px solid #f59e0b; border-top: 1px solid #fde68a; border-right: 1px solid #fde68a; border-bottom: 1px solid #fde68a;">
         <div class="p-4">
             <div class="d-flex align-items-center justify-content-between">

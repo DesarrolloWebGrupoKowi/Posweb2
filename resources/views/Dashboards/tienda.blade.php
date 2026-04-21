@@ -2,469 +2,566 @@
 @section('title', 'Dashboard por Tienda')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
 
-        <!-- HEADER CON FILTROS Y KPIs -->
-        <div class="card border-0 p-4"
-            style="border-radius: 10px; background-color: white;">
-            <div class="row mb-4 gap-4">
-                <div class="col-12 col-lg-auto d-flex align-items-center gap-3">
-                    @include('components.title', ['titulo' => 'Dashboard por Tienda'])
+    <x-layout.page-container>
+
+        <!-- SECCIÓN 1: TITULO Y FILTROS -->
+        <x-layout.section-card>
+            <!-- Título y botones principales -->
+            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+                <x-title titulo="Dashboard por Tienda" />
+                <div class="d-flex gap-2">
+                    <x-filters.buttons.refresh-button />
+                    <x-filters.buttons.home-button />
                 </div>
-
-                <!-- Filtro de Fecha -->
-                <x-dashboard-filters :tiendas="$tiendas"
-                    :showReporte="true"
-                    :showTodasTiendas="true"
-                    :tiendaSeleccionada="request()->get('tienda_id')" />
             </div>
 
-            <x-dashboard-notificacion-procesar-tienda :tiendaActual="$tiendaActual" />
+            <!-- Formulario de filtros -->
+            <x-filters.filter-form>
+                <!-- Filtros Básicos -->
+                <x-filters.filter-group>
+                    <x-filters.inputs.select-input
+                        name="tienda_id"
+                        label="Tienda"
+                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    />
+                    <x-filters.inputs.date-input
+                        name="fecha_fin"
+                        label="Fecha"
+                        :value="request('fecha_fin')"
+                        :autofocus="true"
+                    />
+                    <x-filters.inputs.text-input
+                        name="pos"
+                        label="Pedido"
+                        placeholder="Buscar por Pedido POS_000000"
+                    />
+                    <x-filters.inputs.checkbox-input
+                        name="detallado"
+                        label="Detallado"
+                        :checked="request('detallado') == 'on'"
+                        helperText="Ver detallado"
+                    />
+                </x-filters.filter-group>
+                <x-slot:buttons>
+                    <x-filters.buttons.clear-button />
+                    {{-- <x-filters.buttons.advanced-button
+                        :active="$filtrosAvanzadosActivos"
+                        :hasBadge="true"
+                    /> --}}
+                    <x-filters.buttons.submit-button />
+                </x-slot:buttons>
+            </x-filters.filter-form>
+        </x-layout.section-card>
 
-            <!-- KPIs PRINCIPALES POR TIENDA -->
-            <div class="row g-4 mb-4">
+        <x-dashboard-notificacion-procesar-tienda :tiendaActual="$tiendaActual" />
 
+        <!-- SECCIÓN 2: KPIs -->
+        <div class="flex-shrink-0">
+            <div class="row g-4">
                 <!-- Solicitudes Facturas -->
-                <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="card-subtitle text-muted fw-500 mb-2">Solicitudes Facturas</h6>
-                                    <h3 class="card-title mb-0 text-gray-800">
-                                        {{ $kpis['solicitudes_factura'] ?? 0 }}
-                                    </h3>
-                                    <small class="d-block text-muted mt-1">
-                                        <span
-                                            class="{{ $kpis['facturas_pendientes'] ?? 0 > 0 ? 'text-warning' : 'text-success' }}">
-                                            {{ $kpis['facturas_pendientes'] ?? 0 }} pendientes de ligar
-                                        </span>
-                                    </small>
-                                </div>
-                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
-                                    style="background-color: rgba(124, 58, 237, 0.1); min-width: 44px; height: 44px;">
-                                    <div style="color: #7c3aed;"
-                                        class="d-flex justify-content-center">
-                                        @include('components.icons.file-text')
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-kpi.kpi-card
+                    title="Solicitudes Facturas"
+                    :value="$kpis['solicitudes_factura'] ?? 0"
+                    :subtitle="($kpis['facturas_pendientes'] ?? 0) . ' pendientes de ligar'"
+                    subtitle-class="{{ ($kpis['facturas_pendientes'] ?? 0) > 0 ? 'text-warning' : 'text-success' }}"
+                    color="purple"
+                    icon="components.icons.file-text"
+                />
 
                 <!-- Tickets -->
-                <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div class="card h-100 border-0 shadow-sm"
-                        style="border: 1px solid #e5e7eb; background: white;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="card-subtitle text-muted fw-500 mb-2">Tickets</h6>
-                                    <h3 class="card-title mb-0 text-gray-800">{{ $kpis['tickets'] ?? 0 }}</h3>
-                                    <small class="d-block text-muted mt-1">
-                                        Ticket promedio: ${{ number_format($kpis['promedio_ticket'] ?? 0, 2) }}
-                                    </small>
-                                </div>
-                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
-                                    style="background-color: rgba(3, 84, 63, 0.1); min-width: 44px; height: 44px;">
-                                    <div style="color: #03543f;"
-                                        class="d-flex justify-content-center">
-                                        @include('components.icons.credit-card')
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-kpi.kpi-card
+                    title="Tickets"
+                    :value="$kpis['tickets'] ?? 0"
+                    :subtitle="'Ticket promedio: $' . number_format($kpis['promedio_ticket'] ?? 0, 2)"
+                    color="teal"
+                    icon="components.icons.credit-card"
+                />
 
                 <!-- Kilos Vendidos -->
-                <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div class="card h-100 border-0 shadow-sm"
-                        style="border: 1px solid #e5e7eb; background: white;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="card-subtitle text-muted fw-500 mb-2">Kilos Vendidos</h6>
-                                    <h3 class="card-title mb-0 text-gray-800">
-                                        {{ number_format($kpis['kilos_hoy'] ?? 0, 1) }} kg</h3>
-                                    <small class="d-block text-muted mt-1">
-                                        {{ $kpis['kilos_promedio'] ? number_format($kpis['kilos_promedio'] / $kpis['tickets'] ?? 0, 2) : 0 }}
-                                        kg/transacción
-                                    </small>
-                                </div>
-                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
-                                    style="background-color: rgba(114, 59, 19, 0.1); min-width: 44px; height: 44px;">
-                                    <div style="color: #723b13;"
-                                        class="d-flex justify-content-center">
-                                        @include('components.icons.box')
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-kpi.kpi-card
+                    title="Kilos Vendidos"
+                    :value="number_format($kpis['kilos_hoy'] ?? 0, 1)"
+                    :subtitle="number_format(($kpis['kilos_promedio'] ?? 0) / max($kpis['tickets'] ?? 1, 1), 2) .
+                        ' kg/transacción'"
+                    color="orange"
+                    icon="components.icons.box"
+                    suffix=" kg"
+                />
 
-                <!-- Ventas Diarias -->
-                <div class="col-xl-3 col-md-4 col-sm-6">
-                    <div class="card h-100 border-0 shadow-sm"
-                        style="border: 1px solid #e5e7eb; background: white;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="card-subtitle text-muted fw-500 mb-2">Ventas Hoy</h6>
-                                    <h3 class="card-title mb-0 text-gray-800">
-                                        ${{ number_format($kpis['ventas_hoy'] ?? 0, 2) }}</h3>
-                                    <small class="d-block text-muted mt-1">
-                                        {{ $kpis['ventas_vs_ayer'] ?? 0 }}% vs día anterior
-                                    </small>
-                                </div>
-                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-purple-50"
-                                    style="background-color: rgba(30, 66, 159, 0.1); min-width: 44px; height: 44px;">
-                                    <div style="color: #1e429f;"
-                                        class="d-flex justify-content-center">
-                                        @include('components.icons.cash')
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- Ventas Hoy -->
+                <x-kpi.kpi-card
+                    title="Ventas Hoy"
+                    :value="$kpis['ventas_hoy'] ?? 0"
+                    :subtitle="abs($kpis['ventas_vs_ayer'] ?? 0) . '% vs día anterior'"
+                    subtitle-icon="{{ ($kpis['ventas_vs_ayer'] ?? 0) > 0 ? '↑' : (($kpis['ventas_vs_ayer'] ?? 0) < 0 ? '↓' : '→') }}"
+                    subtitle-class="{{ ($kpis['ventas_vs_ayer'] ?? 0) > 0 ? 'text-success' : (($kpis['ventas_vs_ayer'] ?? 0) < 0 ? 'text-danger' : 'text-warning') }}"
+                    color="indigo"
+                    icon="components.icons.cash"
+                    currency="true"
+                />
             </div>
-
-            @include('Alertas.Alertas')
         </div>
 
-        <!-- GRÁFICAS Y TABLAS POR TIENDA -->
-        <div class="row g-4">
-            <!-- Corte tienda -->
-            <div class="col-xxl-7">
-                <div class="card border-0 p-4"
-                    style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;">
+        <!-- SECCIÓN 3: GRÁFICAS Y TABLAS POR TIENDA -->
+        <div
+            class="flex-grow-1 d-flex gap-4"
+            style="min-height: 0;"
+        >
+            <!-- TABLA: Corte tienda -->
+            <div
+                class="d-flex flex-column"
+                style="flex: 2; min-width: 0; min-height: 0;"
+            >
+                <div
+                    class="card d-flex flex-column border-0 p-4"
+                    style="border-radius: 10px; min-height: 0;"
+                >
+                    <!--Header tabla-->
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0 text-gray-800">CORTE TIENDA {{ $tiendaActual->NomTienda ?? 'Tienda' }}
-                        </h5>
-                        <x-dashboard-buttons-procesar :corteTienda="$corteTienda"
-                            :corteTiendaSolicitudes="$corteTiendaSolicitudes" />
+                        <div class="flex-column">
+                            <h5 class="mb-0 text-gray-800">CORTE TIENDA {{ $tiendaActual->NomTienda ?? '' }}
+                            </h5>
+                            @if ($fechaActual)
+                                <h6
+                                    class="fw-semibold text-muted m-0"
+                                    style="font-size: 0.9rem;"
+                                >
+                                    {{ \Carbon\Carbon::parse($fechaActual)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}
+                                </h6>
+                            @endif
+                        </div>
+                        <div class="d-flex gap-2">
+                            <x-dashboard-buttons-procesar
+                                :corteTienda="$corteTienda"
+                                :corteTiendaSolicitudes="$corteTiendaSolicitudes"
+                            />
+                            <!-- Botón Expandir/Contraer -->
+                            <button
+                                class="btn btn-sm btn-outline-dark"
+                                onclick="toggleExpandirTabla()"
+                                id="btnExpandir"
+                                title="Expandir/Contraer tabla"
+                            >
+                                <span class="d-flex align-items-center gap-1">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path
+                                            d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                                        />
+                                    </svg>
+                                    <span id="btnExpandirTexto">Expandir</span>
+                                </span>
+                            </button>
+                        </div>
                     </div>
 
-                    @if (count($corteTienda) == 0 && count($corteTiendaSolicitudes) == 0)
-                        <!-- Estado vacío - Sin datos -->
-                        <div class="py-5 text-center">
-                            <div class="mb-4">
-                                <div class="empty-state-icon mx-auto mb-3">
-                                    <!-- Icono -->
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="h-100 w-100"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="1"
-                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                    </svg>
-                                </div>
-                                <h5 class="mb-2 text-gray-500">No hay ventas registradas</h5>
-                                <p class="text-muted mb-4">
-                                    @if (request()->get('fecha_fin', date('Y-m-d')) == date('Y-m-d'))
-                                        Hoy no se han registrado ventas para esta tienda
-                                    @else
-                                        No hay ventas registradas para el
-                                        {{ \Carbon\Carbon::parse(request()->get('fecha_fin', date('Y-m-d')))->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}
-                                    @endif
-                                </p>
+                    <!-- Contenido normal con datos -->
+                    <div
+                        id="vistaTabla"
+                        class="table-responsive content-table-sm"
+                    >
+                        <table class="table">
+                            <thead class="table-head">
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Pedido</th>
+                                    <th>Estatus</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Ventas</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $totalVentas = 0;
+                                    $totalKilos = 0;
+                                @endphp
 
-                                @if (request()->get('fecha_fin', date('Y-m-d')) != date('Y-m-d'))
-                                    <div class="d-flex justify-content-center gap-3">
-                                        <a href="?fecha_fin={{ date('Y-m-d') }}&tienda_id={{ request()->get('tienda_id') }}"
-                                            class="btn btn-primary">
-                                            Ver ventas de hoy
-                                        </a>
-                                        <a href="?fecha_fin={{ \Carbon\Carbon::parse(request()->get('fecha_fin', date('Y-m-d')))->subDay()->format('Y-m-d') }}&tienda_id={{ request()->get('tienda_id') }}"
-                                            class="btn btn-outline-secondary">
-                                            @include('components.icons.arrow-left')Día anterior
-                                        </a>
-                                    </div>
-                                @else
-                                    <button type="button"
-                                        id="refreshBtn"
-                                        class="btn btn-primary">
-                                        @include('components.icons.refresh')
-                                        Actualizar
-                                    </button>
-                                @endif
-                            </div>
-                        </div>
-                    @else
-                        <!-- Contenido normal con datos -->
-                        <div class="table-responsive content-table-sm">
-                            <table class="table">
-                                <thead class="table-head">
-                                    <tr>
-                                        <th>Cliente</th>
-                                        <th>Pedido</th>
-                                        <th>Estatus</th>
-                                        <th class="text-end">Cantidad</th>
-                                        <th class="text-end">Ventas</th>
-                                        <th class="text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                                <!-- SECCION: Corte de contado -->
+                                @foreach ($corteTienda as $item)
                                     @php
-                                        $totalVentas = 0;
-                                        $totalKilos = 0;
+                                        $totalVentas += $item->total_importe;
+                                        $totalKilos += $item->total_cantidad;
+
+                                        // Obtener datos de Oracle del objeto anidado
+                                        $oracleData = $item->OracleData ?? null;
+                                        $status = $oracleData->STATUS ?? null;
+                                        $mensajeError = $oracleData->MENSAJE_ERROR ?? null;
+                                        $transactionOn = $oracleData->Transaction_On ?? null;
+                                        $sourceTransactionNumber = $oracleData->Source_Transaction_Number ?? null;
+                                        $sourceIdentifier = $item->Source_Transaction_Identifier ?? null;
                                     @endphp
 
-                                    @foreach ($corteTienda as $item)
-                                        @php
-                                            $totalVentas += $item->total_importe;
-                                            $totalKilos += $item->total_cantidad;
-                                        @endphp
-                                        <tr id="row-{{ $item->Source_Transaction_Identifier ?? 'temp-' . $loop->index }}">
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="me-2 rounded p-1"
-                                                        style="background-color: rgba(30, 66, 159, 0.1);">
-                                                        <div style="color: #1e429f; width: 16px; height: 16px;">
-                                                            @include('components.icons.box')
-                                                        </div>
+                                    <tr id="row-{{ $sourceIdentifier ?? 'temp-' . $loop->index }}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div
+                                                    class="me-2 rounded p-1"
+                                                    style="background-color: rgba(30, 66, 159, 0.1);"
+                                                >
+                                                    <div style="color: #1e429f; width: 16px; height: 16px;">
+                                                        @include('components.icons.box')
                                                     </div>
-                                                    <span class="text-truncate puntitos"
-                                                        title="{{ $item->Bill_To }}">
-                                                        {{ $item->NomClienteCloud }}
+                                                </div>
+                                                <span
+                                                    class="text-truncate puntitos"
+                                                    title="{{ $item->Bill_To }}"
+                                                >
+                                                    {{ $item->NomClienteCloud }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="fw-500">
+                                            <span class="{{ $sourceIdentifier ? 'tags-blue' : 'tags-red' }}">
+                                                {{ $sourceTransactionNumber ?? ($sourceIdentifier ? 'SIN NÚMERO' : 'SIN PEDIDO') }}
+                                            </span>
+                                        </td>
+                                        <td class="fw-500">
+                                            <span
+                                                id="status-{{ $sourceIdentifier }}"
+                                                class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
+                                            >
+                                                {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
+                                            </span>
+                                        </td>
+                                        <td class="fw-500 text-end">{{ number_format($item->total_cantidad, 3) }} kg</td>
+                                        <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
+                                        <td class="text-center">
+                                            @if ($status === 'PROCESADO' && $sourceIdentifier)
+                                                @php
+                                                    $POS =
+                                                        substr($sourceIdentifier, 0, 3) .
+                                                        '_' .
+                                                        substr($sourceIdentifier, 3);
+                                                @endphp
+                                                <a
+                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="Descargar Factura PDF"
+                                                >
+                                                    @include('components.icons.download')
+                                                    <span class="d-none d-md-inline">PDF</span>
+                                                </a>
+                                                <a
+                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="Descargar Factura XML"
+                                                >
+                                                    @include('components.icons.download')
+                                                    <span class="d-none d-md-inline">XML</span>
+                                                </a>
+                                            @elseif ($sourceIdentifier && $status !== 'PROCESADO')
+                                                <button
+                                                    type="button"
+                                                    id="btnEnviarPedido{{ $sourceIdentifier }}"
+                                                    class="btn btn-sm btn-outline-primary btn-enviar"
+                                                    title="Enviar pedido a Oracle"
+                                                    data-pedido="{{ $sourceIdentifier }}"
+                                                    data-row-id="row-{{ $sourceIdentifier }}"
+                                                    data-original-status="{{ $status }}"
+                                                    data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                                >
+                                                    @include('components.icons.send')
+                                                    <span class="d-none d-md-inline">ENVIAR</span>
+                                                </button>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+
+                                    <!-- Fila de mensaje del POS -->
+                                    @if (!empty($mensajeError))
+                                        <tr
+                                            id="msg-{{ $sourceIdentifier }}"
+                                            class="bg-light"
+                                        >
+                                            <td
+                                                colspan="6"
+                                                class="py-1 ps-5"
+                                            >
+                                                <small
+                                                    id="mensaje-container-{{ $sourceIdentifier }}"
+                                                    class="{{ $status === 'ERROR' ? 'text-danger' : 'text-success' }}"
+                                                >
+                                                    <strong id="mensaje-titulo-{{ $sourceIdentifier }}">
+                                                        @if ($transactionOn)
+                                                            {{ $transactionOn }} -
+                                                        @endif
+                                                        {{ $status === 'ERROR' ? 'Error:' : 'Mensaje:' }}
+                                                    </strong>
+                                                    <span id="mensaje-texto-{{ $sourceIdentifier }}">
+                                                        {{ $mensajeError }}
                                                     </span>
-                                                </div>
+                                                </small>
                                             </td>
-                                            <td class="fw-500">
-                                                <span
-                                                    class="{{ $item->Source_Transaction_Identifier ? 'tags-blue' : 'tags-red' }}">
-                                                    {{ $item->Source_Transaction_Number ?? 'SIN PEDIDO' }}
-                                                </span>
-                                            </td>
-                                            <td class="fw-500">
-                                                <span id="status-{{ $item->Source_Transaction_Identifier }}"
-                                                    class="{{ $item->STATUS === 'PROCESADO' ? 'tags-green' : 'tags-red' }}">
-                                                    {{ $item->STATUS && $item->STATUS !== 'NULL' ? $item->STATUS : 'SIN PROCESAR' }}
-                                                </span>
-                                            </td>
-                                            <td class="fw-500 text-end">{{ $item->total_cantidad ?? 0 }} kg</td>
-                                            <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
-                                            <td class="text-center">
-                                                @if ($item->STATUS === 'PROCESADO')
-                                                    @php
-                                                        $POS =
-                                                            substr($item->Source_Transaction_Identifier, 0, 3) .
-                                                            '_' .
-                                                            substr($item->Source_Transaction_Identifier, 3);
-                                                    @endphp
-                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura PDF">
-                                                        @include('components.icons.download')
-                                                        <span class="d-none d-md-inline">PDF</span>
-                                                    </a>
-                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura XML">
-                                                        @include('components.icons.download')
-                                                        <span class="d-none d-md-inline">XML</span>
-                                                    </a>
-                                                @elseif ($item->Source_Transaction_Identifier && $item->STATUS != 'PROCESADO')
-                                                    <button type="button"
-                                                        id="btnEnviarPedido{{ $item->Source_Transaction_Identifier }}"
-                                                        class="btn btn-sm btn-outline-primary btn-enviar"
-                                                        title="Enviar pedido a Oracle"
-                                                        data-pedido="{{ $item->Source_Transaction_Identifier }}"
-                                                        data-row-id="row-{{ $item->Source_Transaction_Identifier }}"
-                                                        data-original-status="{{ $item->STATUS }}"
-                                                        data-original-mensaje="{{ $item->MENSAJE_ERROR ?? '' }}">
-                                                        @include('components.icons.send')
-                                                        <span class="d-none d-md-inline">ENVIAR</span>
-                                                    </button>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        <!-- Fila de mensaje del POS -->
-                                        @if (!empty($item->MENSAJE_ERROR))
-                                            <tr id="msg-{{ $item->Source_Transaction_Identifier }}"
-                                                class="bg-light">
-                                                <td colspan="6"
-                                                    class="py-1 ps-5">
-                                                    <small
-                                                        id="mensaje-container-{{ $item->Source_Transaction_Identifier }}"
-                                                        class="{{ $item->STATUS === 'ERROR' ? 'text-danger' : 'text-success' }}">
-                                                        <strong
-                                                            id="mensaje-titulo-{{ $item->Source_Transaction_Identifier }}">
-                                                            {{ $item->STATUS === 'ERROR' ? 'Error:' : 'Mensaje:' }}
-                                                        </strong>
-                                                        <span
-                                                            id="mensaje-texto-{{ $item->Source_Transaction_Identifier }}">
-                                                            {{ $item->MENSAJE_ERROR }}
-                                                        </span>
-                                                    </small>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-
-                                    @foreach ($corteTiendaSolicitudes as $item)
-                                        @php
-                                            $totalVentas += $item->total_importe;
-                                            $totalKilos += $item->total_cantidad;
-                                        @endphp
-                                        <tr id="row-{{ $item->Source_Transaction_Identifier ?? 'temp-' . $loop->index }}">
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="me-2 rounded p-1"
-                                                        style="background-color: rgba(30, 66, 159, 0.1);">
-                                                        <div style="color: #1e429f; width: 16px; height: 16px;">
-                                                            @include('components.icons.user')
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex flex-column">
-                                                        <!-- <div class="fw-medium">{{ $item->Bill_To }}</div> -->
-                                                        <div class="text-truncate puntitos"
-                                                            title="{{ $item->NomCliente }}">
-                                                            {{ $item->NomCliente }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="fw-500">
-                                                <span
-                                                    class="{{ $item->Source_Transaction_Identifier ? 'tags-blue' : 'tags-red' }}">
-                                                    @if ($item->Source_Transaction_Identifier)
-                                                        {{ $item->Source_Transaction_Number }}
-                                                    @elseif ($item->Editar != null)
-                                                        SIN LIGAR
-                                                    @else
-                                                        SIN PEDIDO
-                                                    @endif
-                                                </span>
-                                            </td>
-                                            <td class="fw-500">
-                                                <span id="status-{{ $item->Source_Transaction_Identifier }}"
-                                                    class="{{ $item->STATUS === 'PROCESADO' ? 'tags-green' : 'tags-red' }}">
-                                                    {{ $item->STATUS && $item->STATUS !== 'NULL' ? $item->STATUS : 'SIN PROCESAR' }}
-                                                </span>
-                                            </td>
-                                            <td class="fw-500 text-end">{{ $item->total_cantidad ?? 0 }} kg</td>
-                                            <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
-                                            <td class="text-center">
-                                                @if ($item->STATUS === 'PROCESADO')
-                                                    @php
-                                                        $POS =
-                                                            substr($item->Source_Transaction_Identifier, 0, 3) .
-                                                            '_' .
-                                                            substr($item->Source_Transaction_Identifier, 3);
-                                                    @endphp
-                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura PDF">
-                                                        @include('components.icons.download')
-                                                        <span class="d-none d-md-inline">PDF</span>
-                                                    </a>
-                                                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura XML">
-                                                        @include('components.icons.download')
-                                                        <span class="d-none d-md-inline">XML</span>
-                                                    </a>
-                                                @elseif ($item->Source_Transaction_Identifier && $item->STATUS != 'PROCESADO')
-                                                    <button type="button"
-                                                        id="btnEnviarPedido{{ $item->Source_Transaction_Identifier }}"
-                                                        class="btn btn-sm btn-outline-primary btn-enviar"
-                                                        title="Enviar pedido a Oracle"
-                                                        data-pedido="{{ $item->Source_Transaction_Identifier }}"
-                                                        data-row-id="row-{{ $item->Source_Transaction_Identifier }}"
-                                                        data-original-status="{{ $item->STATUS }}"
-                                                        data-original-mensaje="{{ $item->MENSAJE_ERROR ?? '' }}">
-                                                        @include('components.icons.send')
-                                                        <span class="d-none d-md-inline">ENVIAR</span>
-                                                    </button>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        <!-- Fila de mensaje del POS -->
-                                        @if (!empty($item->MENSAJE_ERROR))
-                                            <tr id="msg-{{ $item->Source_Transaction_Identifier }}"
-                                                class="bg-light">
-                                                <td colspan="6"
-                                                    class="py-1 ps-5">
-                                                    <small
-                                                        id="mensaje-container-{{ $item->Source_Transaction_Identifier }}"
-                                                        class="{{ $item->STATUS === 'ERROR' ? 'text-danger' : 'text-success' }}">
-                                                        <strong
-                                                            id="mensaje-titulo-{{ $item->Source_Transaction_Identifier }}">
-                                                            {{ $item->STATUS === 'ERROR' ? 'Error:' : 'Mensaje:' }}
-                                                        </strong>
-                                                        <span
-                                                            id="mensaje-texto-{{ $item->Source_Transaction_Identifier }}">
-                                                            {{ $item->MENSAJE_ERROR }}
-                                                        </span>
-                                                    </small>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-
-                                    <!-- Fila de totales -->
-                                    @if (count($corteTienda) > 0 || count($corteTiendaSolicitudes) > 0)
-                                        <tr class="table-light">
-                                            <td colspan="3"
-                                                class="fw-bold text-end">TOTALES:</td>
-                                            <td class="fw-bold text-end">{{ number_format($totalKilos, 2) }} kg</td>
-                                            <td class="fw-bold text-end">${{ number_format($totalVentas, 2) }}</td>
-                                            <td></td>
                                         </tr>
                                     @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
+                                @endforeach
+
+                                <!-- SECCION: Corte de solicitudes de factura -->
+                                @foreach ($corteTiendaSolicitudes as $item)
+                                    @php
+                                        $totalVentas += $item->total_importe;
+                                        $totalKilos += $item->total_cantidad;
+
+                                        // Obtener datos de Oracle del objeto anidado
+                                        $oracleData = $item->OracleData ?? null;
+                                        $status = $oracleData->STATUS ?? null;
+                                        $mensajeError = $oracleData->MENSAJE_ERROR ?? null;
+                                        $transactionOn = $oracleData->Transaction_On ?? null;
+                                        $sourceTransactionNumber = $oracleData->Source_Transaction_Number ?? null;
+                                        $sourceIdentifier = $item->Source_Transaction_Identifier ?? null;
+                                    @endphp
+
+                                    <tr id="row-{{ $sourceIdentifier ?? 'temp-' . $loop->index }}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div
+                                                    class="me-2 rounded p-1"
+                                                    style="background-color: rgba(30, 66, 159, 0.1);"
+                                                >
+                                                    <div style="color: #1e429f; width: 16px; height: 16px;">
+                                                        @include('components.icons.user')
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <div
+                                                        class="text-truncate puntitos"
+                                                        title="{{ $item->NomCliente }}"
+                                                    >
+                                                        {{ $item->NomCliente }}
+                                                    </div>
+                                                    @if ($item->UUID ?? false)
+                                                        <small>Facturación en Línea</small>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="fw-500">
+                                            <span class="{{ $sourceIdentifier ? 'tags-blue' : 'tags-red' }}">
+                                                @if ($sourceIdentifier)
+                                                    {{ $sourceTransactionNumber }}
+                                                @elseif ($item->Editar != null)
+                                                    SIN LIGAR
+                                                @else
+                                                    SIN PEDIDO
+                                                @endif
+                                            </span>
+                                        </td>
+                                        <td class="fw-500">
+                                            <span
+                                                id="status-{{ $sourceIdentifier }}"
+                                                class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
+                                            >
+                                                {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
+                                            </span>
+                                        </td>
+                                        <td class="fw-500 text-end">{{ number_format($item->total_cantidad, 3) }} kg</td>
+                                        <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
+                                        <td class="text-center">
+                                            @if ($sourceIdentifier && $status != 'PROCESADO')
+                                                <button
+                                                    type="button"
+                                                    id="btnEnviarPedido{{ $sourceIdentifier }}"
+                                                    class="btn btn-sm btn-outline-primary btn-enviar"
+                                                    title="Enviar pedido a Oracle"
+                                                    data-pedido="{{ $sourceIdentifier }}"
+                                                    data-row-id="row-{{ $sourceIdentifier }}"
+                                                    data-original-status="{{ $status }}"
+                                                    data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                                >
+                                                    @include('components.icons.send')
+                                                    <span class="d-none d-md-inline">ENVIAR</span>
+                                                </button>
+                                            @endif
+
+                                            @if ($status === 'PROCESADO' && !($item->UUID ?? false))
+                                                @php
+                                                    $POS =
+                                                        substr($sourceIdentifier, 0, 3) .
+                                                        '_' .
+                                                        substr($sourceIdentifier, 3);
+                                                @endphp
+                                                <a
+                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="Descargar Factura PDF"
+                                                >
+                                                    @include('components.icons.download')
+                                                    <span class="d-none d-md-inline">PDF</span>
+                                                </a>
+                                                <a
+                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="Descargar Factura XML"
+                                                >
+                                                    @include('components.icons.download')
+                                                    <span class="d-none d-md-inline">XML</span>
+                                                </a>
+                                            @endif
+
+                                            @if ($item->UUID ?? false)
+                                                <a
+                                                    href="http://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdftest?UUID={{ $item->UUID }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="Descargar Factura PDF"
+                                                >
+                                                    @include('components.icons.download')
+                                                    <span class="d-none d-md-inline">PDF</span>
+                                                </a>
+                                                <a
+                                                    href="http://oraclefacturasrest.kowi.com.mx/api/Documentos/xmltest?UUID={{ $item->UUID }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="Descargar Factura XML"
+                                                >
+                                                    @include('components.icons.download')
+                                                    <span class="d-none d-md-inline">XML</span>
+                                                </a>
+                                            @endif
+
+                                            {{-- @if (!$status && !($item->UUID ?? false))
+                                                <span class="text-muted">-</span>
+                                            @endif --}}
+                                            {{-- @dump($item) --}}
+                                            <a
+                                                href="/SolicitudesFactura/{{ $item->IdSolicitudFactura }}"
+                                                target="_blank"
+                                                class="btn btn-sm btn-outline-primary"
+                                                title="Descargar Factura XML"
+                                            >
+                                                @include('components.icons.arrow-up-right')
+                                            </a>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Fila de mensaje del POS -->
+                                    @if (!empty($mensajeError))
+                                        <tr
+                                            id="msg-{{ $sourceIdentifier }}"
+                                            class="bg-light"
+                                        >
+                                            <td
+                                                colspan="6"
+                                                class="py-1 ps-5"
+                                            >
+                                                <small
+                                                    id="mensaje-container-{{ $sourceIdentifier }}"
+                                                    class="{{ $status === 'ERROR' ? 'text-danger' : 'text-success' }}"
+                                                >
+                                                    <strong id="mensaje-titulo-{{ $sourceIdentifier }}">
+                                                        @if ($transactionOn)
+                                                            {{ $transactionOn }} -
+                                                        @endif
+                                                        {{ $status === 'ERROR' ? 'Error:' : 'Mensaje:' }}
+                                                    </strong>
+                                                    <span id="mensaje-texto-{{ $sourceIdentifier }}">
+                                                        {{ $mensajeError }}
+                                                    </span>
+                                                    <br>
+                                                    @if ($item->UUID ?? false)
+                                                        <strong>UUID:</strong>
+                                                        <span>{{ $item->UUID }}</span>
+                                                    @endif
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+
+                                @if (count($corteTienda) == 0 && count($corteTiendaSolicitudes) == 0)
+                                    <tr>
+                                        <td
+                                            colspan="12"
+                                            class="py-5 text-center"
+                                        >
+                                            <x-table-empty-state
+                                                title="No hay registros de corte diario"
+                                                icon="credit-card"
+                                                :message="'No se encontraron ventas registradas en el corte diario para el período seleccionado.'"
+                                                :suggestion="'Modifica la fecha o los filtros de búsqueda para ver otros cortes diarios.'"
+                                                action="Ver reporte de hoy"
+                                                actionUrl="/DashTienda"
+                                            />
+                                        </td>
+
+                                    </tr>
+                                @endif
+
+                                <!-- Fila de totales -->
+                                @if (count($corteTienda) > 0 || count($corteTiendaSolicitudes) > 0)
+                                    <tr class="table-light">
+                                        <td
+                                            colspan="3"
+                                            class="fw-bold text-end"
+                                        >TOTALES:</td>
+                                        <td class="fw-bold text-end">{{ number_format($totalKilos, 2) }} kg</td>
+                                        <td class="fw-bold text-end">${{ number_format($totalVentas, 2) }}</td>
+                                        <td></td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            {{-- GRAFICAS --}}
-            <div class="col-xxl-5">
+            <!-- GRAFICAS -->
+            <div style="flex: 1; min-width: 0;">
                 <div class="row">
                     <!-- Gráfica de Ventas por Tienda -->
                     <div class="col-12 col-xl-6 mb-xl-0 col-xxl-12 mb-xxl-4 mb-4">
-                        <div class="card border-0 p-4"
-                            style="border-radius: 10px; height: 350px; background-color: white; border: 1px solid #e5e7eb;">
+                        <div
+                            class="card border-0 p-4"
+                            style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;"
+                        >
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0 text-gray-800">VENTAS DIARIAS POR HORA</h5>
-                                <div class="btn-group">
-                                    <button type="button"
-                                        class="btn btn-sm btn-dark-outline periodo-btn {{ request()->get('fecha_fin', date('Y-m-d')) == date('Y-m-d') ? 'active' : '' }} border-gray-300"
-                                        data-periodo="hoy">Hoy</button>
-                                    <button type="button"
-                                        class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
-                                        data-periodo="7d">7 días</button>
-                                    <button type="button"
-                                        class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
-                                        data-periodo="30d">30 días</button>
-                                </div>
+                                <h6 class="fw-semibold mb-3">📈 Ventas diarias por hora</h6>
+                                @if (!empty($graficaVentas['data']) || array_sum($graficaVentas['data']) != 0)
+                                    <div class="btn-group">
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-dark-outline periodo-btn {{ request()->get('fecha_fin', date('Y-m-d')) == date('Y-m-d') ? 'active' : '' }} border-gray-300"
+                                            data-periodo="hoy"
+                                        >Hoy</button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
+                                            data-periodo="7d"
+                                        >7 días</button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
+                                            data-periodo="30d"
+                                        >30 días</button>
+                                    </div>
+                                @endif
                             </div>
-                            <div class="position-relative"
-                                style="height: 300px;">
+                            <div
+                                class="position-relative"
+                                style="height: 200px;"
+                            >
                                 @if (empty($graficaVentas['data']) || array_sum($graficaVentas['data']) == 0)
-                                    <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                        <div class="mb-3 text-gray-400"
-                                            style="font-size: 3rem;">
-                                            <i class="fas fa-chart-line"></i>
-                                        </div>
-                                        <p class="text-muted mb-0">No hay datos de ventas para mostrar</p>
+                                    <div style="min-height: 200px;">
+                                        <x-table-empty-state
+                                            title="Sin datos para mostrar"
+                                            icon="credit-card"
+                                            :message="'No se encontraron ventas realizadas por empleados en el período seleccionado.'"
+                                        />
                                     </div>
                                 @else
                                     <canvas id="ventasChart"></canvas>
@@ -475,18 +572,22 @@
 
                     <!-- Distribución de Tipos de Pago -->
                     <div class="col-12 col-xl-6 col-xxl-12">
-                        <div class="card border-0 p-4"
-                            style="border-radius: 10px; height: 350px; background-color: white; border: 1px solid #e5e7eb;">
-                            <h5 class="mb-3 text-gray-800">DISTRIBUCIÓN DE PAGOS</h5>
-                            <div class="position-relative"
-                                style="height: 250px;">
+                        <div
+                            class="card border-0 p-4"
+                            style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;"
+                        >
+                            <h6 class="fw-semibold mb-3">💳 Distribución de Pagos</h6>
+                            <div
+                                class="position-relative"
+                                style="height: 200px;"
+                            >
                                 @if (empty($graficaDistribucionPagos['data']) || array_sum($graficaDistribucionPagos['data']) == 0)
-                                    <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                        <div class="mb-3 text-gray-400"
-                                            style="font-size: 3rem;">
-                                            <i class="fas fa-chart-pie"></i>
-                                        </div>
-                                        <p class="text-muted mb-0">No hay datos de pagos para mostrar</p>
+                                    <div style="min-height: 200px;">
+                                        <x-table-empty-state
+                                            title="Sin datos para mostrar"
+                                            icon="credit-card"
+                                            :message="'No se encontraron ventas realizadas por empleados en el período seleccionado.'"
+                                        />
                                     </div>
                                 @else
                                     <canvas id="pagosChart"></canvas>
@@ -497,10 +598,52 @@
                 </div>
             </div>
         </div>
-    </div>
+
+    </x-layout.page-container>
+
+    <style>
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background: rgb(30, 41, 59);
+            z-index: 2;
+        }
+
+        /* Estilos para modo expandido */
+        .modo-expandido {
+            position: fixed !important;
+            top: 60px !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            z-index: 1050 !important;
+            background: white !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            padding: 1rem !important;
+            /* padding-top: 90px !important; */
+            width: 100% !important;
+            height: calc(100vh - 60px) !important;
+            overflow: auto !important;
+        }
+
+        .modo-expandido .table-responsive {
+            height: calc(100vh - 120px) !important;
+        }
+
+        .btn-expandido {
+            background-color: #dc3545 !important;
+            color: white !important;
+            border-color: #dc3545 !important;
+        }
+
+        .btn-expandido:hover {
+            background-color: #bb2d3b !important;
+        }
+    </style>
 @endsection
 
-@section('styles')
+{{-- @section('styles')
     <style>
         .empty-state-icon {
             width: 80px;
@@ -571,13 +714,78 @@
             color: #7c3aed;
         }
     </style>
-@endsection
+@endsection --}}
 
 @section('scripts')
-    {{-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> --}}
-    {{-- <script src="{{ asset('js/cdn.jsdelivr.net.js') }}"></script> --}}
-    <script src="{{ asset('js/chart.js') }}"></script>
     <script>
+        let tablaExpandida = false;
+        let contenedorOriginal = null;
+        let siguienteHermano = null;
+
+        function toggleExpandirTabla() {
+            const contenedorTabla = document.querySelector('#vistaTabla, #vistaTickets').closest(
+                '.card.d-flex.flex-column');
+            const btnExpandir = document.getElementById('btnExpandir');
+            const btnTexto = document.getElementById('btnExpandirTexto');
+
+            if (!tablaExpandida) {
+                // Expandir
+                contenedorOriginal = contenedorTabla.parentNode;
+                siguienteHermano = contenedorTabla.nextSibling;
+
+                // Guardar posición original
+                contenedorTabla.style.position = 'relative';
+
+                // Mover al body
+                document.body.appendChild(contenedorTabla);
+                contenedorTabla.classList.add('modo-expandido');
+
+                // Cambiar botón
+                btnExpandir.classList.add('btn-expandido');
+                btnTexto.innerHTML = 'Contraer';
+                btnExpandir.title = 'Contraer tabla';
+
+                // Cambiar ícono
+                btnExpandir.querySelector('svg').innerHTML =
+                    '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/>';
+
+                tablaExpandida = true;
+
+                // Agregar evento para cerrar con ESC
+                document.addEventListener('keydown', cerrarConEsc);
+            } else {
+                // Contraer
+                contenedorTabla.classList.remove('modo-expandido');
+
+                // Regresar a su posición original
+                if (contenedorOriginal && siguienteHermano) {
+                    contenedorOriginal.insertBefore(contenedorTabla, siguienteHermano);
+                } else if (contenedorOriginal) {
+                    contenedorOriginal.appendChild(contenedorTabla);
+                }
+
+                // Restaurar botón
+                btnExpandir.classList.remove('btn-expandido');
+                btnTexto.innerHTML = 'Expandir';
+                btnExpandir.title = 'Expandir tabla';
+
+                // Restaurar ícono
+                btnExpandir.querySelector('svg').innerHTML =
+                    '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>';
+
+                tablaExpandida = false;
+
+                // Remover evento de ESC
+                document.removeEventListener('keydown', cerrarConEsc);
+            }
+        }
+
+        function cerrarConEsc(event) {
+            if (event.key === 'Escape' && tablaExpandida) {
+                toggleExpandirTabla();
+            }
+        }
+
         let ventasChart = null;
         let pagosChart = null;
 

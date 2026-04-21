@@ -163,6 +163,7 @@
 
     <script src="{{ asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
+    <script src="{{ asset('js/chart.js') }}"></script>
     <script src="{{ asset('js/pagination.js') }}"></script>
 
     @yield('scripts')
