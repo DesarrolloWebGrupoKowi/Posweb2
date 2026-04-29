@@ -227,7 +227,11 @@ class PoswebController extends Controller
 
     public function TicketsPendientes()
     {
-        return $ticketsLocal = DatEncabezado::where('Subir', 0)->count();
+        $fechaLimite = now()->subMinutes(4)->format('Ymd H:i:s'); // Formato más seguro
+
+        return DatEncabezado::where('Subir', 0)
+            ->whereRaw("TRY_CONVERT(datetime, FechaVenta, 120) < ?", [$fechaLimite])
+            ->count();
     }
 
     public function EliminarPago($idDatTipoPago)

@@ -85,6 +85,7 @@
                         <h6><span class="orange">Articulos :</span> {{ $preventa->count() }}</h6>
                     </div>
                 </div>
+                @include('Posweb.tickets-pendientes')
                 <div class="d-flex gap-2 mt-2">
                     <button {!! $banderaMultiPago > 0 ? 'disabled' : '' !!} class="btnOpcion" data-bs-toggle="modal"
                         data-bs-target="#ModalEmpleado">
@@ -206,10 +207,6 @@
             {{-- Tabla --}}
             <div id="pos" class="content-table card p-4 border"
                 style="border-radius: 20px; width: 100%; height: calc(100vh - 48px - 256px); overflow-y: scroll;">
-                <div id="ticketsPosContainer" class="d-none">
-                    @include('Posweb.tickets-pendientes')
-                </div>
-
                 <table>
                     <thead class="table-head">
                         <tr>

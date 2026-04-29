@@ -8,12 +8,6 @@
             style="border-radius: 10px">
             <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
                 @include('components.title', ['titulo' => 'Lista de Promociones'])
-                <div class="d-flex align-items-center justify-content-end gap-4">
-                    <a href="/ExportExcelDetallePrecios"
-                        class="input-group-text text-decoration-none btn-excel">
-                        @include('components.icons.excel') Exportar
-                    </a>
-                </div>
             </div>
             @include('Alertas.Alertas')
         </div>
