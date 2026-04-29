@@ -292,6 +292,12 @@ Route::group(['middleware' => 'auth'], function () {
     //Export detalle de precios a excel
     Route::get('/ExportExcelDetallePrecios', 'App\Http\Controllers\PreciosController@ExportExcel');
 
+    //Detalle de promociones
+    Route::get('/DetallePromociones', 'App\Http\Controllers\PreciosController@DetallePromociones');
+
+    //Detalle de promociones
+    Route::post('/DetallePromociones/update', 'App\Http\Controllers\PreciosController@DetallePromocionesUpdate');
+
     //+============================================================================================================================================+//
     //Pedidos
     Route::get('/Pedidos', 'App\Http\Controllers\PedidosController@Pedidos');

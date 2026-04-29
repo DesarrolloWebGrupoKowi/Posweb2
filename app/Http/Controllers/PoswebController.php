@@ -37,12 +37,14 @@ use App\Services\VentaService;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Mike42\Escpos\EscposImage;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use PDF;
+use Vinkla\Hashids\Facades\Hashids;
 
 class PoswebController extends Controller
 {
@@ -1348,7 +1350,7 @@ class PoswebController extends Controller
                     DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                     DB::commit();
 
-                    \App\Jobs\SubirVentaJob::dispatch();
+                    // \App\Jobs\SubirVentaJob::dispatch();
 
                     return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
                 }
@@ -1804,7 +1806,7 @@ class PoswebController extends Controller
                 DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                 DB::commit();
 
-                \App\Jobs\SubirVentaJob::dispatch();
+                // \App\Jobs\SubirVentaJob::dispatch();
 
                 Log::info('-->');
                 Log::info('Se manda imprimir el ticket');
@@ -2309,6 +2311,9 @@ class PoswebController extends Controller
             ->where('a.Status', 0)
             ->first();
 
+        $folio = $encabezado->IdEncabezado;
+        $folioEncoded = Hashids::encode($folio);
+
         $n = explode(' ', empty(Auth::user()->Empleado->Nombre) ? 'Nomina' : Auth::user()->Empleado->Nombre);
         $a = explode(' ', empty(Auth::user()->Empleado->Apellidos) ? 'Vacio' : Auth::user()->Empleado->Apellidos);
         $nombre = $n[0];
@@ -2316,6 +2321,7 @@ class PoswebController extends Controller
 
         try {
             $logoKowi = EscposImage::load("img/printLogoKowi.png");
+            $QR = EscposImage::load("img/qr-200.png");
 
             $nombreImpresora = "PosWeb2";
             $connector = new WindowsPrintConnector($nombreImpresora);
@@ -2335,7 +2341,7 @@ class PoswebController extends Controller
             $impresora->text("==========================================\n");
             $impresora->setJustification(Printer::JUSTIFY_LEFT);
             $impresora->text("FECHA: " . date('d/m/Y H:i:s', strtotime($encabezado->FechaVenta)) . "\n");
-            $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
+            $impresora->text("FOLIO: " . $folioEncoded . "\n");
             $impresora->text("TICKET: " . $encabezado->IdTicket . "\n");
             $impresora->text("ARTICULOS: " . $venta->count() . "\n");
             $impresora->text("CAJA: " . $caja->NumCaja . "\n");
@@ -2396,7 +2402,12 @@ class PoswebController extends Controller
             // $impresora->text("FOLIO CUPÓN: " . $idEncabezado . "\n");
             // $impresora->text("********************************\n");
             // $impresora->feed(1);
-            $impresora->text("¡ALTA CALIDAD EN CARNE DE CERDO!\n");
+
+            $impresora->bitImage($QR);
+            $impresora->text("\n\nOBTENGA SU FACTURA INGRESANDO A LA PAGINA: \n");
+            $impresora->text("https://facturacion.kowi.com.mx\n");
+            $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA DESCARGAR SU\nFACTURA DEL PORTAL, SIEMPRE Y CUANDO LA FACTURA\nQUEDE EN EL MISMO MES DE LA COMPRA\n");
+            $impresora->text("\n¡ALTA CALIDAD EN CARNE DE CERDO!\n");
             $impresora->text("WWW.KOWI.COM.MX\n");
             $impresora->text("¡GRACIAS POR SU COMPRA!\n");
             //$impresora->feed(2);
@@ -2511,6 +2522,9 @@ class PoswebController extends Controller
             ->where('a.Status', 0)
             ->first();
 
+        $folio = $encabezado->IdEncabezado;
+        $folioEncoded = Hashids::encode($folio);
+
         $n = explode(' ', empty(Auth::user()->Empleado->Nombre) ? 'Nomina' : Auth::user()->Empleado->Nombre);
         $a = explode(' ', empty(Auth::user()->Empleado->Apellidos) ? 'Vacio' : Auth::user()->Empleado->Apellidos);
         $nombre = $n[0];
@@ -2521,6 +2535,7 @@ class PoswebController extends Controller
             ->first();
 
         $logoKowi = EscposImage::load("img/printLogoKowi.png");
+        $QR = EscposImage::load("img/qr-200.png");
 
         $nombreImpresora = "PosWeb2";
         $connector = new WindowsPrintConnector($nombreImpresora);
@@ -2540,7 +2555,7 @@ class PoswebController extends Controller
         $impresora->text("==========================================\n");
         $impresora->setJustification(Printer::JUSTIFY_LEFT);
         $impresora->text("FECHA: " . date('d/m/Y H:i:s', strtotime($encabezado->FechaVenta)) . "\n");
-        $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
+        $impresora->text("FOLIO: " . $folioEncoded . "\n");
         $impresora->text("TICKET: " . $encabezado->IdTicket . "\n");
         $impresora->text("ARTICULOS: " . $ticket->count() . "\n");
         $impresora->text("CAJA: " . $caja->NumCaja . "\n");
@@ -2602,7 +2617,12 @@ class PoswebController extends Controller
         // $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
         // $impresora->text("********************************\n");
         // $impresora->feed(1);
-        $impresora->text("¡ALTA CALIDAD EN CARNE DE CERDO!\n");
+
+        $impresora->bitImage($QR);
+        $impresora->text("\n\nOBTENGA SU FACTURA INGRESANDO A LA PAGINA: \n");
+        $impresora->text("https://facturacion.kowi.com.mx\n");
+        $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA DESCARGAR SU\nFACTURA DEL PORTAL, SIEMPRE Y CUANDO LA FACTURA\nQUEDE EN EL MISMO MES DE LA COMPRA\n");
+        $impresora->text("\n¡ALTA CALIDAD EN CARNE DE CERDO!\n");
         $impresora->text("WWW.KOWI.COM.MX\n");
         $impresora->text("¡GRACIAS POR SU COMPRA!\n");
         //$impresora->feed(2);

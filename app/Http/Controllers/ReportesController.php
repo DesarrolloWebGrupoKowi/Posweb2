@@ -126,6 +126,7 @@ class ReportesController extends Controller
                 });
             })
             // Condiciones fijas
+            ->whereIn('a.IdTienda', $tiendasIds)
             ->where('a.StatusVenta', 0)
             ->whereNotNull('c.CodArticulo')
             // Agrupación

@@ -99,6 +99,7 @@
                         <tr>
                             <th class="rounded-start">Ticket</th>
                             <th>Folio</th>
+                            <th>Folio Encriptado</th>
                             <th>Fecha</th>
                             <th class="text-end">IVA</th>
                             <th class="text-end">Importe</th>
@@ -123,6 +124,9 @@
                                 </td>
                                 <td class="fw-500">
                                     {{ $ticket->IdEncabezado }}
+                                </td>
+                                <td class="fw-500">
+                                    {{ \Vinkla\Hashids\Facades\Hashids::encode($ticket->IdEncabezado) }}
                                 </td>
                                 <td>
                                     <span style="font-size: 0.85rem; min-width: 150px; display: inline-block;">
@@ -278,7 +282,7 @@
 
                         @if ($tickets->count() > 0)
                             <tr class="table-light">
-                                <td colspan="3"
+                                <td colspan="4"
                                     class="fw-bold text-end">TOTALES:</td>
                                 <td class="fw-bold text-end">${{ number_format($totalIva, 2) }}</td>
                                 <td class="fw-bold text-end">${{ number_format($total, 2) }}</td>

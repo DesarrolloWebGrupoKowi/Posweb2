@@ -149,6 +149,7 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereIn('a.IdTienda', $tiendasIds)
             ->where('d.StatusVenta', 0)
             ->orderBy('a.FechaVenta')
             ->get();
@@ -183,6 +184,7 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereIn('IdTienda', $tiendasIds)
             ->where('StatusVenta', 0)
             ->sum('ImporteArticulo');
 
@@ -215,6 +217,7 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereIn('IdTienda', $tiendasIds)
             ->where('StatusCredito', 0)
             ->where('StatusVenta', 0)
             ->sum('ImporteArticulo');
