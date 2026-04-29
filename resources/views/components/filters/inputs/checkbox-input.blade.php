@@ -1,6 +1,6 @@
 @props(['name', 'label', 'checked' => false, 'helperText' => null, 'width' => '150px', 'compact' => false])
 
-<div class="col-12 col-md-6 col-lg-3">
+<div class="col-12 col-md-6 col-lg-3 relative">
     <div
         class="input-group d-flex {{ $compact ? 'input-group-sm' : '' }}"
         style="width: 100%;"

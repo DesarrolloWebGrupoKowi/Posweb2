@@ -1,5 +1,5 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Descuentos y promociones')
+@section('title', 'Descuentos y promociones detallado')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
     <x-layout.page-container>
@@ -8,7 +8,7 @@
         <x-layout.section-card>
             <!-- Título y botones principales -->
             <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
-                <x-title titulo="Descuentos y promociones" />
+                <x-title titulo="Descuentos y promociones detallado" />
                 <div class="d-flex gap-2">
                     <x-filters.buttons.refresh-button />
                     <x-filters.buttons.home-button />
@@ -67,7 +67,7 @@
                 <x-slot:buttons>
                     <x-filters.buttons.clear-button />
                     <x-filters.buttons.advanced-button
-                        {{-- :active="$filtrosAvanzadosActivos" --}}
+                        :active="$filtrosAvanzadosActivos"
                         :hasBadge="true"
                     />
                     <x-filters.buttons.submit-button />
@@ -81,7 +81,7 @@
 
         <!-- SECCIÓN: TABLAS -->
         <div
-            class="flex-grow-1"
+            class="flex-grow-1 d-flex gap-4"
             style="min-height: 0;"
         >
             <div
@@ -103,86 +103,64 @@
                         <table class="table">
                             <thead class="table-head">
                                 <tr>
-                                    <th>Id</th>
-                                    <th>Descuento</th>
-                                    <th>Tipo</th>
-                                    <th>Tienda</th>
-                                    <th>Plaza</th>
-                                    <th>Fecha Inicio</th>
-                                    <th>Fecha Fin</th>
-                                    <th>Fecha creado</th>
-                                    <th>Fecha Deshabilitado</th>
+                                    <th>#</th>
+                                    <th>NomDescuento</th>
+                                    <th>CodArticulo</th>
+                                    <th>NomArticulo</th>
+                                    <th>PrecioDescuento</th>
+                                    <th>FechaInicio</th>
+                                    <th>FechaFin</th>
+                                    <th>FechaCreacion</th>
+                                    <th>FechaDesactivar</th>
+                                    <th>NomTipoDescuento</th>
+                                    <th>NomTienda</th>
+                                    <th>NomPlaza</th>
                                     <th>Estatus</th>
-                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($descuentos as $descuento)
-                                    <tr>
-                                        <td>{{ $descuento->IdEncDescuento }}</td>
-                                        <td>{{ $descuento->NomDescuento }}</td>
-                                        <td>{{ $descuento->NomTipoDescuento }}</td>
-                                        <td>{{ $descuento->NomTienda ?? '-' }}</td>
-                                        <td>{{ $descuento->NomPlaza ?? '-' }}</td>
-                                        <td>{{ strftime('%d %B %Y, %H:%M', strtotime($descuento->FechaInicio)) }}</td>
-                                        <td>{{ strftime('%d %B %Y, %H:%M', strtotime($descuento->FechaFin)) }}</td>
-                                        <td>
-                                            {{ strftime('%d %B %Y, %H:%M', strtotime($descuento->FechaCreacion)) }}
+                                @forelse ($descuentosDetallados as $item)
+                                    <tr
+                                        style="{{ $item->StatusDetalle == 1 ? 'text-decoration: line-through; color: #9ca3af; opacity: 0.6' : '' }}">
+                                        <td>{{ $item->IdEncDescuento }}</td>
+                                        <td>{{ $item->NomDescuento }}</td>
+                                        <td>{{ $item->CodArticulo ?? '-' }}</td>
+                                        <td>{{ $item->NomArticulo ?? '-' }}</td>
+                                        <td>{{ $item->PrecioDescuento !== null ? number_format($item->PrecioDescuento, 2) : '-' }}
+                                        </td>
+                                        <td>{{ $item->FechaInicio ? strftime('%d %B %Y, %H:%M', strtotime($item->FechaInicio)) : '-' }}
+                                        </td>
+                                        <td>{{ $item->FechaFin ? strftime('%d %B %Y, %H:%M', strtotime($item->FechaFin)) : '-' }}
+                                        </td>
+                                        <td>{{ $item->FechaCreacion ? strftime('%d %B %Y, %H:%M', strtotime($item->FechaCreacion)) : '-' }}
                                         </td>
                                         <td>
-                                            @if ($descuento->FechaDesactivar)
-                                                {{ strftime('%d %B %Y, %H:%M', strtotime($descuento->FechaDesactivar)) }}
+                                            @if ($item->FechaDesactivar)
+                                                {{ strftime('%d %B %Y, %H:%M', strtotime($item->FechaDesactivar)) }}
                                             @else
                                                 -
                                             @endif
                                         </td>
+
+                                        <td>{{ $item->NomTipoDescuento ?? '-' }}</td>
+                                        <td>{{ $item->NomTienda ?? '-' }}</td>
+                                        <td>{{ $item->NomPlaza ?? '-' }}</td>
                                         <td>
                                             @php
                                                 $hoy = \Carbon\Carbon::now()->startOfDay();
-                                                $fechaFin = \Carbon\Carbon::parse($descuento->FechaFin)->startOfDay();
+                                                $fechaFin = \Carbon\Carbon::parse($item->FechaFin)->startOfDay();
+                                                $itemStatus = $item->StatusDescuento ?? ($item->Status ?? null);
                                             @endphp
-
-                                            @if ($descuento->Status == 1)
+                                            @if ($item->StatusDescuento == 1 || $item->StatusDetalle == 1)
                                                 <span class="tags-red">Deshabilitado</span>
                                             @elseif ($fechaFin->lt($hoy))
                                                 <span class="tags-blue">Expirado</span>
-                                            @elseif ($descuento->Status == 0)
+                                            @elseif ($item->StatusDescuento == 0 && $item->StatusDetalle == 0)
                                                 <span class="tags-green">Activo</span>
                                             @endif
                                         </td>
-
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-2">
-                                                <button
-                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ModalArticulos{{ $descuento->IdEncDescuento }}"
-                                                    title="Detalle de descuento"
-                                                >
-                                                    @include('components.icons.list') Productos
-                                                </button>
-                                                <a
-                                                    href="/EditarDescuento/{{ $descuento->IdEncDescuento }}"
-                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
-                                                    title="Editar descuento"
-                                                >
-                                                    @include('components.icons.edit') Ver
-                                                </a>
-                                                @if ($descuento->Status == 0 && !$fechaFin->lt($hoy))
-                                                    <button
-                                                        class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#ModalEliminarConfirm{{ $descuento->IdEncDescuento }}"
-                                                        title="Eliminar descuento"
-                                                    >
-                                                        @include('components.icons.arrow-down') Deshabilar
-                                                    </button>
-                                                @endif
-                                            </div>
-                                            @include('Descuentos.ModalArticulos')
-                                            @include('Descuentos.ModalEliminarConfirm')
-                                        </td>
                                     </tr>
+
                                 @empty
 
                                     <tr>
@@ -203,11 +181,17 @@
                                 @endforelse
                             </tbody>
                         </table>
-                        @include('components.paginate', ['items' => $descuentos])
-
                     </div>
                 </div>
             </div>
         </div>
     </x-layout.page-container>
+    <style>
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background: rgb(30, 41, 59);
+            z-index: 2;
+        }
+    </style>
 @endsection

@@ -14,7 +14,8 @@ class DatDetDescuentos extends Model
         'IdArticulo',
         'CantArticulo',
         'PrecioDescuento',
-        'IdListaPrecio'
+        'IdListaPrecio',
+        'Status'
     ];
     public $timestamps = false;
     protected $primaryKey = 'IdDetDescuento';

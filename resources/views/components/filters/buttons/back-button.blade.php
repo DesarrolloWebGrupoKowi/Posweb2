@@ -5,7 +5,7 @@
 <div>
     <button
         type="button"
-        class="btn btn-sm btn-outline-dark"
+        class="btn btn-sm btn-outline-dark d-flex align-items-center gap-2"
         onclick="goBack()"
         title="Regresar a la página anterior"
     >

@@ -309,7 +309,7 @@
                                 @empty
                                     <tr>
                                         <td
-                                            colspan="13"
+                                            colspan="14"
                                             class="py-5 text-center"
                                         >
                                             <x-table-empty-state

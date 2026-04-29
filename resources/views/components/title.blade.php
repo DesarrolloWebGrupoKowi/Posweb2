@@ -1,6 +1,6 @@
 <div>
-    <h2 class="mb-1">{{ $titulo }}</h2>
-    <div class="router d-flex align-items-center gap-2">
+    <h2 class="mb-3 mb-md-1">{{ $titulo }}</h2>
+    <div class="d-none router d-lg-flex align-items-center gap-2">
         <a class="text-secondary text-decoration-none gap-2 m-0" style="font-weight: 500" href="/Dashboard">
             Dashboard</a>
         <svg style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 20 20"

@@ -1,205 +1,547 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Concentrado de Articulos')
+@section('title', 'Concentrado de Artículos')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="gap-4 pt-4 container-fluid width-95 d-flex flex-column">
+    <x-layout.page-container>
 
-        <div class="p-4 border-0 card" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Concentrado de Articulos'])
-                <div>
-                    <form action="/ExportReporteConcentradoDeArticulos" method="GET">
-                        <select class="d-none" name="idTienda">
-                            <option value="">Seleccione Tienda</option>
-                            @foreach ($tiendas as $tienda)
-                                <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-                        <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                        <input type="hidden" name="txtFiltro" value="{{ $txtFiltro }}">
-                        <input type="hidden" name="optionsOnline" value="{{ $optionsOnline }}">
-                        <input type="hidden" name="agrupado" value="{{ $agrupado }}">
-                        <input type="hidden" name="agrupadoArticulo" value="{{ $agrupadoArticulo }}">
-                        <button type="submit" class="input-group-text text-decoration-none btn-excel">
-                            Exportar @include('components.icons.excel')
-                        </button>
-                    </form>
+        <!-- SECCIÓN 1: FILTROS -->
+        <x-layout.section-card>
+            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+                <x-title titulo="Concentrado de Artículos" />
+                <div class="d-flex gap-2">
+                    <x-filters.buttons.excel-button
+                        route="/ExportReporteConcentradoDeArticulos"
+                        :params="[
+                            'idTienda' => request('idTienda'),
+                            'fecha1' => request('fecha1'),
+                            'fecha2' => request('fecha2'),
+                            'txtFiltro' => request('txtFiltro'),
+                            'optionsOnline' => request('optionsOnline'),
+                            'agrupado' => request('agrupado'),
+                            'agrupadoArticulo' => request('agrupadoArticulo'),
+                            'codigoInterfaz' => request('codigoInterfaz'),
+                            'soloAdeudos' => request('soloAdeudos'),
+                        ]"
+                    />
+                    <x-filters.buttons.refresh-button />
+                    <x-filters.buttons.home-button />
                 </div>
+            </div>
+
+            <!-- Formulario de filtros -->
+            <x-filters.filter-form>
+                <!-- Filtros Básicos -->
+                <x-filters.filter-group>
+                    <x-filters.inputs.select-input
+                        name="idTienda"
+                        label="Tienda"
+                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    />
+                    <x-filters.inputs.date-input
+                        name="fecha1"
+                        label="Fecha Inicio"
+                        :value="request('fecha1')"
+                        :autofocus="true"
+                    />
+                    <x-filters.inputs.date-input
+                        name="fecha2"
+                        label="Fecha Fin"
+                        :value="request('fecha2')"
+                    />
+                    <x-filters.inputs.text-input
+                        name="txtFiltro"
+                        label="Artículo"
+                        placeholder="Código o nombre del artículo"
+                        :value="request('txtFiltro')"
+                    />
+                </x-filters.filter-group>
+
+                <!-- Filtros Avanzados -->
+                <x-filters.advanced-collapse
+                    :active="$filtrosAvanzadosActivos"
+                    :showBadge="true"
+                >
+                    <x-filters.filter-group>
+                        <x-filters.inputs.checkbox-input
+                            name="agrupado"
+                            label="Agrupar fecha"
+                            :checked="request('agrupado') == 'on'"
+                            helperText="Agrupa ventas por día"
+                            compact="true"
+                        />
+                        <x-filters.inputs.checkbox-input
+                            name="agrupadoArticulo"
+                            label="Agrupar artículo"
+                            :checked="request('agrupadoArticulo') == 'on'"
+                            helperText="Agrupa por artículo"
+                            compact="true"
+                        />
+                        @if (Auth::user()->IdTipoUsuario == 2)
+                            <x-filters.inputs.checkbox-input
+                                name="optionsOnline"
+                                label="online"
+                                :checked="request('optionsOnline') == 'on'"
+                                helperText="Usar conexión remota"
+                                compact="true"
+                            />
+                        @endif
+                    </x-filters.filter-group>
+                </x-filters.advanced-collapse>
+
+                <x-slot:buttons>
+                    <x-filters.buttons.clear-button />
+                    <x-filters.buttons.advanced-button
+                        :active="$filtrosAvanzadosActivos"
+                        :hasBadge="true"
+                    />
+                    <x-filters.buttons.submit-button />
+                </x-slot:buttons>
+            </x-filters.filter-form>
+        </x-layout.section-card>
+
+        <!-- SECCIÓN 2: KPIs -->
+        <div class="flex-shrink-0">
+            <div class="row g-4">
+                <!-- Total de artículos vendidos (suma de pesos) -->
+                <x-kpi.kpi-card
+                    title="Total de Peso Vendido"
+                    :value="$concentrado->sum('Peso')"
+                    subtitle="Kilogramos totales"
+                    color="primary"
+                    icon="components.icons.shopping-cart"
+                    :decimal="2"
+                />
+
+                <!-- Artículos únicos vendidos -->
+                <x-kpi.kpi-card
+                    title="Artículos Vendidos"
+                    :value="$concentrado->unique('CodArticulo')->count()"
+                    subtitle="Códigos diferentes"
+                    color="info"
+                    icon="components.icons.credit-card"
+                />
+
+                <!-- Precio promedio por kilogramo -->
+                <x-kpi.kpi-card
+                    title="Precio Promedio"
+                    :value="$concentrado->sum('Importe') /
+                        ($concentrado->sum('Peso') > 0 ? $concentrado->sum('Peso') : 1)"
+                    subtitle="$ por kilogramo"
+                    color="danger"
+                    icon="components.icons.dolar"
+                    currency="true"
+                    :decimal="2"
+                />
+
+                <!-- Valor total de ventas -->
+                <x-kpi.kpi-card
+                    title="Venta Total"
+                    :value="$concentrado->sum('Importe')"
+                    subtitle="Monto facturado"
+                    color="success"
+                    icon="components.icons.ticket"
+                    currency="true"
+                    :decimal="2"
+                />
             </div>
         </div>
 
-        <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-        <div class="p-4 border-0 card" style="border-radius: 10px">
-            <!--CONTAINER FILTROS-->
-            <form class="gap-2 pb-2 d-flex align-items-center justify-content-end flex-wrap"
-                action="/ReporteConcentradoDeArticulos" method="GET">
-                <!-- Controles de filtro principales -->
-                <div class="col-auto">
-                    <select class="form-select form-select-sm" name="idTienda" id="idTienda">
-                        <option value="">Tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">
-                                {{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+        <!-- SECCIÓN GRÁFICAS Y TABLAS -->
+        <div
+            class="flex-grow-1 d-flex gap-4"
+            style="min-height: 0;"
+        >
+            <div
+                class="d-flex flex-column"
+                style="flex: 2; min-width: 0; min-height: 0;"
+            >
+                <div
+                    class="card d-flex flex-column w-100 border-0 p-4"
+                    style="border-radius: 10px; min-height: 0;"
+                >
+                    <div
+                        id="vistaTabla"
+                        class="flex-grow-1 table-responsive content-table-sm overflow-auto"
+                        style="min-height: 0;"
+                    >
+                        <table class="table">
+                            <thead class="table-head">
+                                <tr>
+                                    <th>Ciudad</th>
+                                    <th>Tienda</th>
+                                    @if ($agrupado)
+                                        <th>Fecha</th>
+                                    @endif
+                                    <th>Grupo</th>
+                                    <th>Lista precios</th>
+                                    <th>Código</th>
+                                    <th>Articulo</th>
+                                    <th>Cantidad</th>
+                                    @if (!$agrupadoArticulo)
+                                        <th>Precio</th>
+                                    @endif
+                                    <th>Iva</th>
+                                    <th>Importe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    // Inicializamos las variables para la suma
+                                    $totalPeso = 0;
+                                    $totalIva = 0;
+                                    $totalImporte = 0;
+                                @endphp
+                                @forelse ($concentrado as $tConcentrado)
+                                    <tr>
+                                        <td>{{ $tConcentrado->NomCiudad }}</td>
+                                        <td>{{ $tConcentrado->NomTienda }}</td>
+                                        @if ($agrupado)
+                                            <!-- <td>{{ $tConcentrado->FechaVenta }}</td> -->
+                                            <td>{{ \Carbon\Carbon::parse($tConcentrado->FechaVenta)->format('d/m/Y') }}
+                                            </td>
+                                        @endif
+                                        <td>{{ $tConcentrado->NomGrupo }}</td>
+                                        <td>{{ $tConcentrado->NomListaPrecio }}</td>
+                                        <td>{{ $tConcentrado->CodArticulo }}</td>
+                                        <td>{{ $tConcentrado->NomArticulo }}</td>
+                                        <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
+                                        @if (!$agrupadoArticulo)
+                                            <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
+                                        @endif
+                                        <td>{{ number_format($tConcentrado->Iva, 2) }}</td>
+                                        <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
+                                    </tr>
 
-                <div class="col-auto">
-                    <input class="form-control form-control-sm" style="width: 180px;" type="text" name="txtFiltro"
-                        id="txtFiltro" value="{{ $txtFiltro }}" placeholder="Código/Artículo">
-                </div>
+                                    @php
+                                        // Acumulamos los valores
+                                        $totalPeso += $tConcentrado->Peso;
+                                        $totalIva += $tConcentrado->Iva;
+                                        $totalImporte += $tConcentrado->Importe;
+                                    @endphp
+                                @empty
+                                    <tr>
+                                        <td
+                                            colspan="14"
+                                            class="py-5 text-center"
+                                        >
+                                            <x-table-empty-state
+                                                title="Sin datos disponibles"
+                                                icon="cube"
+                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
+                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
+                                                action="Limpiar filtros"
+                                                actionUrl="/ReporteConcentradoDeArticulos"
+                                            />
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
 
-                <div class="col-auto">
-                    <input class="form-control form-control-sm" type="date" name="fecha1" id="fecha1"
-                        value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-                </div>
-
-                <div class="col-auto">
-                    <input class="form-control form-control-sm" type="date" name="fecha2" id="fecha2"
-                        value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                </div>
-
-                <!-- Checkboxes como botones toggle compactos -->
-                <div class="col-auto">
-                    <div class="btn-group btn-group-sm" role="group">
-                        <input type="checkbox" class="btn-check" value="on" id="agrupado" name="agrupado"
-                            {{ $agrupado ? 'checked' : '' }}>
-                        <label class="btn btn-outline-secondary" for="agrupado" title="Agrupado por fecha">
-                            📅 Fecha
-                        </label>
-
-                        <input type="checkbox" class="btn-check" value="on" id="agrupadoArticulo"
-                            name="agrupadoArticulo" {{ $agrupadoArticulo ? 'checked' : '' }}>
-                        <label class="btn btn-outline-secondary" for="agrupadoArticulo" title="Agrupado por artículo">
-                            📦 Artículo
-                        </label>
+                            @if (count($concentrado) > 0)
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="5"><strong>Total:</strong></td>
+                                        @if ($agrupado)
+                                            <td></td>
+                                        @endif
+                                        <td><strong>{{ number_format($totalPeso, 3) }}</strong></td>
+                                        @if (!$agrupadoArticulo)
+                                            <td></td>
+                                        @endif
+                                        <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
+                                        <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            @endif
+                        </table>
                     </div>
                 </div>
+            </div>
 
-                @if (Auth::user()->IdTipoUsuario == 2)
-                    <div class="col-auto">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <input type="radio" class="btn-check" name="optionsOnline" id="danger-outlined" value="off"
-                                {{ $optionsOnline == 'off' ? 'checked' : '' }}>
-                            <label class="btn btn-outline-danger" for="danger-outlined" title="Modo offline">
-                                @include('components.icons.cloud-slash')
-                            </label>
-                            <input type="radio" class="btn-check" name="optionsOnline" id="success-outlined"
-                                value="on" {{ $optionsOnline == 'on' ? 'checked' : '' }}>
-                            <label class="btn btn-outline-success" for="success-outlined" title="Modo online">
-                                @include('components.icons.cloud-check')
-                            </label>
+            <!-- SECCIÓN Graficas -->
+            <div style="flex: 1; min-width: 0;">
+                <!-- Top 10 Productos por Peso -->
+                <div class="row">
+                    <div class="col-12">
+                        <div
+                            class="card border-0 p-4"
+                            style="border-radius: 10px"
+                        >
+                            <h6 class="fw-semibold mb-3">🏆 Top 10 Productos por Peso Vendido</h6>
+                            @php
+                                // Agrupar por producto sumando pesos
+                                $productosAgrupados = $concentrado
+                                    ->groupBy('CodArticulo')
+                                    ->map(function ($items) {
+                                        $first = $items->first();
+                                        return (object) [
+                                            'CodArticulo' => $first->CodArticulo,
+                                            'NomArticulo' => $first->NomArticulo,
+                                            'Peso' => $items->sum(function ($item) {
+                                                return floatval($item->Peso);
+                                            }),
+                                            'Importe' => $items->sum(function ($item) {
+                                                return floatval($item->Importe);
+                                            }),
+                                        ];
+                                    })
+                                    ->sortByDesc('Peso')
+                                    ->take(10);
+
+                                $topProductosLabels = $productosAgrupados->pluck('NomArticulo')->toArray();
+                                $topProductosPeso = $productosAgrupados->pluck('Peso')->toArray();
+                            @endphp
+
+                            @if (count($topProductosLabels) > 0)
+                                <canvas
+                                    id="topProductosChart"
+                                    height="250"
+                                ></canvas>
+                            @else
+                                <div class="py-5 text-center">
+                                    <p class="text-muted">No hay datos para mostrar</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                @endif
-
-                <div class="col-auto">
-                    <button class="btn btn-outline-dark btn-sm bg-dark text-white" title="Buscar">
-                        @include('components.icons.search')
-                    </button>
                 </div>
-            </form>
 
-            <style>
-                /* Opcional: Ajustar tamaño de controles en pantallas pequeñas */
-                @media (max-width: 768px) {
+                <!-- Gráficas de distribución -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div
+                            class="card border-0 p-4"
+                            style="border-radius: 10px"
+                        >
+                            <h6 class="fw-semibold mb-3">📊 Ventas por Grupo</h6>
+                            @php
+                                $ventasPorGrupo = $concentrado
+                                    ->groupBy('NomGrupo')
+                                    ->map(function ($items) {
+                                        return $items->sum(function ($item) {
+                                            return floatval($item->Importe);
+                                        });
+                                    })
+                                    ->sortDesc();
 
-                    .form-select-sm,
-                    .form-control-sm {
-                        font-size: 0.875rem;
-                        padding: 0.25rem 0.5rem;
-                    }
+                                $gruposLabels = $ventasPorGrupo->keys()->toArray();
+                                $gruposData = $ventasPorGrupo->values()->toArray();
+                            @endphp
 
-                    .btn-group-sm .btn {
-                        padding: 0.25rem 0.5rem;
-                        font-size: 0.875rem;
-                    }
-                }
-            </style>
-
-            <div class="content-table content-table-full" style="max-height: calc(65vh);">
-                <table class="w-100">
-                    <thead class="table-head">
-                        <tr>
-                            <th class="rounded-start">Ciudad</th>
-                            <th>Tienda</th>
-                            @if ($agrupado)
-                                <th>Fecha</th>
+                            @if (count($gruposLabels) > 0)
+                                <canvas
+                                    id="ventasPorGrupoChart"
+                                    height="150"
+                                ></canvas>
+                            @else
+                                <div class="py-5 text-center">
+                                    <p class="text-muted">No hay datos para mostrar</p>
+                                </div>
                             @endif
-                            <th>Grupo</th>
-                            <th>Código</th>
-                            <th>Articulo</th>
-                            <th>Cantidad</th>
-                            @if (!$agrupadoArticulo)
-                                <th>Precio</th>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div
+                            class="card border-0 p-4"
+                            style="border-radius: 10px"
+                        >
+                            <h6 class="fw-semibold mb-3">💰 Ventas por Lista de Precio</h6>
+                            @php
+                                $ventasPorLista = $concentrado
+                                    ->groupBy('NomListaPrecio')
+                                    ->map(function ($items) {
+                                        return $items->sum(function ($item) {
+                                            return floatval($item->Importe);
+                                        });
+                                    })
+                                    ->sortDesc();
+
+                                $listaLabels = $ventasPorLista->keys()->toArray();
+                                $listaData = $ventasPorLista->values()->toArray();
+                            @endphp
+
+                            @if (count($listaLabels) > 0)
+                                <canvas
+                                    id="ventasPorListaChart"
+                                    height="150"
+                                ></canvas>
+                            @else
+                                <div class="py-5 text-center">
+                                    <p class="text-muted">No hay datos para mostrar</p>
+                                </div>
                             @endif
-                            <th>Iva</th>
-                            <th class="rounded-end">Importe</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            // Inicializamos las variables para la suma
-                            $totalPeso = 0;
-                            $totalIva = 0;
-                            $totalImporte = 0;
-                        @endphp
-
-                        @if ($concentrado->count() == 0)
-                            <tr>
-                                <td colspan="9">No Hay Ventas en Rango de Fechas Seleccionadas!</td>
-                            </tr>
-                        @else
-                            @foreach ($concentrado as $tConcentrado)
-                                <tr>
-                                    <td>{{ $tConcentrado->NomCiudad }}</td>
-                                    <td>{{ $tConcentrado->NomTienda }}</td>
-                                    @if ($agrupado)
-                                        {{-- <td>{{ $tConcentrado->FechaVenta }}</td> --}}
-                                        <td>{{ \Carbon\Carbon::parse($tConcentrado->FechaVenta)->format('d/m/Y') }}</td>
-                                    @endif
-                                    <td>{{ $tConcentrado->NomGrupo }}</td>
-                                    <td>{{ $tConcentrado->CodArticulo }}</td>
-                                    <td>{{ $tConcentrado->NomArticulo }}</td>
-                                    <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
-                                    @if (!$agrupadoArticulo)
-                                        <td>{{ number_format($tConcentrado->PrecioArticulo, 2) }}</td>
-                                    @endif
-                                    <td>{{ number_format($tConcentrado->Iva, 2) }}</td>
-                                    <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
-                                </tr>
-
-                                @php
-                                    // Acumulamos los valores
-                                    $totalPeso += $tConcentrado->Peso;
-                                    $totalIva += $tConcentrado->Iva;
-                                    $totalImporte += $tConcentrado->Importe;
-                                @endphp
-                            @endforeach
-                        @endif
-                    </tbody>
-
-                    <tfoot>
-                        <tr>
-                            <td colspan="5"><strong>Total:</strong></td>
-                            @if ($agrupado)
-                                <td></td>
-                            @endif
-                            <td><strong>{{ number_format($totalPeso, 3) }}</strong></td>
-                            @if (!$agrupadoArticulo)
-                                <td></td>
-                            @endif
-                            <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
-                            <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
-                        </tr>
-                    </tfoot>
-
-                </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </x-layout.page-container>
+    <style>
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background: rgb(30, 41, 59);
+            z-index: 2;
+        }
+    </style>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gráfica 1: Top 10 Productos (Barras horizontales)
+            const topProductosCanvas = document.getElementById('topProductosChart');
+            if (topProductosCanvas && @json(count($topProductosLabels)) > 0) {
+                new Chart(topProductosCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: @json($topProductosLabels),
+                        datasets: [{
+                            label: 'Peso (kg)',
+                            data: @json($topProductosPeso),
+                            backgroundColor: '#4e73df',
+                            borderRadius: 5,
+                            barPercentage: 0.7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Peso: ${context.raw.toFixed(2)} kg`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Peso (kg)',
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    display: true
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toFixed(2) + ' kg';
+                                    }
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    },
+                                    maxRotation: 0,
+                                    autoSkip: false
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfica 2: Ventas por Grupo (Pie)
+            const grupoCanvas = document.getElementById('ventasPorGrupoChart');
+            if (grupoCanvas && @json(count($gruposLabels)) > 0) {
+                new Chart(grupoCanvas, {
+                    type: 'pie',
+                    data: {
+                        labels: @json($gruposLabels),
+                        datasets: [{
+                            data: @json($gruposData),
+                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                                '#858796'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    boxWidth: 10
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfica 3: Ventas por Lista de Precio (Doughnut)
+            const listaCanvas = document.getElementById('ventasPorListaChart');
+            if (listaCanvas && @json(count($listaLabels)) > 0) {
+                new Chart(listaCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: @json($listaLabels),
+                        datasets: [{
+                            data: @json($listaData),
+                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e',
+                                '#e74a3b'
+                            ],
+                            borderWidth: 0,
+                            cutout: '60%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    boxWidth: 10
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 @endsection
