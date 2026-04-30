@@ -1354,7 +1354,7 @@ class PoswebController extends Controller
                     DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                     DB::commit();
 
-                    // \App\Jobs\SubirVentaJob::dispatch();
+                    \App\Jobs\SubirVentaJob::dispatch();
 
                     return redirect()->route('ImprimirTicketVenta', compact('idEncabezado', 'restante', 'pago'));
                 }
@@ -1810,7 +1810,7 @@ class PoswebController extends Controller
                 DB::select("exec SP_GENERAR_TICKET_CORTE '" . $idEncabezado . "', " . $idTienda . ", '" . date('d-m-Y H:i:s') . "'");
                 DB::commit();
 
-                // \App\Jobs\SubirVentaJob::dispatch();
+                \App\Jobs\SubirVentaJob::dispatch();
 
                 Log::info('-->');
                 Log::info('Se manda imprimir el ticket');
