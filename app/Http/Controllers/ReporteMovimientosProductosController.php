@@ -46,8 +46,10 @@ class ReporteMovimientosProductosController extends Controller
         $referencia = $request->referencia;
         $idCaja = $request->id_caja;
 
+        $tiendasIds = $this->tiendasIds;
+
         // Construir la consulta
-        $query = DB::table('DatHistorialMovimientos as dh')
+        $query = DB::connection('server')->table('DatHistorialMovimientos as dh')
             ->leftJoin('CatTiendas as ct', 'ct.IdTienda', '=', 'dh.IdTienda')
             ->leftJoin('CatArticulos as ca', function ($join) {
                 $join->on('ca.CodArticulo', '=', 'dh.CodArticulo')
@@ -140,7 +142,7 @@ class ReporteMovimientosProductosController extends Controller
             ->when(!$idTienda && !$fecha && !$fechaInicio && !$fechaFin && !$codArticulo && !$nomArticulo && !$idMovimiento && !$usuario && !$numNomina && !$referencia && !$idCaja, function ($query) {
                 $query->whereRaw('1 = 0');
             })
-
+            ->whereIn('dh.IdTienda', $tiendasIds)
             ->orderBy('dh.FechaMovimiento', 'DESC')
             ->orderBy('dh.IdDatHistorialMovimientos', 'DESC');
 
