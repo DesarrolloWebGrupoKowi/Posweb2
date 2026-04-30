@@ -2407,10 +2407,13 @@ class PoswebController extends Controller
             // $impresora->text("********************************\n");
             // $impresora->feed(1);
 
-            $impresora->bitImage($QR);
-            $impresora->text("\n\nOBTENGA SU FACTURA INGRESANDO A LA PAGINA: \n");
-            $impresora->text("https://facturacion.kowi.com.mx\n");
-            $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA DESCARGAR SU\nFACTURA DEL PORTAL, SIEMPRE Y CUANDO LA FACTURA\nQUEDE EN EL MISMO MES DE LA COMPRA\n");
+            if (strtotime($encabezado->FechaVenta) >= strtotime('2026-05-01')) {
+                $impresora->bitImage($QR);
+                $impresora->text("\n\nOBTENGA SU FACTURA INGRESANDO A LA PAGINA: \n");
+                $impresora->text("https://facturacion.kowi.com.mx\n");
+                $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA DESCARGAR SU\nFACTURA DEL PORTAL, SIEMPRE Y CUANDO LA FACTURA\nQUEDE EN EL MISMO MES DE LA COMPRA\n");
+            }
+
             $impresora->text("\n¡ALTA CALIDAD EN CARNE DE CERDO!\n");
             $impresora->text("WWW.KOWI.COM.MX\n");
             $impresora->text("¡GRACIAS POR SU COMPRA!\n");
@@ -2621,11 +2624,13 @@ class PoswebController extends Controller
         // $impresora->text("FOLIO CUPÓN: " . $encabezado->IdEncabezado . "\n");
         // $impresora->text("********************************\n");
         // $impresora->feed(1);
+        if (strtotime($encabezado->FechaVenta) >= strtotime('2026-05-01')) {
+            $impresora->bitImage($QR);
+            $impresora->text("\n\nOBTENGA SU FACTURA INGRESANDO A LA PAGINA: \n");
+            $impresora->text("https://facturacion.kowi.com.mx\n");
+            $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA DESCARGAR SU\nFACTURA DEL PORTAL, SIEMPRE Y CUANDO LA FACTURA\nQUEDE EN EL MISMO MES DE LA COMPRA\n");
+        }
 
-        $impresora->bitImage($QR);
-        $impresora->text("\n\nOBTENGA SU FACTURA INGRESANDO A LA PAGINA: \n");
-        $impresora->text("https://facturacion.kowi.com.mx\n");
-        $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA DESCARGAR SU\nFACTURA DEL PORTAL, SIEMPRE Y CUANDO LA FACTURA\nQUEDE EN EL MISMO MES DE LA COMPRA\n");
         $impresora->text("\n¡ALTA CALIDAD EN CARNE DE CERDO!\n");
         $impresora->text("WWW.KOWI.COM.MX\n");
         $impresora->text("¡GRACIAS POR SU COMPRA!\n");
