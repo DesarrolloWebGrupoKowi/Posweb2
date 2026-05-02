@@ -14,22 +14,147 @@ use App\Models\DatEncabezado;
 use App\Models\DatRosticero;
 use App\Models\DatTipoPago;
 use App\Models\Tienda;
+use App\Services\TiendaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
-class OpcionReportes
-{
-    public $IdReporte;
-    public $NomReporte;
-}
-
 class ReportesController extends Controller
 {
+    protected $tiendaService;
+    protected $tiendasIds;
+    protected $tiendas;
+
+    public function __construct(TiendaService $tiendaService)
+    {
+        $this->tiendaService = $tiendaService;
+
+        $this->middleware(function ($request, $next) {
+            $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();
+            $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
+            return $next($request);
+        });
+    }
+
     public function ReporteConcentradoDeArticulos(Request $request)
     {
+        $tiendas = $this->tiendas;
+        $tiendasIds = $this->tiendasIds;
+
+        // Obtener valores de los filtros
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1;
+        $fecha2 = $request->fecha2;
+        $txtFiltro = $request->txtFiltro;
+        $optionsOnline = $request->optionsOnline;
+        $agrupado = $request->agrupado;
+        $agrupadoArticulo = $request->agrupadoArticulo;
+
+        $filtrosAvanzadosActivos =
+            $request->filled('agrupadoArticulo') ||
+            $request->filled('agrupado');
+
+        // Definir columnas seleccionadas
+        $select = [
+            'g.NomCiudad',
+            'f.NomTienda',
+            'e.NomGrupo',
+            'h.NomListaPrecio',
+            'c.CodArticulo',
+            'c.NomArticulo',
+            DB::raw('SUM(b.CantArticulo) as Peso'),
+            DB::raw('SUM(b.IvaArticulo) as Iva'),
+            DB::raw('SUM(b.ImporteArticulo) as Importe'),
+        ];
+
+        // Definir agrupación base
+        $groupBy = [
+            'g.NomCiudad',
+            'f.NomTienda',
+            'e.NomGrupo',
+            'h.NomListaPrecio',
+            'c.CodArticulo',
+            'c.NomArticulo',
+        ];
+
+        // Agregar PrecioArticulo al groupBy si NO está agrupado por artículo
+        if ($agrupadoArticulo != 'on') {
+            $groupBy[] = 'b.PrecioArticulo';
+            $select[] = 'b.PrecioArticulo';
+        }
+
+        // Agregar fecha al groupBy si está agrupado por fecha
+        if ($agrupado == 'on') {
+            $select[] = DB::raw('CAST(a.FechaVenta AS DATE) as FechaVenta');
+            $groupBy[] = DB::raw('CAST(a.FechaVenta AS DATE)');
+        }
+
+        // Consulta principal usando when()
+        $concentrado = DB::connection($optionsOnline == 'on' ? 'server' : null)
+            ->table('DatEncabezado as a')
+            ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
+            ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
+            ->leftJoin('CatFamilias as d', 'c.IdFamilia', 'd.IdFamilia')
+            ->leftJoin('CatGrupos as e', 'c.IdGrupo', 'e.IdGrupo')
+            ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
+            ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
+            ->leftJoin('CatListasPrecio as h', 'b.IdListaPrecio', 'h.IdListaPrecio')
+            ->select($select)
+            // Filtro de tiendas permitidas
+            // ->when($idTiendas->isNotEmpty(), function ($query) use ($idTiendas) {
+            //     $query->whereIn('a.IdTienda', $idTiendas);
+            // })
+            // Filtro específico de tienda
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('a.IdTienda', $idTienda);
+            })
+            // Filtro de fechas SOLO si vienen ambas fechas
+            ->when((!empty($fecha1) && !empty($fecha2)), function ($query) use ($fecha1, $fecha2) {
+                $query->whereBetween(DB::raw('cast(a.FechaVenta as date)'), [$fecha1, $fecha2]);
+            })
+            // Si NO vienen fechas, forzar un resultado vacío
+            ->when(empty($fecha1) || empty($fecha2), function ($query) {
+                $query->whereRaw('1 = 0');
+            })
+            // Filtro por código o nombre de artículo
+            ->when($txtFiltro, function ($query) use ($txtFiltro) {
+                $query->where(function ($sub) use ($txtFiltro) {
+                    $sub->where('c.CodArticulo', 'like', "%$txtFiltro%")
+                        ->orWhere('c.NomArticulo', 'like', "%$txtFiltro%");
+                });
+            })
+            // Condiciones fijas
+            ->whereIn('a.IdTienda', $tiendasIds)
+            ->where('a.StatusVenta', 0)
+            ->whereNotNull('c.CodArticulo')
+            // Agrupación
+            ->groupBy($groupBy)
+            // Ordenamiento condicional
+            ->when($agrupado == 'on', function ($query) {
+                $query->orderBy('FechaVenta')
+                    ->orderBy('c.CodArticulo');
+            }, function ($query) {
+                $query->orderBy('c.CodArticulo');
+            })
+            ->get();
+
+        return view('Reportes.ConcentradoDeArticulos', compact(
+            'tiendas',
+            'filtrosAvanzadosActivos',
+            'concentrado',
+            'optionsOnline',
+            'agrupado',
+            'agrupadoArticulo'
+        ));
+    }
+
+    public function ReporteConcentradoDeArticulosOriginal(Request $request)
+    {
+        $tiendas = $this->tiendas;
+        $tiendasIds = $this->tiendasIds;
+
         $idTienda = $request->idTienda;
         $fecha1 = $request->fecha1 ?? Carbon::now()->format('Y-m-d');
         $fecha2 = $request->fecha2 ?? Carbon::now()->format('Y-m-d');
@@ -51,49 +176,6 @@ class ReportesController extends Controller
         }
 
         $idTiendas = $tiendas->pluck('IdTienda');
-
-        // $concentrado = DB::connection($optionsOnline == 'on' ? 'server' : null)
-        //     ->table('DatEncabezado as a')
-        //     ->leftJoin('DatDetalle as b', 'b.IdEncabezado', 'a.IdEncabezado')
-        //     ->leftJoin('CatArticulos as c', 'c.IdArticulo', 'b.IdArticulo')
-        //     ->leftJoin('CatFamilias as d', 'c.IdFamilia', 'd.IdFamilia')
-        //     ->leftJoin('CatGrupos as e', 'c.IdGrupo', 'e.IdGrupo')
-        //     ->leftJoin('CatTiendas as f', 'a.IdTienda', 'f.IdTienda')
-        //     ->leftJoin('CatCiudades as g', 'f.IdCiudad', 'g.IdCiudad')
-        //     ->when($agrupado, function ($query) {
-        //         $query->select(DB::raw('cast(a.FechaVenta as date) as FechaVenta, g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
-        //         b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'));
-        //     })
-        //     ->when(!$agrupado, function ($query) {
-        //         $query->select(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, e.NomGrupo, SUM(b.CantArticulo) as Peso,
-        //         b.PrecioArticulo, SUM(b.IvaArticulo) as Iva , SUM(b.ImporteArticulo) as Importe, SUM(b.IvaArticulo) as Iva'));
-        //     })
-
-        //     ->whereIn('a.IdTienda', $idTiendas)
-        //     ->when($idTienda, function ($query) use ($idTienda) {
-        //         $query->where('a.IdTienda', $idTienda);
-        //     })
-        //     ->where('a.StatusVenta', 0)
-        //     ->whereRaw("cast(a.FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-        //     ->when($txtFiltro, function ($query) use ($txtFiltro) {
-        //         $query->where('c.CodArticulo', 'like', '%' . $txtFiltro . '%');
-        //         $query->orWhere('c.NomArticulo', 'like', '%' . $txtFiltro . '%');
-        //     })
-        //     ->when($agrupado, function ($query) {
-        //         $query->groupBy(DB::raw('cast(a.FechaVenta as date), g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, b.PrecioArticulo, e.NomGrupo'));
-        //     })
-        //     ->when(!$agrupado, function ($query) {
-        //         $query->groupBy(DB::raw('g.NomCiudad, f.NomTienda, c.CodArticulo, c.NomArticulo, b.PrecioArticulo, e.NomGrupo'));
-        //     })
-        //     ->when($agrupado, function ($query) {
-        //         $query->orderBy('FechaVenta');
-        //         $query->orderBy('c.CodArticulo');
-        //     })
-        //     ->when(!$agrupado, function ($query) {
-        //         $query->orderBy('c.CodArticulo');
-        //     })
-        //     ->get();
-
 
         $select = [
             'g.NomCiudad',
@@ -162,9 +244,9 @@ class ReportesController extends Controller
         $concentrado = $concentradoQ->get();
 
         // return $concentrado;
+        $filtrosAvanzadosActivos = true;
 
-
-        return view('Reportes.ConcentradoDeArticulos', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado', 'txtFiltro', 'optionsOnline', 'agrupado', 'agrupadoArticulo'));
+        return view('Reportes.ConcentradoDeArticulos', compact('filtrosAvanzadosActivos', 'tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado', 'txtFiltro', 'optionsOnline', 'agrupado', 'agrupadoArticulo'));
     }
 
     public function ExportReporteConcentradoDeArticulos(Request $request)
@@ -934,6 +1016,7 @@ class ReportesController extends Controller
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('DatRosticero.IdTienda', $idTienda);
             })
+            ->where('DatRosticero.Status', 0)
             ->whereRaw("cast(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->orderBy('DatRosticero.Fecha', 'desc')
             ->paginate(10);

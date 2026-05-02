@@ -25,6 +25,11 @@ class SolicitudFacturaController extends Controller
 {
     public function SolicitudFactura(Request $request)
     {
+        // A partir del 1 de mayo del 2026 redirigir a facturación web (https://facturacion.kowi.com.mx/)
+        if (now()->gte(\Carbon\Carbon::create(2026, 5, 4))) {
+            return redirect()->away('https://facturacion.kowi.com.mx/');
+        }
+
         $idTienda = Auth::user()->usuarioTienda->IdTienda;
 
         $usosCFDI = UsoCFDI::where('Status', 0)

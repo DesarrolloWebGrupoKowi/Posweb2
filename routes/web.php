@@ -292,6 +292,12 @@ Route::group(['middleware' => 'auth'], function () {
     //Export detalle de precios a excel
     Route::get('/ExportExcelDetallePrecios', 'App\Http\Controllers\PreciosController@ExportExcel');
 
+    //Detalle de promociones
+    Route::get('/DetallePromociones', 'App\Http\Controllers\PreciosController@DetallePromociones');
+
+    //Detalle de promociones
+    Route::post('/DetallePromociones/update', 'App\Http\Controllers\PreciosController@DetallePromocionesUpdate');
+
     //+============================================================================================================================================+//
     //Pedidos
     Route::get('/Pedidos', 'App\Http\Controllers\PedidosController@Pedidos');
@@ -1000,8 +1006,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/CatDescuentos', 'App\Http\Controllers\DescuentosController@CatDescuentos');
 
     //VerDescuentos
-    Route::get('/VerDescuentos', 'App\Http\Controllers\DescuentosController@VerDescuentos');
+    Route::get('/VerDescuentos', 'App\Http\Controllers\DescuentosController@VerDescuentos')->name('VerDescuentos');
 
+    Route::get('/VerDescuentosDetallado', 'App\Http\Controllers\DescuentosController@VerDescuentosDetallado')->name('VerDescuentosDetallado');
     ///BuscarCodArticuloPaquqete
     // Route::get('/BuscarCodArticuloPaquqete', 'App\Http\Controllers\PaquetesController@BuscarCodArticuloPaquqete');
 
@@ -1016,6 +1023,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     // //EliminarDescuento
     Route::post('/EliminarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EliminarDescuento');
+
+    // Desactivar producto del descuento
+    Route::post('/DesactivarArticuloPromocion', 'App\Http\Controllers\DescuentosController@DesactivarArticuloPromocion');
 
     //+============================================================================================================================================+//
     //CatProdDiez
@@ -1083,6 +1093,12 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Historial Rosticero
     Route::get('/HistorialRosticero', 'App\Http\Controllers\RosticeroController@HistorialRosticero');
+
+    //Reporte de movimientos de producto
+    Route::get('/ReporteMovimientosInventario', 'App\Http\Controllers\ReporteMovimientosProductosController@index');
+
+    //Reporte de movimientos de producto export excel
+    Route::get('/ReporteMovimientosInventario/exports', 'App\Http\Controllers\ReporteMovimientosProductosController@exports');
 }); //->Termina Middleware Rosticero
 
 Route::get('/Login', 'App\Http\Controllers\Auth\LoginController@Login')->middleware('guest')->name('login');

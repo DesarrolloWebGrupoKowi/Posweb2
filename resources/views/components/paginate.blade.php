@@ -15,15 +15,5 @@
         $nodes[1].parentNode.removeChild($nodes[1]);
 
         $paginate = document.querySelectorAll('.pagination li');
-        // if ($paginate.length > 0) {
-        //     if ($paginate[0].querySelector('span'))
-        //         $paginate[0].querySelector('span').textContent = 'Anterior';
-        //     if ($paginate[0].querySelector('a'))
-        //         $paginate[0].querySelector('a').textContent = 'Anterior';
-        //     if ($paginate[$paginate.length - 1].querySelector('span')) $paginate[$paginate.length - 1]
-        //         .querySelector('span').textContent = 'Siguiente';
-        //     if ($paginate[$paginate.length - 1].querySelector('a')) $paginate[$paginate.length - 1]
-        //         .querySelector('a').textContent = 'Siguiente';
-        // }
     })
 </script>

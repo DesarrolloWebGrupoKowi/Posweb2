@@ -193,4 +193,50 @@ class PreciosController extends Controller
     {
         return Excel::download(new PreciosExport, 'precios.xlsx');
     }
+
+    public function DetallePromociones(Request $request)
+    {
+        $txtFiltro = $request->get('txtFiltro');
+        $descuentos = DB::table('DatDetDescuentos as dd')
+            ->select(
+                'de.NomDescuento',
+                'td.NomTipoDescuento',
+                'ct.NomTienda',
+                'cp.NomPlaza',
+                'ca.CodEtiqueta',
+                'ca.CodArticulo',
+                'ca.NomArticulo',
+                'dd.PrecioDescuento',
+                'de.FechaInicio',
+                'de.FechaFin',
+                'de.FechaDesactivar',
+                'de.Status as StatusDescuento',
+                'dd.Status'
+            )
+            ->leftJoin('DatEncDescuentos as de', 'de.IdEncDescuento', '=', 'dd.IdEncDescuento')
+            ->leftJoin('CatArticulos as ca', 'ca.IdArticulo', '=', 'dd.IdArticulo')
+            ->leftJoin('CatTipoDescuento as td', 'td.IdTipoDescuento', '=', 'de.TipoDescuento')
+            ->leftJoin('CatTiendas as ct', 'ct.IdTienda', '=', 'de.IdTienda')
+            ->leftJoin('CatPlazas as cp', 'cp.IdPlaza', '=', 'de.IdPlaza')
+            ->orderBy('dd.IdDetDescuento', 'DESC')
+            ->paginate(10)
+            ->appends(request()->query());
+
+        // return $precios;
+
+        return view('Precios.ListaPromociones', compact('descuentos', 'txtFiltro'));
+    }
+
+    public function DetallePromocionesUpdate(Request $request)
+    {
+        try {
+            // Ejecutar el procedimiento almacenado
+            DB::statement("EXEC Sp_Descarga_DatEncDescuentos");
+
+            // Redirigir de vuelta a la pantalla con el idTicket
+            return back()->with('msjAdd', 'Promociones actualizadas correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('msjdelete', 'Error al actualizar promociones: ' . $th->getMessage());
+        }
+    }
 }

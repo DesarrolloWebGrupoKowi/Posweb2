@@ -76,7 +76,7 @@ class SolicitudesFacturaController extends Controller
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('SolicitudFactura.IdTienda', $idTienda);
             })
-            ->where('SolicitudFactura.Status', 0)
+            // ->where('SolicitudFactura.Status', 0)
             ->orderBy('SolicitudFactura.FechaSolicitud', 'DESC')
             ->paginate(10)
             ->appends(request()->query());
@@ -390,6 +390,9 @@ class SolicitudesFacturaController extends Controller
                 'IdUsuarioCancelacion' => Auth::user()->IdUsuario,
                 'FechaCancelacion' => date('d-m-Y H:i:s')
             ]);
+
+            // Falta quitar el source del corte
+
             return redirect('SolicitudesFactura')->with('msjAdd', 'Solicitud de factura cancelada correctamente');
         } catch (\Throwable $th) {
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());

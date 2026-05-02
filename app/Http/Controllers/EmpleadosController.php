@@ -122,13 +122,14 @@ class EmpleadosController extends Controller
                 'f.FechaInterfaz',
                 'g.NomTipoPago',
             )
-            // Filtro de fecha SOLO si vienen ambas fechas
-            ->when(!empty($fecha1) && !empty($fecha2), function ($query) use ($fecha1, $fecha2) {
+            // Filtro de fecha SOLO si vienen ambas fechas Y NO está activado el filtro de nómina con adeudos
+            ->when((!empty($fecha1) && !empty($fecha2)), function ($query) use ($fecha1, $fecha2) {
                 $query->whereBetween(DB::raw('cast(a.FechaVenta as date)'), [$fecha1, $fecha2]);
             })
             // Si NO vienen fechas Y NO viene código de interfaz, forzar un resultado vacío
-            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz, function ($query) {
-                $query->whereRaw('1 = 0'); // Esto hace que la consulta no devuelva nada
+            // PERO excluir cuando está activado nómina con adeudos
+            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($chkNomina == 'on' && $soloAdeudos == 'on'), function ($query) {
+                $query->whereRaw('1 = 0');
             })
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
@@ -148,6 +149,7 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereIn('a.IdTienda', $tiendasIds)
             ->where('d.StatusVenta', 0)
             ->orderBy('a.FechaVenta')
             ->get();
@@ -155,8 +157,15 @@ class EmpleadosController extends Controller
 
         $importeTotal = CorteTienda::leftJoin('CatEmpleados as b', 'b.NumNomina', 'DatCortesTienda.NumNomina')
             ->leftJoin('HistorialCreditos as f', 'f.IdHistorialCredito', 'DatCortesTienda.Interfazado')
-            ->whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-            ->where('StatusVenta', 0)
+            // ->whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->when((!empty($fecha1) && !empty($fecha2)), function ($query) use ($fecha1, $fecha2) {
+                $query->whereBetween(DB::raw('cast(FechaVenta as date)'), [$fecha1, $fecha2]);
+            })
+            // Si NO vienen fechas Y NO viene código de interfaz, forzar un resultado vacío
+            // PERO excluir cuando está activado nómina con adeudos
+            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($chkNomina == 'on' && $soloAdeudos == 'on'), function ($query) {
+                $query->whereRaw('1 = 0');
+            })
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('IdTienda', $idTienda);
             })
@@ -175,13 +184,21 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereIn('IdTienda', $tiendasIds)
+            ->where('StatusVenta', 0)
             ->sum('ImporteArticulo');
 
         $importeCredito = CorteTienda::leftJoin('CatEmpleados as b', 'b.NumNomina', 'DatCortesTienda.NumNomina')
             ->leftJoin('HistorialCreditos as f', 'f.IdHistorialCredito', 'DatCortesTienda.Interfazado')
-            ->whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-            ->where('StatusCredito', 0)
-            ->where('StatusVenta', 0)
+            // ->whereRaw("cast(FechaVenta as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->when((!empty($fecha1) && !empty($fecha2)), function ($query) use ($fecha1, $fecha2) {
+                $query->whereBetween(DB::raw('cast(FechaVenta as date)'), [$fecha1, $fecha2]);
+            })
+            // Si NO vienen fechas Y NO viene código de interfaz, forzar un resultado vacío
+            // PERO excluir cuando está activado nómina con adeudos
+            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($chkNomina == 'on' && $soloAdeudos == 'on'), function ($query) {
+                $query->whereRaw('1 = 0');
+            })
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('IdTienda', $idTienda);
             })
@@ -200,6 +217,9 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereIn('IdTienda', $tiendasIds)
+            ->where('StatusCredito', 0)
+            ->where('StatusVenta', 0)
             ->sum('ImporteArticulo');
 
         //return $ventasEmpleado;

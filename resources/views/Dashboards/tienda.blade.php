@@ -370,21 +370,6 @@
                                         <td class="fw-500 text-end">{{ number_format($item->total_cantidad, 3) }} kg</td>
                                         <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
                                         <td class="text-center">
-                                            @if ($sourceIdentifier && $status != 'PROCESADO')
-                                                <button
-                                                    type="button"
-                                                    id="btnEnviarPedido{{ $sourceIdentifier }}"
-                                                    class="btn btn-sm btn-outline-primary btn-enviar"
-                                                    title="Enviar pedido a Oracle"
-                                                    data-pedido="{{ $sourceIdentifier }}"
-                                                    data-row-id="row-{{ $sourceIdentifier }}"
-                                                    data-original-status="{{ $status }}"
-                                                    data-original-mensaje="{{ $mensajeError ?? '' }}"
-                                                >
-                                                    @include('components.icons.send')
-                                                    <span class="d-none d-md-inline">ENVIAR</span>
-                                                </button>
-                                            @endif
 
                                             @if ($status === 'PROCESADO' && !($item->UUID ?? false))
                                                 @php
@@ -434,6 +419,21 @@
                                                 </a>
                                             @endif
 
+                                            @if ($sourceIdentifier && $status != 'PROCESADO')
+                                                <button
+                                                    type="button"
+                                                    id="btnEnviarPedido{{ $sourceIdentifier }}"
+                                                    class="btn btn-sm btn-outline-primary btn-enviar"
+                                                    title="Enviar pedido a Oracle"
+                                                    data-pedido="{{ $sourceIdentifier }}"
+                                                    data-row-id="row-{{ $sourceIdentifier }}"
+                                                    data-original-status="{{ $status }}"
+                                                    data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                                >
+                                                    @include('components.icons.send')
+                                                    <span class="d-none d-md-inline">ENVIAR</span>
+                                                </button>
+                                            @endif
                                             {{-- @if (!$status && !($item->UUID ?? false))
                                                 <span class="text-muted">-</span>
                                             @endif --}}
@@ -450,7 +450,7 @@
                                     </tr>
 
                                     <!-- Fila de mensaje del POS -->
-                                    @if (!empty($mensajeError))
+                                    @if (!empty($mensajeError) || $item->UUID)
                                         <tr
                                             id="msg-{{ $sourceIdentifier }}"
                                             class="bg-light"
@@ -463,16 +463,18 @@
                                                     id="mensaje-container-{{ $sourceIdentifier }}"
                                                     class="{{ $status === 'ERROR' ? 'text-danger' : 'text-success' }}"
                                                 >
-                                                    <strong id="mensaje-titulo-{{ $sourceIdentifier }}">
-                                                        @if ($transactionOn)
-                                                            {{ $transactionOn }} -
-                                                        @endif
-                                                        {{ $status === 'ERROR' ? 'Error:' : 'Mensaje:' }}
-                                                    </strong>
-                                                    <span id="mensaje-texto-{{ $sourceIdentifier }}">
-                                                        {{ $mensajeError }}
-                                                    </span>
-                                                    <br>
+                                                    @if ($mensajeError)
+                                                        <strong id="mensaje-titulo-{{ $sourceIdentifier }}">
+                                                            @if ($transactionOn)
+                                                                {{ $transactionOn }} -
+                                                            @endif
+                                                            {{ $status === 'ERROR' ? 'Error:' : 'Mensaje:' }}
+                                                        </strong>
+                                                        <span id="mensaje-texto-{{ $sourceIdentifier }}">
+                                                            {{ $mensajeError }}
+                                                        </span>
+                                                        <br>
+                                                    @endif
                                                     @if ($item->UUID ?? false)
                                                         <strong>UUID:</strong>
                                                         <span>{{ $item->UUID }}</span>

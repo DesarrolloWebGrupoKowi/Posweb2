@@ -80,6 +80,7 @@
                                 <tr>
                                     <th>Folio</th>
                                     <th>Ticket</th>
+                                    <th>Folio Encriptado</th>
                                     <th>Tienda</th>
                                     <th>Fecha</th>
                                     <th>RFC</th>
@@ -103,6 +104,7 @@
                                     <tr>
                                         <td>{{ $solicitud->IdSolicitudFactura }}</td>
                                         <td>{{ $solicitud->IdEncabezado }}</td>
+                                        <td> {{ \Vinkla\Hashids\Facades\Hashids::encode($solicitud->IdEncabezado) }}</td>
                                         <td style="min-width: 150px;">{{ $solicitud->NomTienda }}</td>
                                         <td style="min-width: 120px;">
                                             {{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>

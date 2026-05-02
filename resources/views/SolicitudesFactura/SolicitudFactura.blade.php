@@ -261,6 +261,21 @@
                                 <strong>{{ number_format(collect($ventasDetalle)->sum('total_cantidad'), 2) }} kg</strong>
                             </div>
                         </div> --}}
+                        @if ($solicitud->Status == 0)
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-danger btn-enviar d-flex align-items-center gap-2"
+                                title="Enviar pedido a Oracle"
+                                data-bs-toggle="modal"
+                                data-bs-target="#ModalCancelarSolicitud{{ $solicitud->Id }}"
+                            >
+                                @include('components.icons.x-square')
+                                <span class="d-none d-md-inline">CANCELAR SOLICITUD</span>
+                            </button>
+
+                            @include('SolicitudesFactura.ModalCancelarSolicitud')
+                        @endif
+
                     </div>
 
                     <div class="table-responsive content-table-sm mb-0">

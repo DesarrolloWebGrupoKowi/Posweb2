@@ -397,7 +397,7 @@ class DashTiendaController extends Controller
                 'sf.Email',
                 'ct.Source_Transaction_Identifier',
                 'sf.Editar',
-                // 'sf.UUID',
+                'sf.UUID',
                 DB::raw('SUM(ct.ImporteArticulo) as total_importe'),
                 DB::raw('SUM(ct.CantArticulo) as total_cantidad')
             )
@@ -427,7 +427,7 @@ class DashTiendaController extends Controller
             'sf.Email',
             'ct.Source_Transaction_Identifier',
             'sf.Editar',
-            // 'sf.UUID'
+            'sf.UUID'
         )
             ->orderBy('ct.Source_Transaction_Identifier')
             ->get();

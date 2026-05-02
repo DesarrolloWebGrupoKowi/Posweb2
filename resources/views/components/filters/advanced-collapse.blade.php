@@ -4,16 +4,21 @@
     class="{{ $active ? 'show' : '' }} collapse mt-3"
     id="{{ $id }}"
 >
-    <div class="w-100">
+    <div class="w-100 d-flex flex-column gap-3">
         {{ $slot }}
     </div>
 </div>
 
 <style>
-    .filter-has-value {
+    /* .filter-has-value {
         border-left: 3px solid #0d6efd !important;
         background-color: rgba(13, 110, 253, 0.05) !important;
         transition: all 0.2s ease-in-out;
+    } */
+    .filter-has-value:not([type="checkbox"]) {
+        border-left: 3px solid #0d6efd !important;
+        background-color: rgba(13, 110, 253, 0.05) !important;
+        /* transition: all 0.2s ease-in-out; */
     }
 
     .filter-has-value-select {
@@ -24,7 +29,7 @@
 
     .filter-badge {
         font-size: 10px;
-        animation: fadeIn 0.3s ease-in;
+        /* animation: fadeIn 0.3s ease-in; */
     }
 
     @keyframes fadeIn {
@@ -58,7 +63,7 @@
 
     .filter-has-value,
     .filter-has-value-select {
-        animation: filterPulse 0.5s ease-in-out;
+        /* animation: filterPulse 0.5s ease-in-out; */
     }
 </style>
 
