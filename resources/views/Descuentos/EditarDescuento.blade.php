@@ -157,15 +157,20 @@
                         @csrf
 
                         <div class="row g-3">
-                            <div class="col-12 col-md-6">
+                            <div class="col-12">
                                 <label class="text-secondary fw-500 mb-1">Nombre del descuento</label>
                                 <input
                                     class="form-control rounded"
                                     type="text"
                                     name="nomDescuento"
                                     value="{{ $descuento->NomDescuento }}"
-                                    {{ $estaInactiva ? 'disabled' : '' }}
+                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                 >
+                                @error('nomDescuento')
+                                    <div class="invalid-feedback d-block mt-1">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                                 @if ($estaInactiva)
                                     <input
                                         type="hidden"
@@ -175,23 +180,29 @@
                                 @endif
                             </div>
 
-                            <div class="col-12 col-md-6">
+                            <div class="col-12">
                                 <label class="text-secondary fw-500 mb-1">Tipo descuento</label>
                                 <select
                                     class="form-select rounded"
                                     name="tipoDescuento"
-                                    {{ $estaInactiva ? 'disabled' : '' }}
+                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                 >
                                     <option value="">Seleccione tipo descuento</option>
                                     @foreach ($tiposdescuentos as $td)
                                         <option
                                             value="{{ $td->IdTipoDescuento }}"
-                                            {{ $td->IdTipoDescuento == $descuento->TipoDescuento ? 'selected' : '' }}
+                                            {{ old('tipoDescuento', $descuento->TipoDescuento) == $td->IdTipoDescuento ? 'selected' : '' }}
                                         >
                                             {{ $td->NomTipoDescuento }}
                                         </option>
                                     @endforeach
                                 </select>
+
+                                @error('tipoDescuento')
+                                    <div class="invalid-feedback d-block mt-1">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                                 @if ($estaInactiva)
                                     <input
                                         type="hidden"
@@ -206,7 +217,7 @@
                                 <select
                                     class="form-select rounded"
                                     name="idTienda"
-                                    {{ $estaInactiva ? 'disabled' : '' }}
+                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                 >
                                     <option value="">Seleccione una tienda</option>
                                     @foreach ($tiendas as $tienda)
@@ -218,6 +229,11 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                @error('idTienda')
+                                    <div class="invalid-feedback d-block mt-1">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                                 @if ($estaInactiva)
                                     <input
                                         type="hidden"
@@ -232,7 +248,7 @@
                                 <select
                                     class="form-select rounded"
                                     name="idPlaza"
-                                    {{ $estaInactiva ? 'disabled' : '' }}
+                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                 >
                                     <option value="">Seleccione una plaza</option>
                                     @foreach ($plazas as $plaza)
@@ -244,6 +260,11 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                @error('idPlaza')
+                                    <div class="invalid-feedback d-block mt-1">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                                 @if ($estaInactiva)
                                     <input
                                         type="hidden"
@@ -262,6 +283,11 @@
                                     value="{{ $descuento->FechaInicio }}"
                                     {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                 >
+                                @error('fechaInicio')
+                                    <div class="invalid-feedback d-block mt-1">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                                 @if (count($detalle) != 0 || $estaInactiva)
                                     <input
                                         type="hidden"
@@ -280,6 +306,11 @@
                                     value="{{ $descuento->FechaFin }}"
                                     {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                 >
+                                @error('fechaFin')
+                                    <div class="invalid-feedback d-block mt-1">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                                 @if (count($detalle) != 0 || $estaInactiva)
                                     <input
                                         type="hidden"
@@ -293,7 +324,7 @@
                         <div class="d-flex justify-content-end mt-4">
                             <button
                                 class="btn btn-warning px-4"
-                                {{ $estaInactiva ? 'disabled' : '' }}
+                                {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                             >
                                 <i class="fa fa-save me-2"></i> Guardar cambios
                             </button>
@@ -749,7 +780,7 @@
                                     true);
                                 $fila.find('.btnEliminarArticulo').prop('disabled', true);
                                 $fila.find('select, input[type="number"]').css('opacity',
-                                '0.6');
+                                    '0.6');
                                 $fila.find('.btnEliminarArticulo').hide();
 
                                 // Marcar la fila como desactivada

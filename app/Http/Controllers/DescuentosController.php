@@ -196,7 +196,6 @@ class DescuentosController extends Controller
         ));
     }
 
-    // ECHO
     public function CatDescuentos(Request $request)
     {
         $nomDescuento = $request->nomDescuento;
@@ -223,16 +222,16 @@ class DescuentosController extends Controller
         return $pArticulo;
     }
 
-    // ECHO
     public function GuardarDescuento(Request $request)
     {
+        // return $request;
         $request->validate([
             'nomDescuento' => 'required|string|max:100',
             'tipoDescuento' => 'required|in:1,2,3',
             'fechaInicio' => 'required|date',
             'fechaFin' => 'required|date|after_or_equal:fechaInicio',
-            // 'idTienda' => 'required_if:tipoDescuento,2|exists:CatTiendas,IdTienda',
-            // 'idPlaza' => 'required_if:tipoDescuento,3|exists:CatPlazas,IdPlaza',
+            'idTienda' => 'nullable|required_if:tipoDescuento,2|exists:CatTiendas,IdTienda',
+            'idPlaza' => 'nullable|required_if:tipoDescuento,3|exists:CatPlazas,IdPlaza',
         ], [
             'nomDescuento.required' => 'El nombre del descuento es obligatorio',
             'nomDescuento.max' => 'El nombre no puede tener más de 100 caracteres',
@@ -344,7 +343,6 @@ class DescuentosController extends Controller
         }
     }
 
-    // ECHO
     public function EditarDescuento(Request $request, $IdEncDescuento)
     {
         $descuento = DatEncDescuentos::where('IdEncDescuento', $IdEncDescuento)
@@ -485,7 +483,6 @@ class DescuentosController extends Controller
         }
     }
 
-    // ECHO
     public function EliminarDescuento($IdEncDescuento)
     {
         try {
