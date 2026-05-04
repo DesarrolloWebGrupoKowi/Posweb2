@@ -397,10 +397,9 @@
                                                     <span class="d-none d-md-inline">XML</span>
                                                 </a>
                                             @endif
-
                                             @if ($item->UUID ?? false)
                                                 <a
-                                                    href="http://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdftest?UUID={{ $item->UUID }}"
+                                                    href="http://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadPdfCte?Uuid={{ $item->UUID }}"
                                                     target="_blank"
                                                     class="btn btn-sm btn-outline-primary"
                                                     title="Descargar Factura PDF"
@@ -409,7 +408,7 @@
                                                     <span class="d-none d-md-inline">PDF</span>
                                                 </a>
                                                 <a
-                                                    href="http://oraclefacturasrest.kowi.com.mx/api/Documentos/xmltest?UUID={{ $item->UUID }}"
+                                                    href="http://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadXmlCte?Uuid={{ $item->UUID }}"
                                                     target="_blank"
                                                     class="btn btn-sm btn-outline-primary"
                                                     title="Descargar Factura XML"
@@ -480,6 +479,13 @@
                                                         <span>{{ $item->UUID }}</span>
                                                     @endif
                                                 </small>
+                                                @if ($item->Source_Origen ?? false)
+                                                    <br>
+                                                    <small class="text-danger">
+                                                        <strong>Source_Origen:</strong>
+                                                        <span>{{ substr($item->Source_Origen, 0, 3) . '_' . substr($item->Source_Origen, 3) }}</span>
+                                                    </small>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endif
