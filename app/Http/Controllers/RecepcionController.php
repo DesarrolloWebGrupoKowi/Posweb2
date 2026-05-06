@@ -396,6 +396,9 @@ class RecepcionController extends Controller
             // DB::connection('server')->commit();
             DB::commit();
 
+            // Ejecutar el procedimiento almacenado
+            \App\Jobs\SubirRecepcionesJob::dispatch();
+
             return redirect('RecepcionProducto')->with('msjAdd', 'Productos Recepcionados Correctamente!');
         } catch (\Throwable $th) {
             // DB::connection('server')->rollback();
