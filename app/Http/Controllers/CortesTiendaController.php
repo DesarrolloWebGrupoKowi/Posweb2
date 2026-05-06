@@ -323,33 +323,35 @@ class CortesTiendaController extends Controller
                     ->sum('ImporteArticulo');
 
                 // TODO: CLIENTES FACTURAS
-                $facturas = SolicitudFactura::with([
-                    'PedidoOracle' => function ($oraclePedido) use ($fecha1, $idTienda) {
-                        $oraclePedido
-                            ->select(
-                                'DatCortesTienda.IdSolicitudFactura',
-                                'DatCortesTienda.Bill_To',
-                                'DatCortesTienda.Source_Transaction_Identifier',
-                                'XXH.STATUS'
-                            )
-                            ->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH', 'XXH.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
-                            ->whereDate('FechaVenta', $fecha1)
-                            ->where('IdTienda', $idTienda)
-                            ->distinct('DatCortesTienda.Source_Transaction_Identifier');
-                    },
-                    'Factura' => function ($query) use ($idCaja) {
-                        $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
-                            ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                            // ->where('DatCortesTienda.IdDatCaja', $idCaja);
-                            ->when($idCaja > 0, function ($query) use ($idCaja) {
-                                $query->where('DatCortesTienda.IdDatCaja', $idCaja);
-                            });
-                    }
-                ])
-                    ->where('IdTienda', $idTienda)
-                    ->where('Status', 0)
-                    ->whereDate('FechaSolicitud', $fecha1)
-                    ->get();
+                $facturas = $this->obtenerCortesSolicitudesOptimizado($idTienda, $fecha1, $idCaja, '');
+                // return
+                //     $facturas = SolicitudFactura::with([
+                //         'PedidoOracle' => function ($oraclePedido) use ($fecha1, $idTienda) {
+                //             $oraclePedido
+                //                 ->select(
+                //                     'DatCortesTienda.IdSolicitudFactura',
+                //                     'DatCortesTienda.Bill_To',
+                //                     'DatCortesTienda.Source_Transaction_Identifier',
+                //                     'XXH.STATUS'
+                //                 )
+                //                 ->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH', 'XXH.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                //                 ->whereDate('FechaVenta', $fecha1)
+                //                 ->where('IdTienda', $idTienda)
+                //                 ->distinct('DatCortesTienda.Source_Transaction_Identifier');
+                //         },
+                //         'Factura' => function ($query) use ($idCaja) {
+                //             $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+                //                 ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+                //                 // ->where('DatCortesTienda.IdDatCaja', $idCaja);
+                //                 ->when($idCaja > 0, function ($query) use ($idCaja) {
+                //                     $query->where('DatCortesTienda.IdDatCaja', $idCaja);
+                //                 });
+                //         }
+                //     ])
+                //     ->where('IdTienda', $idTienda)
+                //     ->where('Status', 0)
+                //     ->whereDate('FechaSolicitud', $fecha1)
+                //     ->get();
             }
 
             $numCaja = DatCaja::where('IdDatCajas', $idCaja)
@@ -824,23 +826,25 @@ class CortesTiendaController extends Controller
 
             // return $cortesTienda;
 
-            $facturas = SolicitudFactura::with([
-                'Factura' => function ($query) use ($idDatCaja) {
-                    $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
-                        ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
-                        // ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
-                        ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
-                            $query->where('DatCortesTienda.IdDatCaja', $idDatCaja);
-                        });
-                }
-            ])
-                ->where('IdTienda', $idTienda)
-                ->when($idDatCaja > 0, function ($query) use ($numCaja) {
-                    $query->where('IdCaja', $numCaja);
-                })
-                ->where('Status', 0)
-                ->whereDate('FechaSolicitud', $fecha)
-                ->get();
+            // return $facturas = SolicitudFactura::with([
+            //     'Factura' => function ($query) use ($idDatCaja) {
+            //         $query->leftJoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXH2', 'XXH2.Source_Transaction_Identifier', 'DatCortesTienda.Source_Transaction_Identifier')
+            //             ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+            //             // ->where('DatCortesTienda.IdDatCaja', $idDatCaja)
+            //             ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
+            //                 $query->where('DatCortesTienda.IdDatCaja', $idDatCaja);
+            //             });
+            //     }
+            // ])
+            //     ->where('IdTienda', $idTienda)
+            //     ->when($idDatCaja > 0, function ($query) use ($numCaja) {
+            //         $query->where('IdCaja', $numCaja);
+            //     })
+            //     ->where('Status', 0)
+            //     ->whereDate('FechaSolicitud', $fecha)
+            //     ->get();
+
+            $facturas = $this->obtenerCortesSolicitudesOptimizado($idTienda, $fecha, 0, '');
 
             $totalTarjetaDebito = CorteTienda::where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
@@ -987,6 +991,7 @@ class CortesTiendaController extends Controller
 
         //return $info;
 
+        // return view('CortesTienda.GenerarCorteOraclePDF', $info);
         view()->share('GenerarCorteOraclePDF', $info);
         $pdf = PDF::loadView('CortesTienda.GenerarCorteOraclePDF', $info);
         return $pdf->stream('Corte ' . $fecha . ' ' . $tienda->NomTienda . ' Caja ' . $numCaja . '.pdf');
@@ -1031,5 +1036,107 @@ class CortesTiendaController extends Controller
         } catch (\Throwable $e) {
             return back()->with('msjdelete', 'Error al procesar el corte, intente de nuevo!');
         }
+    }
+
+    private function obtenerCortesSolicitudesOptimizado($idTienda, $fecha, $idCaja, $pos)
+    {
+        // Obtener cortes de tienda normales (sin solicitud de factura)
+        $query = CorteTienda::query()
+            ->select([
+                'DatCortesTienda.Bill_To',
+                'DatCortesTienda.IdArticulo',
+                'DatCortesTienda.PrecioArticulo',
+                'DatCortesTienda.IdListaPrecio',
+                'DatCortesTienda.IdTipoPago',
+                'DatCortesTienda.Source_Transaction_Identifier',
+                DB::raw('SUM(DatCortesTienda.CantArticulo) as CantArticulo'),
+                DB::raw('SUM(DatCortesTienda.SubtotalArticulo) as SubTotalArticulo'),
+                DB::raw('SUM(DatCortesTienda.IvaArticulo) as IvaArticulo'),
+                DB::raw('SUM(DatCortesTienda.ImporteArticulo) as ImporteArticulo'),
+                // Datos del artículo
+                'CatArticulos.CodArticulo',
+                'CatArticulos.NomArticulo',
+                // Datos de cancelación
+                'sc.IdEncabezado as SolicitudCancelacion',
+                'sc.SolicitudAprobada',
+                // Datos de solicitudFactura
+                'DatCortesTienda.IdSolicitudFactura as IdSolicitudFactura'
+            ])
+            ->leftJoin('CatArticulos', 'CatArticulos.IdArticulo', '=', 'DatCortesTienda.IdArticulo')
+            ->leftJoin(
+                'SolicitudCancelacionTicket as sc',
+                'sc.IdEncabezado',
+                '=',
+                'DatCortesTienda.IdEncabezado'
+            );
+
+        if (!empty($pos)) {
+            if (!empty($idTienda)) {
+                $query->where('DatCortesTienda.IdTienda', $idTienda);
+            }
+            if (!empty($fecha)) {
+                $query->whereDate('DatCortesTienda.FechaVenta', $fecha);
+            }
+            $query->where('DatCortesTienda.Source_Transaction_Identifier', $pos);
+        } else {
+            $query->where('DatCortesTienda.IdTienda', $idTienda)
+                ->whereDate('DatCortesTienda.FechaVenta', $fecha);
+        }
+        // ->where('DatCortesTienda.IdTienda', $idTienda)
+        // ->whereDate('DatCortesTienda.FechaVenta', $fecha)
+        $query->where('DatCortesTienda.StatusVenta', 0)
+            ->whereNotNull('DatCortesTienda.IdSolicitudFactura')
+            ->when($idCaja > 0, function ($query) use ($idCaja) {
+                $query->where('DatCortesTienda.IdDatCaja', $idCaja);
+            })
+            ->groupBy([
+                'DatCortesTienda.Bill_To',
+                'DatCortesTienda.IdArticulo',
+                'CatArticulos.CodArticulo',
+                'CatArticulos.NomArticulo',
+                'DatCortesTienda.PrecioArticulo',
+                'DatCortesTienda.IdListaPrecio',
+                'DatCortesTienda.IdTipoPago',
+                'DatCortesTienda.Source_Transaction_Identifier',
+                'sc.IdEncabezado',
+                'sc.SolicitudAprobada',
+                'DatCortesTienda.IdSolicitudFactura'
+            ])
+            ->orderBy('DatCortesTienda.Source_Transaction_Identifier');
+
+
+        $resultados = $query->get();
+
+        if ($resultados->isEmpty()) {
+            return collect();
+        }
+
+        $resultados = $resultados->groupBy(function ($item) {
+            return $item->Bill_To . '-' . $item->Source_Transaction_Identifier . '-' . $item->IdSolicitudFactura;
+        });
+
+        // Agrupar por Bill_To para mantener la estructura esperada
+        return $resultados->map(function ($items, $billTo) {
+            $primerItem = $items->first();
+            $sourceIdentifiers = $items->pluck('Source_Transaction_Identifier')->unique()->filter()->values();
+
+            $oracleData = collect();
+            if ($sourceIdentifiers->isNotEmpty()) {
+                $oracleData = DB::table('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS')
+                    ->select('STATUS', 'MENSAJE_ERROR', 'Batch_Name', 'Transaction_On', 'Source_Transaction_Number', 'Source_Transaction_Identifier')
+                    ->whereIn('Source_Transaction_Identifier', $sourceIdentifiers)
+                    ->get()
+                    ->keyBy('Source_Transaction_Identifier');
+            }
+
+            return (object)[
+                'Bill_To' => $billTo,
+                'cortes' => $items,
+                'Customer' => SolicitudFactura::select('IdSolicitudFactura', 'NomCliente', 'Editar')
+                    ->where('IdSolicitudFactura', $primerItem->IdSolicitudFactura)
+                    ->first(),
+                'OracleData' => $oracleData
+            ];
+        })->values();
     }
 }

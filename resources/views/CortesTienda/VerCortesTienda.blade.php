@@ -57,14 +57,21 @@
 
 @endsection
 @section('contenido')
-    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
+    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
 
-        <div class="p-4 border-0 card" style="border-radius: 10px">
-            <div class="gap-2 d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
+        <div
+            class="card border-0 p-4"
+            style="border-radius: 10px"
+        >
+            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row gap-2">
                 @include('components.title', ['titulo' => 'Cortes de Tienda'])
                 <div class="d-flex gap-4">
-                    <a href="/GenerarCorteOraclePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
-                        target="_blank" type="button" class="btn card">
+                    <a
+                        href="/GenerarCorteOraclePDF/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
+                        target="_blank"
+                        type="button"
+                        class="btn card"
+                    >
                         @include('components.icons.print')
                     </a>
                 </div>
@@ -73,46 +80,92 @@
 
             <!--CONTAINER FILTROS-->
             {{-- <div class="p-4 border-0 card" style="border-radius: 10px"> --}}
-            <form class="flex-wrap gap-2 pb-0 m-0 mt-2 d-flex align-items-center justify-content-end"
-                action="/VerCortesTienda" method="GET">
+            <form
+                class="d-flex align-items-center justify-content-end m-0 mt-2 flex-wrap gap-2 pb-0"
+                action="/VerCortesTienda"
+                method="GET"
+            >
                 <div class="col-auto">
-                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda" required>
+                    <select
+                        class="form-select rounded"
+                        style="line-height: 18px"
+                        name="idTienda"
+                        id="idTienda"
+                        required
+                    >
                         <option value="">Seleccione Tienda</option>
                         @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
+                            <option
+                                {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!}
+                                value="{{ $tienda->IdTienda }}"
+                            >{{ $tienda->NomTienda }}
                             </option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-auto">
-                    <select class="rounded form-select" style="line-height: 18px" name="idCaja" id="idCaja" required>
+                    <select
+                        class="form-select rounded"
+                        style="line-height: 18px"
+                        name="idCaja"
+                        id="idCaja"
+                        required
+                    >
                         <option value="">Seleccione Caja</option>
                         @if ($cajasTienda->count() >= 2)
-                            <option {!! $idCaja == 0 ? 'selected' : '' !!} value="0">Todas las cajas</option>
+                            <option
+                                {!! $idCaja == 0 ? 'selected' : '' !!}
+                                value="0"
+                            >Todas las cajas</option>
                         @endif
                         @foreach ($cajasTienda as $caja)
-                            <option {!! $idCaja == $caja->IdDatCajas ? 'selected' : '' !!} value="{{ $caja->IdDatCajas }}">Caja {{ $caja->IdCaja }}
+                            <option
+                                {!! $idCaja == $caja->IdDatCajas ? 'selected' : '' !!}
+                                value="{{ $caja->IdDatCajas }}"
+                            >Caja {{ $caja->IdCaja }}
                             </option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-auto">
-                    <select class="rounded form-select" style="line-height: 18px" name="idReporte" id="idReporte" required>
+                    <select
+                        class="form-select rounded"
+                        style="line-height: 18px"
+                        name="idReporte"
+                        id="idReporte"
+                        required
+                    >
                         <option value="">Seleccione Reporte</option>
                         @foreach ($opcionesReporte as $opcionReporte)
-                            <option {!! $idReporte == $opcionReporte->IdReporte ? 'selected' : '' !!} value="{{ $opcionReporte->IdReporte }}">
+                            <option
+                                {!! $idReporte == $opcionReporte->IdReporte ? 'selected' : '' !!}
+                                value="{{ $opcionReporte->IdReporte }}"
+                            >
                                 {{ $opcionReporte->NomReporte }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" autofocus>
+                    <input
+                        class="form-control rounded"
+                        style="line-height: 18px"
+                        type="date"
+                        name="fecha1"
+                        id="fecha1"
+                        value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}"
+                        autofocus
+                    >
                 </div>
                 <div class="col-auto">
-                    <input {{ empty($fecha2) ? 'hidden disabled' : '' }} class="rounded form-control"
-                        style="line-height: 18px" type="date" name="fecha2" id="fecha2"
-                        value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
+                    <input
+                        {{ empty($fecha2) ? 'hidden disabled' : '' }}
+                        class="form-control rounded"
+                        style="line-height: 18px"
+                        type="date"
+                        name="fecha2"
+                        id="fecha2"
+                        value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}"
+                    >
                 </div>
                 <div class="col-auto">
                     <button class="btn btn-dark-outline">
@@ -124,24 +177,40 @@
 
         @if ($idReporte == 1)
             <!--CORTE DIARIO DE TIENDA-->
-            <span class="mb-0 text-sm text-center fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
+            <span
+                class="fs-5 mb-0 text-center text-sm"
+                style="font-weight: 500; font-family: sans-serif; color: #334155"
+            >
                 Corte diario - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'TODAS' : $numCaja }}
             </span>
 
-            <div class="row" style="font-size: small">
+            <div
+                class="row"
+                style="font-size: small"
+            >
                 @if ($fecha1 != date('Y-m-d') && Auth::id() == 11)
-                    <div class="mb-4 col-12 col-md-6">
-                        <a href="/procesarclientescontado/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
-                            type="button" class="btn card" style="border-radius: 10px;" id="rotateButton">
+                    <div class="col-12 col-md-6 mb-4">
+                        <a
+                            href="/procesarclientescontado/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
+                            type="button"
+                            class="btn card"
+                            style="border-radius: 10px;"
+                            id="rotateButton"
+                        >
                             <span id="buttonIcon">
                                 @include('components.icons.cloud-up')
                             </span>
                             Procesar contado
                         </a>
                     </div>
-                    <div class="mb-4 col-12 col-md-6">
-                        <a href="/procesarclientesfacturas/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
-                            type="button" class="btn card" style="border-radius: 10px;" id="rotateButtonFac">
+                    <div class="col-12 col-md-6 mb-4">
+                        <a
+                            href="/procesarclientesfacturas/{{ $fecha1 }}/{{ $idTienda }}/{{ $idCaja }}"
+                            type="button"
+                            class="btn card"
+                            style="border-radius: 10px;"
+                            id="rotateButtonFac"
+                        >
                             <span id="buttonIconFac">
                                 @include('components.icons.cloud-up')
                             </span>
@@ -149,8 +218,11 @@
                         </a>
                     </div>
                 @endif
-                <div class="mb-4 col-12 col-md-6 col-lg-4 mb-lg-0">
-                    <div class="p-4 border-0 card" style="border-radius: 10px;">
+                <div class="col-12 col-md-6 col-lg-4 mb-lg-0 mb-4">
+                    <div
+                        class="card border-0 p-4"
+                        style="border-radius: 10px;"
+                    >
                         <h6 class="text-dark">Dinero Electrónico</h6>
                         @php
                             $totalImporte = 0;
@@ -166,16 +238,21 @@
                         @endforeach
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Total: </span>
-                            <b class="{{ number_format($totalImporte, 2) == 0 ? 'eliminar' : 'send' }}"
-                                style="font-size: 16px">
+                            <b
+                                class="{{ number_format($totalImporte, 2) == 0 ? 'eliminar' : 'send' }}"
+                                style="font-size: 16px"
+                            >
                                 ${{ number_format($totalImporte, 2) }}
                             </b>
                         </div>
                     </div>
                 </div>
                 {{-- Crédito  --}}
-                <div class="pb-4 col-12 col-md-6 col-lg-2 pb-lg-0">
-                    <div class="p-4 border-0 card" style="border-radius: 10px">
+                <div class="col-12 col-md-6 col-lg-2 pb-lg-0 pb-4">
+                    <div
+                        class="card border-0 p-4"
+                        style="border-radius: 10px"
+                    >
                         <h6 class="text-dark">Crédito</h6>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Crédito Quincenal: </span>
@@ -187,16 +264,21 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Total Créditos: </span>
-                            <b class="{{ number_format($creditoSemanal + $creditoQuincenal, 2) == 0 ? 'eliminar' : 'send' }}"
-                                style="font-size: 16px">
+                            <b
+                                class="{{ number_format($creditoSemanal + $creditoQuincenal, 2) == 0 ? 'eliminar' : 'send' }}"
+                                style="font-size: 16px"
+                            >
                                 ${{ number_format($creditoSemanal + $creditoQuincenal, 2) }}
                             </b>
                         </div>
                     </div>
                 </div>
                 {{-- Tarjeta  --}}
-                <div class="pb-4 col-12 col-md-6 col-lg-2 pb-md-0">
-                    <div class="p-4 border-0 card" style="border-radius: 10px">
+                <div class="col-12 col-md-6 col-lg-2 pb-md-0 pb-4">
+                    <div
+                        class="card border-0 p-4"
+                        style="border-radius: 10px"
+                    >
                         <h6 class="text-dark">Tarjeta</h6>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Tarjeta Débito: </span>
@@ -208,16 +290,21 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Total Tarjeta: </span>
-                            <b class="{{ number_format($totalTarjetaDebito + $totalTarjetaCredito, 2) == 0 ? 'eliminar' : 'send' }}"
-                                style="font-size: 16px">
+                            <b
+                                class="{{ number_format($totalTarjetaDebito + $totalTarjetaCredito, 2) == 0 ? 'eliminar' : 'send' }}"
+                                style="font-size: 16px"
+                            >
                                 ${{ number_format($totalTarjetaDebito + $totalTarjetaCredito, 2) }}
                             </b>
                         </div>
                     </div>
                 </div>
                 {{-- Totales --}}
-                <div class="pb-4 col-12 col-md-6 col-lg-2">
-                    <div class="p-4 border-0 card" style="border-radius: 10px">
+                <div class="col-12 col-md-6 col-lg-2 pb-4">
+                    <div
+                        class="card border-0 p-4"
+                        style="border-radius: 10px"
+                    >
                         <h6 class="text-dark">Transferencia/Efectivo</h6>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Transferencia: </span>
@@ -229,19 +316,26 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="text-secondary">Total: </span>
-                            <b class="{{ number_format($totalTransferencia + $totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
-                                style="font-size: 16px">
+                            <b
+                                class="{{ number_format($totalTransferencia + $totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
+                                style="font-size: 16px"
+                            >
                                 ${{ number_format($totalTransferencia + $totalEfectivo, 2) }}
                             </b>
                         </div>
                     </div>
                 </div>
                 {{-- Total general --}}
-                <div class="pb-0 col-12 col-md-12 col-lg-2">
-                    <div class="p-4 border-0 card text-center" style="border-radius: 10px">
+                <div class="col-12 col-md-12 col-lg-2 pb-0">
+                    <div
+                        class="card border-0 p-4 text-center"
+                        style="border-radius: 10px"
+                    >
                         <h6 class="text-dark">Total General</h6>
-                        <b class="{{ number_format($totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
-                            style="font-size: 16px">
+                        <b
+                            class="{{ number_format($totalEfectivo, 2) == 0 ? 'eliminar' : 'send' }}"
+                            style="font-size: 16px"
+                        >
                             ${{ number_format($totalEfectivo + $totalTransferencia + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}
                         </b>
                         {{-- <span>${{ number_format($totalEfectivo + $totalTarjetaDebito + $totalTarjetaCredito + $creditoSemanal + $creditoQuincenal + $totalImporte, 2) }}</span> --}}
@@ -251,8 +345,10 @@
 
             <!--CLIENTES DE TIENDA (SIN SOLICITUD DE FACTURA)-->
             @foreach ($cortesTienda as $corteTienda)
-                <div class="p-4 border-0 content-table content-table-flex-none content-table-full card"
-                    style="border-radius: 10px">
+                <div
+                    class="content-table content-table-flex-none content-table-full card border-0 p-4"
+                    style="border-radius: 10px"
+                >
                     @foreach ($corteTienda->Customer as $customer)
                         <div class="d-flex justify-content-left">
                             <h6 class="">{{ $customer->NomClienteCloud }}</h6>
@@ -265,8 +361,11 @@
                                         {{ substr_replace($pedidoOracle->Source_Transaction_Identifier, '_', 3, 0) }}
                                     </h6>
                                     @if ($pedidoOracle->STATUS == 'ERROR')
-                                        <h6 class="text-white ps-1 rounded-3">
-                                            <i style="color: red" class="fa fa-exclamation-circle ps-1"></i>
+                                        <h6 class="rounded-3 ps-1 text-white">
+                                            <i
+                                                style="color: red"
+                                                class="fa fa-exclamation-circle ps-1"
+                                            ></i>
                                         </h6>
                                     @endif
                                 @endif
@@ -311,7 +410,8 @@
                                     @else
                                         <th>
                                             <span
-                                                class="{{ $detalleCorte->STATUS == 'ERROR' ? 'tags-red' : 'tags-blue' }}">
+                                                class="{{ $detalleCorte->STATUS == 'ERROR' ? 'tags-red' : 'tags-blue' }}"
+                                            >
                                                 {{ substr_replace($detalleCorte->Source_Transaction_Identifier, '_', 3, 0) }}
                                             </span>
                                         </th>
@@ -326,9 +426,12 @@
                                     @endif
                                     @if ($detalleCorte->STATUS == 'ERROR')
                                         <th>
-                                            <button class="btn-table btn-table-delete" data-bs-toggle="modal"
+                                            <button
+                                                class="btn-table btn-table-delete"
+                                                data-bs-toggle="modal"
                                                 data-bs-target="#mensajeError{{ $detalleCorte->IdCortesTienda }}"
-                                                title="Ver error">
+                                                title="Ver error"
+                                            >
                                                 @include('components.icons.info') VER ERROR
                                             </button>
                                             @include('CortesTienda.ModalMensajeErrorOracle')
@@ -371,7 +474,7 @@
                                 @endif
                             @endforeach
                             <!--TERMINA MONEDERO ELECTRONICO--
-                                                                                                                                                                                                                                                                                    <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
+                                                                                                                                                                                                                                                                                                                                    <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
                             {{-- @if ($corteTienda->IdTipoNomina == 4)
                                 <tr style="font-size: .9rem">
                                     <td></td>
@@ -418,7 +521,7 @@
             @endforeach
             <!--TERMINA CLIENTES DE TIENDA (SIN SOLICITUD DE FACTURA)-->
             <!--SOLICITUDES DE FACTURA-->
-            @foreach ($facturas as $factura)
+            {{-- @foreach ($facturas as $factura)
                 @if (count($factura->Factura) !== 0)
                     <div class="p-4 border-0 content-table content-table-flex-none content-table-full card"
                         style="border-radius: 10px">
@@ -491,10 +594,7 @@
                                                 </span>
                                             </th>
                                         @endif
-                                        @if (
-                                            (empty($detalleFactura->STATUS) || $detalleFactura->STATUS == 'NULL') &&
-                                                empty($detalleFactura->MENSAJE_ERROR) &&
-                                                empty($detalleFactura->Batch_Name))
+                                        @if ((empty($detalleFactura->STATUS) || $detalleFactura->STATUS == 'NULL') && empty($detalleFactura->MENSAJE_ERROR) && empty($detalleFactura->Batch_Name))
                                             <th>
                                                 <span class="tags-red">SIN PROCESAR</span>
                                             </th>
@@ -537,11 +637,235 @@
                         </table>
                     </div>
                 @endif
+            @endforeach --}}
+
+            <!-- Corte de tienda SOLICITUDES DE FACTURA -->
+            @foreach ($facturas as $corteTienda)
+                <div
+                    class="content-table content-table-flex-none content-table-full card border-0 p-4"
+                    style="border-radius: 10px"
+                >
+                    <!-- Encabezdo del cliente -->
+                    <div class="d-flex align-items-center gap-3">
+
+                        <!-- Icono -->
+                        <div
+                            class="rounded p-2"
+                            style="background-color: rgba(30, 66, 159, 0.1); display: flex; justify-content: center; align-items: center"
+                        >
+                            <div
+                                style="color: #1e429f; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center">
+                                @include('components.icons.user')
+                            </div>
+                        </div>
+
+                        <!-- Contenido -->
+                        <div class="flex-grow-1">
+                            <!-- Línea 1: Nombre y Status -->
+                            <div class="d-flex align-items-center flex-wrap gap-3">
+                                <h6 class="fw-semibold @if (!is_null($corteTienda->Customer->Editar)) text-danger @endif mb-0">
+                                    {{ $corteTienda->Customer->NomCliente ?? ($corteTienda->Customer->NomClienteCloud ?? 'Cliente') }}
+                                    @if (!is_null($corteTienda->Customer->Editar))
+                                        <span class="tags-red ms-2">SIN LIGAR</span>
+                                    @endif
+                                </h6>
+
+                                @php
+                                    $oracleData = $corteTienda->OracleData ?? [];
+                                    $totalPedidos = count($oracleData);
+                                @endphp
+
+                                @if ($totalPedidos > 0)
+                                    @foreach ($oracleData as $sourceId => $oracleInfo)
+                                        @php
+                                            $statusClass = 'tags-green';
+                                            $statusText = $oracleInfo->Source_Transaction_Number ?? null;
+
+                                            if (empty($statusText)) {
+                                                $statusClass = 'tags-red';
+                                                $statusText = 'SIN PEDIDO';
+                                            } elseif ($oracleInfo->STATUS == 'ERROR') {
+                                                $statusClass = 'tags-red';
+                                            }
+                                        @endphp
+
+                                        <span class="{{ $statusClass }} d-inline-flex align-items-center">
+                                            {{ $statusText }}
+                                        </span>
+                                    @endforeach
+                                @else
+                                    <span class="tags-red d-inline-flex align-items-center">
+                                        SIN PEDIDO
+                                    </span>
+                                @endif
+                            </div>
+
+                            @foreach ($corteTienda->OracleData as $sourceId => $oracleInfo)
+                                @if (!empty($oracleInfo->MENSAJE_ERROR))
+                                    <div
+                                        class="{{ ($oracleInfo->STATUS ?? '') == 'ERROR' ? 'text-danger' : 'text-success' }}"
+                                        style="font-size: 0.75rem; font-weight: 400;"
+                                    >
+                                        <div class="d-flex align-items-start gap-2">
+                                            <div>
+                                                <span style="font-weight: 500;">
+                                                    {{ $oracleInfo->Transaction_On }}
+                                                    @if (!empty($oracleInfo->Transaction_On))
+                                                        -
+                                                    @endif
+                                                    Mensaje:
+                                                </span>
+                                                {{ $oracleInfo->Source_Transaction_Number }}
+                                                {{ $oracleInfo->MENSAJE_ERROR }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Tabla de productos -->
+                    <table>
+                        <thead class="table-head">
+                            <tr>
+                                <th class="rounded-start">Código</th>
+                                <th>Artículo</th>
+                                <th class="text-end">Cantidad</th>
+                                <th class="text-end">Precio</th>
+                                <th class="text-end">IVA</th>
+                                <th class="text-end">Importe</th>
+                                <th>Pedido</th>
+                                <th class="rounded-end text-center">Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $sumCantArticulo = 0;
+                                $sumImporte = 0;
+                            @endphp
+
+                            @foreach ($corteTienda->cortes as $detalleCorte)
+                                <tr>
+                                    <td>{{ $detalleCorte->CodArticulo }}</td>
+                                    <td
+                                        class="text-truncate"
+                                        style="max-width: 200px;"
+                                        title="{{ $detalleCorte->NomArticulo }}"
+                                    >
+                                        {{ $detalleCorte->NomArticulo }}
+                                    </td>
+                                    <td class="text-end">
+                                        {{ number_format($detalleCorte->CantArticulo, 4) }}
+                                    </td>
+                                    <td class="text-end">
+                                        ${{ number_format($detalleCorte->PrecioArticulo, 2) }}
+                                    </td>
+                                    <td class="text-end">
+                                        ${{ number_format($detalleCorte->IvaArticulo, 2) }}
+                                    </td>
+                                    <td class="text-end">
+                                        ${{ number_format($detalleCorte->ImporteArticulo, 2) }}
+                                    </td>
+
+                                    <!-- Columna Pedido -->
+                                    <td>
+                                        @php
+                                            $sourceId = $detalleCorte->Source_Transaction_Identifier ?? null;
+                                        @endphp
+
+                                        @if (empty($sourceId) && $detalleCorte->SolicitudCancelacion != null)
+                                            <span class="tags-red">Solicitud Cancelación</span>
+                                        @elseif(empty($sourceId))
+                                            <span class="tags-red">SIN PEDIDO</span>
+                                        @else
+                                            <span class="{{ $oracleInfo->STATUS == 'ERROR' ? 'tags-red' : 'tags-blue' }}">
+                                                {{ substr_replace($sourceId, '_', 3, 0) }}
+                                            </span>
+                                        @endif
+                                    </td>
+
+                                    <!-- Columna Status -->
+                                    <td class="text-center">
+                                        @php
+                                            // Obtener el Source_Transaction_Identifier del detalle
+                                            $sourceId = $detalleCorte->Source_Transaction_Identifier ?? null;
+
+                                            // Buscar el status en OracleData usando el sourceId
+                                            $oracleInfo = $corteTienda->OracleData[$sourceId] ?? null;
+                                            $status = $oracleInfo->STATUS ?? null;
+                                            $mensajeError = $oracleInfo->MENSAJE_ERROR ?? null;
+                                            $solicitudCancelacion = $detalleCorte->SolicitudCancelacion ?? null;
+
+                                            // Determinar el estado a mostrar
+                                            if (!empty($solicitudCancelacion)) {
+                                                $statusClass = 'tags-red';
+                                                $statusText = 'CANCELACIÓN SOLICITADA';
+                                            } elseif (empty($sourceId)) {
+                                                $statusClass = 'tags-red';
+                                                $statusText = 'SIN PROCESAR';
+                                            } elseif ($status == 'ERROR') {
+                                                $statusClass = 'tags-red';
+                                                $statusText = 'ERROR';
+                                            } elseif ($status == 'PROCESADO') {
+                                                $statusClass = 'tags-green';
+                                                $statusText = 'PROCESADO';
+                                            } elseif ($status == 'EN PROCESO') {
+                                                $statusClass = 'tags-yellow';
+                                                $statusText = 'EN PROCESO';
+                                            } elseif (empty($status)) {
+                                                $statusClass = 'tags-red';
+                                                $statusText = 'SIN PROCESAR';
+                                            } else {
+                                                $statusClass = 'tags-red';
+                                                $statusText = 'SIN PROCESAR';
+                                            }
+                                        @endphp
+
+                                        <span class="{{ $statusClass }} d-inline-flex align-items-center gap-1">
+                                            {{ $statusText }}
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                @php
+                                    $sumCantArticulo = $sumCantArticulo + $detalleCorte->CantArticulo;
+                                    $sumImporte = $sumImporte + $detalleCorte->ImporteArticulo;
+                                @endphp
+                            @endforeach
+
+                            <!-- Totales -->
+                            <tr class="table-light">
+                                <td
+                                    colspan="2"
+                                    class="fw-bold p-1 text-end"
+                                >SubTotales:</td>
+                                <td class="fw-bold p-1 text-end">{{ number_format($sumCantArticulo, 3) }}
+                                </td>
+                                <td
+                                    colspan="2"
+                                    class="p-1"
+                                ></td>
+                                <td class="fw-bold p-1 text-end">${{ number_format($sumImporte, 2) }}</td>
+                                <td
+                                    colspan="2"
+                                    class="p-1"
+                                ></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             @endforeach
         @elseif($idReporte == 2)
             <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-            <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
-                <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
+            <div
+                class="content-table content-table-full card border-0 p-4"
+                style="border-radius: 10px"
+            >
+                <span
+                    class="fs-5 mb-2 text-sm"
+                    style="font-weight: 500; font-family: sans-serif; color: #334155"
+                >
                     Concentrado de ventas - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'TODAS' : $numCaja }}
                 </span>
                 <table>
@@ -591,15 +915,21 @@
             </div>
         @elseif($idReporte == 3)
             <!--VENTA POR TICKET DIARIO-->
-            <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
-                <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
+            <div
+                class="content-table content-table-full card border-0 p-4"
+                style="border-radius: 10px"
+            >
+                <span
+                    class="fs-5 mb-2 text-sm"
+                    style="font-weight: 500; font-family: sans-serif; color: #334155"
+                >
                     Venta por ticket diario - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'TODAS' : $numCaja }}
                 </span>
                 @if ($idCaja === 0)
                     <!--VER TODAS LAS CAJAS-->
                     <div class="row">
                         @foreach ($tickets as $key => $ticket)
-                            <div class="mb-3 col-xxl-6">
+                            <div class="col-xxl-6 mb-3">
                                 <table class="w-100">
                                     <thead class="table-head">
                                         <tr>
@@ -631,29 +961,44 @@
                                                 <td>$ {{ number_format($tVenta->ImporteVenta, 2) }}</td>
                                                 <td>{{ number_format($tVenta->Iva, 2) }}</td>
                                                 <td>
-                                                    <i style="color: rgb(255, 145, 0); cursor: pointer; font-size: 20px"
-                                                        class="fa fa-info-circle" data-bs-toggle="modal"
-                                                        data-bs-target="#ModalDetalleTicket{{ $tVenta->IdDatEncabezado }}"></i>
+                                                    <i
+                                                        style="color: rgb(255, 145, 0); cursor: pointer; font-size: 20px"
+                                                        class="fa fa-info-circle"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ModalDetalleTicket{{ $tVenta->IdDatEncabezado }}"
+                                                    ></i>
                                                     @include('CortesTienda.ModalDetalleTicket')
-                                                    <i style="color: green; cursor: pointer; font-size: 20px"
-                                                        class="fa fa-usd" data-bs-toggle="modal"
-                                                        data-bs-target="#ModalTicketTipoPago{{ $tVenta->IdDatEncabezado }}"></i>
+                                                    <i
+                                                        style="color: green; cursor: pointer; font-size: 20px"
+                                                        class="fa fa-usd"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ModalTicketTipoPago{{ $tVenta->IdDatEncabezado }}"
+                                                    ></i>
                                                     @include('CortesTienda.ModalTicketTipoPago')
                                                 </td>
                                                 <td>
                                                     @if ($tVenta->SolicitudFE == 0 && $tVenta->SolicitudFE != null)
-                                                        <i style="font-size: 18px; cursor: pointer"
-                                                            class="fa fa-check-square" data-bs-toggle="modal"
-                                                            data-bs-target="#ModalSolicitudFe{{ $tVenta->IdDatEncabezado }}"></i>
+                                                        <i
+                                                            style="font-size: 18px; cursor: pointer"
+                                                            class="fa fa-check-square"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#ModalSolicitudFe{{ $tVenta->IdDatEncabezado }}"
+                                                        ></i>
                                                         @include('CortesTienda.ModalSolicitudFe')
                                                     @endif
                                                 </td>
                                                 <td style="color: red;">
                                                     @if ($tVenta->StatusVenta == 1)
-                                                        <i style="font-size: 20px" class="fa fa-ban"></i>
+                                                        <i
+                                                            style="font-size: 20px"
+                                                            class="fa fa-ban"
+                                                        ></i>
                                                     @endif
                                                     @if (!empty($tVenta->SolicitudCancelacionTicket) and $tVenta->StatusVenta == 0)
-                                                        <i style="font-size: 20px" class="fa fa-hourglass-start"></i>
+                                                        <i
+                                                            style="font-size: 20px"
+                                                            class="fa fa-hourglass-start"
+                                                        ></i>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -710,9 +1055,12 @@
                                     <td>{{ number_format($ticket->Iva, 2) }}</td>
                                     <td>
                                         @if ($ticket->SolicitudFE == 0 && $ticket->SolicitudFE != null)
-                                            <button class="btn-table" data-bs-toggle="modal"
+                                            <button
+                                                class="btn-table"
+                                                data-bs-toggle="modal"
                                                 data-bs-target="#ModalSolicitudFe{{ $ticket->IdTicket }}"
-                                                title="Ver solicitud de factura">
+                                                title="Ver solicitud de factura"
+                                            >
                                                 @include('components.icons.check')
                                             </button>
                                             @include('Posweb.ModalSolicitudFe')
@@ -720,18 +1068,27 @@
                                     </td>
                                     <td style="color: red;">
                                         @if ($ticket->StatusVenta == 1)
-                                            <span class="tags-red" title="Ticket cancelado">
+                                            <span
+                                                class="tags-red"
+                                                title="Ticket cancelado"
+                                            >
                                                 @include('components.icons.x')
                                             </span>
                                         @endif
                                         @isset($ticket->SolicitudCancelacionTicket)
                                             @if ($ticket->SolicitudCancelacionTicket->SolicitudAprobada == 0 and $ticket->StatusVenta == 0)
-                                                <span class="tags-red" title="En proceso de cancelación">
+                                                <span
+                                                    class="tags-red"
+                                                    title="En proceso de cancelación"
+                                                >
                                                     @include('components.icons.loading') En proceso de cancelación
                                                 </span>
                                             @endif
                                             @if ($ticket->SolicitudCancelacionTicket->SolicitudAprobada == 1 and $ticket->StatusVenta == 0)
-                                                <span class="tags-red" title="Ticket con solicitud de cancelación, cancelada">
+                                                <span
+                                                    class="tags-red"
+                                                    title="Ticket con solicitud de cancelación, cancelada"
+                                                >
                                                     {{-- @include('components.icons.loading') --}}
                                                     Solicitud cancelada
                                                 </span>
@@ -739,14 +1096,21 @@
                                         @endisset
                                     </td>
                                     <td>
-                                        <button class="btn-table btn-table-show link-style" data-bs-toggle="modal"
+                                        <button
+                                            class="btn-table btn-table-show link-style"
+                                            data-bs-toggle="modal"
                                             data-bs-target="#ModalDetalleTicket{{ $ticket->IdTicket }}"
-                                            title="Detalle de ticket" id="btnTicket{{ $ticket->IdTicket }}">
+                                            title="Detalle de ticket"
+                                            id="btnTicket{{ $ticket->IdTicket }}"
+                                        >
                                             @include('components.icons.list')
                                         </button>
-                                        <button class="btn-table btn-table-success" data-bs-toggle="modal"
+                                        <button
+                                            class="btn-table btn-table-success"
+                                            data-bs-toggle="modal"
                                             data-bs-target="#ModalTipoPago{{ $ticket->IdTicket }}"
-                                            title="Detalle de pago">
+                                            title="Detalle de pago"
+                                        >
                                             @include('components.icons.dolar')
                                         </button>
                                         @include('Posweb.ModalDetalleTicket')
@@ -770,8 +1134,14 @@
             </div>
         @elseif($idReporte == 4)
             <!--TICKETS CANCELADOS-->
-            <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
-                <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
+            <div
+                class="content-table content-table-full card border-0 p-4"
+                style="border-radius: 10px"
+            >
+                <span
+                    class="fs-5 mb-2 text-sm"
+                    style="font-weight: 500; font-family: sans-serif; color: #334155"
+                >
                     Tickets Cancelados - {{ $nomTienda }} - Caja {{ $idCaja == 0 ? 'Todas' : $numCaja }}
                 </span>
                 <table>
@@ -801,9 +1171,12 @@
                                 <td>{{ number_format($ticket->Iva, 2) }}</td>
                                 <td>
                                     @if ($ticket->SolicitudFE == 0 && $ticket->SolicitudFE != null)
-                                        <button class="btn-table" data-bs-toggle="modal"
+                                        <button
+                                            class="btn-table"
+                                            data-bs-toggle="modal"
                                             data-bs-target="#ModalSolicitudFe{{ $ticket->IdTicket }}"
-                                            title="Ver solicitud de factura">
+                                            title="Ver solicitud de factura"
+                                        >
                                             @include('components.icons.check')
                                         </button>
                                         @include('Posweb.ModalSolicitudFe')
@@ -817,19 +1190,28 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <button class="btn-table btn-table-show" data-bs-toggle="modal"
+                                    <button
+                                        class="btn-table btn-table-show"
+                                        data-bs-toggle="modal"
                                         data-bs-target="#ModalDetalleTicket{{ $ticket->IdDatEncabezado }}"
-                                        title="Detalle de ticket">
+                                        title="Detalle de ticket"
+                                    >
                                         @include('components.icons.list')
                                     </button>
-                                    <button class="btn-table btn-table-success" data-bs-toggle="modal"
+                                    <button
+                                        class="btn-table btn-table-success"
+                                        data-bs-toggle="modal"
                                         data-bs-target="#ModalTipoPago{{ $ticket->IdDatEncabezado }}"
-                                        title="Detalle de pago">
+                                        title="Detalle de pago"
+                                    >
                                         @include('components.icons.dolar')
                                     </button>
-                                    <button class="btn-table btn-table-show" data-bs-toggle="modal"
+                                    <button
+                                        class="btn-table btn-table-show"
+                                        data-bs-toggle="modal"
                                         data-bs-target="#ModalComentarioTicketCancelado{{ $ticket->IdDatEncabezado }}"
-                                        title="Motivo de cancelación">
+                                        title="Motivo de cancelación"
+                                    >
                                         @include('components.icons.message')
                                     </button>
                                     @include('CortesTienda.ModalDetalleTicketCancelado')
