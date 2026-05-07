@@ -316,7 +316,7 @@
 
                                                     <td>
                                                         @if (empty($detalleCorte->Source_Transaction_Identifier) && $detalleCorte->SolicitudCancelacion != null)
-                                                            <span class="tags-red">Solicitud Cancelación</span>
+                                                            <span class="tags-red">SOLICITUD CANCELACIÓN</span>
                                                         @elseif(empty($detalleCorte->Source_Transaction_Identifier))
                                                             <span class="tags-red">SIN PEDIDO</span>
                                                         @else
@@ -343,7 +343,8 @@
                                                             // Determinar el estado a mostrar
                                                             if (!empty($solicitudCancelacion)) {
                                                                 $statusClass = 'tags-red';
-                                                                $statusText = 'CANCELACIÓN SOLICITADA';
+                                                                // $statusText = 'CANCELACIÓN SOLICITADA';
+                                                                $statusText = 'SIN PROCESAR';
                                                             } elseif (empty($sourceId)) {
                                                                 $statusClass = 'tags-red';
                                                                 $statusText = 'SIN PROCESAR';
