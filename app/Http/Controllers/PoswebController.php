@@ -2411,7 +2411,7 @@ class PoswebController extends Controller
                 $impresora->bitImage($QR);
                 $impresora->text("\n\nOBTENGA SU FACTURA INGRESANDO A LA PAGINA: \n");
                 $impresora->text("https://facturacion.kowi.com.mx\n");
-                $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA DESCARGAR SU\nFACTURA DEL PORTAL, SIEMPRE Y CUANDO LA FACTURA\nQUEDE EN EL MISMO MES DE LA COMPRA\n");
+                $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA\nDESCARGAR SUFACTURA DEL PORTAL");
             }
 
             $impresora->text("\n¡ALTA CALIDAD EN CARNE DE CERDO!\n");
@@ -2628,7 +2628,7 @@ class PoswebController extends Controller
             $impresora->bitImage($QR);
             $impresora->text("\n\nOBTENGA SU FACTURA INGRESANDO A LA PAGINA: \n");
             $impresora->text("https://facturacion.kowi.com.mx\n");
-            $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA DESCARGAR SU\nFACTURA DEL PORTAL, SIEMPRE Y CUANDO LA FACTURA\nQUEDE EN EL MISMO MES DE LA COMPRA\n");
+            $impresora->text("TIENE HASTA EL DIA DE MAÑANA PARA\nDESCARGAR SUFACTURA DEL PORTAL");
         }
 
         $impresora->text("\n¡ALTA CALIDAD EN CARNE DE CERDO!\n");
