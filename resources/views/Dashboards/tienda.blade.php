@@ -789,7 +789,7 @@
 
             // Construye la URL de la API
             const apiUrl =
-                `http://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
+                `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
 
             fetch(apiUrl)
                 .then(response => response.json())
@@ -995,7 +995,7 @@
             console.log('==============================');
 
             const item = document.getElementById(`status-oracle-${pedido}`);
-            const apiUrl = `http://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
+            const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
 
             fetch(apiUrl)
                 .then(response => response.json())
