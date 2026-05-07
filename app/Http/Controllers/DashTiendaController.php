@@ -591,9 +591,11 @@ class DashTiendaController extends Controller
                     'orden' => 'La orden es requerida'
                 ]);
             }
+            // Si la orden contiene un guion bajo, lo quitamos
+            $orden = str_replace('_', '', $orden);
 
             // Construir la URL del endpoint HTTP (oracle)
-            $urlOracle = "http://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta={$orden}&Origen=POS";
+            $urlOracle = "https://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta={$orden}&Origen=POS";
 
             Log::info('Proxy: Enviando pedido a Oracle', [
                 'orden' => $orden,
@@ -601,7 +603,8 @@ class DashTiendaController extends Controller
             ]);
 
             // Hacer la petición al endpoint HTTP
-            $response = Http::timeout(60) // 60 segundos timeout
+            $response = Http::withoutVerifying()
+                ->timeout(60) // 60 segundos timeout
                 ->retry(3, 1000) // 3 intentos, 1 segundo entre intentos
                 ->get($urlOracle);
 
