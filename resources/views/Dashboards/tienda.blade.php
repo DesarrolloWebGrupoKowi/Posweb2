@@ -952,7 +952,7 @@
                                 const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
                                 // mostrarBoton('generar', contenedor, pedido, uuidLocal);
                                 contenedor.innerHTML = '';
-                                botonGenerarFactura(contenedor, pedido, uuidLocal);
+                                botonGenerarFactura(contenedor, pedido, uuidLocal, type);
                             } else if (estatusPedido == 'Closed' && estatusSiguiente == 'Closed') {
                                 console.log('estatus Closed');
                                 // Si es Closed, ejecutar fetchBuscarUUID
@@ -1129,7 +1129,7 @@
                             // btn.innerHTML =
                             //     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ✅ UUID enviado exitosamente';
 
-                            fetchBuscarUUID(pedido, uuidLocal, item);
+                            fetchBuscarUUID(pedido, uuidLocal, item, 'sf');
                             // setTimeout(() => {
                             //     if (btn.parentNode) {
                             //         btn.parentNode.removeChild(btn);
