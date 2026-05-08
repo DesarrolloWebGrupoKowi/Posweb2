@@ -235,7 +235,7 @@
                                         </td>
                                         <td class="fw-500 text-center">
                                             <span
-                                                id="status-oracle-{{ $sourceIdentifier }}"
+                                                id="status-oracle-{{ $sourceTransactionNumber }}"
                                                 class='{{ $status === 'PROCESADO' ? 'status-oracle' : '' }} text-muted'
                                                 data-pedido="{{ $sourceTransactionNumber }}"
                                                 data-uuid-local="{{ $item->UUID ?? '' }}"
@@ -246,48 +246,60 @@
                                         <td class="fw-500 text-end">{{ number_format($item->total_cantidad, 3) }} kg</td>
                                         <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
                                         <td class="text-center">
-                                            @if ($status === 'PROCESADO' && $sourceIdentifier)
-                                                @php
-                                                    $POS =
-                                                        substr($sourceIdentifier, 0, 3) .
-                                                        '_' .
-                                                        substr($sourceIdentifier, 3);
-                                                @endphp
-                                                <a
-                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
-                                                    target="_blank"
-                                                    class="btn btn-sm btn-outline-primary"
-                                                    title="Descargar Factura PDF"
-                                                >
-                                                    @include('components.icons.download')
-                                                    <span class="d-none d-md-inline">PDF</span>
-                                                </a>
-                                                <a
-                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
-                                                    target="_blank"
-                                                    class="btn btn-sm btn-outline-primary"
-                                                    title="Descargar Factura XML"
-                                                >
-                                                    @include('components.icons.download')
-                                                    <span class="d-none d-md-inline">XML</span>
-                                                </a>
-                                            @elseif ($sourceIdentifier && $status !== 'PROCESADO')
-                                                <button
-                                                    type="button"
-                                                    id="btnEnviarPedido{{ $sourceIdentifier }}"
-                                                    class="btn btn-sm btn-outline-primary btn-enviar"
-                                                    title="Enviar pedido a Oracle"
-                                                    data-pedido="{{ $sourceIdentifier }}"
-                                                    data-row-id="row-{{ $sourceIdentifier }}"
-                                                    data-original-status="{{ $status }}"
-                                                    data-original-mensaje="{{ $mensajeError ?? '' }}"
-                                                >
-                                                    @include('components.icons.send')
-                                                    <span class="d-none d-md-inline">ENVIAR</span>
-                                                </button>
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
+                                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                                @if ($status === 'PROCESADO' && $sourceIdentifier)
+                                                    @php
+                                                        $POS =
+                                                            substr($sourceIdentifier, 0, 3) .
+                                                            '_' .
+                                                            substr($sourceIdentifier, 3);
+                                                    @endphp
+                                                    <a
+                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                        target="_blank"
+                                                        class="btn btn-sm btn-outline-primary"
+                                                        title="Descargar Factura PDF"
+                                                    >
+                                                        @include('components.icons.download')
+                                                        <span class="d-none d-md-inline">PDF</span>
+                                                    </a>
+                                                    <a
+                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
+                                                        target="_blank"
+                                                        class="btn btn-sm btn-outline-primary"
+                                                        title="Descargar Factura XML"
+                                                    >
+                                                        @include('components.icons.download')
+                                                        <span class="d-none d-md-inline">XML</span>
+                                                    </a>
+                                                @elseif ($sourceIdentifier && $status !== 'PROCESADO')
+                                                    <button
+                                                        type="button"
+                                                        id="btnEnviarPedido{{ $sourceIdentifier }}"
+                                                        class="btn btn-sm btn-outline-primary btn-enviar"
+                                                        title="Enviar pedido a Oracle"
+                                                        data-pedido="{{ $sourceIdentifier }}"
+                                                        data-row-id="row-{{ $sourceIdentifier }}"
+                                                        data-original-status="{{ $status }}"
+                                                        data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                                    >
+                                                        @include('components.icons.send')
+                                                        <span class="d-none d-md-inline">ENVIAR</span>
+                                                    </button>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+
+                                                <!-- Contenedor para botones condicionales (GENERAR FACTURA / ENVIAR UUID) -->
+                                                @if ($status === 'PROCESADO')
+                                                    <div
+                                                        class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
+                                                        data-pedido="{{ $sourceTransactionNumber }}"
+                                                        data-uuid-local="{{ $item->UUID ?? '' }}"
+                                                    >
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
 
@@ -469,7 +481,6 @@
                                                     <span>@include('components.icons.arrow-up-right')</span>
                                                 </a>
 
-
                                                 <!-- Contenedor para botones condicionales (GENERAR FACTURA / ENVIAR UUID) -->
                                                 @if ($status === 'PROCESADO')
                                                     {{-- <button
@@ -490,7 +501,6 @@
                                                         {{-- <span class="cargando-accion text-muted small">Verificando...</span> --}}
                                                     </div>
                                                 @endif
-
 
                                             </div>
                                         </td>
@@ -817,13 +827,13 @@
                                 // console.log('Listo para despacho');
                                 // Mostramos el boton para generar factura
                                 const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
-                                // contenedor.innerHTML = '';
                                 // botonDespachoInventario(contenedor, pedido, uuidLocal);
-                                // mostrarBoton('despacho', contenedor, pedido, uuidLocal);
+                                contenedor.innerHTML = '';
+                                // botonDespachoInventario(contenedor, pedido, uuidLocal);
                             }
 
                             // LISTA PARA FACTURAR
-                            if (estatusPedido == 'Awaiting Billing' && type == 'sf') {
+                            if (estatusPedido == 'Awaiting Billing') {
                                 // console.log('Lista para facturar');
                                 const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
                                 // mostrarBoton('generar', contenedor, pedido, uuidLocal);
@@ -833,9 +843,10 @@
 
                             // CUANDO YA ESTA CREADA LA FACTURA, Y SE DEBE ENVIAR EL UUID
                             if (estatusPedido == 'Closed' && type == 'sf') {
+                                // if (estatusPedido == 'Closed') {
                                 // console.log('Facturada y lista para enviar UUID');
                                 // Pasamos pedido, uuidLocal y el item para actualiar el estatus en caso de que ya existe UUID en Oracle
-                                fetchBuscarUUID(pedido, uuidLocal, item);
+                                fetchBuscarUUID(pedido, uuidLocal, item, 'sf');
                             }
                         }
                     } else {
@@ -850,7 +861,7 @@
         }
 
         // Funciones para verificar si ya tiene UUID en Oracle
-        function fetchBuscarUUID(pedido, uuidLocal, item) {
+        function fetchBuscarUUID(pedido, uuidLocal, item, type) {
             const apiUrl =
                 `https://oraclefacturasrest.kowi.com.mx/api/Documentos/FacturaOracle?Orden=${pedido}`;
 
@@ -860,7 +871,7 @@
                 .then(data => {
                     if (data.ok) {
                         const uuidOracle = data.dato?.uUid;
-                        if (!uuidOracle || uuidOracle.trim() === '') {
+                        if ((!uuidOracle || uuidOracle.trim() === '') && type == 'sf') {
                             // mostrarBoton('enviarUuid', contenedor, pedido, uuidLocal);
                             const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
                             contenedor.innerHTML = '';
@@ -868,7 +879,8 @@
                         } else {
                             const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
                             contenedor.innerHTML = '';
-                            item.innerHTML = `<span class="tags-green">Closed & UUID</span>`;
+                            if (type == 'sf') item.innerHTML = `<span class="tags-green">Closed & UUID</span>`;
+                            else item.innerHTML = `<span class="tags-green">Closed</span>`;
                         }
                     }
                 })
@@ -906,6 +918,68 @@
         // SECCION BOTONES (DESPACHO) (ENVIAR FACTURA) Y (ENVIAR UUID)
         // Funciones para generar facturas y enviar UUID a Oracle
         // ====================================================================================================
+        // Funcion que busca un estatus en loop hasta que lo encuentra
+        function getStatusLoop(pedido, uuidLocal, estatusSiguiente, type) {
+            console.log('==============================');
+
+            const item = document.getElementById(`status-oracle-${pedido}`);
+            const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+
+                    if (data.ok && data.dato?.lines) {
+                        console.log('yes');
+
+                        // Obtener todos los estatus de las líneas
+                        const estatusLineas = data.dato.lines.map(line => line.status);
+                        const estatusUnicos = [...new Set(estatusLineas)];
+                        const statusCodes = [...new Set(data.dato.lines.map(line => line.statusCode))];
+                        console.log(estatusUnicos);
+
+                        if (estatusUnicos.length == 1) {
+                            console.log('un solo estatus');
+
+                            let estatusPedido = estatusUnicos[0];
+                            item.innerHTML = `<span class="tags-green">${estatusPedido}</span>`;
+
+                            if (estatusPedido == 'Awaiting Billing' && estatusSiguiente == 'Awaiting Billing') {
+                                console.log('estatus Awaiting Billing');
+                                // Si es Closed, ejecutar fetchBuscarUUID
+                                // botonGenerarFactura(pedido, uuidLocal, item);
+                                const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
+                                // mostrarBoton('generar', contenedor, pedido, uuidLocal);
+                                contenedor.innerHTML = '';
+                                botonGenerarFactura(contenedor, pedido, uuidLocal);
+                            } else if (estatusPedido == 'Closed' && estatusSiguiente == 'Closed') {
+                                console.log('estatus Closed');
+                                // Si es Closed, ejecutar fetchBuscarUUID
+                                fetchBuscarUUID(pedido, uuidLocal, item, type);
+                            } else {
+                                // Si NO es Closed, esperar 3 segundos y volver a ejecutar
+                                console.log(`Estatus actual: ${estatusPedido}, reintentando en 3 segundos...`);
+                                setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente), 3000);
+                            }
+                        } else {
+                            // Si hay múltiples estatus, también reintentar
+                            console.log(`Múltiples estatus detectados: ${estatusUnicos.join(', ')}, reintentando...`);
+                            setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente), 3000);
+                        }
+                    } else {
+                        // Si la respuesta no es válida, reintentar
+                        console.log('Respuesta inválida, reintentando...');
+                        setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente), 3000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al consultar estatus:', error);
+                    // En caso de error, reintentar
+                    setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente), 3000);
+                });
+        }
+
         // Funcion para generar factura
         function botonDespachoInventario(contenedor, pedido, uuidLocal) {
             const btn = document.createElement('button');
@@ -919,26 +993,56 @@
                 `@include('components.icons.send')<span class="d-none d-md-inline">DESPACHO INVENTARIO</span>`;
 
             btn.addEventListener('click', () => {
-                let link =
-                    `https://oraclefacturasrest.kowi.com.mx/api/Documentos/Factura?Orden=${pedido}`;
+                let link = `https://oraclefacturasrest.kowi.com.mx/api/Documentos/Factura?Orden=${pedido}`;
                 // console.log('Generar factura para', pedido);
                 // console.log('UUID local', uuidLocal);
-                console.log('=====================================================');
+                console.log('CONSUMO=====================================================');
                 console.log(link);
 
                 btn.innerHTML =
                     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Despachando...';
+                btn.disabled = true; // Deshabilitar el botón mientras se procesa
 
-                setTimeout(() => {
-                    contenedor.innerHTML = '';
-                    botonGenerarFactura(contenedor, pedido, uuidLocal);
-                }, 3000);
+                // setTimeout(() => {
+                //     contenedor.innerHTML = '';
+                //     getStatusLoop(pedido, uuidLocal, 'Awaiting Billing')
+                // }, 3000);
+                fetch(link, {
+                        method: 'POST'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.ok) {
+                            console.log('Respuesta exitosa de consumo:', data);
+                            // btn.innerHTML =
+                            //     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Factura generada exitosamente';
+
+                            // CUANDO LA FACTURA SE GENERA EXITOSAMENTE, SE BUSCA HASTA QUE CAMBIA DE ESTATUS
+                            getStatusLoop(pedido, uuidLocal, 'Awaiting Billing')
+
+                        } else {
+                            console.log('Error al generar el consumo:', data);
+                            btn.innerHTML =
+                                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ❌ Error de consumo';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al generar el consumo:', error);
+                        // Mostrar mensaje de error al usuario
+                        btn.innerHTML =
+                            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ❌ Error de consumo';
+                    });
             });
             contenedor.appendChild(btn);
         }
 
         // Funcion para generar factura
-        function botonGenerarFactura(contenedor, pedido, uuidLocal) {
+        function botonGenerarFactura(contenedor, pedido, uuidLocal, type) {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className =
@@ -972,7 +1076,7 @@
                             //     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Factura generada exitosamente';
 
                             // CUANDO LA FACTURA SE GENERA EXITOSAMENTE, SE BUSCA HASTA QUE CAMBIA DE ESTATUS
-                            botonGenerarFacturaLoop(pedido, uuidLocal)
+                            getStatusLoop(pedido, uuidLocal, 'Closed', type)
 
                         } else {
                             console.log('Error al generar la factura:', data);
@@ -989,59 +1093,6 @@
                     });
             });
             contenedor.appendChild(btn);
-        }
-
-        function botonGenerarFacturaLoop(pedido, uuidLocal) {
-            console.log('==============================');
-
-            const item = document.getElementById(`status-oracle-${pedido}`);
-            const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
-
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-
-                    if (data.ok && data.dato?.lines) {
-                        console.log('yes');
-
-                        // Obtener todos los estatus de las líneas
-                        const estatusLineas = data.dato.lines.map(line => line.status);
-                        const estatusUnicos = [...new Set(estatusLineas)];
-                        const statusCodes = [...new Set(data.dato.lines.map(line => line.statusCode))];
-                        console.log(estatusUnicos);
-
-                        if (estatusUnicos.length == 1) {
-                            console.log('un solo estatus');
-
-                            let estatusPedido = estatusUnicos[0];
-                            item.innerHTML = `<span class="tags-green">${estatusPedido}</span>`;
-
-                            if (estatusPedido == 'Closed') {
-                                console.log('estatus close');
-                                // Si es Closed, ejecutar fetchBuscarUUID
-                                fetchBuscarUUID(pedido, uuidLocal, item);
-                            } else {
-                                // Si NO es Closed, esperar 3 segundos y volver a ejecutar
-                                console.log(`Estatus actual: ${estatusPedido}, reintentando en 3 segundos...`);
-                                setTimeout(() => botonGenerarFacturaLoop(pedido, uuidLocal), 3000);
-                            }
-                        } else {
-                            // Si hay múltiples estatus, también reintentar
-                            console.log(`Múltiples estatus detectados: ${estatusUnicos.join(', ')}, reintentando...`);
-                            setTimeout(() => botonGenerarFacturaLoop(pedido, uuidLocal), 3000);
-                        }
-                    } else {
-                        // Si la respuesta no es válida, reintentar
-                        console.log('Respuesta inválida, reintentando...');
-                        setTimeout(() => botonGenerarFacturaLoop(pedido, uuidLocal), 3000);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al consultar estatus:', error);
-                    // En caso de error, reintentar
-                    setTimeout(() => botonGenerarFacturaLoop(pedido, uuidLocal), 3000);
-                });
         }
 
         // Funcion para enviar UUID a Oracle
@@ -1105,75 +1156,74 @@
         // ====================================================================================================
         // SECCION EXTRA SE QUITARA LUEGO
         // Función para reemplazar el contenido del contenedor con el botón adecuado
-        function mostrarBoton(tipo, contenedor, pedido, uuidLocal) {
-            console.log('mostrarBoton', tipo);
+        // function mostrarBoton(tipo, contenedor, pedido, uuidLocal) {
+        //     console.log('mostrarBoton', tipo);
 
-            // Limpia el contenedor
-            contenedor.innerHTML = '';
+        //     // Limpia el contenedor
+        //     contenedor.innerHTML = '';
 
-            // botonGenerarFactura(contenedor, pedido, uuidLocal);
-            if (tipo === 'despacho') {
-                console.log('despacho de inventario');
-                botonDespachoInventario(contenedor, pedido, uuidLocal);
-            } else if (tipo === 'generar') {
-                console.log('generar factura');
-                botonGenerarFactura(contenedor, pedido, uuidLocal);
-            } else if (tipo === 'enviarUuid') {
-                botonEnviarUuid(contenedor, pedido, uuidLocal);
-            } else {
-                // No se muestra ningún botón (ya tiene UUID en Oracle)
-                // contenedor.classList.add('hidden');
-                // contenedor.classList.add('d-none');
-                // contenedor.innerHTML = '<span class="text-muted small">Factura existente</span>';
-            }
-        }
+        //     // botonGenerarFactura(contenedor, pedido, uuidLocal);
+        //     if (tipo === 'despacho') {
+        //         console.log('despacho de inventario');
+        //         botonDespachoInventario(contenedor, pedido, uuidLocal);
+        //     } else if (tipo === 'generar') {
+        //         console.log('generar factura');
+        //         botonGenerarFactura(contenedor, pedido, uuidLocal);
+        //     } else if (tipo === 'enviarUuid') {
+        //         botonEnviarUuid(contenedor, pedido, uuidLocal);
+        //     } else {
+        //         // No se muestra ningún botón (ya tiene UUID en Oracle)
+        //         // contenedor.classList.add('hidden');
+        //         // contenedor.classList.add('d-none');
+        //         // contenedor.innerHTML = '<span class="text-muted small">Factura existente</span>';
+        //     }
+        // }
 
         // Funcion para mostrar el estatus de Oracle
-        function fetchBotonesOracle() {
-            // Selecciona todos los contenedores de acciones Oracle
-            const contenedores = document.querySelectorAll('.acciones-oracle');
+        // function fetchBotonesOracle() {
+        //     // Selecciona todos los contenedores de acciones Oracle
+        //     const contenedores = document.querySelectorAll('.acciones-oracle');
 
-            contenedores.forEach(contenedor => {
-                console.log('Recorriendo contenedor');
+        //     contenedores.forEach(contenedor => {
+        //         console.log('Recorriendo contenedor');
 
-                const pedido = contenedor.dataset.pedido; // Ej: "POS_667808"
-                const uuidLocal = contenedor.dataset.uuidLocal; // UUID que ya pudiera existir en tu sistema
+        //         const pedido = contenedor.dataset.pedido; // Ej: "POS_667808"
+        //         const uuidLocal = contenedor.dataset.uuidLocal; // UUID que ya pudiera existir en tu sistema
 
-                // Construye la URL de la API
-                const apiUrl =
-                    `https://oraclefacturasrest.kowi.com.mx/api/Documentos/FacturaOracle?Orden=${pedido}`;
+        //         // Construye la URL de la API
+        //         const apiUrl =
+        //             `https://oraclefacturasrest.kowi.com.mx/api/Documentos/FacturaOracle?Orden=${pedido}`;
 
-                // Realizar la petición a la API
-                fetch(apiUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.ok) {
-                            // Caso 1: ok = false → mostrar "GENERAR FACTURA"
-                            mostrarBoton('generar', contenedor, pedido, uuidLocal);
-                        } else {
-                            // Caso 2: ok = true, revisar si existe UUID en la respuesta
-                            const uuidOracle = data.dato
-                                ?.uUid; // Atención: el campo se llama "uUid" en el JSON
-                            if (!uuidOracle || uuidOracle.trim() === '') {
-                                // No tiene UUID aún → mostrar "ENVIAR UUID"
-                                mostrarBoton('enviarUuid', contenedor, pedido, uuidLocal);
-                            } else {
-                                // Ya tiene UUID → no mostrar ninguno de estos botones
-                                mostrarBoton('ninguno', contenedor, pedido, uuidLocal);
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al consultar API de Oracle:', error);
-                        contenedor.innerHTML =
-                            '<span class="text-danger small">Error al verificar</span>';
-                    });
-            });
-        }
+        //         // Realizar la petición a la API
+        //         fetch(apiUrl)
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 if (!data.ok) {
+        //                     // Caso 1: ok = false → mostrar "GENERAR FACTURA"
+        //                     mostrarBoton('generar', contenedor, pedido, uuidLocal);
+        //                 } else {
+        //                     // Caso 2: ok = true, revisar si existe UUID en la respuesta
+        //                     const uuidOracle = data.dato
+        //                         ?.uUid; // Atención: el campo se llama "uUid" en el JSON
+        //                     if (!uuidOracle || uuidOracle.trim() === '') {
+        //                         // No tiene UUID aún → mostrar "ENVIAR UUID"
+        //                         mostrarBoton('enviarUuid', contenedor, pedido, uuidLocal);
+        //                     } else {
+        //                         // Ya tiene UUID → no mostrar ninguno de estos botones
+        //                         mostrarBoton('ninguno', contenedor, pedido, uuidLocal);
+        //                     }
+        //                 }
+        //             })
+        //             .catch(error => {
+        //                 console.error('Error al consultar API de Oracle:', error);
+        //                 contenedor.innerHTML =
+        //                     '<span class="text-danger small">Error al verificar</span>';
+        //             });
+        //     });
+        // }
 
         document.addEventListener('DOMContentLoaded', function() {
             actualizarFilasOracle();
-            // botonGenerarFacturaLoop('POS_706970');
             // fetchBotonesOracle();
         });
 
