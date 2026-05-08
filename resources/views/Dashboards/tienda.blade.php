@@ -823,13 +823,12 @@
                             // console.log('Estatus pedido', estatusPedido);
 
                             // LISTO PARA DESPACHO (CONSUMO DE INVENTARIO)
-                            if (estatusPedido == 'Awaiting Shipping' && type == 'sf') {
+                            if (estatusPedido == 'Awaiting Shipping') {
                                 // console.log('Listo para despacho');
                                 // Mostramos el boton para generar factura
                                 const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
-                                // botonDespachoInventario(contenedor, pedido, uuidLocal);
                                 contenedor.innerHTML = '';
-                                // botonDespachoInventario(contenedor, pedido, uuidLocal);
+                                botonDespachoInventario(contenedor, pedido, uuidLocal);
                             }
 
                             // LISTA PARA FACTURAR
@@ -993,7 +992,7 @@
                 `@include('components.icons.send')<span class="d-none d-md-inline">DESPACHO INVENTARIO</span>`;
 
             btn.addEventListener('click', () => {
-                let link = `https://oraclefacturasrest.kowi.com.mx/api/Documentos/Factura?Orden=${pedido}`;
+                let link = `https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`;
                 // console.log('Generar factura para', pedido);
                 // console.log('UUID local', uuidLocal);
                 console.log('CONSUMO=====================================================');
@@ -1007,9 +1006,7 @@
                 //     contenedor.innerHTML = '';
                 //     getStatusLoop(pedido, uuidLocal, 'Awaiting Billing')
                 // }, 3000);
-                fetch(link, {
-                        method: 'POST'
-                    })
+                fetch(link)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
@@ -1017,6 +1014,8 @@
                         return response.json();
                     })
                     .then(data => {
+                        console.log(data);
+
                         if (data.ok) {
                             console.log('Respuesta exitosa de consumo:', data);
                             // btn.innerHTML =
@@ -1154,74 +1153,7 @@
         }
 
         // ====================================================================================================
-        // SECCION EXTRA SE QUITARA LUEGO
-        // Función para reemplazar el contenido del contenedor con el botón adecuado
-        // function mostrarBoton(tipo, contenedor, pedido, uuidLocal) {
-        //     console.log('mostrarBoton', tipo);
-
-        //     // Limpia el contenedor
-        //     contenedor.innerHTML = '';
-
-        //     // botonGenerarFactura(contenedor, pedido, uuidLocal);
-        //     if (tipo === 'despacho') {
-        //         console.log('despacho de inventario');
-        //         botonDespachoInventario(contenedor, pedido, uuidLocal);
-        //     } else if (tipo === 'generar') {
-        //         console.log('generar factura');
-        //         botonGenerarFactura(contenedor, pedido, uuidLocal);
-        //     } else if (tipo === 'enviarUuid') {
-        //         botonEnviarUuid(contenedor, pedido, uuidLocal);
-        //     } else {
-        //         // No se muestra ningún botón (ya tiene UUID en Oracle)
-        //         // contenedor.classList.add('hidden');
-        //         // contenedor.classList.add('d-none');
-        //         // contenedor.innerHTML = '<span class="text-muted small">Factura existente</span>';
-        //     }
-        // }
-
-        // Funcion para mostrar el estatus de Oracle
-        // function fetchBotonesOracle() {
-        //     // Selecciona todos los contenedores de acciones Oracle
-        //     const contenedores = document.querySelectorAll('.acciones-oracle');
-
-        //     contenedores.forEach(contenedor => {
-        //         console.log('Recorriendo contenedor');
-
-        //         const pedido = contenedor.dataset.pedido; // Ej: "POS_667808"
-        //         const uuidLocal = contenedor.dataset.uuidLocal; // UUID que ya pudiera existir en tu sistema
-
-        //         // Construye la URL de la API
-        //         const apiUrl =
-        //             `https://oraclefacturasrest.kowi.com.mx/api/Documentos/FacturaOracle?Orden=${pedido}`;
-
-        //         // Realizar la petición a la API
-        //         fetch(apiUrl)
-        //             .then(response => response.json())
-        //             .then(data => {
-        //                 if (!data.ok) {
-        //                     // Caso 1: ok = false → mostrar "GENERAR FACTURA"
-        //                     mostrarBoton('generar', contenedor, pedido, uuidLocal);
-        //                 } else {
-        //                     // Caso 2: ok = true, revisar si existe UUID en la respuesta
-        //                     const uuidOracle = data.dato
-        //                         ?.uUid; // Atención: el campo se llama "uUid" en el JSON
-        //                     if (!uuidOracle || uuidOracle.trim() === '') {
-        //                         // No tiene UUID aún → mostrar "ENVIAR UUID"
-        //                         mostrarBoton('enviarUuid', contenedor, pedido, uuidLocal);
-        //                     } else {
-        //                         // Ya tiene UUID → no mostrar ninguno de estos botones
-        //                         mostrarBoton('ninguno', contenedor, pedido, uuidLocal);
-        //                     }
-        //                 }
-        //             })
-        //             .catch(error => {
-        //                 console.error('Error al consultar API de Oracle:', error);
-        //                 contenedor.innerHTML =
-        //                     '<span class="text-danger small">Error al verificar</span>';
-        //             });
-        //     });
-        // }
-
+        // EVENTO QUE EJECUTA TODO LO REFERENTE A ESTATUS Y BOTONES DE ORACLE
         document.addEventListener('DOMContentLoaded', function() {
             actualizarFilasOracle();
             // fetchBotonesOracle();
