@@ -90,7 +90,7 @@
         <!-- SECCIÓN 2: KPIs -->
         <div class="flex-shrink-0">
             <div class="row g-4">
-                <!-- Total de artículos vendidos (suma de pesos) -->
+                {{-- <!-- Total de artículos vendidos (suma de pesos) -->
                 <x-kpi.kpi-card
                     title="Total de Peso Vendido"
                     :value="$data->sum('CantArticulo')"
@@ -100,24 +100,22 @@
                     :decimal="2"
                 />
 
-                {{-- KPI: Producto con Menor Descuento --}}
+                <!-- KPI: Producto con Menor Descuento -->
                 <x-kpi.kpi-card
                     title="Menor Descuento por Unidad"
                     value="$4.00"
                     subtitle="SALCHICHA DE PAVO TURI"
                     subtitleHtml="Precio Lista: $65.00 → Precio Final: $61.00<br>Descuento: 6.15%"
                     color="warning"
-                    {{-- icon="components.icons.trending-down" --}}
                 />
 
-                {{-- KPI: Producto con Mayor Descuento --}}
+                <!-- KPI: Producto con Mayor Descuento -->
                 <x-kpi.kpi-card
                     title="Mayor Descuento por Unidad"
                     value="$25.00"
                     subtitle="CARNE DESHEBRADA 300 GR."
                     subtitleHtml="Precio Lista: $150.00 → Precio Final: $125.00<br>Descuento: 16.67%"
                     color="success"
-                    {{-- icon="components.icons.trending-up" --}}
                 />
 
                 <!-- Valor total de ventas -->
@@ -129,7 +127,92 @@
                     icon="components.icons.ticket"
                     currency="true"
                     :decimal="2"
+                /> --}}
+                @php
+                    // Calcular diferencias desde los datos
+                    $diferencias = $data->map(function ($item) {
+                        $cantidad = floatval($item->CantArticulo);
+                        $precioLista = floatval($item->PrecioLista);
+                        $precioArticulo = floatval($item->PrecioArticulo);
+
+                        $item->totalLista = $cantidad * $precioLista;
+                        $item->totalArticulo = $cantidad * $precioArticulo;
+                        $item->diferencia = $item->totalLista - $item->totalArticulo;
+                        $item->diferenciaPorUnidad = $precioLista - $precioArticulo;
+                        $item->porcentajeDescuento = ($item->diferenciaPorUnidad / $precioLista) * 100;
+
+                        return $item;
+                    });
+
+                    // Producto con mayor y menor descuento POR UNIDAD
+                    $mayorDiferenciaUnidad = $diferencias->sortByDesc('diferenciaPorUnidad')->first();
+                    $menorDiferenciaUnidad = $diferencias->sortBy('diferenciaPorUnidad')->first();
+
+                    // Sumas totales (considerando cantidad)
+                    $sumPrecioLista = $diferencias->sum('totalLista');
+                    $sumPrecioArticulo = $diferencias->sum('totalArticulo');
+                    $ahorroTotal = $sumPrecioLista - $sumPrecioArticulo;
+                    $descuentoPromedio = $ahorroTotal > 0 ? ($ahorroTotal / $sumPrecioLista) * 100 : 0;
+                @endphp
+                {{-- @dump($diferencias) --}}
+
+                {{-- KPI: Suma total de Precio Lista (cantidad * precio) --}}
+                <x-kpi.kpi-card
+                    title="Total Valor de Lista"
+                    value="${{ number_format($sumPrecioLista, 2) }}"
+                    subtitle="Suma de (Cantidad × Precio Lista)"
+                    color="primary"
+                    icon="components.icons.dolar"
                 />
+
+                {{-- KPI: Suma total de Precio Artículo (cantidad * precio) --}}
+                <x-kpi.kpi-card
+                    title="Total Valor Real"
+                    value="${{ number_format($sumPrecioArticulo, 2) }}"
+                    subtitle="Suma de (Cantidad × Precio Artículo)"
+                    color="info"
+                    icon="components.icons.dolar"
+                />
+
+                {{-- KPI: Ahorro Total --}}
+                <x-kpi.kpi-card
+                    title="Ahorro Total"
+                    value="${{ number_format($ahorroTotal, 2) }}"
+                    subtitle="Lo que los clientes ahorraron"
+                    subtitleHtml="Precio Lista: ${{ number_format($sumPrecioLista, 2) }}<br>Precio Final: ${{ number_format($sumPrecioArticulo, 2) }}"
+                    color="success"
+                    icon="components.icons.upload"
+                />
+
+                {{-- KPI: Descuento Promedio General --}}
+                <x-kpi.kpi-card
+                    title="Descuento Promedio"
+                    value="{{ number_format($descuentoPromedio, 2) }}%"
+                    subtitle="Sobre el total de ventas"
+                    subtitleHtml="Ahorro: ${{ number_format($ahorroTotal, 2) }} sobre ${{ number_format($sumPrecioLista, 2) }}"
+                    color="warning"
+                    icon="components.icons.percent"
+                />
+
+                {{-- <!-- KPI: Mayor descuento por unidad -->
+                <x-kpi.kpi-card
+                    title="Mayor Descuento (por unidad)"
+                    value="${{ number_format($mayorDiferenciaUnidad->diferenciaPorUnidad, 2) }}"
+                    subtitle="{{ $mayorDiferenciaUnidad->NomArticulo }}"
+                    subtitleHtml="Precio Lista: ${{ number_format($mayorDiferenciaUnidad->PrecioLista, 2) }} → ${{ number_format($mayorDiferenciaUnidad->PrecioArticulo, 2) }}<br>Descuento: {{ number_format($mayorDiferenciaUnidad->porcentajeDescuento, 2) }}%"
+                    color="success"
+                    icon="components.icons.arrow-up"
+                />
+
+                <!-- KPI: Menor descuento por unidad -->
+                <x-kpi.kpi-card
+                    title="Menor Descuento (por unidad)"
+                    value="${{ number_format($menorDiferenciaUnidad->diferenciaPorUnidad, 2) }}"
+                    subtitle="{{ $menorDiferenciaUnidad->NomArticulo }}"
+                    subtitleHtml="Precio Lista: ${{ number_format($menorDiferenciaUnidad->PrecioLista, 2) }} → ${{ number_format($menorDiferenciaUnidad->PrecioArticulo, 2) }}<br>Descuento: {{ number_format($menorDiferenciaUnidad->porcentajeDescuento, 2) }}%"
+                    color="warning"
+                    icon="components.icons.arrow-down"
+                /> --}}
             </div>
         </div>
 
