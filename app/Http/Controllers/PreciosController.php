@@ -150,8 +150,8 @@ class PreciosController extends Controller
                 'soporte@kowi.com.mx',
             ];
 
-            Mail::to($correos)
-                ->send(new ActualizacionPreciosMail($preciosActualizaados));
+            // Mail::to($correos)
+            //     ->send(new ActualizacionPreciosMail($preciosActualizaados));
 
             //DB::statement("Execute SP_ACTUALIZAR_PRECIOS '". Auth::user()->IdUsuario."'");
 
