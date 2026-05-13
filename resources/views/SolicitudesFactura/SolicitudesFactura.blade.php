@@ -6,13 +6,13 @@
         <!-- SECCIÓN 1: TITULO Y FILTROS -->
         <x-layout.section-card>
             <!-- Título y botones principales -->
-            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+            <x-layout.section-title>
                 <x-title titulo="Solicitudes Factura" />
                 <div class="d-flex gap-2">
                     <x-filters.buttons.refresh-button />
                     <x-filters.buttons.home-button />
                 </div>
-            </div>
+            </x-layout.section-title>
             <!-- Formulario de filtros -->
             <x-filters.filter-form>
                 <!-- Filtros Básicos -->
@@ -63,16 +63,18 @@
 
         <!-- SECCIÓN: TABLAS -->
         <div
-            class="flex-grow-1 d-flex gap-4"
-            style="min-height: 0;"
+            class="flex-grow-1 d-flex gap-4 pb-4"
+            {{-- style="min-height: 0;" --}}
         >
             <div
                 class="d-flex flex-column"
-                style="flex: 2; min-width: 0; min-height: 0;"
+                {{-- style="flex: 2; min-width: 0; min-height: 0;" --}}
+                style="flex: 2; min-width: 0;"
             >
                 <div
                     class="card d-flex flex-column border-0 p-4"
-                    style="border-radius: 10px; min-height: 0;"
+                    {{-- style="border-radius: 10px; min-height: 0;" --}}
+                    style="border-radius: 10px;"
                 >
                     <div class="table-responsive content-table-sm">
                         <table class="table">
@@ -80,7 +82,7 @@
                                 <tr>
                                     <th>Folio</th>
                                     <th>Ticket</th>
-                                    <th>Folio Encriptado</th>
+                                    <th>Folio Encriptado</th>
                                     <th>Tienda</th>
                                     <th>Fecha</th>
                                     <th>RFC</th>
@@ -112,34 +114,36 @@
                                         <td style="min-width: 230px;">{{ $solicitud->NomCliente }}</td>
                                         <td class="text-end">${{ number_format($solicitud->TotalFactura, 2) }}</td>
                                         <td class="text-center">
-                                            @if ($solicitud->Source_Transaction_Identifier)
-                                                <span class="tags-blue">
-                                                    {{ $solicitud->Source_Transaction_Identifier }}
-                                                </span>
-                                            @elseif($solicitud->Editar !== null)
-                                                <span class="tags-red">
-                                                    SIN LIGAR
-                                                </span>
-                                                @if ($solicitud->Editar == '0')
-                                                    <span class="tags-red">
-                                                        NUEVO
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                @if ($solicitud->Source_Transaction_Identifier)
+                                                    <span class="tags-blue" style="white-space: nowrap;">
+                                                        {{ $solicitud->Source_Transaction_Identifier }}
                                                     </span>
+                                                @elseif($solicitud->Editar !== null)
+                                                    <span class="tags-red" style="white-space: nowrap;">
+                                                        SIN LIGAR
+                                                    </span>
+                                                    @if ($solicitud->Editar == '0')
+                                                        <span class="tags-red">
+                                                            NUEVO
+                                                        </span>
+                                                    @else
+                                                        <span class="tags-red">
+                                                            ACTUALIZAR
+                                                        </span>
+                                                    @endif
                                                 @else
-                                                    <span class="tags-red">
-                                                        ACTUALIZAR
+                                                    <span class="tags-red" style="white-space: nowrap;">
+                                                        SIN PEDIDO
                                                     </span>
                                                 @endif
-                                            @else
-                                                <span class="tags-red">
-                                                    SIN PEDIDO
-                                                </span>
-                                            @endif
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             @if ($solicitud->Status == 1)
                                                 <span class="tags-red">Cancelada</span>
                                             @elseif ($solicitud->Status == 0 && $solicitud->Editar != null)
-                                                <span class="tags-yellow">SIN PROCESAR</span>
+                                                <span class="tags-yellow" style="white-space: nowrap;">SIN PROCESAR</span>
                                             @else
                                                 @if ($solicitud->InterfaceStatus == 'PROCESADO')
                                                     <span class="tags-green">{{ $solicitud->InterfaceStatus }}</span>
@@ -149,7 +153,7 @@
                                                     <span class="tags-yellow">{{ $solicitud->InterfaceStatus }}</span>
                                                 @else
                                                     <span
-                                                        class="tags-yellow">{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}
+                                                        class="tags-yellow" style="white-space: nowrap;">{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}
                                                     </span>
                                                 @endif
                                             @endif
@@ -200,6 +204,7 @@
         </div>
 
     </x-layout.page-container>
+
     <style>
         .table thead th {
             position: sticky;

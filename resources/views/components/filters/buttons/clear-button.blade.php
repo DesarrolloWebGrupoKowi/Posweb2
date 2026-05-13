@@ -1,6 +1,6 @@
 @props(['url' => null, 'title' => 'Borrar filtros'])
 
-<div>
+<div class="col-auto">
     <a
         class="btn btn-outline-danger"
         href="{{ $url ?? url()->current() }}"

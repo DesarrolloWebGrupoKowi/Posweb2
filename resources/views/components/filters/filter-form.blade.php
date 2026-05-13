@@ -5,15 +5,18 @@
 ])
 
 <form
-    class="d-flex align-items-start justify-content-between"
+    {{-- class="d-flex flex-column flex-xl-row align-items-start justify-content-between gap-2" --}}
+    class="row g-2"
     action="{{ $action ?? url()->current() }}"
     method="{{ $method }}"
     id="{{ $id }}"
 >
-    <div class="w-100">
+    <div class="col">
         {{ $slot }}
     </div>
-    <div class="d-flex gap-2">
-        {{ $buttons ?? '' }}
+    <div class="col-12 col-xxl-auto">
+        <div class="d-flex gap-2">
+            {{ $buttons ?? '' }}
+        </div>
     </div>
 </form>

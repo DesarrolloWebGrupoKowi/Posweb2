@@ -6,7 +6,8 @@
 
         <!-- SECCIÓN 1: FILTROS -->
         <x-layout.section-card>
-            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+            <div
+                class="d-flex justify-content-sm-between align-items-start align-items-sm-start flex-column flex-md-row mb-2">
                 <x-title titulo="Concentrado de Artículos" />
                 <div class="d-flex gap-2">
                     <x-filters.buttons.excel-button
@@ -148,11 +149,12 @@
 
         <!-- SECCIÓN GRÁFICAS Y TABLAS -->
         <div
-            class="flex-grow-1 d-flex gap-4"
-            style="min-height: 0;"
+            {{-- class="flex-grow-1 d-flex gap-4" --}}
+            class="row"
+            {{-- style="min-height: 0;" --}}
         >
             <div
-                class="d-flex flex-column"
+                class="col-12 col-xxl-8 d-flex flex-column"
                 style="flex: 2; min-width: 0; min-height: 0;"
             >
                 <div
@@ -173,7 +175,9 @@
                                         <th>Fecha</th>
                                     @endif
                                     <th>Grupo</th>
-                                    <th>Lista precios</th>
+                                    @if (!$agrupadoArticulo)
+                                        <th>Lista precios</th>
+                                    @endif
                                     <th>Código</th>
                                     <th>Articulo</th>
                                     <th>Cantidad</th>
@@ -201,7 +205,9 @@
                                             </td>
                                         @endif
                                         <td>{{ $tConcentrado->NomGrupo }}</td>
-                                        <td>{{ $tConcentrado->NomListaPrecio }}</td>
+                                        @if (!$agrupadoArticulo)
+                                            <td>{{ $tConcentrado->NomListaPrecio }}</td>
+                                        @endif
                                         <td>{{ $tConcentrado->CodArticulo }}</td>
                                         <td>{{ $tConcentrado->NomArticulo }}</td>
                                         <td>{{ number_format($tConcentrado->Peso, 3) }}</td>
@@ -230,7 +236,7 @@
                                                 :message="'No se encontraron resultados con los filtros seleccionados.'"
                                                 :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
                                                 action="Limpiar filtros"
-                                                actionUrl="/ReporteConcentradoDeArticulos"
+                                                actionUrl="/ReporteConcentradoDeArticulosYListaPrecios"
                                             />
                                         </td>
                                     </tr>
@@ -240,7 +246,7 @@
                             @if (count($concentrado) > 0)
                                 <tfoot>
                                     <tr>
-                                        <td colspan="5"><strong>Total:</strong></td>
+                                        <td colspan="{{ $agrupadoArticulo ? '5' : '6' }}"><strong>Total:</strong></td>
                                         @if ($agrupado)
                                             <td></td>
                                         @endif
@@ -259,7 +265,8 @@
             </div>
 
             <!-- SECCIÓN Graficas -->
-            <div style="flex: 1; min-width: 0;">
+            {{-- <div style="flex: 1; min-width: 0;"> --}}
+            <div class="col-xxl-4 py-4 py-xxl-0">
                 <!-- Top 10 Productos por Peso -->
                 <div class="row">
                     <div class="col-12">
@@ -307,8 +314,8 @@
                 </div>
 
                 <!-- Gráficas de distribución -->
-                <div class="row mt-4">
-                    <div class="col-md-6">
+                <div class="row g-4 mt-2 mt-xxl-0">
+                    <div class="col-6">
                         <div
                             class="card border-0 p-4"
                             style="border-radius: 10px"
@@ -341,7 +348,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-6">
                         <div
                             class="card border-0 p-4"
                             style="border-radius: 10px"
@@ -377,6 +384,7 @@
             </div>
         </div>
     </x-layout.page-container>
+
     <style>
         .table thead th {
             position: sticky;

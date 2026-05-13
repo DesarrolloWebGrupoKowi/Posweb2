@@ -8,7 +8,8 @@
         <!-- SECCIÓN 1: FILTROS -->
         <x-layout.section-card>
             <!-- Título y botones principales -->
-            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+            <div
+                class="d-flex justify-content-sm-between align-items-start align-items-sm-start flex-column flex-sm-row mb-2">
                 <x-title titulo="Dashboard de Tiendas" />
                 <div class="d-flex gap-2">
                     <x-filters.buttons.refresh-button />
@@ -65,7 +66,7 @@
                     color="purple"
                     icon="components.icons.cash"
                     currency="true"
-                    colClass="col-xl-3 col-md-4 col-sm-6 col-6"
+                    colClass="col-xl-3 col-md-8 col-sm-12 col-12"
                 />
 
                 <!-- Tiendas Activas -->

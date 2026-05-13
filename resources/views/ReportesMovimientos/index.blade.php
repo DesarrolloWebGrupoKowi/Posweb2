@@ -6,7 +6,7 @@
         <!-- SECCIÓN 1: TITULO Y FILTROS -->
         <x-layout.section-card>
             <!-- Título y botones principales -->
-            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+            <x-layout.section-title>
                 <x-title titulo="Reporte de Movimientos de Inventario" />
                 <div class="d-flex gap-2">
                     <x-filters.buttons.excel-button
@@ -28,7 +28,7 @@
                     <x-filters.buttons.refresh-button />
                     <x-filters.buttons.home-button />
                 </div>
-            </div>
+            </x-layout.section-title>
             <!-- Formulario de filtros -->
             <x-filters.filter-form>
                 <!-- Filtros Básicos -->
@@ -134,11 +134,12 @@
         <!-- SECCIÓN: TABLAS -->
         <div
             class="flex-grow-1 d-flex gap-4"
-            style="min-height: 0;"
+            {{-- style="min-height: 0;" --}}
         >
             <div
                 class="d-flex flex-column"
-                style="flex: 2; min-width: 0; min-height: 0;"
+                {{-- style="flex: 2; min-width: 0; min-height: 0;" --}}
+                style="min-width: 0;"
             >
                 <div
                     class="card d-flex flex-column border-0 p-4"
@@ -154,21 +155,21 @@
                                     <th>Artículo</th>
                                     <th>Cantidad</th>
                                     <th>UOM</th>
-                                    <th>Fecha Movimiento</th>
+                                    <th style="text-wrap: nowrap;">Fecha Movimiento</th>
                                     <th>Referencia</th>
                                     <th>Movimiento</th>
                                     <th>Usuario</th>
                                     <th>Nomina</th>
                                     <th>Empleado</th>
-                                    <th>ID Caja</th>
-                                    <th>Referencia ID</th>
+                                    <th style="text-wrap: nowrap;">ID Caja</th>
+                                    <th style="text-wrap: nowrap;">Referencia ID</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($data as $movimiento)
                                     <tr>
                                         <td>{{ $movimiento->IdDatHistorialMovimientos }}</td>
-                                        <td style="min-width: 150px;">{{ $movimiento->NomTienda }}</td>
+                                        <td style="min-width: 150px; text-wrap: nowrap">{{ $movimiento->NomTienda }}</td>
                                         <td>{{ $movimiento->CodArticulo }}</td>
                                         <td style="min-width: 200px;">{{ $movimiento->NomArticulo }}</td>
                                         <td class="text-end">{{ number_format($movimiento->CantArticulo, 2) }}</td>
