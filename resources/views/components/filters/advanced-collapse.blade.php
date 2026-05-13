@@ -1,7 +1,7 @@
 @props(['active' => false, 'id' => 'filtrosAvanzadosCollapse', 'showBadge' => true])
 
 <div
-    class="{{ $active ? 'show' : '' }} collapse mt-3"
+    class="{{ $active ? 'show' : '' }} collapse mt-2"
     id="{{ $id }}"
 >
     <div class="w-100 d-flex flex-column gap-3">

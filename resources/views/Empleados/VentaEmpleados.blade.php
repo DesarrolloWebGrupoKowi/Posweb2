@@ -7,7 +7,7 @@
         <!-- SECCIÓN 1: FILTROS -->
         <x-layout.section-card>
             <!-- Título y botones principales -->
-            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+            <x-layout.section-title>
                 <x-title titulo="Reporte de Ventas a Empleados" />
                 <div class="d-flex gap-2">
                     <x-filters.buttons.excel-button
@@ -27,76 +27,76 @@
                     <x-filters.buttons.refresh-button />
                     <x-filters.buttons.home-button />
                 </div>
-            </div>
+        </x-layout.section-card>
 
-            <!-- Formulario de filtros -->
-            <x-filters.filter-form>
-                <!-- Filtros Básicos -->
+        <!-- Formulario de filtros -->
+        <x-filters.filter-form>
+            <!-- Filtros Básicos -->
+            <x-filters.filter-group>
+                <x-filters.inputs.date-input
+                    name="fecha1"
+                    label="Fecha Inicio"
+                    :value="request('fecha1')"
+                    :autofocus="true"
+                />
+                <x-filters.inputs.date-input
+                    name="fecha2"
+                    label="Fecha Fin"
+                    :value="request('fecha2')"
+                />
+                <x-filters.inputs.employee-search
+                    :checkboxChecked="request('chkNomina') == 'on'"
+                    :numberValue="request('numNomina')"
+                />
+                <x-filters.inputs.checkbox-input
+                    name="soloAdeudos"
+                    label="Adeudos"
+                    :checked="request('soloAdeudos') == 'on'"
+                    helperText="Crédito pendiente"
+                />
+            </x-filters.filter-group>
+
+            <!-- Filtros Avanzados -->
+            <x-filters.advanced-collapse
+                :active="$filtrosAvanzadosActivos"
+                :showBadge="true"
+            >
                 <x-filters.filter-group>
-                    <x-filters.inputs.date-input
-                        name="fecha1"
-                        label="Fecha Inicio"
-                        :value="request('fecha1')"
-                        :autofocus="true"
+                    <x-filters.inputs.select-input
+                        name="idTienda"
+                        label="Tienda"
+                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                        compact="true"
                     />
-                    <x-filters.inputs.date-input
-                        name="fecha2"
-                        label="Fecha Fin"
-                        :value="request('fecha2')"
+                    <x-filters.inputs.select-input
+                        name="tipoNomina"
+                        label="Tipo Nómina"
+                        :options="['3' => 'Semanal', '4' => 'Quincenal']"
+                        compact="true"
                     />
-                    <x-filters.inputs.employee-search
-                        :checkboxChecked="request('chkNomina') == 'on'"
-                        :numberValue="request('numNomina')"
-                    />
-                    <x-filters.inputs.checkbox-input
-                        name="soloAdeudos"
-                        label="Solo Adeudos"
-                        :checked="request('soloAdeudos') == 'on'"
-                        helperText="Crédito pendiente"
-                    />
-                </x-filters.filter-group>
-
-                <!-- Filtros Avanzados -->
-                <x-filters.advanced-collapse
-                    :active="$filtrosAvanzadosActivos"
-                    :showBadge="true"
-                >
-                    <x-filters.filter-group>
-                        <x-filters.inputs.select-input
-                            name="idTienda"
-                            label="Tienda"
-                            :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
-                            compact="true"
-                        />
-                        <x-filters.inputs.select-input
-                            name="tipoNomina"
-                            label="Tipo Nómina"
-                            :options="['3' => 'Semanal', '4' => 'Quincenal']"
-                            compact="true"
-                        />
-                        {{-- <x-filters.inputs.date-input
+                    {{-- <x-filters.inputs.date-input
                             name="fechaInterfaz"
                             label="Fecha Interfaz"
                             compact="true"
                         /> --}}
-                        <x-filters.inputs.text-input
-                            name="codigoInterfaz"
-                            label="Código Interfaz"
-                            placeholder="Código interfaz"
-                            compact="true"
-                        />
-                    </x-filters.filter-group>
-                </x-filters.advanced-collapse>
-
-                <x-slot:buttons>
-                    <x-filters.buttons.clear-button />
-                    <x-filters.buttons.advanced-button
-                        :active="$filtrosAvanzadosActivos"
-                        :hasBadge="true"
+                    <x-filters.inputs.text-input
+                        name="codigoInterfaz"
+                        label="Código Interfaz"
+                        placeholder="Código interfaz"
+                        compact="true"
                     />
-                    <x-filters.buttons.submit-button />
-                </x-slot:buttons>
-            </x-filters.filter-form>
+                </x-filters.filter-group>
+            </x-filters.advanced-collapse>
+
+            <x-slot:buttons>
+                <x-filters.buttons.clear-button />
+                <x-filters.buttons.advanced-button
+                    :active="$filtrosAvanzadosActivos"
+                    :hasBadge="true"
+                />
+                <x-filters.buttons.submit-button />
+            </x-slot:buttons>
+        </x-filters.filter-form>
         </x-layout.section-card>
 
         <!-- SECCIÓN 2: KPIs -->
@@ -108,6 +108,7 @@
                     subtitle="Transacciones"
                     color="primary"
                     icon="components.icons.shopping-cart"
+                    colClass="col-lg-3 col-6"
                 />
 
                 <x-kpi.kpi-card
@@ -117,6 +118,7 @@
                     color="success"
                     icon="components.icons.ticket"
                     currency="true"
+                    colClass="col-lg-3 col-6"
                 />
 
                 <x-kpi.kpi-card
@@ -128,6 +130,7 @@
                     color="info"
                     icon="components.icons.credit-card"
                     currency="true"
+                    colClass="col-lg-3 col-6"
                 />
 
                 <x-kpi.kpi-card
@@ -137,18 +140,27 @@
                     color="danger"
                     icon="components.icons.dolar"
                     currency="true"
+                    colClass="col-lg-3 col-6"
                 />
             </div>
         </div>
 
         <!-- SECCIÓN 3: GRÁFICAS Y TABLAS -->
         <div
-            class="flex-grow-1 d-flex gap-4"
+            class="flex-grow-1 row g-4"
             style="min-height: 0;"
+            {{-- style="max-height: 720px;" --}}
         >
+            <style>
+                @media (min-width: 1400px) {
+                    .h-xxl-100 {
+                        height: 100%;
+                    }
+                }
+            </style>
             <!-- SECCIÓN 3.1: Tabla -->
             <div
-                class="d-flex flex-column"
+                class="col-12 col-xxl-8 d-flex flex-column h-xxl-100 pb-3"
                 style="flex: 2; min-width: 0; min-height: 0;"
             >
                 <div
@@ -996,7 +1008,10 @@
             </div>
 
             <!-- SECCIÓN 3.2: Graficas -->
-            <div style="flex: 1; min-width: 0;">
+            <div
+                class="col-12 col-xxl-4"
+                {{-- style="flex: 1; min-width: 0;" --}}
+            >
                 <div class="row">
                     <div class="col-12 col-xl-6 mb-xl-0 col-xxl-12 mb-xxl-4 mb-4">
                         <div

@@ -7,6 +7,9 @@
                 <th>Fecha</th>
             @endif
             <th>Grupo</th>
+            @if (!$agrupadoArticulo)
+                <th>Lista precios</th>
+            @endif
             <th>Código</th>
             <th>Articulo</th>
             <th>Cantidad</th>
@@ -20,7 +23,7 @@
     <tbody>
         @if ($data->count() == 0)
             <tr>
-                <td colspan="8">No hay productos </td>
+                <td colspan="9">No hay productos </td>
             </tr>
         @else
             @foreach ($data as $item)
@@ -31,6 +34,9 @@
                         <td>{{ $item->FechaVenta }}</td>
                     @endif
                     <td>{{ $item->NomGrupo }}</td>
+                    @if (!$agrupadoArticulo)
+                        <td>{{ $item->NomListaPrecio }}</td>
+                    @endif
                     <td>{{ $item->CodArticulo }}</td>
                     <td>{{ $item->NomArticulo }}</td>
                     <td>{{ $item->Peso }}</td>

@@ -8,13 +8,13 @@
         <!-- SECCIÓN 1: FILTROS -->
         <x-layout.section-card>
             <!-- Título y botones principales -->
-            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+            <div class="d-flex justify-content-sm-between align-items-start align-items-sm-start flex-column flex-sm-row mb-2">
                 <x-title titulo="Cortes por Tiendas" />
                 <div class="d-flex gap-2">
                     <!-- Tamaño mediano -->
                     <x-filters.buttons.link-button
                         href="/GenerarCorteOraclePDF/{{ request('fecha_fin') }}/{{ request('tienda_id') }}/0"
-                        text="Descargar reporte"
+                        text="Descargar corte"
                         icon="components.icons.file-text"
                         color="success"
                     />

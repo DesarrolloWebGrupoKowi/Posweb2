@@ -1,6 +1,6 @@
 @props(['text' => 'Buscar', 'color' => 'dark'])
 
-<div class="col-12 col-md-auto">
+<div class="col">
     <button
         type="submit"
         class="btn btn-outline-{{ $color }} bg-{{ $color }} w-100 text-white"

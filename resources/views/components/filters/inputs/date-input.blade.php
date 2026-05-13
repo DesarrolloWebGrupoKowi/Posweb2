@@ -9,7 +9,7 @@
     'autofocus' => false,
 ])
 
-<div class="col-12 col-md-6 col-lg-3">
+<div class="col-12 col-md-6 col-xl-3">
     <div
         class="input-group {{ $compact ? 'input-group-sm' : '' }}"
         style="width: 100%;"

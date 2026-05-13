@@ -8,9 +8,17 @@
         <!-- SECCIÓN 1: TITULO Y FILTROS -->
         <x-layout.section-card>
             <!-- Título y botones principales -->
-            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
+            <div
+                class="d-flex justify-content-sm-between align-items-start align-items-sm-start flex-column flex-sm-row mb-2">
                 <x-title titulo="Dashboard por Tienda" />
                 <div class="d-flex gap-2">
+                    <x-filters.buttons.link-button
+                        href="/GenerarCorteOraclePDF/{{ request('fecha_fin') }}/{{ request('tienda_id') }}/0"
+                        text="Descargar corte"
+                        icon="components.icons.file-text"
+                        color="success"
+                        target="_blank"
+                    />
                     <x-filters.buttons.refresh-button />
                     <x-filters.buttons.home-button />
                 </div>
@@ -105,20 +113,30 @@
 
         <!-- SECCIÓN 3: GRÁFICAS Y TABLAS POR TIENDA -->
         <div
-            class="flex-grow-1 d-flex gap-4"
+            {{-- class="flex-grow-1 flex-column flex-xl-row d-flex gap-4" --}}
+            class="flex-grow-1 row"
             style="min-height: 0;"
         >
             <!-- TABLA: Corte tienda -->
-            <div
-                class="d-flex flex-column"
-                style="flex: 2; min-width: 0; min-height: 0;"
-            >
+            <div class="d-flex flex-column col-xxl-8 pb-xxl-0 h-xxl-100 pb-4">
+                <style>
+                    @media (min-width: 1400px) {
+                        .h-xxl-100 {
+                            height: 100%;
+                        }
+                    }
+                </style>
                 <div
                     class="card d-flex flex-column border-0 p-4"
                     style="border-radius: 10px; min-height: 0;"
                 >
+                    @php
+                        // <!-- Contenido para usuarios permitidos (1 Administrador, 4 Facturista, 9 Administrativo, 11 Facturista Esp) -->
+                        $allowedUserTypes = [1, 4, 9, 11];
+                    @endphp
+
                     <!--Header tabla-->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                         <div class="flex-column">
                             <h5 class="mb-0 text-gray-800">CORTE TIENDA {{ $tiendaActual->NomTienda ?? '' }}
                             </h5>
@@ -132,10 +150,12 @@
                             @endif
                         </div>
                         <div class="d-flex gap-2">
-                            <x-dashboard-buttons-procesar
-                                :corteTienda="$corteTienda"
-                                :corteTiendaSolicitudes="$corteTiendaSolicitudes"
-                            />
+                            @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                <x-dashboard-buttons-procesar
+                                    :corteTienda="$corteTienda"
+                                    :corteTiendaSolicitudes="$corteTiendaSolicitudes"
+                                />
+                            @endif
                             <!-- Botón Expandir/Contraer -->
                             <button
                                 class="btn btn-sm btn-outline-dark"
@@ -177,7 +197,9 @@
                                     <th>Oracle</th>
                                     <th class="text-end">Cantidad</th>
                                     <th class="text-end">Ventas</th>
-                                    <th class="text-center">Acciones</th>
+                                    @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                        <th class="text-center">Acciones</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -222,7 +244,7 @@
                                         </td>
                                         <td class="fw-500">
                                             <span class="{{ $sourceIdentifier ? 'tags-blue' : 'tags-red' }}">
-                                                {{ $sourceTransactionNumber ?? ($sourceIdentifier ? 'SIN NÚMERO' : 'SIN PEDIDO') }}
+                                                {{ $sourceTransactionNumber ?? ($sourceIdentifier ? 'SIN NÚMERO' : 'SIN PEDIDO') }}
                                             </span>
                                         </td>
                                         <td class="fw-500">
@@ -230,7 +252,7 @@
                                                 id="status-{{ $sourceIdentifier }}"
                                                 class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
                                             >
-                                                {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
+                                                {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
                                             </span>
                                         </td>
                                         <td class="fw-500 text-center">
@@ -245,62 +267,64 @@
                                         </td>
                                         <td class="fw-500 text-end">{{ number_format($item->total_cantidad, 3) }} kg</td>
                                         <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
-                                        <td class="text-center">
-                                            <div class="d-flex align-items-center justify-content-center gap-1">
-                                                @if ($status === 'PROCESADO' && $sourceIdentifier)
-                                                    @php
-                                                        $POS =
-                                                            substr($sourceIdentifier, 0, 3) .
-                                                            '_' .
-                                                            substr($sourceIdentifier, 3);
-                                                    @endphp
-                                                    <a
-                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura PDF"
-                                                    >
-                                                        @include('components.icons.download')
-                                                        <span class="d-none d-md-inline">PDF</span>
-                                                    </a>
-                                                    <a
-                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura XML"
-                                                    >
-                                                        @include('components.icons.download')
-                                                        <span class="d-none d-md-inline">XML</span>
-                                                    </a>
-                                                @elseif ($sourceIdentifier && $status !== 'PROCESADO')
-                                                    <button
-                                                        type="button"
-                                                        id="btnEnviarPedido{{ $sourceIdentifier }}"
-                                                        class="btn btn-sm btn-outline-primary btn-enviar"
-                                                        title="Enviar pedido a Oracle"
-                                                        data-pedido="{{ $sourceIdentifier }}"
-                                                        data-row-id="row-{{ $sourceIdentifier }}"
-                                                        data-original-status="{{ $status }}"
-                                                        data-original-mensaje="{{ $mensajeError ?? '' }}"
-                                                    >
-                                                        @include('components.icons.send')
-                                                        <span class="d-none d-md-inline">ENVIAR</span>
-                                                    </button>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
+                                        @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                                    @if ($status === 'PROCESADO' && $sourceIdentifier)
+                                                        @php
+                                                            $POS =
+                                                                substr($sourceIdentifier, 0, 3) .
+                                                                '_' .
+                                                                substr($sourceIdentifier, 3);
+                                                        @endphp
+                                                        <a
+                                                            href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                            target="_blank"
+                                                            class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1"
+                                                            title="Descargar Factura PDF"
+                                                        >
+                                                            @include('components.icons.download')
+                                                            <span class="d-none d-md-inline">PDF</span>
+                                                        </a>
+                                                        <a
+                                                            href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
+                                                            target="_blank"
+                                                            class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1"
+                                                            title="Descargar Factura XML"
+                                                        >
+                                                            @include('components.icons.download')
+                                                            <span class="d-none d-md-inline">XML</span>
+                                                        </a>
+                                                    @elseif ($sourceIdentifier && $status !== 'PROCESADO')
+                                                        <button
+                                                            type="button"
+                                                            id="btnEnviarPedido{{ $sourceIdentifier }}"
+                                                            class="btn btn-sm btn-outline-primary btn-enviar d-flex align-items-center justify-content-center gap-1"
+                                                            title="Enviar pedido a Oracle"
+                                                            data-pedido="{{ $sourceIdentifier }}"
+                                                            data-row-id="row-{{ $sourceIdentifier }}"
+                                                            data-original-status="{{ $status }}"
+                                                            data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                                        >
+                                                            @include('components.icons.send')
+                                                            <span class="d-none d-md-inline">ENVIAR</span>
+                                                        </button>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
 
-                                                <!-- Contenedor para botones condicionales (GENERAR FACTURA / ENVIAR UUID) -->
-                                                @if ($status === 'PROCESADO')
-                                                    <div
-                                                        class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
-                                                        data-pedido="{{ $sourceTransactionNumber }}"
-                                                        data-uuid-local="{{ $item->UUID ?? '' }}"
-                                                    >
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </td>
+                                                    <!-- Contenedor para botones condicionales (GENERAR FACTURA / ENVIAR UUID) -->
+                                                    @if ($status === 'PROCESADO')
+                                                        <div
+                                                            class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
+                                                            data-pedido="{{ $sourceTransactionNumber }}"
+                                                            data-uuid-local="{{ $item->UUID ?? '' }}"
+                                                        >
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        @endif
                                     </tr>
 
                                     <!-- Fila de mensaje del POS -->
@@ -378,7 +402,7 @@
                                                 @elseif ($item->Editar != null)
                                                     SIN LIGAR
                                                 @else
-                                                    SIN PEDIDO
+                                                    SIN PEDIDO
                                                 @endif
                                             </span>
                                         </td>
@@ -387,7 +411,7 @@
                                                 id="status-{{ $sourceIdentifier }}"
                                                 class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
                                             >
-                                                {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
+                                                {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
                                             </span>
                                         </td>
                                         <td class="fw-500 text-center">
@@ -403,87 +427,88 @@
                                         </td>
                                         <td class="fw-500 text-end">{{ number_format($item->total_cantidad, 3) }} kg</td>
                                         <td class="fw-500 text-end">${{ number_format($item->total_importe, 2) }}</td>
-                                        <td class="text-center">
-                                            <div class="d-flex align-items-center justify-content-center gap-1">
-                                                <!-- Botones de descarga de factura Oracle -->
-                                                @if ($status === 'PROCESADO' && !($item->UUID ?? false))
-                                                    @php
-                                                        $POS =
-                                                            substr($sourceIdentifier, 0, 3) .
-                                                            '_' .
-                                                            substr($sourceIdentifier, 3);
-                                                    @endphp
-                                                    <a
-                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura PDF"
-                                                    >
-                                                        @include('components.icons.download') <span
-                                                            class="d-none d-md-inline">PDF</span>
-                                                    </a>
-                                                    <a
-                                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        title="Descargar Factura XML"
-                                                    >
-                                                        @include('components.icons.download') <span
-                                                            class="d-none d-md-inline">XML</span>
-                                                    </a>
-                                                @endif
+                                        @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                                    <!-- Botones de descarga de factura Oracle -->
+                                                    @if ($status === 'PROCESADO' && !($item->UUID ?? false))
+                                                        @php
+                                                            $POS =
+                                                                substr($sourceIdentifier, 0, 3) .
+                                                                '_' .
+                                                                substr($sourceIdentifier, 3);
+                                                        @endphp
+                                                        <a
+                                                            href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                            target="_blank"
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            title="Descargar Factura PDF"
+                                                        >
+                                                            @include('components.icons.download') <span
+                                                                class="d-none d-md-inline">PDF</span>
+                                                        </a>
+                                                        <a
+                                                            href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
+                                                            target="_blank"
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            title="Descargar Factura XML"
+                                                        >
+                                                            @include('components.icons.download') <span
+                                                                class="d-none d-md-inline">XML</span>
+                                                        </a>
+                                                    @endif
 
-                                                <!-- Botones de descarga de factura Timbrada (Factura electrónica) -->
-                                                @if ($item->UUID ?? false)
+                                                    <!-- Botones de descarga de factura Timbrada (Factura electrónica) -->
+                                                    @if ($item->UUID ?? false)
+                                                        <a
+                                                            href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadPdfCte?Uuid={{ $item->UUID }}"
+                                                            target="_blank"
+                                                            class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1"
+                                                            title="Descargar Factura PDF"
+                                                        >
+                                                            @include('components.icons.download') <span
+                                                                class="d-none d-md-inline">PDF</span>
+                                                        </a>
+                                                        <a
+                                                            href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadXmlCte?Uuid={{ $item->UUID }}"
+                                                            target="_blank"
+                                                            class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1"
+                                                            title="Descargar Factura XML"
+                                                        >
+                                                            @include('components.icons.download') <span
+                                                                class="d-none d-md-inline">XML</span>
+                                                        </a>
+                                                    @endif
+
+                                                    <!-- Botón para enviar pedido a Oracle (cuando no está procesado) -->
+                                                    @if ($sourceIdentifier && $status != 'PROCESADO')
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-sm btn-outline-primary btn-enviar d-flex align-items-center justify-content-center gap-1"
+                                                            title="Enviar pedido a Oracle"
+                                                            data-pedido="{{ $sourceIdentifier }}"
+                                                            data-row-id="row-{{ $sourceIdentifier }}"
+                                                            data-original-status="{{ $status }}"
+                                                            data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                                        >
+                                                            @include('components.icons.send')
+                                                            <span class="d-none d-md-inline">ENVIAR</span>
+                                                        </button>
+                                                    @endif
+
+                                                    <!-- Enlace para ver detalle de la solicitud -->
                                                     <a
-                                                        href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadPdfCte?Uuid={{ $item->UUID }}"
+                                                        href="/SolicitudesFactura/{{ $item->IdSolicitudFactura }}"
                                                         target="_blank"
                                                         class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1"
-                                                        title="Descargar Factura PDF"
+                                                        title="Ver detalle"
                                                     >
-                                                        @include('components.icons.download') <span
-                                                            class="d-none d-md-inline">PDF</span>
+                                                        <span>@include('components.icons.arrow-up-right')</span>
                                                     </a>
-                                                    <a
-                                                        href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadXmlCte?Uuid={{ $item->UUID }}"
-                                                        target="_blank"
-                                                        class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1"
-                                                        title="Descargar Factura XML"
-                                                    >
-                                                        @include('components.icons.download') <span
-                                                            class="d-none d-md-inline">XML</span>
-                                                    </a>
-                                                @endif
 
-                                                <!-- Botón para enviar pedido a Oracle (cuando no está procesado) -->
-                                                @if ($sourceIdentifier && $status != 'PROCESADO')
-                                                    <button
-                                                        type="button"
-                                                        class="btn btn-sm btn-outline-primary btn-enviar d-flex align-items-center justify-content-center gap-1"
-                                                        title="Enviar pedido a Oracle"
-                                                        data-pedido="{{ $sourceIdentifier }}"
-                                                        data-row-id="row-{{ $sourceIdentifier }}"
-                                                        data-original-status="{{ $status }}"
-                                                        data-original-mensaje="{{ $mensajeError ?? '' }}"
-                                                    >
-                                                        @include('components.icons.send')
-                                                        <span class="d-none d-md-inline">ENVIAR</span>
-                                                    </button>
-                                                @endif
-
-                                                <!-- Enlace para ver detalle de la solicitud -->
-                                                <a
-                                                    href="/SolicitudesFactura/{{ $item->IdSolicitudFactura }}"
-                                                    target="_blank"
-                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1"
-                                                    title="Ver detalle"
-                                                >
-                                                    <span>@include('components.icons.arrow-up-right')</span>
-                                                </a>
-
-                                                <!-- Contenedor para botones condicionales (GENERAR FACTURA / ENVIAR UUID) -->
-                                                @if ($status === 'PROCESADO')
-                                                    {{-- <button
+                                                    <!-- Contenedor para botones condicionales (GENERAR FACTURA / ENVIAR UUID) -->
+                                                    @if ($status === 'PROCESADO')
+                                                        {{-- <button
                                                         type="button"
                                                         class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1"
                                                         title="Actualizar fila"
@@ -492,18 +517,19 @@
                                                         <span>@include('components.icons.refresh')</span>
                                                     </button>
                                                     <br> --}}
-                                                    <div
-                                                        class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
-                                                        data-pedido="{{ $sourceTransactionNumber }}"
-                                                        data-uuid-local="{{ $item->UUID ?? '' }}"
-                                                    >
-                                                        <!-- Aquí se inyectarán dinámicamente los botones -->
-                                                        {{-- <span class="cargando-accion text-muted small">Verificando...</span> --}}
-                                                    </div>
-                                                @endif
+                                                        <div
+                                                            class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
+                                                            data-pedido="{{ $sourceTransactionNumber }}"
+                                                            data-uuid-local="{{ $item->UUID ?? '' }}"
+                                                        >
+                                                            <!-- Aquí se inyectarán dinámicamente los botones -->
+                                                            {{-- <span class="cargando-accion text-muted small">Verificando...</span> --}}
+                                                        </div>
+                                                    @endif
 
-                                            </div>
-                                        </td>
+                                                </div>
+                                            </td>
+                                        @endif
                                     </tr>
 
                                     <!-- Fila de mensaje del POS -->
@@ -575,9 +601,13 @@
                                             colspan="4"
                                             class="fw-bold text-end"
                                         >TOTALES:</td>
-                                        <td class="fw-bold text-end">{{ number_format($totalKilos, 2) }} kg</td>
+                                        <td class="fw-bold text-end">
+                                            <div style="min-width: 90px">{{ number_format($totalKilos, 2) }} kg</div>
+                                        </td>
                                         <td class="fw-bold text-end">${{ number_format($totalVentas, 2) }}</td>
-                                        <td></td>
+                                        @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                            <td></td>
+                                        @endif
                                     </tr>
                                 @endif
                             </tbody>
@@ -587,10 +617,13 @@
             </div>
 
             <!-- GRAFICAS -->
-            <div style="flex: 1; min-width: 0;">
+            <div
+                class="col-xxl-4 pb-4"
+                style="flex: 1; min-width: 0;"
+            >
                 <div class="row">
                     <!-- Gráfica de Ventas por Tienda -->
-                    <div class="col-12 col-xl-6 mb-xl-0 col-xxl-12 mb-xxl-4 mb-4">
+                    <div class="col-12 col-lg-6 col-xxl-12 mb-xl-0 col-xxl-12 mb-xl-4 mb-4">
                         <div
                             class="card border-0 p-4"
                             style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;"
@@ -637,7 +670,7 @@
                     </div>
 
                     <!-- Distribución de Tipos de Pago -->
-                    <div class="col-12 col-xl-6 col-xxl-12">
+                    <div class="col-12 col-lg-6 col-xxl-12">
                         <div
                             class="card border-0 p-4"
                             style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;"
@@ -645,10 +678,10 @@
                             <h6 class="fw-semibold mb-3">💳 Distribución de Pagos</h6>
                             <div
                                 class="position-relative"
-                                style="height: 200px;"
+                                style="height: 160px;"
                             >
                                 @if (empty($graficaDistribucionPagos['data']) || array_sum($graficaDistribucionPagos['data']) == 0)
-                                    <div style="min-height: 200px;">
+                                    <div style="min-height: 160;">
                                         <x-table-empty-state
                                             title="Sin datos para mostrar"
                                             icon="credit-card"
@@ -709,79 +742,6 @@
     </style>
 @endsection
 
-{{-- @section('styles')
-    <style>
-        .empty-state-icon {
-            width: 80px;
-            height: 80px;
-            color: #d1d5db;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 0.6;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.6;
-            }
-        }
-
-        .card {
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-        }
-
-        .periodo-btn.active {
-            background-color: #1e293b;
-            color: white;
-            border-color: #1e293b !important;
-        }
-
-        .bg-indigo-50 {
-            background-color: rgba(67, 56, 202, 0.1);
-        }
-
-        .bg-pink-50 {
-            background-color: rgba(190, 24, 93, 0.1);
-        }
-
-        .bg-emerald-50 {
-            background-color: rgba(5, 150, 105, 0.1);
-        }
-
-        .tags-red {
-            background-color: rgba(190, 24, 93, 0.1);
-            color: #be185d;
-        }
-
-
-        .tags-blue {
-            background-color: rgba(30, 66, 159, 0.1);
-            color: #1e429f;
-        }
-
-        .tags-green {
-            background-color: rgba(3, 84, 63, 0.1);
-            color: #03543f;
-        }
-
-        .tags-purple {
-            background-color: rgba(124, 58, 237, 0.1);
-            color: #7c3aed;
-        }
-    </style>
-@endsection --}}
-
 <!-- Awaiting Shipping: Listo para despacho -->
 <!-- Awaiting Billing: Lista para facturar -->
 <!-- Billed -->
@@ -791,6 +751,7 @@
     <script>
         // ====================================================================================================
         // SECCION PARA ACTUALIZAR LAS FILAS (STATUS Y BOTONES)
+        // ====================================================================================================
         // Funciones para actualizar la fila y ver el nuevo status de Oracle
         function fetchStatusOracle(item, btnReload = null) {
             const pedido = item.dataset.pedido;
@@ -850,7 +811,7 @@
                         }
                     } else {
                         console.log(`No se encontraron datos para pedido: ${pedido}`);
-                        item.innerHTML = '<span class="badge bg-danger">Sin datos</span>';
+                        item.innerHTML = '<span class="tags-red">Sin datos</span>';
                     }
                     if (btnReload) {
                         btnReload.innerHTML = `<span>@include('components.icons.refresh')</span>`;
@@ -861,6 +822,8 @@
 
         // Funciones para verificar si ya tiene UUID en Oracle
         function fetchBuscarUUID(pedido, uuidLocal, item, type) {
+            console.log(pedido);
+
             const apiUrl =
                 `https://oraclefacturasrest.kowi.com.mx/api/Documentos/FacturaOracle?Orden=${pedido}`;
 
@@ -868,6 +831,9 @@
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
+                    console.log('log pedido: ', pedido);
+                    console.log(data);
+
                     if (data.ok) {
                         const uuidOracle = data.dato?.uUid;
                         if ((!uuidOracle || uuidOracle.trim() === '') && type == 'sf') {
@@ -916,7 +882,6 @@
         // ====================================================================================================
         // SECCION BOTONES (DESPACHO) (ENVIAR FACTURA) Y (ENVIAR UUID)
         // Funciones para generar facturas y enviar UUID a Oracle
-        // ====================================================================================================
         // Funcion que busca un estatus en loop hasta que lo encuentra
         function getStatusLoop(pedido, uuidLocal, estatusSiguiente, type) {
             console.log('==============================');
@@ -1412,7 +1377,7 @@
                     const claseColor = nuevoEstado === 'ERROR' ? 'text-danger' : 'text-success';
 
                     nuevaFilaMensaje.innerHTML = `
-                        <td colspan="6" class="py-1 ps-5">
+                        <td colspan="7" class="py-1 ps-5">
                             <small class="${claseColor}">
                                 <strong>${textoStrong}</strong>
                                 <span id="mensaje-texto-${pedidoId}">${mensaje}</span>

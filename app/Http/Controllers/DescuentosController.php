@@ -430,6 +430,7 @@ class DescuentosController extends Controller
                     ->where('DatEncDescuentos.IdTienda', $idTienda)
                     ->where('DatEncDescuentos.IdPlaza', $idPlaza)
                     ->whereIn('DatDetDescuentos.IdArticulo', $activosAValidar)
+                    ->where('DatEncDescuentos.Status', 0)
                     ->where('DatDetDescuentos.Status', 0)
                     ->exists();
 
