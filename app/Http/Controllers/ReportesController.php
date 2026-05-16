@@ -64,6 +64,23 @@ class ReportesController extends Controller
             $request->filled('agrupadoArticulo') ||
             $request->filled('agrupado');
 
+        // Agregando comedores cuando el menudeo saca reporte de ventas
+        $tiendaKukita = Auth::user()->usuarioTienda->IdTienda;
+        if ($tiendaKukita == 3) {
+            $tiendas = collect($this->tiendas)
+                ->push(
+                    (object)[
+                        "IdTienda" => 1,
+                        "NomTienda" => "KOWI EXPRESS COMEDOR PLANTA"
+                    ],
+                    (object)[
+                        "IdTienda" => 2,
+                        "NomTienda" => "KOWI EXPRESS COMEDOR 2 PLANTA"
+                    ]
+                );
+            $tiendasIds = array_merge($this->tiendasIds, [1, 2]);
+        }
+
         // Definir columnas seleccionadas
         $select = [
             'g.NomCiudad',
