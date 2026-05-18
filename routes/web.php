@@ -910,6 +910,12 @@ Route::group(['middleware' => 'auth'], function () {
     // Exports reporte de descuentos
     Route::get('/ExportsReporteDescuentos', 'App\Http\Controllers\ReportesController@exportsDescuentos')->name('ExportsReporteDescuentos');
 
+    // Reporte de paquetes
+    Route::get('/ReportePaquetes', 'App\Http\Controllers\ReportesController@reportePaquetes')->name('ReportePaquetes');
+
+    // Exports reporte de paquetes
+    Route::get('/ExportsReportePaquetes', 'App\Http\Controllers\ReportesController@exportsPaquetes')->name('ExportsReportePaquetes');
+
     //ReporteConcentradoDeTickets
     Route::get('/ReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeTickets')->name('ReporteConcentradoDeTickets');
 

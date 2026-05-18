@@ -75,9 +75,8 @@ class DescuentosController extends Controller
             // Filtro por tienda
             ->when($activos, function ($query) {
                 $query->where('DatEncDescuentos.Status', 0)
-                    ->whereDate('DatEncDescuentos.FechaFin', '>', now()->toDateString());
+                    ->whereDate('DatEncDescuentos.FechaFin', '>=', now()->toDateString());
             })
-
 
             // Filtro por tienda
             ->when($idTienda, function ($query) use ($idTienda) {

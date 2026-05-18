@@ -61,15 +61,28 @@
                 >
                     <x-filters.filter-group>
                         <x-filters.inputs.select-input
+                            name="id_grupo"
+                            label="Grupo"
+                            :options="$grupos->pluck('NomGrupo', 'IdGrupo')->toArray()"
+                            compact="true"
+                        />
+                        <x-filters.inputs.select-input
                             name="id_familia"
                             label="Familia"
                             :options="$familias->pluck('NomFamilia', 'IdFamilia')->toArray()"
                             compact="true"
                         />
                         <x-filters.inputs.text-input
+                            name="id_enc_descuento"
+                            label="ID Descuento"
+                            placeholder="Id del descuento"
+                            :value="request('id_enc_descuento')"
+                            compact="true"
+                        />
+                        <x-filters.inputs.text-input
                             name="nom_descuento"
-                            label="Artículo"
-                            placeholder="Código o nombre del artículo"
+                            label="Nombre Descuento"
+                            placeholder="Nombre del descuento"
                             :value="request('nom_descuento')"
                             compact="true"
                         />
@@ -219,7 +232,7 @@
         <!-- SECCIÓN GRÁFICAS Y TABLAS -->
         <div class="row">
             <div
-                class="col-12 col-xxl-8 d-flex flex-column"
+                class="col-12 col-xxl-8 d-flex flex-column pb-4"
                 style="flex: 2; min-width: 0; min-height: 0;"
             >
                 <div
@@ -239,6 +252,7 @@
                                     <th>Fecha venta</th>
                                     <th>Código</th>
                                     <th>Articulo</th>
+                                    <th>NomGrupo</th>
                                     <th>Familia</th>
                                     <th>Cantidad</th>
                                     <th>Precios</th>
@@ -262,12 +276,16 @@
                                         <td>{{ $item->FechaVenta }}</td>
                                         <td>{{ $item->CodArticulo }}</td>
                                         <td>{{ $item->NomArticulo }}</td>
+                                        <td>{{ $item->NomGrupo }}</td>
                                         <td>{{ $item->NomFamilia }}</td>
                                         <td>{{ number_format($item->CantArticulo, 3) }}</td>
                                         <td>
                                             <span
-                                                class="tags-red text-muted">${{ number_format($item->PrecioLista, 2) }}</span>
-                                            /
+                                                class="tags-red text-muted"
+                                                style="text-decoration: line-through;"
+                                            >
+                                                ${{ number_format($item->PrecioLista, 2) }}
+                                            </span>
                                             <span class="tags-green">${{ number_format($item->PrecioArticulo, 2) }}</span>
                                         </td>
 
@@ -295,7 +313,7 @@
                                                 :message="'No se encontraron resultados con los filtros seleccionados.'"
                                                 :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
                                                 action="Limpiar filtros"
-                                                actionUrl="/ReporteConcentradoDeArticulosYListaPrecios"
+                                                actionUrl="/ReporteDescuentos"
                                             />
                                         </td>
                                     </tr>
@@ -305,7 +323,7 @@
                             @if (count($data) > 0)
                                 <tfoot>
                                     <tr>
-                                        <td colspan="6"><strong>Total:</strong></td>
+                                        <td colspan="7"><strong>Total:</strong></td>
                                         <td><strong>{{ number_format($totalPeso, 2) }}</strong></td>
                                         <td>
                                             {{-- <span class="tags-red text-muted">
@@ -323,124 +341,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- SECCIÓN Graficas -->
-            {{-- <div class="col-xxl-4 py-xxl-0 py-4">
-                <!-- Top 10 Productos por Peso -->
-                <div class="row">
-                    <div class="col-12">
-                        <div
-                            class="card border-0 p-4"
-                            style="border-radius: 10px"
-                        >
-                            <h6 class="fw-semibold mb-3">🏆 Top 10 Productos por Peso Vendido</h6>
-                            @php
-                                // Agrupar por producto sumando pesos
-                                $productosAgrupados = $concentrado
-                                    ->groupBy('CodArticulo')
-                                    ->map(function ($items) {
-                                        $first = $items->first();
-                                        return (object) [
-                                            'CodArticulo' => $first->CodArticulo,
-                                            'NomArticulo' => $first->NomArticulo,
-                                            'Peso' => $items->sum(function ($item) {
-                                                return floatval($item->Peso);
-                                            }),
-                                            'Importe' => $items->sum(function ($item) {
-                                                return floatval($item->Importe);
-                                            }),
-                                        ];
-                                    })
-                                    ->sortByDesc('Peso')
-                                    ->take(10);
-
-                                $topProductosLabels = $productosAgrupados->pluck('NomArticulo')->toArray();
-                                $topProductosPeso = $productosAgrupados->pluck('Peso')->toArray();
-                            @endphp
-
-                            @if (count($topProductosLabels) > 0)
-                                <canvas
-                                    id="topProductosChart"
-                                    height="250"
-                                ></canvas>
-                            @else
-                                <div class="py-5 text-center">
-                                    <p class="text-muted">No hay datos para mostrar</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Gráficas de distribución -->
-                <div class="row g-4 mt-xxl-0 mt-2">
-                    <div class="col-6">
-                        <div
-                            class="card border-0 p-4"
-                            style="border-radius: 10px"
-                        >
-                            <h6 class="fw-semibold mb-3">📊 Ventas por Grupo</h6>
-                            @php
-                                $ventasPorGrupo = $concentrado
-                                    ->groupBy('NomGrupo')
-                                    ->map(function ($items) {
-                                        return $items->sum(function ($item) {
-                                            return floatval($item->Importe);
-                                        });
-                                    })
-                                    ->sortDesc();
-
-                                $gruposLabels = $ventasPorGrupo->keys()->toArray();
-                                $gruposData = $ventasPorGrupo->values()->toArray();
-                            @endphp
-
-                            @if (count($gruposLabels) > 0)
-                                <canvas
-                                    id="ventasPorGrupoChart"
-                                    height="150"
-                                ></canvas>
-                            @else
-                                <div class="py-5 text-center">
-                                    <p class="text-muted">No hay datos para mostrar</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="col-6">
-                        <div
-                            class="card border-0 p-4"
-                            style="border-radius: 10px"
-                        >
-                            <h6 class="fw-semibold mb-3">💰 Ventas por Lista de Precio</h6>
-                            @php
-                                $ventasPorLista = $concentrado
-                                    ->groupBy('NomListaPrecio')
-                                    ->map(function ($items) {
-                                        return $items->sum(function ($item) {
-                                            return floatval($item->Importe);
-                                        });
-                                    })
-                                    ->sortDesc();
-
-                                $listaLabels = $ventasPorLista->keys()->toArray();
-                                $listaData = $ventasPorLista->values()->toArray();
-                            @endphp
-
-                            @if (count($listaLabels) > 0)
-                                <canvas
-                                    id="ventasPorListaChart"
-                                    height="150"
-                                ></canvas>
-                            @else
-                                <div class="py-5 text-center">
-                                    <p class="text-muted">No hay datos para mostrar</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
         </div>
     </x-layout.page-container>
 

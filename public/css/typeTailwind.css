@@ -344,6 +344,7 @@ button[disabled] i {
 
 .table-head th {
     font-weight: 500;
+    text-wrap: nowrap;
 }
 
 .table-head-secondary {

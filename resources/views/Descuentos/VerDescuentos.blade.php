@@ -85,19 +85,24 @@
             style="min-height: 0;"
         >
             <div
-                class="d-flex flex-column"
+                class="d-flex flex-column pb-4"
                 style="flex: 2; min-width: 0; min-height: 0;"
             >
                 <div
                     class="card d-flex flex-column border-0 p-4"
                     style="border-radius: 10px; min-height: 0;"
                 >
-                    <div class="d-flex justify-content-end mb-3">
-                        <x-filters.buttons.link-button
-                            href="/CatDescuentos"
-                            text="Crear descuento"
-                            color="primary"
-                        />
+                    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                        <div class="flex-column">
+                            <h5 class="mb-0 text-gray-800">CONCENTRADO DE DESCUENTOS</h5>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <x-filters.buttons.link-button
+                                href="/CatDescuentos"
+                                text="Crear descuento"
+                                color="primary"
+                            />
+                        </div>
                     </div>
                     <div class="table-responsive content-table-sm">
                         <table class="table">
@@ -159,7 +164,7 @@
                                                     data-bs-target="#ModalArticulos{{ $descuento->IdEncDescuento }}"
                                                     title="Detalle de descuento"
                                                 >
-                                                    @include('components.icons.list') Productos
+                                                    @include('components.icons.list')
                                                 </button>
                                                 <a
                                                     href="/EditarDescuento/{{ $descuento->IdEncDescuento }}"
@@ -169,15 +174,25 @@
                                                     @include('components.icons.edit') Ver
                                                 </a>
                                                 @if ($descuento->Status == 0 && !$fechaFin->lt($hoy))
-                                                    <button
+                                                    {{-- <button
                                                         class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#ModalEliminarConfirm{{ $descuento->IdEncDescuento }}"
                                                         title="Eliminar descuento"
                                                     >
                                                         @include('components.icons.arrow-down') Deshabilar
-                                                    </button>
+                                                    </button> --}}
                                                 @endif
+                                                <a
+                                                    href="/ReporteDescuentos?fecha_fin={{ \Carbon\Carbon::now()->format('Y-m-d') }}&id_enc_descuento={{ $descuento->IdEncDescuento }}"
+                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
+                                                    title="Ver ventas"
+                                                    target="_blank"
+                                                >
+
+                                                    @include('components.icons.arrow-up-right')
+                                                </a>
+
                                             </div>
                                             @include('Descuentos.ModalArticulos')
                                             @include('Descuentos.ModalEliminarConfirm')

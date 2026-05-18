@@ -9,12 +9,15 @@ use App\Exports\DineroElectronicoExport;
 use App\Exports\GrupoYTipoPrecio;
 use App\Exports\Mermas;
 use App\Exports\ReporteDescuentos;
+use App\Exports\ReportePaquetes;
 use App\Exports\VentasPorTipoDePrecioExport;
 use App\Models\CapMerma;
+use App\Models\CatPaquete;
 use App\Models\DatEncabezado;
 use App\Models\DatRosticero;
 use App\Models\DatTipoPago;
 use App\Models\Familia;
+use App\Models\Grupo;
 use App\Models\Tienda;
 use App\Services\TiendaService;
 use Carbon\Carbon;
@@ -297,6 +300,7 @@ class ReportesController extends Controller
         $nomDescuento = $request->nom_descuento;
         $idFamilia = $request->id_familia;
         $nomFamilia = $request->nom_familia;
+        $idGrupo = $request->id_grupo;
 
         $tiendasIds = $this->tiendasIds;
 
@@ -306,6 +310,7 @@ class ReportesController extends Controller
             ->leftJoin('DatEncDescuentos as ED', 'ED.IdEncDescuento', '=', 'DD.IdEncDescuento')
             ->leftJoin('CatArticulos as CA', 'CA.IdArticulo', '=', 'DD.IdArticulo')
             ->leftJoin('CatFamilias as CF', 'CF.IdFamilia', '=', 'CA.IdFamilia')
+            ->leftJoin('CatGrupos as CG', 'CG.IdGrupo', '=', 'CA.IdGrupo')
             ->leftJoin('CatTiendas as CT', 'CT.IdTienda', '=', 'DE.IdTienda')
             ->select(
                 'DD.IdEncDescuento',
@@ -315,6 +320,7 @@ class ReportesController extends Controller
                 'CA.CodArticulo',
                 'CA.NomArticulo',
                 'CF.NomFamilia',
+                'CG.NomGrupo',
                 'DD.CantArticulo',
                 'DD.PrecioLista',
                 'DD.PrecioArticulo',
@@ -378,8 +384,13 @@ class ReportesController extends Controller
                 $query->where('CF.NomFamilia', 'LIKE', "%{$nomFamilia}%");
             })
 
+            // Filtro por ID de familia
+            ->when($idGrupo, function ($query) use ($idGrupo) {
+                $query->where('CG.IdGrupo', $idGrupo);
+            })
+
             // Si no hay filtros (excepto los obligatorios), forzar resultado vacío
-            ->when(!$idTienda && !$fechaInicio && !$fechaFin && !$codArticulo && !$nomArticulo && !$idEncDescuento && !$nomDescuento && !$idFamilia && !$nomFamilia, function ($query) {
+            ->when(!$idTienda && !$fechaInicio && !$fechaFin && !$codArticulo && !$nomArticulo && !$idEncDescuento && !$nomDescuento && !$idFamilia && !$nomFamilia && !$idGrupo, function ($query) {
                 $query->whereRaw('1 = 0');
             })
             ->orderBy('DE.FechaVenta', 'DESC')
@@ -393,14 +404,18 @@ class ReportesController extends Controller
             return $query->get();
     }
 
+    // Reporte
     public function reporteDescuentos(Request $request)
     {
         $filtrosAvanzadosActivos =
             $request->filled('id_familia') ||
+            $request->filled('id_grupo') ||
+            $request->filled('id_enc_descuento') ||
             $request->filled('nom_descuento');
 
         $tiendas = $this->tiendas;
         $familias = Familia::orderBy('NomFamilia')->get();
+        $grupos = Grupo::orderBy('NomGrupo')->get();
 
         $data = $this->queryDescuentos($request);
 
@@ -408,16 +423,308 @@ class ReportesController extends Controller
             'filtrosAvanzadosActivos',
             'tiendas',
             'familias',
+            'grupos',
             'data',
         ));
     }
 
+    // Exports
     public function exportsDescuentos(Request $request)
     {
         $query = $this->queryDescuentos($request, true);
 
         $name = 'exports.xlsx';
         return Excel::download(new ReporteDescuentos($query), $name);
+    }
+
+    /* ==========================================================================
+    |  REPORTE DE VENTAS DE PAQUETES
+    |========================================================================== */
+    // Query
+    private function queryPaquetes(Request $request, $exports = false)
+    {
+        // Obtener todos los parámetros del filtro
+        $idTienda = $request->idTienda;
+        $fechaInicio = $request->fecha_inicio;
+        $fechaFin = $request->fecha_fin;
+        $codArticulo = $request->cod_articulo;
+        $nomArticulo = $request->nom_articulo;
+        $idPaquete = $request->id_paquete;
+        $nomPaquete = $request->nom_paquete;
+        $idFamilia = $request->id_familia;
+        $nomFamilia = $request->nom_familia;
+        $idGrupo = $request->id_grupo;
+
+        $tiendasIds = $this->tiendasIds;
+
+        // Construir la consulta
+        $query = DB::connection('server')->table('DatEncabezado as DE')
+            ->leftJoin('DatDetalle as DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
+            ->leftJoin('CatPaquetes as CP', 'CP.IdPaquete', '=', 'DD.IdPaquete')
+            ->leftJoin('CatArticulos as CA', 'CA.IdArticulo', '=', 'DD.IdArticulo')
+            ->leftJoin('CatFamilias as CF', 'CF.IdFamilia', '=', 'CA.IdFamilia')
+            ->leftJoin('CatGrupos as CG', 'CG.IdGrupo', '=', 'CA.IdGrupo')
+            ->leftJoin('CatTiendas as CT', 'CT.IdTienda', '=', 'DE.IdTienda')
+            ->select(
+                'DE.IdEncabezado',
+                DB::raw("CASE WHEN CP.IdPreparado IS NULL THEN DD.IdPaquete ELSE NULL END as IdPaquete"),
+                // 'CP.IdPaquete',
+                'CP.IdPreparado',
+                'CP.NomPaquete',
+                'CT.NomTienda',
+                DB::raw("CONVERT(VARCHAR(10), DE.FechaVenta, 103) as FechaVenta"),
+                'CA.CodArticulo',
+                'CA.NomArticulo',
+                'CF.NomFamilia',
+                'CG.NomGrupo',
+                'DD.CantArticulo',
+                'DD.PrecioArticulo',
+                'DD.IvaArticulo',
+                'DD.ImporteArticulo'
+            )
+            ->where('DE.StatusVenta', 0)
+            ->whereIn('DE.IdEncabezado', function ($subquery) use ($idPaquete, $nomPaquete) {
+                $subquery->select('DD2.IdEncabezado')
+                    ->from('DatDetalle as DD2')
+                    ->join('CatPaquetes as CP2', 'CP2.IdPaquete', '=', 'DD2.IdPaquete')
+
+                    // Filtro por ID de paquete
+                    ->when($idPaquete, function ($query) use ($idPaquete) {
+                        $query->where('CP2.IdPaquete', $idPaquete);
+                    })
+
+                    // Filtro por nombre de paquete
+                    ->when($nomPaquete, function ($query) use ($nomPaquete) {
+                        $query->where('CP2.NomPaquete', 'LIKE', "%{$nomPaquete}%");
+                    })
+
+                    ->whereNull('CP2.IdPreparado');
+            })
+
+            // Filtro por tienda
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('DE.IdTienda', $idTienda);
+            })
+            ->when(!$idTienda, function ($query) use ($tiendasIds) {
+                $query->whereIn('DE.IdTienda', $tiendasIds);
+            })
+
+            // Filtro por rango de fechas
+            ->when($fechaInicio && $fechaFin, function ($query) use ($fechaInicio, $fechaFin) {
+                $query->whereBetween(DB::raw('CAST(DE.FechaVenta as DATE)'), [$fechaInicio, $fechaFin]);
+            })
+
+            // Si solo viene fecha inicio
+            ->when($fechaInicio && !$fechaFin, function ($query) use ($fechaInicio) {
+                $query->whereDate('DE.FechaVenta', '>=', $fechaInicio);
+            })
+
+            // Si solo viene fecha fin
+            ->when($fechaFin && !$fechaInicio, function ($query) use ($fechaFin) {
+                $query->whereDate('DE.FechaVenta', '<=', $fechaFin);
+            })
+
+            // Filtro por código de artículo
+            ->when($codArticulo, function ($query) use ($codArticulo) {
+                $query->where('CA.CodArticulo', 'LIKE', "%{$codArticulo}%");
+            })
+
+            // Filtro por nombre de artículo
+            ->when($nomArticulo, function ($query) use ($nomArticulo) {
+                $query->where('CA.NomArticulo', 'LIKE', "%{$nomArticulo}%");
+            })
+
+            // Filtro por ID de paquete
+            // ->when($idPaquete, function ($query) use ($idPaquete) {
+            //     $query->where('DD.IdPaquete', $idPaquete);
+            // })
+
+            // Filtro por nombre de paquete
+            // ->when($nomPaquete, function ($query) use ($nomPaquete) {
+            //     $query->where('CP.NomPaquete', 'LIKE', "%{$nomPaquete}%");
+            // })
+
+            // Filtro por ID de familia
+            ->when($idFamilia, function ($query) use ($idFamilia) {
+                $query->where('CA.IdFamilia', $idFamilia);
+            })
+
+            // Filtro por nombre de familia
+            ->when($nomFamilia, function ($query) use ($nomFamilia) {
+                $query->where('CF.NomFamilia', 'LIKE', "%{$nomFamilia}%");
+            })
+
+            // Filtro por ID de grupo
+            ->when($idGrupo, function ($query) use ($idGrupo) {
+                $query->where('CG.IdGrupo', $idGrupo);
+            })
+
+            // Si no hay filtros (excepto los obligatorios), forzar resultado vacío
+            ->when(!$idTienda && !$fechaInicio && !$fechaFin && !$codArticulo && !$nomArticulo && !$idPaquete && !$nomPaquete && !$idFamilia && !$nomFamilia && !$idGrupo, function ($query) {
+                $query->whereRaw('1 = 0');
+            })
+            ->orderBy('DE.FechaVenta', 'DESC')
+            // ->orderBy(DB::raw("CASE WHEN CP.IdPreparado IS NULL THEN NULL ELSE DD.IdPaquete END"), 'DESC');
+            ->orderBy('DD.IdPaquete', 'DESC');
+
+        if ($exports)
+            return $query;
+        else
+            return $query->get();
+    }
+
+    private function getPaquetesKPIs(Collection $data): array
+    {
+        // Estructuras de datos
+        $paquetesInfo = [];
+        $ticketsInfo = [];
+        $totalGeneral = [
+            'importe_paquetes' => 0,
+            'cantidad_articulos_paquetes' => 0,
+            'tickets_unicos' => []
+        ];
+
+        foreach ($data as $item) {
+            $ticketId = $item->IdEncabezado;
+
+            // Registrar tickets únicos
+            if (!in_array($ticketId, $totalGeneral['tickets_unicos'])) {
+                $totalGeneral['tickets_unicos'][] = $ticketId;
+            }
+
+            // Procesar solo items que pertenecen a paquetes
+            if ($item->IdPaquete) {
+                $paqueteId = $item->IdPaquete;
+
+                // Inicializar paquete si no existe
+                if (!isset($paquetesInfo[$paqueteId])) {
+                    $paquetesInfo[$paqueteId] = [
+                        'id' => $paqueteId,
+                        'nombre' => $item->NomPaquete,
+                        'total_importe' => 0,
+                        'total_importe_todos_articulos' => 0,
+                        'total_cantidad' => 0,
+                        'tickets' => [],
+                        'articulos' => [],
+                        'veces_vendido' => 0
+                    ];
+                }
+
+                // Registrar ticket del paquete
+                if (!in_array($ticketId, $paquetesInfo[$paqueteId]['tickets'])) {
+                    $paquetesInfo[$paqueteId]['tickets'][] = $ticketId;
+                    $paquetesInfo[$paqueteId]['veces_vendido']++;
+                }
+
+                // Acumular valores del paquete
+                $paquetesInfo[$paqueteId]['total_importe'] += floatval($item->ImporteArticulo);
+                $paquetesInfo[$paqueteId]['total_cantidad'] += floatval($item->CantArticulo);
+
+                // Registrar artículos del paquete
+                $articuloKey = $item->CodArticulo;
+                if (!isset($paquetesInfo[$paqueteId]['articulos'][$articuloKey])) {
+                    $paquetesInfo[$paqueteId]['articulos'][$articuloKey] = [
+                        'codigo' => $item->CodArticulo,
+                        'nombre' => $item->NomArticulo,
+                        'cantidad' => 0,
+                        'importe' => 0,
+                        'precio_unitario' => floatval($item->PrecioArticulo)
+                    ];
+                }
+                $paquetesInfo[$paqueteId]['articulos'][$articuloKey]['cantidad'] += floatval($item->CantArticulo);
+                $paquetesInfo[$paqueteId]['articulos'][$articuloKey]['importe'] += floatval($item->ImporteArticulo);
+
+                // Acumular totales generales
+                $totalGeneral['importe_paquetes'] += floatval($item->ImporteArticulo);
+                $totalGeneral['cantidad_articulos_paquetes'] += floatval($item->CantArticulo);
+            }
+            $paquetesInfo[$paqueteId]['total_importe_todos_articulos'] += floatval($item->ImporteArticulo);
+        }
+
+        // Calcular métricas adicionales
+        $totalPaquetes = count($paquetesInfo);
+        $totalTicketsConPaquetes = count($totalGeneral['tickets_unicos']);
+        $ticketPromedioPorPaquete = $totalPaquetes > 0 ? round($totalTicketsConPaquetes / $totalPaquetes, 2) : 0;
+        $importePromedioPorPaquete = $totalPaquetes > 0 ? $totalGeneral['importe_paquetes'] / $totalPaquetes : 0;
+
+        // Encontrar el paquete más vendido (mayor importe)
+        $paqueteMasVendido = null;
+        $paqueteMasFrecuente = null;
+        $paqueteMayorImporte = null;
+
+        foreach ($paquetesInfo as $paquete) {
+            // Paquete con mayor importe
+            if (!$paqueteMayorImporte || $paquete['total_importe'] > $paqueteMayorImporte['total_importe']) {
+                $paqueteMayorImporte = $paquete;
+            }
+
+            // Paquete más frecuente (más veces vendido)
+            if (!$paqueteMasFrecuente || $paquete['veces_vendido'] > $paqueteMasFrecuente['veces_vendido']) {
+                $paqueteMasFrecuente = $paquete;
+            }
+        }
+
+        return [
+            'total_paquetes' => $totalPaquetes,
+            'total_tickets_con_paquetes' => $totalTicketsConPaquetes,
+            'total_importe_paquetes' => $totalGeneral['importe_paquetes'],
+            'total_articulos_paquetes' => $totalGeneral['cantidad_articulos_paquetes'],
+            'ticket_promedio_por_paquete' => $ticketPromedioPorPaquete,
+            'importe_promedio_por_paquete' => $importePromedioPorPaquete,
+            'paquete_mas_frecuente' => $paqueteMasFrecuente,
+            'paquete_mayor_importe' => $paqueteMayorImporte,
+            'paquetes_detalle' => $paquetesInfo
+        ];
+    }
+
+    // Reporte
+    public function reportePaquetes(Request $request)
+    {
+        $filtrosAvanzadosActivos =
+            $request->filled('id_familia') ||
+            $request->filled('id_grupo') ||
+            $request->filled('id_paquete') ||
+            $request->filled('nom_paquete');
+
+        $tiendas = $this->tiendas;
+        $familias = Familia::orderBy('NomFamilia')->get();
+        $grupos = Grupo::orderBy('NomGrupo')->get();
+        $paquetes = CatPaquete::whereNull('IdPreparado')
+            ->where(function ($query) {
+                $query->whereNull('FechaEliminacion')
+                    ->orWhereDate('FechaEliminacion', '>', now()->subYear());
+            })
+            ->select('IdPaquete', 'NomPaquete')
+            ->orderBy('Status')
+            ->orderBy('NomPaquete')
+            ->get();
+
+
+
+        // return
+        $data = $this->queryPaquetes($request);
+
+        // Calcular KPIs de paquetes
+        $paquetesKPIs = $this->getPaquetesKPIs($data);
+
+        return view('Reportes.Paquetes', compact(
+            'filtrosAvanzadosActivos',
+            'tiendas',
+            'familias',
+            'grupos',
+            'paquetes',
+            'paquetesKPIs',
+            'data',
+        ));
+    }
+
+    // Exports
+    public function exportsPaquetes(Request $request)
+    {
+        $query = $this->queryPaquetes($request, true);
+
+        $name = 'exports.xlsx';
+        return Excel::download(new ReportePaquetes($query), $name);
     }
 
     public function ReporteConcentradoDeTickets(Request $request)
