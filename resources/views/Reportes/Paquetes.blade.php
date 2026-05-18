@@ -132,14 +132,19 @@
                 />
 
                 <!-- Paquete más frecuente -->
-                @if (isset($kpis['paquete_mas_frecuente']))
-                    <x-kpi.kpi-card
-                        title="🏆 Paquete más Vendido (Frecuencia)"
-                        :value="$kpis['paquete_mas_frecuente']['nombre']"
-                        :subtitleHtml="'Veces vendido: ' . $kpis['paquete_mas_frecuente']['veces_vendido'] . ' tickets'"
-                        color="warning"
-                    />
-                @endif
+                @php
+                    $paqueteMasFrecuente = $kpis['paquete_mas_frecuente'] ?? null;
+                    $nombrePaquete = $paqueteMasFrecuente['nombre'] ?? 'N/A';
+                    $vecesVendido = $paqueteMasFrecuente['veces_vendido'] ?? 0;
+                @endphp
+                <x-kpi.kpi-card
+                    title="🏆 Paquete más Vendido (Frecuencia)"
+                    :value="$nombrePaquete"
+                    :subtitleHtml="'Veces vendido: ' . $vecesVendido . ' tickets'"
+                    color="warning"
+                    icon="components.icons.shopping-cart"
+                />
+
             </div>
 
             <div class="row mt-4">
