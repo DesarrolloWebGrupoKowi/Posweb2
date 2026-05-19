@@ -157,7 +157,7 @@
                                         </td>
 
                                         <td>
-                                            <div class="d-flex justify-content-center gap-2">
+                                            <div class="d-flex justify-content-start gap-2">
                                                 <button
                                                     class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
                                                     data-bs-toggle="modal"
@@ -173,16 +173,6 @@
                                                 >
                                                     @include('components.icons.edit') Ver
                                                 </a>
-                                                @if ($descuento->Status == 0 && !$fechaFin->lt($hoy))
-                                                    {{-- <button
-                                                        class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#ModalEliminarConfirm{{ $descuento->IdEncDescuento }}"
-                                                        title="Eliminar descuento"
-                                                    >
-                                                        @include('components.icons.arrow-down') Deshabilar
-                                                    </button> --}}
-                                                @endif
                                                 <a
                                                     href="/ReporteDescuentos?fecha_fin={{ \Carbon\Carbon::now()->format('Y-m-d') }}&id_enc_descuento={{ $descuento->IdEncDescuento }}"
                                                     class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
@@ -192,7 +182,16 @@
 
                                                     @include('components.icons.arrow-up-right')
                                                 </a>
-
+                                                @if ($descuento->Status == 0 && !$fechaFin->lt($hoy))
+                                                    <button
+                                                        class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ModalEliminarConfirm{{ $descuento->IdEncDescuento }}"
+                                                        title="Eliminar descuento"
+                                                    >
+                                                        @include('components.icons.arrow-down')
+                                                    </button>
+                                                @endif
                                             </div>
                                             @include('Descuentos.ModalArticulos')
                                             @include('Descuentos.ModalEliminarConfirm')
