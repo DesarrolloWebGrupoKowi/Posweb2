@@ -1338,9 +1338,9 @@ class PoswebController extends Controller
                     ]);
 
                     // Marcar la venta como subida en DatEncabezado
-                    DatEncabezado::where('IdEncabezado', $idEncabezado)->update([
-                        'Subir' => 0,
-                    ]);
+                    // DatEncabezado::where('IdEncabezado', $idEncabezado)->update([
+                    //     'Subir' => 0,
+                    // ]);
 
                     if (!empty($numNomina)) {
                         // Validar si el tipo de pago es crédito
