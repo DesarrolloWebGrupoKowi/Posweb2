@@ -1348,12 +1348,18 @@ class ReportesController extends Controller
                 ->get();
         }
 
-        $concentrado = DatRosticero::select(
-            'DatRosticero.*',
-            'CAMP.NomArticulo as ArticuloMatPrima',
-            'CAV.NomArticulo as ArticuloVenta',
-            'ct.NomTienda'
-        )
+        $concentrado = DatRosticero::with(['Detalle' => function ($q) {
+            $q->where('DatDetalleRosticero.Status', 0)
+                ->whereNull('CantMermaRecalentado')
+                ->select('Cantidad', 'IdRosticero'); // solo traer Cantidad y foránea
+        }])
+
+            ->select(
+                'DatRosticero.*',
+                'CAMP.NomArticulo as ArticuloMatPrima',
+                'CAV.NomArticulo as ArticuloVenta',
+                'ct.NomTienda'
+            )
             ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'DatRosticero.IdTienda')
             ->leftjoin('CatArticulos as CAMP', 'CAMP.CodArticulo', 'DatRosticero.CodigoMatPrima')
             ->leftjoin('CatArticulos as CAV', 'CAV.CodArticulo', 'DatRosticero.CodigoVenta')
