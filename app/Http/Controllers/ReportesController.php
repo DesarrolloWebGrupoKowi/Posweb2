@@ -207,6 +207,12 @@ class ReportesController extends Controller
 
         $idTiendas = $tiendas->pluck('IdTienda');
 
+        // Agregando comedores cuando el menudeo saca reporte de ventas
+        $tiendaKukita = Auth::user()->usuarioTienda->IdTienda;
+        if ($tiendaKukita == 3) {
+            $idTiendas = array_merge($this->tiendasIds, [1, 2]);
+        }
+
         // Definir columnas seleccionadas
         $select = [
             'g.NomCiudad',
