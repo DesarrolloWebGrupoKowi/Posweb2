@@ -18,27 +18,30 @@ class UsuariosController extends Controller
         $txtFiltro = trim($request->get('txtFiltro', ''));
         $idTipoUsuario = $request->get('IdTipoUsuario', '');
         $estatus = $request->get('estatus', '');
-        $totalUsuarios = Usuario::all()->count();
 
         $usuarios = DB::table('CatUsuarios')
             ->leftJoin('CatTipoUsuarios', 'CatUsuarios.IdTipoUsuario', '=', 'CatTipoUsuarios.IdTipoUsuario')
             ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', '=', 'CatUsuarios.NumNomina')
             ->select('IdUsuario', 'NomUsuario', 'CatUsuarios.NumNomina', 'Correo', 'CatTipoUsuarios.NomTipoUsuario', 'CatUsuarios.IdTipoUsuario', 'CatUsuarios.Status', 'CatEmpleados.Nombre', 'CatEmpleados.Apellidos')
             ->whereNotIn('IdUsuario', [Auth::user()->IdUsuario])
-            ->where(function($query) use ($txtFiltro) {
+            ->where(function ($query) use ($txtFiltro) {
                 $query->where('NomUsuario', 'like', '%' . $txtFiltro . '%')
-                      ->orWhere('CatUsuarios.NumNomina', 'like', '%' . $txtFiltro . '%');
+                    ->orWhere('CatUsuarios.NumNomina', 'like', '%' . $txtFiltro . '%')
+                    ->orWhere('CatUsuarios.Correo', 'like', '%' . $txtFiltro . '%')
+                    ->orWhere('CatEmpleados.Nombre', 'like', '%' . $txtFiltro . '%')
+                    ->orWhere('CatEmpleados.Apellidos', 'like', '%' . $txtFiltro . '%')
+                    ->orWhere(DB::raw("CONCAT(CatEmpleados.Nombre, ' ', CatEmpleados.Apellidos)"), 'like', '%' . $txtFiltro . '%');
             })
             ->when(!empty($idTipoUsuario), function ($query) use ($idTipoUsuario) {
                 return $query->where('CatUsuarios.IdTipoUsuario', $idTipoUsuario);
             })
-            ->when($estatus != -1, function ($query) use ($estatus) {
-                return $query->where('CatUsuarios.Status', '=', $estatus);
+            ->when($estatus, function ($query) use ($estatus) {
+                return $query->where('CatUsuarios.Status', '=', $estatus == 1 ? 0 : 1);
             })
             ->orderBy('CatTipoUsuarios.NomTipoUsuario')
             ->orderBy('NomUsuario')
             ->paginate(10)
-            ->withQueryString();
+            ->appends(request()->query());
 
         //return $usuarios;
         $tipoUsuarios = DB::table('CatTipoUsuarios')
@@ -82,7 +85,7 @@ class UsuariosController extends Controller
     }
 
     //FUNCTION NO USADA!!
-    public function Eliminar(Request $request, $id)
+    public function Eliminar(Request $request, int $id)
     {
 
         $NomAdmin = $request->get('userAdmin');
@@ -110,7 +113,7 @@ class UsuariosController extends Controller
     }
     //TERMINA FUNCTION NO USADA!
 
-    public function EditarUsuario(Request $request, $id)
+    public function EditarUsuario(Request $request, int $id)
     {
 
         $usuario = Usuario::find($id);
@@ -130,7 +133,7 @@ class UsuariosController extends Controller
         return back()->with('msjupdate', 'Usuario ' . $NomUsuario . ' Modificado con Exito! ');
     }
 
-    public function CambiarContraseña(Request $request, $id)
+    public function CambiarContraseña(Request $request, int $id)
     {
         $usuario = Usuario::find($id);
         $NomUsuario = $usuario->NomUsuario;
@@ -156,7 +159,7 @@ class UsuariosController extends Controller
         }
     }
 
-    public function ActivarUsuario(Request $request, $id)
+    public function ActivarUsuario(Request $request, int $id)
     {
         $PassUsuario = $request->get('passAdmin');
 
@@ -180,7 +183,7 @@ class UsuariosController extends Controller
         return view('Usuarios.MiPerfil');
     }
 
-    public function CambiarPassword(Request $request, $id)
+    public function CambiarPassword(Request $request, int $id)
     {
         Usuario::where('IdUsuario', $id)
             ->update([
@@ -190,7 +193,7 @@ class UsuariosController extends Controller
         return back()->with('msjAdd', 'Contraseña Actualizada!');
     }
 
-    public function EditarPerfil(Request $request, $id)
+    public function EditarPerfil(Request $request, int $id)
     {
         Usuario::where('IdUsuario', $id)
             ->update([
