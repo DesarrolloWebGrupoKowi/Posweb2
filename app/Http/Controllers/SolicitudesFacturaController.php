@@ -4,22 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Tienda;
 use App\Models\Cliente;
 use App\Models\SolicitudFactura;
 use App\Models\CorteTienda;
 use App\Services\TiendaService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SolicitudesFacturaController extends Controller
 {
-    protected $tiendaService;
-    protected $tiendasIds;
-    protected $tiendas;
+    protected Collection $tiendas;
+    protected array $tiendasIds;
 
-    public function __construct(TiendaService $tiendaService)
+    public function __construct(protected TiendaService $tiendaService)
     {
-        $this->tiendaService = $tiendaService;
+        $this->tiendas = new Collection;
+        $this->tiendasIds = [];
 
         $this->middleware(function ($request, $next) {
             $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();
@@ -34,11 +34,8 @@ class SolicitudesFacturaController extends Controller
         $fecha = $request->fecha;
         $rfc = $request->rfc;
         $nombre = $request->nombre;
-        $searchQuery = $request->query('search') ? $request->query('search') : '';
-        $searchQuery = $request->search ? $request->search : '';
 
         $tiendas = $this->tiendas;
-        $ids = $this->tiendasIds;
 
         // Obtener todas las solicitudes
         $solicitudes = SolicitudFactura::select(
@@ -76,6 +73,7 @@ class SolicitudesFacturaController extends Controller
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('SolicitudFactura.IdTienda', $idTienda);
             })
+            ->whereIn('SolicitudFactura.IdTienda', $this->tiendasIds)
             // ->where('SolicitudFactura.Status', 0)
             ->orderBy('SolicitudFactura.FechaSolicitud', 'DESC')
             ->paginate(10)
@@ -144,73 +142,13 @@ class SolicitudesFacturaController extends Controller
             $solicitud->InterfaceData = $interfaceData; // Guardar toda la colección si la necesitas
         }
 
-        // return $solicitudes;
-
-
-        // $solicitudes = SolicitudFactura::select(
-        //     'SolicitudFactura.Id',
-        //     'SolicitudFactura.IdSolicitudFactura',
-        //     'SolicitudFactura.IdEncabezado',
-        //     'DatEncabezado.IdTicket',
-        //     'DatEncabezado.ImporteVenta',
-        //     'CatTiendas.NomTienda',
-        //     'SolicitudFactura.FechaSolicitud',
-        //     'SolicitudFactura.TipoPersona',
-        //     'SolicitudFactura.NomCliente',
-        //     'SolicitudFactura.RFC',
-        //     'SolicitudFactura.MetodoPago',
-        //     'SolicitudFactura.UsoCFDI',
-        //     'SolicitudFactura.Status'
-        // )
-        //     ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'SolicitudFactura.IdEncabezado')
-        //     ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
-        //     ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
-        //     ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
-        //     ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
-        //     ->where('NomCliente', 'LIKE', '%' . $searchQuery . '%')
-        //     ->where(function ($query) {
-        //         $query->whereNull('SolicitudFactura.Editar')
-        //             ->orWhere('SolicitudFactura.Status', '1');
-        //     })
-        //     ->whereIn('SolicitudFactura.IdTienda', $ids)
-        //     ->where('SolicitudFactura.IdTienda', 'LIKE', $idTienda)
-        //     ->groupBy(
-        //         'SolicitudFactura.Id',
-        //         'SolicitudFactura.IdSolicitudFactura',
-        //         'SolicitudFactura.IdEncabezado',
-        //         'DatEncabezado.IdTicket',
-        //         'DatEncabezado.ImporteVenta',
-        //         'CatTiendas.NomTienda',
-        //         'SolicitudFactura.FechaSolicitud',
-        //         'SolicitudFactura.TipoPersona',
-        //         'SolicitudFactura.NomCliente',
-        //         'SolicitudFactura.RFC',
-        //         'SolicitudFactura.MetodoPago',
-        //         'SolicitudFactura.UsoCFDI',
-        //         'SolicitudFactura.Status'
-        //     )
-        //     ->orderBy('SolicitudFactura.FechaSolicitud', 'desc')
-        //     ->paginate(10)
-        //     ->onEachSide(1);
-
-        $solicitudesPendientes = collect(null);
-
-        // $solicitudesPendientes = SolicitudFactura::select('SolicitudFactura.*', 'CatTiendas.NomTienda', 'ct.NomTipoPago', 'dt.NumTarjeta', 'cb.NomBanco', 'DatEncabezado.IdTicket')
-        //     ->leftJoin('DatEncabezado', 'DatEncabezado.IdEncabezado', 'SolicitudFactura.IdEncabezado')
-        //     ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
-        //     ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', 'SolicitudFactura.IdTipoPago')
-        //     ->leftJoin('DatTipoPago as dt', [['dt.IdEncabezado', 'SolicitudFactura.IdEncabezado'], ['dt.IdTipoPago', 'SolicitudFactura.IdTipoPago']])
-        //     ->leftJoin('CatBancos as cb', 'cb.IdBanco', 'dt.IdBanco')
-        //     ->where('SolicitudFactura.Status', '0')
-        //     ->whereNotNull('SolicitudFactura.Editar')
-        //     ->whereIn('SolicitudFactura.IdTienda', $ids)
-        //     ->orderBy('SolicitudFactura.FechaSolicitud', 'desc')
-        //     ->get();
-
-        return view('SolicitudesFactura.SolicitudesFactura', compact('solicitudes', 'solicitudesPendientes', 'tiendas', 'idTienda'));
+        return view('SolicitudesFactura.SolicitudesFactura', compact(
+            'tiendas',
+            'solicitudes'
+        ));
     }
 
-    public function VerSolicitud($id, Request $request)
+    public function VerSolicitud(string $id, Request $request)
     {
         // Primera consulta: Obtener la solicitud de factura
         $solicitud = SolicitudFactura::select(
@@ -353,7 +291,7 @@ class SolicitudesFacturaController extends Controller
         return view('SolicitudesFactura.SolicitudFactura', compact('solicitud', 'oracleData', 'ventasDetalle'));
     }
 
-    public function Relacionar($id, $billTo, Request $request)
+    public function Relacionar(string $id,int $billTo, Request $request)
     {
         $cliente = Cliente::where('Bill_To', $billTo)->first();
 
@@ -373,7 +311,7 @@ class SolicitudesFacturaController extends Controller
         return back()->with('msjAdd', 'Cliente relacionado correctamente');
     }
 
-    public function Finalizar($id, Request $request)
+    public function Finalizar(string $id, Request $request)
     {
         SolicitudFactura::where('Id', $id)->update([
             'Editar' => null,
@@ -382,7 +320,7 @@ class SolicitudesFacturaController extends Controller
         return redirect('SolicitudesFactura')->with('msjAdd', 'Solicitud de factura finalizada correctamente');
     }
 
-    public function Cancelar($id, Request $request)
+    public function Cancelar(string $id, Request $request)
     {
         try {
             SolicitudFactura::where('Id', $id)->update([

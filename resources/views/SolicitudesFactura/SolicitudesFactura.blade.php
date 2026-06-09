@@ -97,11 +97,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @include('components.table-empty', [
-                                    'items' => $solicitudes,
-                                    'colspan' => 23,
-                                ])
-                                @foreach ($solicitudes as $solicitud)
+                                @forelse ($solicitudes as $solicitud)
                                     {{-- <tr style="line-height: .9rem"> --}}
                                     <tr>
                                         <td>{{ $solicitud->IdSolicitudFactura }}</td>
@@ -114,13 +110,19 @@
                                         <td style="min-width: 230px;">{{ $solicitud->NomCliente }}</td>
                                         <td class="text-end">${{ number_format($solicitud->TotalFactura, 2) }}</td>
                                         <td class="text-center">
-                                            <div class="d-flex gap-2 justify-content-center">
+                                            <div class="d-flex justify-content-center gap-2">
                                                 @if ($solicitud->Source_Transaction_Identifier)
-                                                    <span class="tags-blue" style="white-space: nowrap;">
+                                                    <span
+                                                        class="tags-blue"
+                                                        style="white-space: nowrap;"
+                                                    >
                                                         {{ $solicitud->Source_Transaction_Identifier }}
                                                     </span>
                                                 @elseif($solicitud->Editar !== null)
-                                                    <span class="tags-red" style="white-space: nowrap;">
+                                                    <span
+                                                        class="tags-red"
+                                                        style="white-space: nowrap;"
+                                                    >
                                                         SIN LIGAR
                                                     </span>
                                                     @if ($solicitud->Editar == '0')
@@ -133,7 +135,10 @@
                                                         </span>
                                                     @endif
                                                 @else
-                                                    <span class="tags-red" style="white-space: nowrap;">
+                                                    <span
+                                                        class="tags-red"
+                                                        style="white-space: nowrap;"
+                                                    >
                                                         SIN PEDIDO
                                                     </span>
                                                 @endif
@@ -143,7 +148,10 @@
                                             @if ($solicitud->Status == 1)
                                                 <span class="tags-red">Cancelada</span>
                                             @elseif ($solicitud->Status == 0 && $solicitud->Editar != null)
-                                                <span class="tags-yellow" style="white-space: nowrap;">SIN PROCESAR</span>
+                                                <span
+                                                    class="tags-yellow"
+                                                    style="white-space: nowrap;"
+                                                >SIN PROCESAR</span>
                                             @else
                                                 @if ($solicitud->InterfaceStatus == 'PROCESADO')
                                                     <span class="tags-green">{{ $solicitud->InterfaceStatus }}</span>
@@ -153,7 +161,9 @@
                                                     <span class="tags-yellow">{{ $solicitud->InterfaceStatus }}</span>
                                                 @else
                                                     <span
-                                                        class="tags-yellow" style="white-space: nowrap;">{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}
+                                                        class="tags-yellow"
+                                                        style="white-space: nowrap;"
+                                                    >{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}
                                                     </span>
                                                 @endif
                                             @endif
@@ -194,7 +204,23 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td
+                                            colspan="14"
+                                            class="py-5 text-center"
+                                        >
+                                            <x-table-empty-state
+                                                title="Sin datos disponibles"
+                                                icon="cube"
+                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
+                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
+                                                action="Limpiar filtros"
+                                                actionUrl="/SolicitudesFactura"
+                                            />
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
