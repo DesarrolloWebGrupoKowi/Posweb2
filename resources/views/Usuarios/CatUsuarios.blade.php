@@ -3,8 +3,8 @@
 @section('dashboardWidth', 'width-95')
 @section('contenido')
     <x-layout.page-container>
-        <!-- SECCIÓN 1: TITULO Y FILTROS -->
 
+        <!-- SECCIÓN 1: TITULO Y FILTROS -->
         <x-layout.section-card>
             <!-- Título y botones principales -->
             <x-layout.section-title>
@@ -91,8 +91,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @include('components.table-empty', ['items' => $usuarios, 'colspan' => 8])
-                                @foreach ($usuarios as $usuario)
+                                @forelse ($usuarios as $usuario)
                                     <tr>
                                         <td>{{ $usuario->NumNomina }}</td>
                                         <td>{{ $usuario->Nombre }} {{ $usuario->Apellidos }}</td>
@@ -155,7 +154,24 @@
                                     @include('Usuarios.ModalValidarUsuario')
                                     <!--Modal Cambiar Contraseña-->
                                     @include('Usuarios.ModalCambiarPassword')
-                                @endforeach
+                                @empty
+
+                                    <tr>
+                                        <td
+                                            colspan="15"
+                                            class="py-5 text-center"
+                                        >
+                                            <x-table-empty-state
+                                                title="Sin datos disponibles"
+                                                icon="filter"
+                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
+                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
+                                                action="Limpiar filtros"
+                                                actionUrl="/CatUsuarios"
+                                            />
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

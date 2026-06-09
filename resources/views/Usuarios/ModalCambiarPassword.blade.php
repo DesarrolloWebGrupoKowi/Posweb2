@@ -8,7 +8,7 @@
 >
     <div
         class="modal-dialog"
-        style="margin-top: 15vh;"
+        style="margin-top: 10vh;"
     >
         <div
             class="modal-content border-0 shadow"

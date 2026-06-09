@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\UsuarioTienda;
 use App\Models\Usuario;
 use App\Models\Tienda;
-use App\Models\Plaza;
 use Illuminate\Support\Facades\DB;
 
 class UsuariosTiendaController extends Controller
@@ -16,34 +15,48 @@ class UsuariosTiendaController extends Controller
         $txtFiltro = $request->get('txtFiltro', '');
         $IdTienda = $request->get('IdTienda', '');
         $IdPlaza = $request->get('IdPlaza', '');
-        $paginate = $request->get('paginate', 10);
+        $enTodasLasTiendas = $request->get('enTodasLasTiendas', '');
 
         $usuariosTienda = DB::table('CatUsuariosTienda')
             ->leftJoin('CatUsuarios', 'CatUsuariosTienda.IdUsuario', '=', 'CatUsuarios.IdUsuario')
+            ->leftJoin('CatTipoUsuarios', 'CatTipoUsuarios.IdTipoUsuario', '=', 'CatUsuarios.IdTipoUsuario')
+            ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', '=', 'CatUsuarios.NumNomina')
             ->leftJoin('CatTiendas', 'CatUsuariosTienda.IdTienda', '=', 'CatTiendas.IdTienda')
             ->leftJoin('CatPlazas', 'CatUsuariosTienda.IdPlaza', '=', 'CatPlazas.IdPlaza')
             ->select(
                 'CatUsuariosTienda.IdUsuarioTienda',
+                'CatUsuarios.NumNomina',
                 'CatUsuarios.NomUsuario',
+                'CatTipoUsuarios.NomTipoUsuario',
+                'CatEmpleados.Nombre',
+                'CatEmpleados.Apellidos',
                 'CatTiendas.NomTienda',
                 'CatPlazas.NomPlaza',
                 'CatUsuariosTienda.IdTienda',
                 'CatUsuariosTienda.IdPlaza',
                 'CatUsuariosTienda.Todas'
             )
-            ->where([
-                ['CatUsuarios.NomUsuario', 'like', '%' . $txtFiltro . '%'],
-                ['CatUsuarios.Status', '=', 0],
-                ['CatUsuariosTienda.Status', '=', 0]
-            ])
+            ->where(function ($query) use ($txtFiltro) {
+                $query->orWhere('CatUsuarios.NomUsuario', 'like', '%' . $txtFiltro . '%')
+                    ->orWhere('CatUsuarios.NumNomina', 'like', '%' . $txtFiltro . '%')
+                    ->orWhere('CatEmpleados.Nombre', 'like', '%' . $txtFiltro . '%')
+                    ->orWhere('CatEmpleados.Apellidos', 'like', '%' . $txtFiltro . '%')
+                    ->orWhere(DB::raw("CONCAT(CatEmpleados.Nombre, ' ', CatEmpleados.Apellidos)"), 'like', '%' . $txtFiltro . '%');
+            })
+            ->where('CatUsuarios.Status', '=', 0)
+            ->where('CatUsuariosTienda.Status', '=', 0)
+
             ->when($IdTienda, function ($query, $IdTienda) {
                 return $query->where('CatUsuariosTienda.IdTienda', '=', $IdTienda);
             })
             ->when($IdPlaza, function ($query, $IdPlaza) {
                 return $query->where('CatUsuariosTienda.IdPlaza', '=', $IdPlaza);
             })
-            ->paginate($paginate)
-            ->withQueryString();
+            ->when($enTodasLasTiendas, function ($query, $enTodasLasTiendas) {
+                return $query->where('CatUsuariosTienda.Todas', 0);
+            })
+            ->paginate(10)
+            ->appends(request()->query());
 
         $sqlSelect = "select * from CatUsuarios" .
             " where IdUsuario not in (select a.IdUsuario from CatUsuariosTienda as a" .
@@ -99,7 +112,7 @@ class UsuariosTiendaController extends Controller
 
         return redirect('CatUsuariosTienda')->with('msjAdd', 'Usuario ' . $usuario->NomUsuario . ' Agregado Con Exito!');
     }
-    public function EditarUsuarioTienda(Request $request, $id)
+    public function EditarUsuarioTienda(Request $request, int $id)
     {
         $IdPlaza = $request->get('IdPlaza');
         $IdTienda = $request->get('IdTienda');
@@ -138,7 +151,7 @@ class UsuariosTiendaController extends Controller
 
         return back()->with('msjupdate', 'Usuario ' . $usuario->NomUsuario . ' Modificado con Exito!');
     }
-    public function EliminarUsuarioTienda($id)
+    public function EliminarUsuarioTienda(int $id)
     {
 
         $usuario = DB::table('CatUsuariosTienda')

@@ -1,122 +1,182 @@
 @extends('PlantillaBase.masterbladeNewStyle')
 @section('title', 'Catálogo de Usuarios Tienda')
-@section('dashboardWidth', 'width-general')
+@section('dashboardWidth', 'width-95')
 @section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+    <x-layout.page-container>
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo de Usuarios Tienda'])
-                <div>
-                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                        Agregar usuario @include('components.icons.plus-circle')
-                    </button>
+        <!-- SECCIÓN 1: TITULO Y FILTROS -->
+        <x-layout.section-card>
+            <!-- Título y botones principales -->
+            <x-layout.section-title>
+                <x-title titulo="Catálogo de Usuarios Tienda" />
+                <div class="d-flex gap-2">
+                    <x-filters.buttons.refresh-button />
+                    <x-filters.buttons.home-button />
+                </div>
+            </x-layout.section-title>
+            <!-- Formulario de filtros -->
+            <x-filters.filter-form>
+                <!-- Filtros Básicos -->
+                <x-filters.filter-group>
+                    <x-filters.inputs.text-input
+                        name="txtFiltro"
+                        label="Nombre"
+                        placeholder="Buscar usuario"
+                        autofocus
+                    />
+                    <x-filters.inputs.select-input
+                        name="IdTienda"
+                        label="Tienda"
+                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    />
+                    <x-filters.inputs.select-input
+                        name="IdPlaza"
+                        label="Sucursales"
+                        :options="$plazas->pluck('NomPlaza', 'IdPlaza')->toArray()"
+                    />
+                    <x-filters.inputs.checkbox-input
+                        name="enTodasLasTiendas"
+                        label="Todas"
+                        :checked="request('enTodasLasTiendas') == 'on'"
+                        helperText="Usuarios en todas las tiendas"
+                    />
+
+
+                </x-filters.filter-group>
+                <x-slot:buttons>
+                    <x-filters.buttons.clear-button />
+                    <x-filters.buttons.submit-button />
+                </x-slot:buttons>
+            </x-filters.filter-form>
+        </x-layout.section-card>
+
+
+        <!-- SECCIÓN: TABLAS -->
+        <div
+            class="flex-grow-1 d-flex gap-4 pb-4"
+            {{-- style="min-height: 0;" --}}
+        >
+            <div
+                class="d-flex flex-column"
+                {{-- style="flex: 2; min-width: 0; min-height: 0;" --}}
+                style="flex: 2; min-width: 0;"
+            >
+                <div
+                    class="card d-flex flex-column border-0 p-4"
+                    {{-- style="border-radius: 10px; min-height: 0;" --}}
+                    style="border-radius: 10px;"
+                >
+                    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                        <div class="flex-column">
+                            <h5 class="mb-0 text-gray-800">CONCENTRADO DE USUARIOS</h5>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                role="tooltip"
+                                title="Agregar Usuario"
+                                class="btn btn-default Agregar"
+                                data-bs-toggle="modal"
+                                data-bs-target="#ModalAgregar"
+                            >
+                                Agregar usuario
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive content-table-sm">
+                        <table class="table">
+                            <thead class="table-head">
+                                <tr>
+                                    <th class="rounded-start">Nómina</th>
+                                    <th>Empleado</th>
+                                    <th>Usuario</th>
+                                    <th>Tipo usuario</th>
+                                    <th>Tienda</th>
+                                    <th>Plaza</th>
+                                    <th>Todas</th>
+                                    <th class="rounded-end">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($usuariosTienda as $usuarioTienda)
+                                    <tr>
+                                        <td>{{ $usuarioTienda->NumNomina }}</td>
+                                        <td>{{ $usuarioTienda->Nombre . ' ' . $usuarioTienda->Apellidos }}</td>
+                                        <td>{{ $usuarioTienda->NomUsuario }}</td>
+                                        <td>{{ $usuarioTienda->NomTipoUsuario }}</td>
+                                        @if (empty($usuarioTienda->NomTienda))
+                                            <td>-</td>
+                                        @else
+                                            <td>{{ $usuarioTienda->NomTienda }}</td>
+                                        @endif
+                                        @if (empty($usuarioTienda->NomPlaza))
+                                            <td>-</td>
+                                        @else
+                                            <td>{{ $usuarioTienda->NomPlaza }}</td>
+                                        @endif
+                                        @if ($usuarioTienda->Todas == 0)
+                                            <td>
+                                                <span class="tags-green">
+                                                    Si
+                                                    <!--@include('components.icons.check-all')-->
+                                                </span>
+                                            </td>
+                                        @else
+                                            <td>
+                                                <span class="tags-red">
+                                                    No
+                                                    <!--@include('components.icons.x')-->
+                                                </span>
+                                            </td>
+                                        @endif
+                                        <td>
+                                            <div class="d-flex justify-content-start gap-2">
+                                                <button
+                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ModalEditar{{ $usuarioTienda->IdUsuarioTienda }}"
+                                                >
+                                                    @include('components.icons.edit')
+                                                </button>
+                                                <button
+                                                    class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ModalEliminar{{ $usuarioTienda->IdUsuarioTienda }}"
+                                                >
+                                                    @include('components.icons.delete')
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @include('UsuariosTienda.ModalEditar')
+                                    @include('UsuariosTienda.ModalEliminar')
+                                @empty
+
+                                    <tr>
+                                        <td
+                                            colspan="15"
+                                            class="py-5 text-center"
+                                        >
+                                            <x-table-empty-state
+                                                title="Sin datos disponibles"
+                                                icon="filter"
+                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
+                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
+                                                action="Limpiar filtros"
+                                                actionUrl="/CatUsuariosTienda"
+                                            />
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    @include('components.paginate', ['items' => $usuariosTienda])
                 </div>
             </div>
-            <div>
-                @include('Alertas.Alertas')
-            </div>
         </div>
-
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-between">
-                @include('components.number-paginate')
-                {{-- @include('components.table-search') --}}
-                <form id="search-form" class="gap-2 pb-2 d-flex align-items-end justify-content-end"
-                    action="/CatUsuariosTienda">
-                    <div class="d-flex flex-column">
-                        <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Buscar:</label>
-                        <input class="rounded form-control" style="line-height: 18px" type="text" name="txtFiltro"
-                            id="txtFiltro" value="{{ $txtFiltro }}" autofocus placeholder="Buscar usuario">
-                    </div>
-                    <div class="d-flex flex-column">
-                        <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Tiendas:</label>
-                        <select name="IdTienda" id="IdTienda" class="form-select rounded" style="line-height: 18px">
-                            <option value="">Todas</option>
-                            @foreach ($tiendas as $tienda)
-                                <option value="{{ $tienda->IdTienda }}"
-                                    {{ $tienda->IdTienda == $IdTienda ? 'selected' : '' }}>{{ $tienda->NomTienda }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="d-flex flex-column">
-                        <label for="txtFiltro" class="text-secondary" style="font-weight: 500">Sucursales:</label>
-                        <select name="IdPlaza" id="IdPlaza" class="form-select rounded" style="line-height: 18px">
-                            <option value="">Todas</option>
-                            @foreach ($plazas as $plaza)
-                                <option value="{{ $plaza->IdPlaza }}" {{ $plaza->IdPlaza == $IdPlaza ? 'selected' : '' }}>
-                                    {{ $plaza->NomPlaza }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-dark-outline">
-                            @include('components.icons.search')
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Id</th>
-                        <th>Usuario</th>
-                        <th>Tienda</th>
-                        <th>Plaza</th>
-                        <th>Todas</th>
-                        <th class="rounded-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @include('components.table-empty', ['items' => $usuariosTienda, 'colspan' => 6])
-                    @foreach ($usuariosTienda as $usuarioTienda)
-                        <tr>
-                            <td>{{ $usuarioTienda->IdUsuarioTienda }}</td>
-                            <td>{{ $usuarioTienda->NomUsuario }}</td>
-                            @if (empty($usuarioTienda->NomTienda))
-                                <td>-</td>
-                            @else
-                                <td>{{ $usuarioTienda->NomTienda }}</td>
-                            @endif
-                            @if (empty($usuarioTienda->NomPlaza))
-                                <td>-</td>
-                            @else
-                                <td>{{ $usuarioTienda->NomPlaza }}</td>
-                            @endif
-                            @if ($usuarioTienda->Todas == 0)
-                                <td>
-                                    <span class="tags-green">
-                                        @include('components.icons.check-all')
-                                    </span>
-                                </td>
-                            @else
-                                <td>
-                                    <span class="tags-red">
-                                        @include('components.icons.x')
-                                    </span>
-                                </td>
-                            @endif
-                            <td>
-                                <button class="btn-table" data-bs-toggle="modal"
-                                    data-bs-target="#ModalEditar{{ $usuarioTienda->IdUsuarioTienda }}">
-                                    @include('components.icons.edit')
-                                </button>
-                                <button class="btn-table btn-table-delete" data-bs-toggle="modal"
-                                    data-bs-target="#ModalEliminar{{ $usuarioTienda->IdUsuarioTienda }}">
-                                    @include('components.icons.delete')
-                                </button>
-                            </td>
-                        </tr>
-                        @include('UsuariosTienda.ModalEditar')
-                        @include('UsuariosTienda.ModalEliminar')
-                    @endforeach
-                </tbody>
-            </table>
-            @include('components.paginate', ['items' => $usuariosTienda])
-        </div>
-    </div>
+    </x-layout.page-container>
 
     <!--Modal Agregar Usuario Tienda-->
     @include('UsuariosTienda.ModalAgregar')
