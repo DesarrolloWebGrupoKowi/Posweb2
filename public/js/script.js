@@ -144,3 +144,17 @@ document.addEventListener('submit', (e) => {
         pwLockSubmitButton(submitter);
     }
 }, true);
+
+// TOGLE PANEL FILTROS
+function togglePanel(panelId, buttonId) {
+    const panel = document.getElementById(panelId);
+    const btn = document.getElementById(buttonId);
+
+    if (panel.classList.contains('d-none')) {
+        panel.classList.remove('d-none');
+        if (btn) btn.style.background = '#e2e8f0';
+    } else {
+        panel.classList.add('d-none');
+        if (btn) btn.style.background = '#f1f5f9';
+    }
+}

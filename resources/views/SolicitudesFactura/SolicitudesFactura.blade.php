@@ -212,7 +212,7 @@
                                         >
                                             <x-table-empty-state
                                                 title="Sin datos disponibles"
-                                                icon="cube"
+                                                icon="filter"
                                                 :message="'No se encontraron resultados con los filtros seleccionados.'"
                                                 :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
                                                 action="Limpiar filtros"

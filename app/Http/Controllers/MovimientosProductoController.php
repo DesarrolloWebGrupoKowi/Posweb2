@@ -8,28 +8,31 @@ use App\Models\MovimientoProducto;
 
 class MovimientosProductoController extends Controller
 {
-    public function CatMovimientosProducto(Request $request){
+    public function CatMovimientosProducto(Request $request)
+    {
         $movimientosProducto = MovimientoProducto::where('Status', 0)
-            ->get();
+            ->paginate(10)
+            ->appends(request()->query());;
 
         return view('MovimientosProducto.CatMovimientosProducto', compact('movimientosProducto'));
     }
 
-    public function AgregarMovimiento(Request $request){
+    public function AgregarMovimiento(Request $request)
+    {
         try {
             DB::beginTransaction();
 
             MovimientoProducto::insert([
-                'NomMovimiento'=> $request->nomMovimiento,
+                'NomMovimiento' => $request->nomMovimiento,
                 'Status' => 0
             ]);
 
             DB::commit();
 
-            return back()->with('msjAdd', 'Se Agrego Nuevo Movimiento: '. $request->nomMovimiento);
+            return back()->with('msjAdd', 'Se Agrego Nuevo Movimiento: ' . $request->nomMovimiento);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return back()->with('msjdelete', 'Error'. $th->getMessage());
+            return back()->with('msjdelete', 'Error' . $th->getMessage());
         }
     }
 }

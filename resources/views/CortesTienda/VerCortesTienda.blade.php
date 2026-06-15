@@ -474,7 +474,7 @@
                                 @endif
                             @endforeach
                             <!--TERMINA MONEDERO ELECTRONICO--
-                                                                                                                                                                                                                                                                                                                                    <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
+                                                                                                                                                                                                                                                                                                                                        <!--INICIA MONEDERO ELECTRONICO PARA EMPLEADOS QUINCENALES-->
                             {{-- @if ($corteTienda->IdTipoNomina == 4)
                                 <tr style="font-size: .9rem">
                                     <td></td>
@@ -1033,6 +1033,8 @@
                         <thead class="table-head">
                             <tr>
                                 <th class="rounded-start">Ticket</th>
+                                <th>Encabezado</th>
+                                <th>Folio</th>
                                 <th>Fecha</th>
                                 <th>Importe</th>
                                 <th>Iva</th>
@@ -1050,6 +1052,8 @@
                             @foreach ($tickets as $ticket)
                                 <tr>
                                     <td>{{ $ticket->IdTicket }}</td>
+                                    <td>{{ $ticket->IdEncabezado }}</td>
+                                    <td>{{ Hashids::encode($ticket->IdEncabezado) }}</td>
                                     <td>{{ strftime('%d %B %Y, %H:%M', strtotime($ticket->FechaVenta)) }}</td>
                                     <td>$ {{ number_format($ticket->ImporteVenta, 2) }}</td>
                                     <td>{{ number_format($ticket->Iva, 2) }}</td>

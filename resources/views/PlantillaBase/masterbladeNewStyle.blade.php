@@ -53,33 +53,32 @@
                                     <small>{{ Auth::user()->tipoUsuario->NomTipoUsuario }}</small>
                                 </span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1"
-                                style="background: #1e293b; border-radius: 8px; width: 200px;">
+                            <ul class="dropdown-menu" aria-labelledby="dropdownUser1"
+                                style="min-width: 200px;">
                                 @if (!request()->routeIs('miperfil'))
                                 @endif
 
                                 @if (!request()->routeIs('dashboard'))
                                     <li>
-                                        <a href="/Dashboard" class="py-2 text-white dropdown-item" style="font-size: .9rem">
+                                        <a href="/Dashboard" class="dropdown-item">
                                             Dashboard
                                         </a>
                                     </li>
                                 @endif
                                 @if (Auth::user()->tipoUsuario->IdTipoUsuario == 2)
                                     <li>
-                                        <a href="/ActualizacionPrecios" class="py-2 text-white dropdown-item"
-                                            style="font-size: .9rem">
+                                        <a href="/ActualizacionPrecios" class="dropdown-item">
                                             Admin Scale
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="/Update" class="py-2 text-white dropdown-item" style="font-size: .9rem">
+                                        <a href="/Update" class="dropdown-item">
                                             Sincronizar datos
                                         </a>
                                     </li>
                                 @endif
                                 <li>
-                                    <a class="mt-2 py-2 text-white dropdown-item" style="font-size: .9rem" href="/Logout"
+                                    <a class="mt-2 dropdown-item" href="/Logout"
                                         onclick="event.preventDefault();
                                                 document.getElementById('logout-form').submit();">
                                         Cerrar sesión

@@ -30,9 +30,7 @@ class ArticulosController extends Controller
             })
             ->orderBy('a.CodArticulo')
             ->paginate(10)
-            ->withQueryString();
-
-        //return $articulos;
+            ->appends(request()->query());
 
         $familias = Familia::where('Status', 0)
             ->get();

@@ -19,6 +19,9 @@
             style="width: {{ $width }}"
         >
             {{ $label }}
+            @if ($required)
+                <span class="text-danger ms-1">*</span>
+            @endif
         </span>
         <input
             type="date"
@@ -26,7 +29,7 @@
             name="{{ $name }}"
             id="{{ $id ?? $name }}"
             value="{{ $value ?? request($name) }}"
-            {{ $required ? 'required' : '' }}
+            {{-- {{ $required ? 'required' : '' }} --}}
             {{ $autofocus ? 'autofocus' : '' }}
             {{ $attributes }}
         >

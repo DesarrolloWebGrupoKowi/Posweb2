@@ -1,5 +1,5 @@
 @extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Dashboard de Ventas a Empleados')
+@section('title', 'Ventas a Empleados')
 @section('dashboardWidth', 'width-95')
 @section('contenido')
     <x-layout.page-container>
@@ -8,7 +8,7 @@
         <x-layout.section-card>
             <!-- Título y botones principales -->
             <x-layout.section-title>
-                <x-title titulo="Reporte de Ventas a Empleados" />
+                <x-title titulo="Ventas a Empleados" />
                 <div class="d-flex gap-2">
                     <x-filters.buttons.excel-button
                         route="/VentaEmpleadosExcel"

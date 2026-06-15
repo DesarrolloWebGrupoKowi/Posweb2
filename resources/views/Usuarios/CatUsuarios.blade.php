@@ -1,185 +1,155 @@
-@extends('PlantillaBase.masterbladeNewStyle')
+@extends('PlantillaBase.masterbladeDashboard')
 @section('title', 'Catálogo de Usuarios')
 @section('dashboardWidth', 'width-95')
-@section('contenido')
-    <x-layout.page-container>
 
-        <!-- SECCIÓN 1: TITULO Y FILTROS -->
-        <x-layout.section-card>
-            <!-- Título y botones principales -->
-            <x-layout.section-title>
-                <x-title titulo="Catálogo de Usuarios" />
-                <div class="d-flex gap-2">
-                    <x-filters.buttons.refresh-button />
-                    <x-filters.buttons.home-button />
-                </div>
-            </x-layout.section-title>
-            <!-- Formulario de filtros -->
-            <x-filters.filter-form>
-                <!-- Filtros Básicos -->
-                <x-filters.filter-group>
-                    <x-filters.inputs.text-input
+@section('contenido')
+    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+        <x-card-gradient-header
+            icon="people-fill"
+            title="Catálogo de Usuarios"
+            subtitle="Gestión de usuarios del sistema"
+        >
+            <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
+            </x-slot:buttons>
+
+            <!-- Filtros -->
+            <x-form.form action="/CatUsuarios">
+                <x-form.group>
+                    <x-form.text
                         name="txtFiltro"
                         label="Nombre"
-                        placeholder="Buscar usuario"
-                        autofocus
+                        icon="search"
+                        placeholder="Buscar usuario..."
+                        col="col-md-4"
+                        :autofocus="true"
                     />
-                    <x-filters.inputs.select-input
+                    <x-form.select
                         name="IdTipoUsuario"
                         label="Tipo de usuario"
+                        icon="person-badge"
+                        col="col-md-3"
                         :options="$tipoUsuarios->pluck('NomTipoUsuario', 'IdTipoUsuario')->toArray()"
-                        width="180"
                     />
-                    <x-filters.inputs.select-input
+                    <x-form.select
                         name="estatus"
                         label="Estatus"
-                        :options="['1' => 'Activos', '2' => 'Inactivos']"
-                        width="180"
+                        icon="toggle-on"
+                        col="col-md-2"
+                        :options="['2' => 'Activos', '1' => 'Inactivos']"
                     />
-                </x-filters.filter-group>
-                <x-slot:buttons>
-                    <x-filters.buttons.clear-button />
-                    <x-filters.buttons.submit-button />
-                </x-slot:buttons>
-            </x-filters.filter-form>
-        </x-layout.section-card>
-
-        <!-- SECCIÓN: TABLAS -->
-        <div
-            class="flex-grow-1 d-flex gap-4 pb-4"
-            {{-- style="min-height: 0;" --}}
-        >
-            <div
-                class="d-flex flex-column"
-                {{-- style="flex: 2; min-width: 0; min-height: 0;" --}}
-                style="flex: 2; min-width: 0;"
-            >
-                <div
-                    class="card d-flex flex-column border-0 p-4"
-                    {{-- style="border-radius: 10px; min-height: 0;" --}}
-                    style="border-radius: 10px;"
-                >
-                    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
-                        <div class="flex-column">
-                            <h5 class="mb-0 text-gray-800">CONCENTRADO DE USUARIOS</h5>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button
-                                type="button"
-                                class="btn btn-outline-primary btn-sm"
-                                role="tooltip"
-                                title="Crear Usuario"
-                                class="btn btn-default Agregar"
-                                data-bs-toggle="modal"
-                                data-bs-target="#ModalAgregar"
-                            >
-                                Crear usuario
-                            </button>
-                        </div>
-                    </div>
-                    <div class="table-responsive content-table-sm">
-                        <table class="table">
-                            <thead class="table-head">
-                                <tr>
-                                    <th class="rounded-start">Nómina</th>
-                                    <th>Empleado</th>
-                                    <th>Correo</th>
-                                    <th>Usuario</th>
-                                    <th>Tipo de Usuario</th>
-                                    <th>Estatus</th>
-                                    <th class="rounded-end">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($usuarios as $usuario)
-                                    <tr>
-                                        <td>{{ $usuario->NumNomina }}</td>
-                                        <td>{{ $usuario->Nombre }} {{ $usuario->Apellidos }}</td>
-                                        <td>{{ $usuario->Correo }}</td>
-                                        <td>{{ $usuario->NomUsuario }}</td>
-                                        <td>{{ $usuario->NomTipoUsuario }}</td>
-                                        <td>
-                                            @if ($usuario->Status == 1)
-                                                <span class="tags-red"> Deshabilitado </span>
-                                            @else
-                                                <span class="tags-green"> Activo </span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-start gap-2">
-                                                @if ($usuario->Status)
-                                                    <button
-                                                        class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modalActivarUsuario{{ $usuario->IdUsuario }}"
-                                                        title="Activar usuario"
-                                                    >
-                                                        @include('components.icons.switch')
-                                                    </button>
-                                                @else
-                                                    <button
-                                                        class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#ModalEditar{{ $usuario->IdUsuario }}"
-                                                        title="Modificar usuario"
-                                                    >
-                                                        @include('components.icons.edit') Ver
-                                                    </button>
-                                                    <button
-                                                        class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#ModalEliminar{{ $usuario->IdUsuario }}"
-                                                        title="Desactivar usuario"
-                                                    >
-                                                        @include('components.icons.delete')
-                                                    </button>
-                                                    <button
-                                                        class="btn btn-sm btn-outline-success d-flex align-items-center gap-2"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modalCambiarPassword{{ $usuario->IdUsuario }}"
-                                                        title="Cambiar contraseña"
-                                                    >
-                                                        @include('components.icons.key')
-                                                    </button>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @include('Usuarios.ModalActivarUsuario')
-                                    <!--Modal Editar Usuario-->
-                                    @include('Usuarios.ModalEditar')
-                                    <!--Modal Eliminar Usuario-->
-                                    @include('Usuarios.modalEliminar')
-                                    <!--Modal Valida Usuario-->
-                                    @include('Usuarios.ModalValidarUsuario')
-                                    <!--Modal Cambiar Contraseña-->
-                                    @include('Usuarios.ModalCambiarPassword')
-                                @empty
-
-                                    <tr>
-                                        <td
-                                            colspan="15"
-                                            class="py-5 text-center"
-                                        >
-                                            <x-table-empty-state
-                                                title="Sin datos disponibles"
-                                                icon="filter"
-                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
-                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
-                                                action="Limpiar filtros"
-                                                actionUrl="/CatUsuarios"
-                                            />
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    @include('components.paginate', ['items' => $usuarios])
+                </x-form.group>
+                <div class="col-md-3 d-flex gap-2">
+                    <x-form.submit
+                        text="Filtrar"
+                        icon="funnel"
+                        class="flex-grow-1"
+                    />
+                    <x-form.clear />
                 </div>
+            </x-form.form>
+
+            <!-- Tabla -->
+            <div class="p-4">
+                <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                    <div>
+                        <h5 class="section-content-title">
+                            <i
+                                class="bi bi-table me-2"
+                                style="color: #64748b;"
+                            ></i>Concentrado de Usuarios
+                        </h5>
+                        <p class="section-content-subtitle">Listado de usuarios registrados en el sistema</p>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn-create"
+                        data-bs-toggle="modal"
+                        data-bs-target="#ModalAgregar"
+                    >
+                        <i class="bi bi-plus-circle"></i> Crear usuario
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-hover table-custom table">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-hash me-1"></i>Nómina</th>
+                                <th><i class="bi bi-person me-1"></i>Empleado</th>
+                                <th><i class="bi bi-envelope me-1"></i>Correo</th>
+                                <th><i class="bi bi-person-circle me-1"></i>Usuario</th>
+                                <th><i class="bi bi-shield me-1"></i>Tipo</th>
+                                <th><i
+                                        class="bi bi-circle-fill me-1"
+                                        style="font-size: 0.5rem;"
+                                    ></i>Estatus</th>
+                                <th><i class="bi bi-gear me-1"></i>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($usuarios as $usuario)
+                                <tr>
+                                    <td style="font-weight: 600; color: #0f172a;">{{ $usuario->NumNomina }}</td>
+                                    <td>{{ $usuario->Nombre }} {{ $usuario->Apellidos }}</td>
+                                    <td style="color: #64748b;">{{ $usuario->Correo }}</td>
+                                    <td style="font-weight: 600;">{{ $usuario->NomUsuario }}</td>
+                                    <td>{{ $usuario->NomTipoUsuario }}</td>
+                                    <td>
+                                        <x-status-badge :status="$usuario->Status != 1" />
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            @if ($usuario->Status)
+                                                <x-table.buttons.activate-button
+                                                    :id="$usuario->IdUsuario"
+                                                    modal="modalActivarUsuario"
+                                                    title="Activar usuario"
+                                                />
+                                            @else
+                                                <x-table.buttons.edit-button
+                                                    :id="$usuario->IdUsuario"
+                                                    modal="ModalEditar"
+                                                    title="Modificar usuario"
+                                                    label="Ver"
+                                                />
+                                                <x-table.buttons.delete-button
+                                                    :id="$usuario->IdUsuario"
+                                                    modal="ModalEliminar"
+                                                    title="Desactivar usuario"
+                                                />
+                                                <x-table.buttons.password-button
+                                                    :id="$usuario->IdUsuario"
+                                                    modal="modalCambiarPassword"
+                                                    title="Cambiar contraseña"
+                                                />
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                @include('Usuarios.ModalActivarUsuario')
+                                @include('Usuarios.ModalEditar')
+                                @include('Usuarios.modalEliminar')
+                                @include('Usuarios.ModalCambiarPassword')
+                            @empty
+                                <x-table-empty-data
+                                    colspan="7"
+                                    title="Sin datos disponibles"
+                                    message="No se encontraron usuarios con los filtros seleccionados"
+                                    icon="search"
+                                    :action="true"
+                                    actionText="Limpiar filtros"
+                                    actionUrl="/CatUsuarios"
+                                />
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @include('components.paginate', ['items' => $usuarios])
             </div>
-        </div>
-    </x-layout.page-container>
+        </x-card-gradient-header>
+    </div>
 
     <!--Modal Agregar Usuario-->
     @include('Usuarios.ModalAgregar')

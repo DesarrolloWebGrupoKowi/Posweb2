@@ -12,7 +12,8 @@ class CiudadesController extends Controller
 {
     public function CatCiudades(Request $request)
     {
-        $txtFiltro = $request->get('txtFiltro');
+        $txtFiltro = $request->txtFiltro;
+        $idEstado = $request->IdEstado;
 
         $ciudades = DB::table('CatCiudades')
             ->leftJoin('CatEstados', 'CatCiudades.IdEstado', '=', 'CatEstados.IdEstado')
@@ -23,10 +24,18 @@ class CiudadesController extends Controller
                 'CatEstados.NomEstado',
                 'CatEstados.IdEstado'
             )
-            ->where('NomCiudad', 'like', '%' . $txtFiltro . '%')
-            ->orWhere('NomEstado', 'like', '%' . $txtFiltro . '%')
-            ->paginate(7)->withQueryString();
-        //return $ciudades;
+            ->when($txtFiltro, function ($query, $txtFiltro) {
+                return $query->where(function ($q) use ($txtFiltro) {
+                    $q->where('NomCiudad', 'like', '%' . $txtFiltro . '%')
+                        ->orWhere('NomEstado', 'like', '%' . $txtFiltro . '%');
+                });
+            })
+            ->when($idEstado, function ($query, $idEstado) {
+                return $query->where('CatCiudades.IdEstado', $idEstado);
+            })
+            ->paginate(10)
+            ->appends(request()->query());
+
         $estados = Estado::all();
         return view('Ciudades/CatCiudades', compact('ciudades', 'estados', 'txtFiltro'));
     }

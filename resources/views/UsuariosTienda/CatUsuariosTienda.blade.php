@@ -1,4 +1,4 @@
-@extends('PlantillaBase.masterbladeNewStyle')
+@extends('PlantillaBase.masterbladeDashboard')
 @section('title', 'Catálogo de Usuarios Tienda')
 @section('dashboardWidth', 'width-95')
 @section('contenido')

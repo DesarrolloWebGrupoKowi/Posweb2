@@ -191,7 +191,7 @@ class PreciosController extends Controller
 
     public function ExportExcel(Request $request)
     {
-        return Excel::download(new PreciosExport, 'precios.xlsx');
+        return Excel::download(new PreciosExport, 'exports.xlsx');
     }
 
     public function DetallePromociones(Request $request)

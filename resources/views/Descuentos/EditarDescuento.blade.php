@@ -11,7 +11,11 @@
                     :options="[['name' => 'Descuentos y promociones', 'value' => '/VerDescuentos']]"
                 />
                 <div class="d-flex gap-2">
-                    <x-filters.buttons.back-button />
+                    <x-filters.buttons.link-button
+                        href='/VerDescuentos'
+                        text='Regresar'
+                        icon='components.icons.arrow-left'
+                    />
                     <x-filters.buttons.refresh-button />
                     <x-filters.buttons.home-button />
                 </div>
@@ -143,6 +147,16 @@
                                 Configuración básica de la promoción
                             </h6>
                         </div>
+                        <button
+                            class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ModalEliminarConfirm{{ $descuento->IdEncDescuento }}"
+                            title="Eliminar descuento"
+                        >
+                            @include('components.icons.arrow-down') Deshabilar
+                        </button>
+
+                        @include('Descuentos.ModalEliminarConfirm')
                     </div>
 
                     <form

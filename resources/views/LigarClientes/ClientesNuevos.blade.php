@@ -66,7 +66,9 @@
                         @include('components.table-empty', ['items' => $solicitudes, 'colspan' => 23])
                         @foreach ($solicitudes as $solicitud)
                             <tr>
+                                {{-- <td>{{ $solicitud->Id }}</td> --}}
                                 <td>{{ $solicitud->IdSolicitudFactura }}</td>
+                                {{-- <td>{{ $solicitud->IdEncabezado }}</td> --}}
                                 <td>{{ $solicitud->NomTienda }}</td>
                                 <td></td>
                                 <td>{{ $solicitud->TipoPersona }}</td>

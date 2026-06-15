@@ -1,61 +1,74 @@
-@extends('PlantillaBase.masterbladeNewStyle')
+@extends('PlantillaBase.masterbladeDashboard')
 @section('title', 'Catálogo Grupos')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+@section('dashboardWidth', 'width-95')
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo de Grupos'])
-                <div class="">
-                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                        Agregar grupo @include('components.icons.plus-circle')
+@section('contenido')
+    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+        <x-card-gradient-header
+            icon="folder-symlink"
+            title="Catálogo de Grupos"
+            subtitle="Gestión de grupos del sistema"
+        >
+            <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
+            </x-slot:buttons>
+
+            <!-- Tabla -->
+            <div class="p-4">
+                <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                    <div>
+                        <h5 class="section-content-title">
+                            <i
+                                class="fa fa-table me-2"
+                                style="color: #64748b;"
+                            ></i>Concentrado de Grupos
+                        </h5>
+                        <p class="section-content-subtitle">Listado de grupos registrados en el sistema</p>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn-create"
+                        data-bs-toggle="modal"
+                        data-bs-target="#ModalAgregar"
+                    >
+                        <i class="fa fa-plus-circle"></i> Agregar grupo
                     </button>
                 </div>
-            </div>
 
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
-
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Id</th>
-                        <th>Grupo</th>
-                        <th class="rounded-end">Estatus</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (count($grupos) == 0)
-                        <tr>
-                            <td colspan="3">No Hay Grupos!</td>
-                        </tr>
-                    @else
-                        @foreach ($grupos as $grupo)
+                <div class="table-responsive">
+                    <table class="table-hover table-custom table">
+                        <thead>
                             <tr>
-                                <td>{{ $grupo->IdGrupo }}</td>
-                                <td>{{ $grupo->NomGrupo }}</td>
-                                <td>
-                                    @if ($grupo->Status == 1)
-                                        <span class="tags-red">
-                                            @include('components.icons.x')
-                                        </span>
-                                    @else
-                                        <span class="tags-green">
-                                            @include('components.icons.check-all')
-                                        </span>
-                                    @endif
-                                </td>
+                                <th><i class="fa fa-hashtag me-1"></i>Id</th>
+                                <th><i class="fa fa-folder me-1"></i>Grupo</th>
+                                <th><i class="fa fa-circle me-1"></i>Estatus</th>
                             </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
+                        </thead>
+                        <tbody>
+                            @forelse ($grupos as $grupo)
+                                <tr>
+                                    <td style="font-weight: 600; color: #0f172a;">{{ $grupo->IdGrupo }}</td>
+                                    <td style="font-weight: 500;">{{ $grupo->NomGrupo }}</td>
+                                    <td>
+                                        <x-status-badge :status="!$grupo->Status" />
+                                    </td>
+                                </tr>
+                            @empty
+                                <x-table-empty-data
+                                    colspan="3"
+                                    title="Sin datos disponibles"
+                                    message="No se encontraron grupos registrados"
+                                    icon="collection"
+                                    :action="false"
+                                />
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </x-card-gradient-header>
     </div>
+
     @include('Grupos.ModalAgregar')
 @endsection

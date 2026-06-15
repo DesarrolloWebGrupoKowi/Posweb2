@@ -628,7 +628,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('CatLimiteCredito', 'App\Http\Controllers\LimiteCreditoController@CatLimiteCredito');
 
     //EditarLimiteCredito
-    Route::get('EditarLimiteCredito/{tipoNomina}', 'App\Http\Controllers\LimiteCreditoController@EditarLimiteCredito');
+    Route::post('EditarLimiteCredito/{tipoNomina}', 'App\Http\Controllers\LimiteCreditoController@EditarLimiteCredito');
 
     //+============================================================================================================================================+//
     //CatLimiteCreditoEspecial
@@ -868,6 +868,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Dashboard de tienda
     Route::get('DashTiendaAdmin', 'App\Http\Controllers\DashTiendaAdminController@Index')->name('DashTiendaAdmin');
+
+    //Dashboard de Venta por Tickets
+    Route::get('DashVentaPorTicket', 'App\Http\Controllers\DashVentaPorTicketController@index')->name('DashVentaPorTicket');
 
     //+============================================================================================================================================+//
     //VerCortesTienda

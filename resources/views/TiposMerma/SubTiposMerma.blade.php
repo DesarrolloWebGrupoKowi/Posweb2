@@ -1,79 +1,154 @@
-@extends('PlantillaBase.masterbladeNewStyle')
+@extends('PlantillaBase.masterbladeDashboard')
 @section('title', 'Catálogo de Sub Tipos de Merma')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+@section('dashboardWidth', 'width-95')
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo de Sub Tipos de Merma'])
-                <form class="d-flex align-items-center justify-content-end" id="formTipoMerma" action="/SubTiposMerma "
-                    method="GET">
-                    <div class="form-group">
-                        <label class="fw-bold text-secondary">Tipo de merma</label>
-                        <select class="form-select rounded" style="line-height: 18px" name="idTipoMerma" id="idTipoMerma">
-                            <option value="">Seleccione Tipo de Merma</option>
-                            @foreach ($tiposMerma as $tipoMerma)
-                                <option {!! $idTipoMerma == $tipoMerma->IdTipoMerma ? 'selected' : '' !!} value="{{ $tipoMerma->IdTipoMerma }}">
-                                    {{ $tipoMerma->NomTipoMerma }}</option>
-                            @endforeach
-                        </select>
+@section('contenido')
+    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+        <x-card-gradient-header
+            icon="exclamation-circle"
+            title="Catálogo de Sub Tipos de Merma"
+            subtitle="Gestión de sub tipos de merma del sistema"
+        >
+            <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
+            </x-slot:buttons>
+
+            <!-- Filtro: Tipo de Merma -->
+            <div
+                class="border-bottom p-4"
+                style="border-color: #f1f5f9 !important;"
+            >
+                <form
+                    id="formTipoMerma"
+                    action="/SubTiposMerma"
+                    method="GET"
+                >
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="fa fa-filter me-1"></i>Tipo de Merma
+                            </label>
+                            <select
+                                class="form-select"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                name="idTipoMerma"
+                                id="idTipoMerma"
+                                onchange="document.getElementById('formTipoMerma').submit()"
+                            >
+                                <option value="">Seleccione Tipo de Merma</option>
+                                @foreach ($tiposMerma as $tipoMerma)
+                                    <option
+                                        {{ $idTipoMerma == $tipoMerma->IdTipoMerma ? 'selected' : '' }}
+                                        value="{{ $tipoMerma->IdTipoMerma }}"
+                                    >
+                                        {{ $tipoMerma->NomTipoMerma }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <a
+                                href="/SubTiposMerma"
+                                class="btn btn-sm d-flex align-items-center gap-2"
+                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px;"
+                            >
+                                <i class="fa fa-times-circle"></i> Limpiar
+                            </a>
+                        </div>
                     </div>
                 </form>
             </div>
-        </div>
 
-        {{-- @if (!empty($idTipoMerma))
-                    <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#ModalAgregarSubTipoMerma">
-                        <i class="fa fa-plus-circle"></i> Agregar subtipo
-                    </button>
-                @endif --}}
-
-        @if (empty($idTipoMerma))
-            <h2 class="text-center">Selecciona un tipo de merma</h2>
-        @endif
-
-        @if (!empty($idTipoMerma))
-            <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-                <div class="d-flex justify-content-end mb-2">
-                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
-                        data-bs-target="#ModalAgregarSubTipoMerma">
-                        <i class="fa fa-plus-circle"></i> Agregar subtipo
-                    </button>
+            <!-- Contenido: Estado vacío o Tabla -->
+            @if (empty($idTipoMerma))
+                <div class="p-4 text-center">
+                    <div class="d-flex align-items-center justify-content-center empty-state-icon mx-auto mb-3">
+                        <i
+                            class="fa fa-hand-pointer-o"
+                            style="font-size: 28px; color: #94a3b8;"
+                        ></i>
+                    </div>
+                    <h6
+                        class="fw-semibold mb-1"
+                        style="color: #475569;"
+                    >Selecciona un tipo de merma</h6>
+                    <p
+                        class="text-muted mb-0 pb-4"
+                        style="font-size: 0.85rem;"
+                    >Elige un tipo de merma para ver sus sub tipos</p>
                 </div>
+            @else
+                <div class="p-4">
+                    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                        <div>
+                            <h5 class="section-content-title">
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: #64748b;"
+                                ></i>Sub Tipos de Merma
+                            </h5>
+                            <p class="section-content-subtitle">Listado de sub tipos de merma registrados</p>
+                        </div>
+                        <button
+                            type="button"
+                            class="btn-create"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ModalAgregarSubTipoMerma"
+                        >
+                            <i class="fa fa-plus-circle"></i> Agregar subtipo
+                        </button>
+                    </div>
 
-                <table>
-                    <thead class="table-head">
-                        <tr>
-                            <th class="rounded-start">Tipo de Merma</th>
-                            <th>Sub Tipo de Merma</th>
-                            <th class="rounded-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody style="vertical-align: middle">
-                        @if ($subTiposMerma->count() == 0)
-                            <tr>
-                                <td colspan="3">No hay sub tipos de merma para este tipo de merma!</td>
-                            </tr>
-                        @else
-                            @foreach ($subTiposMerma as $subTipoMerma)
+                    <div class="table-responsive">
+                        <table class="table-hover table-custom table">
+                            <thead>
                                 <tr>
-                                    <td>{{ $subTipoMerma->NomTipoMerma }}</td>
-                                    <td>{{ $subTipoMerma->NomSubTipoMerma }}</td>
-                                    <td>
-                                        <button class="btn-table btn-table-delete" data-bs-toggle="modal"
-                                            data-bs-target="#ModalEliminarSubTipoMerma{{ $subTipoMerma->IdSubTipoMerma }}">
-                                            @include('components.icons.delete')
-                                        </button>
-                                    </td>
-                                    @include('TiposMerma.ModalEliminarSubTipoMerma')
+                                    <th><i class="fa fa-tag me-1"></i>Tipo de Merma</th>
+                                    <th><i class="fa fa-tags me-1"></i>Sub Tipo de Merma</th>
+                                    <th><i class="fa fa-cog me-1"></i>Acciones</th>
                                 </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
-            </div>
-        @endif
+                            </thead>
+                            <tbody>
+                                @forelse ($subTiposMerma as $subTipoMerma)
+                                    <tr>
+                                        <td>
+                                            <span
+                                                style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                            >
+                                                {{ $subTipoMerma->NomTipoMerma }}
+                                            </span>
+                                        </td>
+                                        <td style="font-weight: 500;">{{ $subTipoMerma->NomSubTipoMerma }}</td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <x-table.buttons.delete-button
+                                                    :id="$subTipoMerma->IdSubTipoMerma"
+                                                    modal="ModalEliminarSubTipoMerma"
+                                                    title="Eliminar sub tipo de merma"
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @include('TiposMerma.ModalEliminarSubTipoMerma')
+                                @empty
+                                    <x-table-empty-data
+                                        colspan="3"
+                                        title="Sin datos disponibles"
+                                        message="No hay sub tipos de merma para este tipo de merma"
+                                        icon="receipt"
+                                        :action="false"
+                                    />
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+        </x-card-gradient-header>
     </div>
 
     @include('TiposMerma.ModalAgregarSubTipoMerma')

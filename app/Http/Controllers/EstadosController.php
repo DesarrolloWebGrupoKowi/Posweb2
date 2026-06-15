@@ -19,7 +19,7 @@ class EstadosController extends Controller
             })
             ->orderBy('NomEstado')
             ->paginate(10)
-            ->withQueryString();
+            ->appends(request()->query());
 
         return view('Estados/CatEstados', compact('estados', 'activo'));
     }

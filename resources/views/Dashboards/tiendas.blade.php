@@ -1,631 +1,878 @@
-@extends('PlantillaBase.masterbladeNewStyle')
+@extends('PlantillaBase.masterbladeDashboard')
 @section('title', 'Dashboard de Tiendas')
 @section('dashboardWidth', 'width-95')
+
 @section('contenido')
-    <!--CORTE DIARIO DE TIENDA-->
-    <x-layout.page-container>
+    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
 
-        <!-- SECCIÓN 1: FILTROS -->
-        <x-layout.section-card>
-            <!-- Título y botones principales -->
-            <div
-                class="d-flex justify-content-sm-between align-items-start align-items-sm-start flex-column flex-sm-row mb-2">
-                <x-title titulo="Dashboard de Tiendas" />
-                <div class="d-flex gap-2">
-                    <x-filters.buttons.refresh-button />
-                    <x-filters.buttons.home-button />
-                </div>
-            </div>
+        {{-- SECCIÓN 1: FILTROS --}}
+        <x-card-gradient-header
+            icon="speedometer2"
+            title="Dashboard de Tiendas"
+            subtitle="Resumen de ventas y rendimiento por tienda"
+        >
+            <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
+            </x-slot:buttons>
 
-            <!-- Formulario de filtros -->
-            <x-filters.filter-form>
-                <!-- Filtros Básicos -->
-                <x-filters.filter-group>
-                    <x-filters.inputs.select-input
-                        name="tienda_id"
-                        label="Tienda"
-                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
-                    />
-                    <x-filters.inputs.date-input
-                        name="fecha_fin"
-                        label="Fecha"
-                        :value="request('fecha_fin')"
-                        :autofocus="true"
-                    />
-                    <x-filters.inputs.text-input
-                        name="pos"
-                        label="Pedido"
-                        placeholder="Buscar por Pedido POS_000000"
-                    />
-                    <x-filters.inputs.checkbox-input
-                        name="detallado"
-                        label="Detallado"
-                        :checked="request('detallado') == 'on'"
-                        helperText="Ver detallado"
-                    />
-                </x-filters.filter-group>
-                <x-slot:buttons>
-                    <x-filters.buttons.clear-button />
-                    {{-- <x-filters.buttons.advanced-button
-                        :active="$filtrosAvanzadosActivos"
-                        :hasBadge="true"
-                    /> --}}
-                    <x-filters.buttons.submit-button />
-                </x-slot:buttons>
-            </x-filters.filter-form>
-        </x-layout.section-card>
-
-        <!-- SECCIÓN 2: KPIs -->
-        <div class="flex-shrink-0">
-            <div class="row g-4">
-                <!-- Ventas Hoy -->
-                <x-kpi.kpi-card
-                    title="Ventas Hoy"
-                    :value="$kpis['ventas_hoy'] ?? 0"
-                    :subtitle="($kpis['ventas_vs_ayer'] ?? 0) . '% vs día anterior'"
-                    color="purple"
-                    icon="components.icons.cash"
-                    currency="true"
-                    colClass="col-xl-3 col-md-8 col-sm-12 col-12"
-                />
-
-                <!-- Tiendas Activas -->
-                @php
-                    $tiendasActivas =
-                        !empty($kpis['tiendas_activas']) && !empty($kpis['total_tiendas'])
-                            ? $kpis['tiendas_activas'] . '/' . $kpis['total_tiendas']
-                            : '0/0';
-                @endphp
-                <x-kpi.kpi-card
-                    title="Tiendas Activas"
-                    :value="$tiendasActivas"
-                    :subtitle="($kpis['porcentaje_activas'] ?? 0) . '% activas'"
-                    color="success"
-                    icon="components.icons.store"
-                    colClass="col-xl-2 col-md-4 col-sm-6 col-6"
-                />
-
-                <!-- Promedio Tickets -->
-                <x-kpi.kpi-card
-                    title="Promedio Tickets"
-                    :value="'$' . ($kpis['promedio_tickets'] ?? 0)"
-                    :subtitle="($kpis['tickets_hoy'] ?? 0) . ' tickets'"
-                    color="warning"
-                    icon="components.icons.ticket"
-                    colClass="col-xl-2 col-md-4 col-sm-6 col-6"
-                />
-
-                <!-- Facturas Pendientes -->
-                <x-kpi.kpi-card
-                    title="Facturas"
-                    :value="$kpis['facturas_hoy'] ?? 0"
-                    :subtitle="($kpis['facturas_pendientes'] ?? 0) . ' pendientes'"
-                    color="orange"
-                    icon="components.icons.file-text"
-                    colClass="col-xl-2 col-md-4 col-sm-6 col-6"
-                />
-
-                <!-- Kilos Vendidos -->
-                @php
-                    $kilosVendidos = number_format($kpis['kilos_hoy'] ?? 0, 1) . ' kg';
-                @endphp
-                <x-kpi.kpi-card
-                    title="Kilos Vendidos"
-                    :value="$kilosVendidos"
-                    :subtitle="($kpis['kilos_promedio'] ?? 0) . ' kg/día'"
-                    color="purple"
-                    icon="components.icons.box"
-                    colClass="col-xl-3 col-md-4 col-sm-6 col-6"
-                />
-            </div>
-        </div>
-
-        <!-- SECCIÓN 3: GRÁFICAS Y TABLAS -->
-        <div class="row g-4 pb-4">
-            <!-- Gráfica de Ventas -->
-            <div class="col-xl-8">
-                <div
-                    class="card border-0 p-4"
-                    style="border-radius: 10px; height: 400px; background-color: white; border: 1px solid #e5e7eb;"
+            <!-- Filtros -->
+            <div class="border-bottom p-4">
+                <form
+                    method="GET"
+                    action="{{ route('DashTiendas') }}"
                 >
-                    @php
-                        $hasData =
-                            isset($graficaVentas['labels'], $graficaVentas['data']) &&
-                            is_array($graficaVentas['labels']) &&
-                            is_array($graficaVentas['data']) &&
-                            count($graficaVentas['labels']) > 0 &&
-                            count($graficaVentas['data']) > 0;
-                    @endphp
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0 text-gray-800">Ventas Diarias</h5>
-                        @if ($hasData)
-                            <div class="btn-group">
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-dark-outline periodo-btn {{ request()->get('fecha_fin', date('Y-m-d')) == date('Y-m-d') ? 'active' : '' }} border-gray-300"
-                                    data-periodo="hoy"
-                                >Hoy</button>
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
-                                    data-periodo="7d"
-                                >7 días</button>
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
-                                    data-periodo="30d"
-                                >30 días</button>
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-dark-outline periodo-btn border-gray-300"
-                                    data-periodo="90d"
-                                >90 días</button>
-                            </div>
-                        @endif
-                    </div>
-                    <div
-                        class="position-relative"
-                        style="height: 300px;"
-                    >
-
-
-                        @if ($hasData)
-                            <canvas id="ventasChart"></canvas>
-                        @else
-                            <div class="d-flex justify-content-center align-items-center h-100">
-                                <x-table-empty-state
-                                    title="No hay registros de corte diario"
-                                    icon="ticket"
-                                    :message="'No se encontraron ventas registradas en el corte diario para el período seleccionado.'"
-                                    :suggestion="'Modifica la fecha o los filtros de búsqueda para ver otros cortes diarios.'"
-                                />
-                            </div>
-                        @endif
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Top Productos -->
-            <div class="col-xl-4">
-                <div
-                    class="card h-100 border-0 p-4"
-                    style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;"
-                >
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-semibold">📦 Productos más Vendidos</h6>
-                        <span class="bg-gray-200 text-gray-800">{{ count($topProductos) }} productos</span>
-                    </div>
-                    @if (empty($topProductos) || count($topProductos) == 0)
-                        <div class="d-flex justify-content-center align-items-center h-100">
-                            <x-table-empty-state
-                                title="Sin datos para mostrar"
-                                icon="ticket"
-                                :message="'No se encontraron ventas realizadas por empleados en el período seleccionado.'"
-                            />
+                    <div class="row g-3 align-items-end">
+                        <!-- Tienda -->
+                        <div class="col-md-3">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-shop me-1"></i>Tienda
+                            </label>
+                            <select
+                                name="tienda_id"
+                                class="form-select"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            >
+                                <option value="">Todas las tiendas</option>
+                                @foreach ($tiendas as $tienda)
+                                    <option
+                                        value="{{ $tienda->IdTienda }}"
+                                        {{ request('tienda_id') == $tienda->IdTienda ? 'selected' : '' }}
+                                    >
+                                        {{ $tienda->NomTienda }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                    @else
-                        <div
-                            class="table-responsive content-table-sm"
-                            {{-- style="max-height: 320px;" --}}
-                        >
-                            <table class="table">
-                                <thead class="table-head">
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th class="text-end">Ventas</th>
-                                        <th class="text-end">Kilos</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($topProductos as $index => $producto)
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div
-                                                        class="me-2 rounded p-1"
-                                                        style="background-color: rgba(30, 66, 159, 0.1);"
-                                                    >
-                                                        <div style="color: #1e429f; width: 16px; height: 16px;">
-                                                            @include('components.icons.box')
-                                                        </div>
-                                                    </div>
-                                                    <span
-                                                        class="text-truncate puntitos"
-                                                        style="max-width: 150px;"
-                                                        title="{{ $producto->NomArticulo }}"
-                                                    >
-                                                        {{ $producto->NomArticulo }}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td class="fw-500 text-end">${{ number_format($producto->ventas, 2) }}</td>
-                                            <td class="fw-500 text-end">{{ number_format($producto->kilos, 1) }} kg</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+
+                        <!-- Fecha -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-calendar3 me-1"></i>Fecha
+                            </label>
+                            <input
+                                type="date"
+                                name="fecha_fin"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                value="{{ request('fecha_fin', date('Y-m-d')) }}"
+                                autofocus
+                            >
                         </div>
-                    @endif
-                </div>
-            </div>
 
-            <!-- Gráfica Ultimo Mes -->
-            <div class="col-xl-8">
-                <div
-                    class="card border-0 p-4"
-                    style="border-radius: 10px; height: 400px; background-color: white; border: 1px solid #e5e7eb;"
-                >
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0 text-gray-800">Último mes</h5>
-                    </div>
-                    <div
-                        class="position-relative"
-                        style="height: 300px;"
-                    >
-                        @php
-                            $hasData =
-                                isset($graficaUltimoMes['labels'], $graficaUltimoMes['data']) &&
-                                is_array($graficaUltimoMes['labels']) &&
-                                is_array($graficaUltimoMes['data']) &&
-                                count($graficaUltimoMes['labels']) > 0 &&
-                                count($graficaUltimoMes['data']) > 0;
-                        @endphp
-
-                        @if ($hasData)
-                            <canvas id="ultimoMesChart"></canvas>
-                        @else
-                            <div class="d-flex justify-content-center align-items-center h-100">
-                                <x-table-empty-state
-                                    title="No hay registros de corte diario"
-                                    icon="ticket"
-                                    :message="'No se encontraron ventas registradas en el corte diario para el período seleccionado.'"
-                                    :suggestion="'Modifica la fecha o los filtros de búsqueda para ver otros cortes diarios.'"
-                                />
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mermas y Métricas -->
-            <div class="col-xl-4">
-                <div
-                    class="card h-100 border-0 p-4"
-                    style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;"
-                >
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-semibold">🥫 Productos con más Mermas</h6>
-                        <span class="bg-gray-200 text-gray-800">{{ count($topMermas) }} productos</span>
-                    </div>
-                    @if (empty($topProductos) || count($topProductos) == 0)
-                        <div class="d-flex justify-content-center align-items-center h-100">
-                            <x-table-empty-state
-                                title="Sin datos para mostrar"
-                                icon="ticket"
-                                :message="'No se encontraron ventas realizadas por empleados en el período seleccionado.'"
-                            />
-                        </div>
-                    @else
-                        <div
-                            class="table-responsive content-table-sm"
-                            style="max-height: 250px;"
-                        >
-                            <table class="table">
-                                <tbody>
-                                    @foreach ($topMermas as $merma)
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div
-                                                        class="me-2 rounded p-1"
-                                                        style="background-color: rgba(155, 28, 28, 0.1);"
-                                                    >
-                                                        <div style="color: #9b1c1c; width: 16px; height: 16px;">
-                                                            @include('components.icons.trash')
-                                                        </div>
-                                                    </div>
-                                                    <span
-                                                        class="text-truncate puntitos"
-                                                        style="max-width: 120px;"
-                                                    >
-                                                        {{ $merma->NomArticulo }}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td class="text-end">
-                                                <span class="tags-red">
-                                                    {{ number_format($merma->kilos_merma, 1) }}kg
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Tabla de Tiendas -->
-            <div class="col-xl-12">
-                <div
-                    class="card border-0 p-4"
-                    style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;"
-                >
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0 text-gray-800">Tiendas - Rendimiento</h5>
-                        {{-- <div
-                            class="input-group"
-                            style="width: 250px;"
-                        >
+                        <!-- Pedido -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-search me-1"></i>Pedido
+                            </label>
                             <input
                                 type="text"
-                                class="form-control border-gray-300"
-                                placeholder="Buscar tienda..."
-                                id="searchTienda"
+                                name="pos"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                placeholder="POS_000000"
+                                value="{{ request('pos') }}"
                             >
-                            <button class="btn btn-dark-outline border-start-0 border-gray-300">
-                                @include('components.icons.search')
-                            </button>
-                        </div> --}}
+                        </div>
+
+                        <!-- Checkbox Detallado con estilo input -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-eye me-1"></i>Detalle
+                            </label>
+                            <div
+                                class="d-flex align-items-center gap-2 rounded-lg p-2"
+                                style="border: 1px solid #e2e8f0; border-radius: 8px; height: 42px; cursor: pointer;"
+                                onclick="document.getElementById('detallado').click()"
+                            >
+                                <input
+                                    class="form-check-input m-0"
+                                    type="checkbox"
+                                    name="detallado"
+                                    id="detallado"
+                                    {{ request('detallado') == 'on' ? 'checked' : '' }}
+                                    style="cursor: pointer; width: 16px; height: 16px; border: 1px solid #cbd5e1; border-radius: 3px;"
+                                >
+                                <label
+                                    class="form-check-label m-0"
+                                    for="detallado"
+                                    style="color: #64748b; font-size: 0.85rem; cursor: pointer; user-select: none;"
+                                >
+                                    {{ request('detallado') == 'on' ? 'Activado' : 'Desactivado' }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="col-md-3">
+                            <div class="d-flex gap-2">
+                                <x-form.submit
+                                    text="Filtrar"
+                                    icon="funnel"
+                                    class="flex-grow-1"
+                                />
+                                <x-form.clear />
+                            </div>
+                        </div>
                     </div>
-                    <div class="table-responsive content-table">
-                        <table class="table">
-                            <thead class="table-head">
-                                <tr>
-                                    <th>Tienda</th>
-                                    <th class="text-end">Tickets</th>
-                                    <th class="text-end">Ticket Prom.</th>
-                                    <th class="text-end">Ventas Hoy</th>
-                                    <th class="text-end">Kilos Hoy</th>
-                                    <th class="text-end">Facturas</th>
-                                    <th class="text-end">Sin Ped.</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($tiendasRendimiento as $tienda)
-                                    <tr>
-                                        <td class="pb-0">
-                                            <div class="d-flex align-items-center">
-                                                <div
-                                                    class="me-2 rounded p-1"
-                                                    style="background-color: rgba(3, 84, 63, 0.1);"
-                                                >
-                                                    <div
-                                                        style="color: #03543f; width: 16px; height: 16px; line-height: 16px">
-                                                        @include('components.icons.store')
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <strong class="text-gray-800">{{ $tienda->NomTienda }}</strong>
-                                                    {{-- <small class="d-block text-muted">{{ $tienda->Ciudad ?? 'Sin ubicación' }}</small> --}}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="fw-500 pb-0 text-end">{{ $tienda->tickets }}</td>
-                                        <td class="fw-500 pb-0 text-end">${{ number_format($tienda->promedio_ticket, 2) }}
-                                        </td>
-                                        <td class="fw-500 pb-0 text-end">${{ number_format($tienda->total_ventas, 2) }}
-                                        </td>
-                                        <td class="fw-500 pb-0 text-end">{{ number_format($tienda->total_kilos, 1) }} kg
-                                        </td>
-                                        <td class="pb-0 text-end">
-                                            <span class="tag">
-                                                {{ $tienda->solicitudes_factura }}
-                                            </span>
-                                        </td>
-                                        <td class="pb-0 text-end">
-                                            <span class="tags-{{ $tienda->tickets_sin_pedido > 0 ? 'red' : 'green' }}">
-                                                {{ $tienda->tickets_sin_pedido }}/{{ $tienda->tickets_sin_bill }}
-                                            </span>
-                                        </td>
-                                        <td class="text-nowrap pb-0">
-                                            @php
-                                                $fecha = request()->get('fecha_fin', date('Y-m-d'));
-                                            @endphp
+                </form>
+            </div>
 
-                                            <a
-                                                href="{{ route('DashTienda', ['tienda_id' => $tienda->IdTienda, 'fecha_fin' => $fecha]) }}"
-                                                class="btn-table btn-table-icon"
-                                                title="Ver corte de tienda"
-                                            >
-                                                @include('components.icons.store')
-                                            </a>
+            {{-- SECCIÓN 2: KPIs --}}
+            <div class="p-4">
+                <div class="row g-3 mb-4">
+                    <!-- Ventas Hoy -->
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;"
+                                    >Ventas Hoy</span>
+                                    <i
+                                        class="bi bi-cash-stack"
+                                        style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >${{ number_format($kpis['ventas_hoy'] ?? 0, 2) }}</h3>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span
+                                        style="color: {{ ($kpis['ventas_vs_ayer'] ?? 0) >= 0 ? '#10b981' : '#ef4444' }}; font-size: 0.78rem; font-weight: 600;"
+                                    >
+                                        <i
+                                            class="bi bi-arrow-{{ ($kpis['ventas_vs_ayer'] ?? 0) >= 0 ? 'up' : 'down' }}"></i>
+                                        {{ abs($kpis['ventas_vs_ayer'] ?? 0) }}%
+                                    </span>
+                                    <span style="color: #94a3b8; font-size: 0.75rem;">vs día anterior</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                            <a
-                                                href="{{ route('DashCorte', ['tienda_id' => $tienda->IdTienda, 'detallado' => 'on', 'fecha_fin' => $fecha]) }}"
-                                                class="btn-table btn-table-icon"
-                                                title="Ver corte detallado"
-                                            >
-                                                @include('components.icons.list')
-                                            </a>
-                                        </td>
+                    <!-- Tiendas Activas -->
+                    <div class="col-xl-2 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #059669; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;"
+                                    >Tiendas</span>
+                                    <i
+                                        class="bi bi-shop"
+                                        style="color: #10b981; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >
+                                    {{ $kpis['tiendas_activas'] ?? 0 }}<span
+                                        style="font-size: 0.9rem; color: #94a3b8;">/{{ $kpis['total_tiendas'] ?? 0 }}</span>
+                                </h3>
+                                <span
+                                    style="color: #10b981; font-size: 0.78rem; font-weight: 500;">{{ $kpis['porcentaje_activas'] ?? 0 }}%
+                                    activas</span>
+                            </div>
+                        </div>
+                    </div>
 
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td
-                                            colspan="12"
-                                            class="py-5 text-center"
-                                        >
-                                            <x-table-empty-state
-                                                title="No hay registros de corte diario"
-                                                icon="credit-card"
-                                                :message="'No se encontraron ventas registradas en el corte diario para el período seleccionado.'"
-                                                :suggestion="'Modifica la fecha o los filtros de búsqueda para ver otros cortes diarios.'"
-                                            />
-                                        </td>
+                    <!-- Promedio Tickets -->
+                    <div class="col-xl-2 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(245, 158, 11, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #d97706; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;"
+                                    >Prom. Ticket</span>
+                                    <i
+                                        class="bi bi-receipt"
+                                        style="color: #f59e0b; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >${{ number_format($kpis['promedio_tickets'] ?? 0, 2) }}</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">{{ $kpis['tickets_hoy'] ?? 0 }}
+                                    tickets</span>
+                            </div>
+                        </div>
+                    </div>
 
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <!-- Facturas -->
+                    <div class="col-xl-2 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(249, 115, 22, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #ea580c; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;"
+                                    >Facturas</span>
+                                    <i
+                                        class="bi bi-file-text"
+                                        style="color: #f97316; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >{{ $kpis['facturas_hoy'] ?? 0 }}</h3>
+                                <span
+                                    style="color: {{ ($kpis['facturas_pendientes'] ?? 0) > 0 ? '#ef4444' : '#10b981' }}; font-size: 0.78rem; font-weight: 500;"
+                                >
+                                    {{ $kpis['facturas_pendientes'] ?? 0 }} pendientes
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kilos Vendidos -->
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(71, 85, 105, 0.06); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #475569; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;"
+                                    >Kilos Vendidos</span>
+                                    <i
+                                        class="bi bi-box"
+                                        style="color: #64748b; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >{{ number_format($kpis['kilos_hoy'] ?? 0, 1) }} kg</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">{{ $kpis['kilos_promedio'] ?? 0 }}
+                                    kg/día</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </x-layout.page-container>
+
+            {{-- SECCIÓN 3: GRÁFICAS Y TABLAS --}}
+            <div class="px-4 pb-4">
+                <div class="row g-4">
+                    <!-- Gráfica de Ventas -->
+                    <div class="col-xl-8">
+                        <div
+                            class="rounded p-4 shadow-sm"
+                            style="background: white; border-radius: 12px;"
+                        >
+
+                            @php
+                                $hasData =
+                                    isset($graficaVentas['labels'], $graficaVentas['data']) &&
+                                    is_array($graficaVentas['labels']) &&
+                                    is_array($graficaVentas['data']) &&
+                                    count($graficaVentas['labels']) > 0 &&
+                                    count($graficaVentas['data']) > 0;
+                            @endphp
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5
+                                    class="mb-0"
+                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                >Ventas Diarias</h5>
+                                @if ($hasData)
+                                    <div class="btn-group">
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm periodo-btn active"
+                                            style="background: #1e293b; color: white; border: none; border-radius: 6px 0 0 6px; padding: 6px 12px; font-size: 0.8rem;"
+                                            data-periodo="hoy"
+                                        >Hoy</button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm periodo-btn"
+                                            style="background: #f1f5f9; color: #475569; border: none; padding: 6px 12px; font-size: 0.8rem;"
+                                            data-periodo="7d"
+                                        >7 días</button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm periodo-btn"
+                                            style="background: #f1f5f9; color: #475569; border: none; padding: 6px 12px; font-size: 0.8rem;"
+                                            data-periodo="30d"
+                                        >30 días</button>
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm periodo-btn"
+                                            style="background: #f1f5f9; color: #475569; border: none; border-radius: 0 6px 6px 0; padding: 6px 12px; font-size: 0.8rem;"
+                                            data-periodo="90d"
+                                        >90 días</button>
+                                    </div>
+                                @endif
+                            </div>
+                            <div
+                                class="position-relative"
+                                style="height: 300px;"
+                            >
+                                @if ($hasData)
+                                    <canvas id="ventasChart"></canvas>
+                                @else
+                                    <div class="d-flex justify-content-center align-items-center h-100">
+                                        <div class="text-center">
+                                            <i
+                                                class="fa fa-bar-chart"
+                                                style="font-size: 3rem; color: #94a3b8;"
+                                            ></i>
+                                            <p
+                                                class="mt-2"
+                                                style="color: #64748b; font-size: 0.85rem;"
+                                            >No hay registros de ventas para el período</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Productos -->
+                    <div class="col-xl-4">
+                        <div
+                            class="rounded p-4 shadow-sm"
+                            style="background: white; border-radius: 12px;"
+                        >
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5
+                                    class="mb-0"
+                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                >
+                                    <i
+                                        class="fa fa-star me-2"
+                                        style="color: #f59e0b;"
+                                    ></i>Productos más Vendidos
+                                </h5>
+                                <span
+                                    style="background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
+                                >
+                                    {{ count($topProductos) }} prod.
+                                </span>
+                            </div>
+                            @if (empty($topProductos) || count($topProductos) == 0)
+                                <div class="d-flex justify-content-center align-items-center h-75">
+                                    <div class="text-center">
+                                        <i
+                                            class="fa fa-inbox"
+                                            style="font-size: 3rem; color: #94a3b8;"
+                                        ></i>
+                                        <p
+                                            class="mt-2"
+                                            style="color: #64748b; font-size: 0.85rem;"
+                                        >Sin datos para mostrar</p>
+                                    </div>
+                                </div>
+                            @else
+                                <div
+                                    class="table-responsive"
+                                    style="max-height: 300px; overflow-y: auto;"
+                                >
+                                    <table class="table-hover table-custom table">
+                                        <thead>
+                                            <tr>
+                                                <th style="font-size: 0.75rem;">Producto</th>
+                                                <th
+                                                    class="text-end"
+                                                    style="font-size: 0.75rem;"
+                                                >Ventas</th>
+                                                <th
+                                                    class="text-end"
+                                                    style="font-size: 0.75rem;"
+                                                >Kilos</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($topProductos as $producto)
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div
+                                                                class="rounded-circle d-flex align-items-center justify-content-center"
+                                                                style="background: #eff6ff; width: 28px; height: 28px;"
+                                                            >
+                                                                <i
+                                                                    class="fa fa-cube"
+                                                                    style="color: #3b82f6; font-size: 0.7rem;"
+                                                                ></i>
+                                                            </div>
+                                                            <span
+                                                                class="text-truncate"
+                                                                style="max-width: 120px; font-size: 0.8rem;"
+                                                                title="{{ $producto->NomArticulo }}"
+                                                            >
+                                                                {{ $producto->NomArticulo }}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td
+                                                        class="text-end"
+                                                        style="font-weight: 500; font-size: 0.8rem;"
+                                                    >${{ number_format($producto->ventas, 2) }}</td>
+                                                    <td
+                                                        class="text-end"
+                                                        style="font-weight: 500; font-size: 0.8rem;"
+                                                    >{{ number_format($producto->kilos, 1) }} kg</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Gráfica Último Mes -->
+                    <div class="col-xl-8">
+                        <div
+                            class="rounded p-4 shadow-sm"
+                            style="background: white; border-radius: 12px;"
+                        >
+                            @php
+                                $hasDataMes =
+                                    isset($graficaUltimoMes['labels'], $graficaUltimoMes['data']) &&
+                                    is_array($graficaUltimoMes['labels']) &&
+                                    is_array($graficaUltimoMes['data']) &&
+                                    count($graficaUltimoMes['labels']) > 0 &&
+                                    count($graficaUltimoMes['data']) > 0;
+                            @endphp
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5
+                                    class="mb-0"
+                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                >Último Mes</h5>
+                            </div>
+                            <div
+                                class="position-relative"
+                                style="height: 300px;"
+                            >
+                                @if ($hasDataMes)
+                                    <canvas id="ultimoMesChart"></canvas>
+                                @else
+                                    <div class="d-flex justify-content-center align-items-center h-100">
+                                        <div class="text-center">
+                                            <i
+                                                class="fa fa-line-chart"
+                                                style="font-size: 3rem; color: #94a3b8;"
+                                            ></i>
+                                            <p
+                                                class="mt-2"
+                                                style="color: #64748b; font-size: 0.85rem;"
+                                            >No hay registros para el período</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mermas -->
+                    <div class="col-xl-4">
+                        <div
+                            class="rounded p-4 shadow-sm"
+                            style="background: white; border-radius: 12px;"
+                        >
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5
+                                    class="mb-0"
+                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                >
+                                    <i
+                                        class="fa fa-exclamation-triangle me-2"
+                                        style="color: #ef4444;"
+                                    ></i>Productos con más Mermas
+                                </h5>
+                                <span
+                                    style="background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
+                                >
+                                    {{ count($topMermas) }} prod.
+                                </span>
+                            </div>
+                            @if (empty($topMermas) || count($topMermas) == 0)
+                                <div class="d-flex justify-content-center align-items-center h-75">
+                                    <div class="text-center">
+                                        <i
+                                            class="fa fa-inbox"
+                                            style="font-size: 3rem; color: #94a3b8;"
+                                        ></i>
+                                        <p
+                                            class="mt-2"
+                                            style="color: #64748b; font-size: 0.85rem;"
+                                        >Sin datos para mostrar</p>
+                                    </div>
+                                </div>
+                            @else
+                                <div
+                                    class="table-responsive"
+                                    style="max-height: 300px; overflow-y: auto;"
+                                >
+                                    <table class="table-hover table-custom table">
+                                        <thead>
+                                            <tr>
+                                                <th style="font-size: 0.75rem;">Producto</th>
+                                                <th
+                                                    class="text-end"
+                                                    style="font-size: 0.75rem;"
+                                                >Kilos</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($topMermas as $merma)
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div
+                                                                class="rounded-circle d-flex align-items-center justify-content-center"
+                                                                style="background: #fef2f2; width: 28px; height: 28px;"
+                                                            >
+                                                                <i
+                                                                    class="fa fa-trash"
+                                                                    style="color: #ef4444; font-size: 0.7rem;"
+                                                                ></i>
+                                                            </div>
+                                                            <span
+                                                                class="text-truncate"
+                                                                style="max-width: 150px; font-size: 0.8rem;"
+                                                            >
+                                                                {{ $merma->NomArticulo }}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span
+                                                            style="background: #fef2f2; color: #ef4444; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
+                                                        >
+                                                            {{ number_format($merma->kilos_merma, 1) }} kg
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Tiendas -->
+                    <div class="col-12">
+                        <div
+                            class="rounded p-4 shadow-sm"
+                            style="background: white; border-radius: 12px;"
+                        >
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5
+                                    class="mb-0"
+                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                >
+                                    <i
+                                        class="bi bi-shop me-2"
+                                        style="color: #64748b;"
+                                    ></i>Tiendas - Rendimiento
+                                </h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table-hover table-custom table">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="bi bi-shop me-1"></i>Tienda</th>
+                                            <th class="text-end"><i class="bi bi-receipt me-1"></i>Tickets</th>
+                                            <th class="text-end"><i class="bi bi-cash me-1"></i>Ticket Prom.</th>
+                                            <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Ventas Hoy</th>
+                                            <th class="text-end"><i class="bi bi-box me-1"></i>Kilos Hoy</th>
+                                            <th class="text-end"><i class="bi bi-file-text me-1"></i>Facturas</th>
+                                            <th class="text-end"><i class="bi bi-exclamation-triangle me-1"></i>Sin Ped.
+                                            </th>
+                                            <th><i class="bi bi-gear me-1"></i>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($tiendasRendimiento as $tienda)
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div
+                                                            class="rounded-circle d-flex align-items-center justify-content-center"
+                                                            style="background: #f0fdf4; width: 28px; height: 28px;"
+                                                        >
+                                                            <i
+                                                                class="bi bi-shop"
+                                                                style="color: #10b981; font-size: 0.75rem;"
+                                                            ></i>
+                                                        </div>
+                                                        <span
+                                                            style="font-weight: 600; color: #0f172a; font-size: 0.85rem;">{{ $tienda->NomTienda }}</span>
+                                                    </div>
+                                                </td>
+                                                <td
+                                                    class="text-end"
+                                                    style="font-weight: 500;"
+                                                >{{ $tienda->tickets }}</td>
+                                                <td
+                                                    class="text-end"
+                                                    style="font-weight: 500;"
+                                                >${{ number_format($tienda->promedio_ticket, 2) }}</td>
+                                                <td
+                                                    class="text-end"
+                                                    style="font-weight: 500;"
+                                                >${{ number_format($tienda->total_ventas, 2) }}</td>
+                                                <td
+                                                    class="text-end"
+                                                    style="font-weight: 500;"
+                                                >{{ number_format($tienda->total_kilos, 1) }} kg</td>
+                                                <td class="text-end">
+                                                    <span
+                                                        style="background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
+                                                    >
+                                                        {{ $tienda->solicitudes_factura }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span
+                                                        style="background: {{ $tienda->tickets_sin_pedido > 0 ? '#fef2f2' : '#f0fdf4' }};
+                                                        color: {{ $tienda->tickets_sin_pedido > 0 ? '#ef4444' : '#10b981' }};
+                                                        padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
+                                                    >
+                                                        {{ $tienda->tickets_sin_pedido }}/{{ $tienda->tickets_sin_bill }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-2">
+                                                        @php $fecha = request()->get('fecha_fin', date('Y-m-d')); @endphp
+                                                        <a
+                                                            href="{{ route('DashTienda', ['tienda_id' => $tienda->IdTienda, 'fecha_fin' => $fecha]) }}"
+                                                            class="btn btn-sm d-flex align-items-center gap-1 btn-animated"
+                                                            style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem;"
+                                                            title="Ver corte de tienda"
+                                                        >
+                                                            <i class="bi bi-eye"></i> Corte
+                                                        </a>
+                                                        <a
+                                                            href="{{ route('DashCorte', ['tienda_id' => $tienda->IdTienda, 'detallado' => 'on', 'fecha_fin' => $fecha]) }}"
+                                                            class="btn btn-sm d-flex align-items-center gap-1 btn-animated"
+                                                            style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem;"
+                                                            title="Ver corte detallado"
+                                                        >
+                                                            <i class="bi bi-list"></i> Detalle
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td
+                                                    colspan="8"
+                                                    class="py-5 text-center"
+                                                >
+                                                    <i
+                                                        class="bi bi-inbox"
+                                                        style="font-size: 2.5rem; color: #94a3b8;"
+                                                    ></i>
+                                                    <p
+                                                        class="mt-2"
+                                                        style="color: #64748b; font-size: 0.85rem;"
+                                                    >No hay registros de corte diario</p>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </x-card-gradient-header>
+    </div>
 @endsection
 
 @section('scripts')
     <script>
         let ventasChart = null;
         let ultimoMesChart = null;
+
         $(document).ready(function() {
-            // Inicializar gráfica de ventas
             const ctx = document.getElementById('ventasChart')?.getContext('2d');
             const ultimoMes = document.getElementById('ultimoMesChart')?.getContext('2d');
 
-            ventasChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: {!! json_encode($graficaVentas['labels'] ?? []) !!},
-                    datasets: [{
-                        label: 'Ventas',
-                        data: {!! json_encode($graficaVentas['data'] ?? []) !!},
-                        borderColor: '#1e293b',
-                        backgroundColor: 'rgba(30, 41, 59, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#1e293b',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: '#1e293b',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            borderColor: '#374151',
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return '$' + context.parsed.y.toLocaleString('es-MX');
-                                }
-                            }
-                        }
+            if (ctx) {
+                ventasChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: {!! json_encode($graficaVentas['labels'] ?? []) !!},
+                        datasets: [{
+                            label: 'Ventas',
+                            data: {!! json_encode($graficaVentas['data'] ?? []) !!},
+                            backgroundColor: 'rgba(30, 41, 59, 0.15)',
+                            borderColor: '#1e293b',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                color: '#6b7280',
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString('es-MX');
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
                                 display: false
                             },
-                            ticks: {
-                                color: '#6b7280'
+                            tooltip: {
+                                backgroundColor: '#1e293b',
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + context.parsed.y.toLocaleString('es-MX');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#6b7280',
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString('es-MX');
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#6b7280'
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
 
-            ultimoMesChart = new Chart(ultimoMes, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($graficaUltimoMes['labels'] ?? []) !!},
-                    datasets: [{
-                        label: 'Ventas',
-                        data: {!! json_encode($graficaUltimoMes['data'] ?? []) !!},
-                        borderColor: '#1e293b',
-                        backgroundColor: 'rgba(30, 41, 59, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#1e293b',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: '#1e293b',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            borderColor: '#374151',
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return '$' + context.parsed.y.toLocaleString('es-MX');
-                                }
-                            }
-                        }
+            if (ultimoMes) {
+                ultimoMesChart = new Chart(ultimoMes, {
+                    type: 'line',
+                    data: {
+                        labels: {!! json_encode($graficaUltimoMes['labels'] ?? []) !!},
+                        datasets: [{
+                            label: 'Ventas',
+                            data: {!! json_encode($graficaUltimoMes['data'] ?? []) !!},
+                            borderColor: '#1e293b',
+                            backgroundColor: 'rgba(30, 41, 59, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#1e293b',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                color: '#6b7280',
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString('es-MX');
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
                                 display: false
                             },
-                            ticks: {
-                                color: '#6b7280'
+                            tooltip: {
+                                backgroundColor: '#1e293b',
+                                callbacks: {
+                                    label: function(context) {
+                                        return '$' + context.parsed.y.toLocaleString('es-MX');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#6b7280',
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString('es-MX');
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#6b7280'
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
 
             // Botones de período
             $('.periodo-btn').click(function() {
-                $('.periodo-btn').removeClass('active');
-                $(this).addClass('active');
+                $('.periodo-btn').css({
+                    'background': '#f1f5f9',
+                    'color': '#475569'
+                });
+                $(this).css({
+                    'background': '#1e293b',
+                    'color': 'white'
+                });
 
                 const periodo = $(this).data('periodo');
                 actualizarGrafica(periodo);
             });
-
-            // Buscar tienda
-            $('#searchTienda').on('keyup', function() {
-                const value = $(this).val().toLowerCase();
-                $('table tbody tr').filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-                });
-            });
         });
 
         function actualizarGrafica(periodo) {
-            // AJAX para actualizar la gráfica según el período
             $.ajax({
                 url: '{{ route('DashTiendas.grafica') }}',
                 type: 'GET',
@@ -635,22 +882,11 @@
                     fecha_fin: $('input[name="fecha_fin"]').val(),
                 },
                 success: function(response) {
-                    // console.log({
-                    //     periodo: periodo,
-                    //     fecha_inicio: $('input[name="fecha_inicio"]').val(),
-                    //     fecha_fin: $('input[name="fecha_fin"]').val(),
-                    // });
-                    // console.log(response.labels);
-                    // console.log(response.data);
-                    // console.log('---------------------------------');
-                    // console.log(response.periodo);
-                    // console.log(response.fechaInicio);
-                    // console.log(response.fechaFin);
-
-
-                    ventasChart.data.labels = response.labels;
-                    ventasChart.data.datasets[0].data = response.data;
-                    ventasChart.update();
+                    if (ventasChart) {
+                        ventasChart.data.labels = response.labels;
+                        ventasChart.data.datasets[0].data = response.data;
+                        ventasChart.update();
+                    }
                 }
             });
         }

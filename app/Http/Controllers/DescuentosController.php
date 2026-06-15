@@ -13,18 +13,19 @@ use App\Models\Plaza;
 use App\Models\Precio;
 use App\Models\Tienda;
 use App\Services\TiendaService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class DescuentosController extends Controller
 {
-    protected $tiendaService;
-    protected $tiendasIds;
-    protected $tiendas;
-    protected $plazas;
+    protected Collection $tiendas;
+    protected array $tiendasIds;
+    protected Collection $plazas;
 
-    public function __construct(TiendaService $tiendaService)
+    public function __construct(protected TiendaService $tiendaService)
     {
-        $this->tiendaService = $tiendaService;
+        $this->tiendas = new Collection;
+        $this->tiendasIds = [];
 
         $this->middleware(function ($request, $next) {
             $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();

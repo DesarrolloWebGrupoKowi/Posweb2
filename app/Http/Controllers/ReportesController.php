@@ -172,13 +172,67 @@ class ReportesController extends Controller
             })
             ->get();
 
+        // GRAFICA TOP VENTAS
+        $productosAgrupados = $concentrado
+            ->groupBy('CodArticulo')
+            ->map(function ($items) {
+                $first = $items->first();
+                return (object) [
+                    'CodArticulo' => $first->CodArticulo,
+                    'NomArticulo' => $first->NomArticulo,
+                    'Peso' => $items->sum(function ($item) {
+                        return floatval($item->Peso);
+                    }),
+                    'Importe' => $items->sum(function ($item) {
+                        return floatval($item->Importe);
+                    }),
+                ];
+            })
+            ->sortByDesc('Peso')
+            ->take(10);
+
+        $topProductosLabels = $productosAgrupados->pluck('NomArticulo')->toArray();
+        $topProductosPeso = $productosAgrupados->pluck('Peso')->toArray();
+
+        // GRAFICA DE VENTAS POR GRUPO
+        $ventasPorGrupo = $concentrado
+            ->groupBy('NomGrupo')
+            ->map(function ($items) {
+                return $items->sum(function ($item) {
+                    return floatval($item->Importe);
+                });
+            })
+            ->sortDesc();
+
+        $gruposLabels = $ventasPorGrupo->keys()->toArray();
+        $gruposData = $ventasPorGrupo->values()->toArray();
+
+        // GRAFIA LISTAS DE PRECIOS
+        $ventasPorLista = $concentrado
+            ->groupBy('NomListaPrecio')
+            ->map(function ($items) {
+                return $items->sum(function ($item) {
+                    return floatval($item->Importe);
+                });
+            })
+            ->sortDesc();
+
+        $listaLabels = $ventasPorLista->keys()->toArray();
+        $listaData = $ventasPorLista->values()->toArray();
+
         return view('Reportes.ConcentradoDeArticulos', compact(
             'tiendas',
             'filtrosAvanzadosActivos',
             'concentrado',
             'optionsOnline',
             'agrupado',
-            'agrupadoArticulo'
+            'agrupadoArticulo',
+            'topProductosLabels',
+            'topProductosPeso',
+            'gruposLabels',
+            'gruposData',
+            'listaLabels',
+            'listaData'
         ));
     }
 
@@ -1255,8 +1309,10 @@ class ReportesController extends Controller
                         ->orWhere('ca.NomArticulo', 'like', '%' . $txtFiltro . '%');
                 });
             })
+            ->whereIn('CapMermas.IdTienda', $this->tiendasIds)
             ->orderBy('CapMermas.FechaCaptura', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends(request()->query());
 
         return view('Reportes.ConcentradoDeMermas', compact('tiendas', 'idTienda', 'txtFiltro', 'fecha1', 'fecha2', 'concentrado'));
     }
@@ -1318,7 +1374,8 @@ class ReportesController extends Controller
 
             DB::commit();
 
-            $name = 'MERMAS--' . Carbon::now()->parse(date(now()))->format('Y--m--d') . '.xlsx';
+            // $name = 'MERMAS--' . Carbon::now()->parse(date(now()))->format('Y--m--d') . '.xlsx';
+            $name = 'exports.xlsx';
 
             return Excel::download(new Mermas($data), $name);
         } catch (\Throwable $th) {

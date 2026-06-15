@@ -137,7 +137,7 @@
             {{-- style="min-height: 0;" --}}
         >
             <div
-                class="d-flex flex-column"
+                class="d-flex flex-column flex-grow-1"
                 {{-- style="flex: 2; min-width: 0; min-height: 0;" --}}
                 style="min-width: 0;"
             >

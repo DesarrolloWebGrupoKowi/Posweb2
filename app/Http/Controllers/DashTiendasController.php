@@ -8,17 +8,15 @@ use App\Services\TiendaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class DashTiendasController extends Controller
 {
-    protected $tiendaService;
-    protected $tiendasIds;
-    protected $tiendas;
+    protected Collection $tiendas;
+    protected array $tiendasIds;
 
-    public function __construct(TiendaService $tiendaService)
+    public function __construct(protected TiendaService $tiendaService)
     {
-        $this->tiendaService = $tiendaService;
-
         $this->middleware(function ($request, $next) {
             $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();
             $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();

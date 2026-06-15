@@ -9,34 +9,43 @@ use App\Models\CustomerCloud;
 
 class ClientesCloudController extends Controller
 {
-    public function CatClientesCloud(){
-        $clientesCloud = ClienteCloud::all();
+    public function CatClientesCloud()
+    {
+        $clientesCloud = ClienteCloud::paginate(10)
+            ->appends(request()->query());
 
         return view('ClientesCloud.CatClientesCloud', compact('clientesCloud'));
     }
 
-    public function BuscarCustomer(Request $request){
-
-        $sqlSelect = "select distinct ID_CLIENTE, NOMBRE, TIPO_CLIENTE".
-                     " from SERVER.CLOUD_TABLES.dbo.XXKW_CUSTOMERS".
-                     " where ID_CLIENTE not in (select IdClienteCloud".
-                     " from CatClientesCloud)".
-                     " and NOMBRE like '%".$request->txtFiltro."%'".
-                     " and LOCATION_STATUS = 'A'";
+    public function BuscarCustomer(Request $request)
+    {
+        $sqlSelect = "select distinct ID_CLIENTE, NOMBRE, TIPO_CLIENTE" .
+            " from SERVER.CLOUD_TABLES.dbo.XXKW_CUSTOMERS" .
+            " where ID_CLIENTE not in (select IdClienteCloud" .
+            " from CatClientesCloud)" .
+            " and NOMBRE like '%" . $request->txtFiltro . "%'" .
+            " and LOCATION_STATUS = 'A'";
 
         $customers = DB::select($sqlSelect);
 
+        // Si es petición AJAX, devolver JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json($customers);
+        }
+
+        // Si no es AJAX, devolver vista normal
         return view('ClientesCloud.ifrBuscarCustomer', compact('customers'));
     }
 
-    public function GuardarCustomerCloud(Request $request){
+    public function GuardarCustomerCloud(Request $request)
+    {
         $idClientes = $request->chkCustomer;
 
         foreach ($idClientes as $key => $idCliente) {
             $customers = CustomerCloud::where('ID_CLIENTE', $idCliente)
-                            ->select('ID_CLIENTE', 'NOMBRE', 'TIPO_CLIENTE')
-                            ->distinct('ID_CLIENTE')
-                            ->get();
+                ->select('ID_CLIENTE', 'NOMBRE', 'TIPO_CLIENTE')
+                ->distinct('ID_CLIENTE')
+                ->get();
 
             foreach ($customers as $keyCustomer => $customer) {
                 ClienteCloud::insert([

@@ -12,6 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{{ asset('img/logokowi.png') }}">
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/typeTailwind.css') }}">
     <link rel="stylesheet" href="{{ asset('css/Style.css') }}">
     <link href="{{ asset('material-icon/material-icon.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('Icons/font-awesome.min.css') }}">
@@ -40,7 +41,7 @@
                                     aria-expanded="false">
                                     <strong>Iniciar Sesión</strong>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-dark text-small shadow"
+                                <ul class="dropdown-menu text-small shadow"
                                     aria-labelledby="navbarDropdownMenuLink">
                                     <li>
                                         <a class="dropdown-item" href="/Login"><i class="fa fa-sign-in"></i> Login</a>
@@ -55,7 +56,7 @@
                                     <span class="material-icons" style="color: white">account_circle</span>
                                     <strong>{{ Auth::user()->NomUsuario }}</strong>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownUser1">
+                                <ul class="dropdown-menu" aria-labelledby="dropdownUser1">
                                     <a class="dropdown-item disabled"><i class="fa fa-id-card-o"></i>
                                         {{ Auth::user()->tipoUsuario->NomTipoUsuario }}</a>
                                     <li>
