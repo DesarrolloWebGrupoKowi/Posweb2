@@ -3,7 +3,7 @@
 @section('dashboardWidth', 'width-95')
 
 @section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+    <x-page-container>
         <x-card-gradient-header
             icon="menu-button-wide"
             title="Catálogo de Menús"
@@ -218,7 +218,7 @@
                 @include('components.paginate', ['items' => $menusPosweb])
             </div>
         </x-card-gradient-header>
-    </div>
+    </x-page-container>
 
     @include('Menus.ModalAgregar')
 

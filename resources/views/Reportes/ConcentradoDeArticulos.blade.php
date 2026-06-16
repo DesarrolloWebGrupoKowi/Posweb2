@@ -3,9 +3,7 @@
 @section('dashboardWidth', 'width-95')
 
 @section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 py-4">
-
-        {{-- SECCIÓN 1: FILTROS --}}
+    <x-page-container>
         <x-card-gradient-header
             icon="graph-up"
             title="Concentrado de Artículos"
@@ -514,7 +512,7 @@
                 </div>
             </div>
         </x-card-gradient-header>
-    </div>
+    </x-page-container>
 @endsection
 
 @section('scripts')

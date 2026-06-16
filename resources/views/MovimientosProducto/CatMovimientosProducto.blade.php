@@ -3,7 +3,7 @@
 @section('dashboardWidth', 'width-95')
 
 @section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+    <x-page-container>
         <x-card-gradient-header
             icon="arrow-left-right"
             title="Catálogo de Movimientos de Producto"
@@ -65,7 +65,7 @@
                 @include('components.paginate', ['items' => $movimientosProducto])
             </div>
         </x-card-gradient-header>
-    </div>
+    </x-page-container>
 
     @include('MovimientosProducto.ModalAgregarMovimiento')
 @endsection

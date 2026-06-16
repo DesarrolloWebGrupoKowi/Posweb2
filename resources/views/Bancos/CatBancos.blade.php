@@ -3,7 +3,7 @@
 @section('dashboardWidth', 'width-95')
 
 @section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+    <x-page-container>
         <x-card-gradient-header
             icon="bank"
             title="Catálogo de Bancos"
@@ -65,7 +65,7 @@
                 @include('components.paginate', ['items' => $bancos])
             </div>
         </x-card-gradient-header>
-    </div>
+    </x-page-container>
 
     @include('Bancos.ModalAgregarBanco')
 @endsection
