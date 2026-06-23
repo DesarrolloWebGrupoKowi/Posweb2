@@ -15,52 +15,22 @@
             </x-slot:buttons>
 
             <!-- Filtros -->
-            <div
-                class="border-bottom p-4"
-                style="border-color: #f1f5f9 !important;"
-            >
-                <form
-                    action="/CatPlazas"
-                    method="get"
-                >
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="fa fa-filter me-1"></i>Filtrar por estatus
-                            </label>
-                            <select
-                                class="form-select"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                                name="activo"
-                                id="activo"
-                                onchange="this.form.submit()"
-                            >
-                                <option value="">Estatus de plaza</option>
-                                <option
-                                    {{ $activo == '0' ? 'selected' : '' }}
-                                    value="0"
-                                >Activas</option>
-                                <option
-                                    {{ $activo == 1 ? 'selected' : '' }}
-                                    value="1"
-                                >Inactivas</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <a
-                                href="/CatPlazas"
-                                class="btn btn-sm d-flex align-items-center gap-2"
-                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px;"
-                            >
-                                <i class="fa fa-times-circle"></i> Limpiar
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            <x-form.form action="/CatPlazas" id="formPlazas">
+                <x-form.group>
+                    <x-form.select
+                        name="activo"
+                        label="Filtrar por estatus"
+                        icon="funnel"
+                        col="col-md-4"
+                        :options="['0' => 'Activas', '1' => 'Inactivas']"
+                        onchange="this.form.submit()"
+                        autofocus
+                    />
+                </x-form.group>
+                <div class="col-md-2 d-flex gap-2">
+                    <x-form.clear url="/CatPlazas" />
+                </div>
+            </x-form.form>
 
             <!-- Tabla -->
             <div class="p-4">

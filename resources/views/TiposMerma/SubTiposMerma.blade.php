@@ -15,53 +15,22 @@
             </x-slot:buttons>
 
             <!-- Filtro: Tipo de Merma -->
-            <div
-                class="border-bottom p-4"
-                style="border-color: #f1f5f9 !important;"
-            >
-                <form
-                    id="formTipoMerma"
-                    action="/SubTiposMerma"
-                    method="GET"
-                >
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="fa fa-filter me-1"></i>Tipo de Merma
-                            </label>
-                            <select
-                                class="form-select"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                                name="idTipoMerma"
-                                id="idTipoMerma"
-                                onchange="document.getElementById('formTipoMerma').submit()"
-                            >
-                                <option value="">Seleccione Tipo de Merma</option>
-                                @foreach ($tiposMerma as $tipoMerma)
-                                    <option
-                                        {{ $idTipoMerma == $tipoMerma->IdTipoMerma ? 'selected' : '' }}
-                                        value="{{ $tipoMerma->IdTipoMerma }}"
-                                    >
-                                        {{ $tipoMerma->NomTipoMerma }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <a
-                                href="/SubTiposMerma"
-                                class="btn btn-sm d-flex align-items-center gap-2"
-                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px;"
-                            >
-                                <i class="fa fa-times-circle"></i> Limpiar
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            <x-form.form action="/SubTiposMerma" id="formTipoMerma">
+                <x-form.group>
+                    <x-form.select
+                        name="idTipoMerma"
+                        label="Tipo de Merma"
+                        icon="filter"
+                        col="col-md-4"
+                        :options="$tiposMerma->pluck('NomTipoMerma', 'IdTipoMerma')->toArray()"
+                        onchange="this.form.submit()"
+                        autofocus
+                    />
+                </x-form.group>
+                <div class="col-md-2 d-flex gap-2">
+                    <x-form.clear url="/SubTiposMerma" />
+                </div>
+            </x-form.form>
 
             <!-- Contenido: Estado vacío o Tabla -->
             @if (empty($idTipoMerma))
@@ -153,9 +122,4 @@
 
     @include('TiposMerma.ModalAgregarSubTipoMerma')
 
-    <script>
-        document.getElementById('idTipoMerma').addEventListener('change', (e) => {
-            document.getElementById('formTipoMerma').submit();
-        });
-    </script>
 @endsection

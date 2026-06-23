@@ -15,115 +15,39 @@
             </x-slot:buttons>
 
             <!-- Filtros de búsqueda -->
-            <div
-                class="border-bottom p-4"
-                style="border-color: #f1f5f9 !important;"
-            >
-                <form
-                    method="GET"
-                    action="/CatMenuPosweb"
-                >
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="fa fa-search me-1"></i>Buscar menú
-                            </label>
-                            <input
-                                type="text"
-                                name="txtFiltro"
-                                class="form-control"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                                placeholder="Nombre, link, icono..."
-                                value="{{ request('txtFiltro') }}"
-                                autofocus
-                            >
-                        </div>
-                        <div class="col-md-3">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="fa fa-tag me-1"></i>Tipo de Menú
-                            </label>
-                            <select
-                                name="IdTipoMenu"
-                                class="form-select"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                            >
-                                <option value="">Todos</option>
-                                @foreach ($tipoMenus ?? [] as $tipo)
-                                    <option
-                                        value="{{ $tipo->IdTipoMenu }}"
-                                        {{ request('IdTipoMenu') == $tipo->IdTipoMenu ? 'selected' : '' }}
-                                    >
-                                        {{ $tipo->NomTipoMenu }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="fa fa-paint-brush me-1"></i>Color de Fondo
-                            </label>
-                            <select
-                                name="bgColor"
-                                class="form-select"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                            >
-                                <option value="">Todos</option>
-                                <option
-                                    value="bg-orange"
-                                    {{ request('bgColor') == 'bg-orange' ? 'selected' : '' }}
-                                >Orange</option>
-                                <option
-                                    value="bg-red"
-                                    {{ request('bgColor') == 'bg-red' ? 'selected' : '' }}
-                                >Red</option>
-                                <option
-                                    value="bg-green"
-                                    {{ request('bgColor') == 'bg-green' ? 'selected' : '' }}
-                                >Green</option>
-                                <option
-                                    value="bg-blue"
-                                    {{ request('bgColor') == 'bg-blue' ? 'selected' : '' }}
-                                >Blue</option>
-                                <option
-                                    value="bg-purple"
-                                    {{ request('bgColor') == 'bg-purple' ? 'selected' : '' }}
-                                >Purple</option>
-                                <option
-                                    value="bg-dark"
-                                    {{ request('bgColor') == 'bg-dark' ? 'selected' : '' }}
-                                >Dark</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="d-flex gap-2">
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm d-flex align-items-center flex-grow-1 gap-2"
-                                    style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px;"
-                                >
-                                    <i class="fa fa-filter"></i> Filtrar
-                                </button>
-                                <a
-                                    href="/CatMenusPosweb"
-                                    class="btn btn-sm d-flex align-items-center gap-2"
-                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px;"
-                                >
-                                    <i class="fa fa-times-circle"></i> Limpiar
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            <x-form.form action="/CatMenuPosweb">
+                <x-form.group>
+                    <x-form.text
+                        name="txtFiltro"
+                        label="Buscar menú"
+                        icon="search"
+                        placeholder="Nombre, link, icono..."
+                        col="col-md-4"
+                        :autofocus="true"
+                    />
+                    <x-form.select
+                        name="IdTipoMenu"
+                        label="Tipo de Menú"
+                        icon="tag"
+                        col="col-md-3"
+                        :options="$tipoMenus->pluck('NomTipoMenu', 'IdTipoMenu')->toArray()"
+                    />
+                    <x-form.select
+                        name="bgColor"
+                        label="Color de Fondo"
+                        icon="palette"
+                        col="col-md-3"
+                        :options="['bg-orange' => 'Orange', 'bg-red' => 'Red', 'bg-green' => 'Green', 'bg-blue' => 'Blue', 'bg-purple' => 'Purple', 'bg-dark' => 'Dark']"
+                    />
+                </x-form.group>
+                <div class="col-md-2 d-flex gap-2">
+                    <x-form.submit
+                        text="Filtrar"
+                        icon="funnel"
+                    />
+                    <x-form.clear url="/CatMenusPosweb" />
+                </div>
+            </x-form.form>
 
             <!-- Tabla -->
             <div class="p-4">

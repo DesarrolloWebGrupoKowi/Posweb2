@@ -15,52 +15,22 @@
             </x-slot:buttons>
 
             <!-- Filtros -->
-            <div
-                class="border-bottom p-4"
-                style="border-color: #f1f5f9 !important;"
-            >
-                <form
-                    action="/CatTipoUsuarios"
-                    id="formTipoUsuarios"
-                    method="get"
-                >
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="bi bi-funnel me-1"></i>Filtrar por estatus
-                            </label>
-                            <select
-                                class="form-select"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                                name="filtroActivo"
-                                id="filtroActivo"
-                                onchange="document.getElementById('formTipoUsuarios').submit()"
-                            >
-                                <option
-                                    {{ $filtroActivo == 0 ? 'selected' : '' }}
-                                    value="0"
-                                >Activos</option>
-                                <option
-                                    {{ $filtroActivo == 1 ? 'selected' : '' }}
-                                    value="1"
-                                >Inactivos</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <a
-                                href="/CatTipoUsuarios"
-                                class="btn btn-sm d-flex align-items-center gap-2"
-                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px;"
-                            >
-                                <i class="bi bi-x-circle"></i> Limpiar
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            <x-form.form action="/CatTipoUsuarios" id="formTipoUsuarios">
+                <x-form.group>
+                    <x-form.select
+                        name="filtroActivo"
+                        label="Filtrar por estatus"
+                        icon="funnel"
+                        col="col-md-4"
+                        :options="['0' => 'Activos', '1' => 'Inactivos']"
+                        onchange="this.form.submit()"
+                        autofocus
+                    />
+                </x-form.group>
+                <div class="col-md-2 d-flex gap-2">
+                    <x-form.clear url="/CatTipoUsuarios" />
+                </div>
+            </x-form.form>
 
             <!-- Tabla -->
             <div class="p-4">

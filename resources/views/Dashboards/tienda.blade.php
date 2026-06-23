@@ -26,118 +26,45 @@
             </x-slot:buttons>
 
             <!-- Filtros -->
-            <div class="border-bottom p-4">
-                <form
-                    method="GET"
-                    action="{{ route('DashTienda') }}"
-                >
-                    <div class="row g-3 align-items-end">
-                        <!-- Tienda -->
-                        <div class="col-md-3">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="bi bi-shop me-1"></i>Tienda
-                            </label>
-                            <select
-                                name="tienda_id"
-                                class="form-select"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                            >
-                                <option value="">Todas las tiendas</option>
-                                @foreach ($tiendas as $tienda)
-                                    <option
-                                        value="{{ $tienda->IdTienda }}"
-                                        {{ request('tienda_id') == $tienda->IdTienda ? 'selected' : '' }}
-                                    >
-                                        {{ $tienda->NomTienda }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Fecha -->
-                        <div class="col-md-2">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="bi bi-calendar3 me-1"></i>Fecha
-                            </label>
-                            <input
-                                type="date"
-                                name="fecha_fin"
-                                class="form-control"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                                value="{{ request('fecha_fin') }}"
-                                autofocus
-                            >
-                        </div>
-
-                        <!-- Pedido -->
-                        <div class="col-md-2">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="bi bi-search me-1"></i>Pedido
-                            </label>
-                            <input
-                                type="text"
-                                name="pos"
-                                class="form-control"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                                placeholder="POS_000000"
-                                value="{{ request('pos') }}"
-                            >
-                        </div>
-
-                        <!-- Checkbox Detallado con estilo input -->
-                        <div class="col-md-2">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="bi bi-eye me-1"></i>Detalle
-                            </label>
-                            <div
-                                class="d-flex align-items-center gap-2 rounded p-2"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; height: 42px; cursor: pointer;"
-                                onclick="document.getElementById('detallado').click()"
-                            >
-                                <input
-                                    class="form-check-input m-0"
-                                    type="checkbox"
-                                    name="detallado"
-                                    id="detallado"
-                                    {{ request('detallado') == 'on' ? 'checked' : '' }}
-                                    style="cursor: pointer; width: 16px; height: 16px; border: 1px solid #cbd5e1; border-radius: 3px;"
-                                >
-                                <label
-                                    class="form-check-label m-0"
-                                    for="detallado"
-                                    style="color: #64748b; font-size: 0.85rem; cursor: pointer; user-select: none;"
-                                >
-                                    {{ request('detallado') == 'on' ? 'Activado' : 'Desactivado' }}
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Botones -->
-                        <div class="col-md-3">
-                            <div class="d-flex gap-2">
-                                <x-form.submit
-                                    text="Filtrar"
-                                    icon="funnel"
-                                    class="flex-grow-1"
-                                />
-                                <x-form.clear />
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            <x-form.form action="{{ route('DashTienda') }}">
+                <x-form.group>
+                    <x-form.select
+                        name="tienda_id"
+                        label="Tienda"
+                        icon="shop"
+                        col="col-md-3"
+                        placeholder="Todas las tiendas"
+                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    />
+                    <x-form.date
+                        name="fecha_fin"
+                        label="Fecha"
+                        icon="calendar3"
+                        col="col-md-2"
+                        :autofocus="true"
+                    />
+                    <x-form.text
+                        name="pos"
+                        label="Pedido"
+                        icon="search"
+                        placeholder="POS_000000"
+                        col="col-md-2"
+                    />
+                    <x-form.checkbox-input
+                        name="detallado"
+                        label="Detalle"
+                        :checked="request('detallado') == 'on'"
+                    />
+                </x-form.group>
+                <div class="col-md-3 d-flex gap-2">
+                    <x-form.submit
+                        text="Filtrar"
+                        icon="funnel"
+                        class="flex-grow-1"
+                    />
+                    <x-form.clear />
+                </div>
+            </x-form.form>
 
             {{-- SECCIÓN 2: KPIs --}}
             <div class="p-4">

@@ -15,111 +15,39 @@
             </x-slot:buttons>
 
             <!-- Filtros de búsqueda -->
-            <div
-                class="border-bottom p-4"
-                style="border-color: #f1f5f9 !important;"
-            >
-                <form
-                    method="GET"
-                    action="/CatListasPrecio"
-                >
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="bi bi-search me-1"></i>Buscar lista de precio
-                            </label>
-                            <input
-                                type="text"
-                                name="txtFiltro"
-                                class="form-control"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                                placeholder="Nombre de lista..."
-                                value="{{ request('txtFiltro') }}"
-                                autofocus
-                            >
-                        </div>
-                        <div class="col-md-3">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="bi bi-percent me-1"></i>IVA
-                            </label>
-                            <select
-                                name="Iva"
-                                class="form-select"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                            >
-                                <option value="">Todos</option>
-                                <option
-                                    value="0"
-                                    {{ request('Iva') == '0' ? 'selected' : '' }}
-                                >0%</option>
-                                <option
-                                    value="8"
-                                    {{ request('Iva') == '8' ? 'selected' : '' }}
-                                >8%</option>
-                                <option
-                                    value="16"
-                                    {{ request('Iva') == '16' ? 'selected' : '' }}
-                                >16%</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                <i class="bi bi-weight me-1"></i>Rango de peso
-                            </label>
-                            <select
-                                name="rangoPeso"
-                                class="form-select"
-                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
-                            >
-                                <option value="">Todos</option>
-                                <option
-                                    value="0-10"
-                                    {{ request('rangoPeso') == '0-10' ? 'selected' : '' }}
-                                >0 - 10 kg</option>
-                                <option
-                                    value="10-50"
-                                    {{ request('rangoPeso') == '10-50' ? 'selected' : '' }}
-                                >10 - 50 kg</option>
-                                <option
-                                    value="50-100"
-                                    {{ request('rangoPeso') == '50-100' ? 'selected' : '' }}
-                                >50 - 100 kg</option>
-                                <option
-                                    value="100+"
-                                    {{ request('rangoPeso') == '100+' ? 'selected' : '' }}
-                                >Más de 100 kg</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="d-flex gap-2">
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm d-flex align-items-center flex-grow-1 gap-2"
-                                    style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px;"
-                                >
-                                    <i class="bi bi-funnel"></i> Filtrar
-                                </button>
-                                <a
-                                    href="/CatListasPrecio"
-                                    class="btn btn-sm d-flex align-items-center gap-2"
-                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px;"
-                                >
-                                    <i class="bi bi-x-circle"></i> Limpiar
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            <x-form.form action="/CatListasPrecio">
+                <x-form.group>
+                    <x-form.text
+                        name="txtFiltro"
+                        label="Buscar lista de precio"
+                        icon="search"
+                        placeholder="Nombre de lista..."
+                        col="col-md-4"
+                        :autofocus="true"
+                    />
+                    <x-form.select
+                        name="Iva"
+                        label="IVA"
+                        icon="percent"
+                        col="col-md-2"
+                        :options="['0' => '0%', '8' => '8%', '16' => '16%']"
+                    />
+                    <x-form.select
+                        name="rangoPeso"
+                        label="Rango de peso"
+                        icon="weight"
+                        col="col-md-2"
+                        :options="['0-10' => '0 - 10 kg', '10-50' => '10 - 50 kg', '50-100' => '50 - 100 kg', '100+' => 'Más de 100 kg']"
+                    />
+                </x-form.group>
+                <div class="col-md-2 d-flex gap-2">
+                    <x-form.submit
+                        text="Filtrar"
+                        icon="funnel"
+                    />
+                    <x-form.clear />
+                </div>
+            </x-form.form>
 
             <!-- Tabla -->
             <div class="p-4">
