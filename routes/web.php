@@ -1,1142 +1,572 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TiendasController;
+use App\Http\Controllers\UsuariosController;
+use App\Http\Controllers\TipoUsuariosController;
+use App\Http\Controllers\EstadosController;
+use App\Http\Controllers\CiudadesController;
+use App\Http\Controllers\PlazasController;
+use App\Http\Controllers\FamiliaArticulosController;
+use App\Http\Controllers\GruposController;
+use App\Http\Controllers\ArticulosController;
+use App\Http\Controllers\ListasPrecioController;
+use App\Http\Controllers\MenuPoswebController;
+use App\Http\Controllers\TipoMenuController;
+use App\Http\Controllers\TipoPagoController;
+use App\Http\Controllers\ClientesCloudController;
+use App\Http\Controllers\CajasController;
+use App\Http\Controllers\LimiteCreditoController;
+use App\Http\Controllers\BancosController;
+use App\Http\Controllers\MovimientosProductoController;
+use App\Http\Controllers\TablasUpdateController;
+use App\Http\Controllers\TipoArticulosController;
+use App\Http\Controllers\CuentasMermaController;
+use App\Http\Controllers\TiposMermaController;
+use App\Http\Controllers\LimiteCreditoEspecialController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
- */
+*/
 
-//Route::get('/', function () {
-//  return view('welcome');
-//});
-
-//Index Home
+// Index Home
 Route::get('/', function () {
     return redirect('Dashboard');
 })->name('index');
 
-Route::group(['middleware' => 'auth'], function () {
-    //+============================================================================================================================================+//
-    //Mostrar Catalogo Usuarios
-    Route::get('CatUsuarios', 'App\Http\Controllers\UsuariosController@CatUsuarios');
+Route::middleware('auth')->group(function () {
 
-    Route::get('/ConfirmarContrasena', 'App\Http\Controllers\ConfirmarContrasenaController@ConfirmarContrasena')
-        ->middleware('auth'); //Ruta para mostrar la vista
+    //+==========================================================================================================+
+    // CATÁLOGOS (MODERNIZADOS)
+    //+==========================================================================================================+
 
-    Route::post('/ConfirmContrasena/{id}', 'App\Http\Controllers\ConfirmarContrasenaController@ConfirmContrasena')
-        ->middleware('auth'); //Ruta Logica para confirmar la contraseña
+    // Tiendas
+    Route::get('CatTiendas', [TiendasController::class, 'CatTiendas'])->name('tiendas.index');
+    Route::post('CrearTienda', [TiendasController::class, 'CrearTienda'])->name('tiendas.store');
+    Route::post('EditarTienda/{id}', [TiendasController::class, 'EditarTienda'])->name('tiendas.update');
+    Route::post('EliminarTienda/{id}', [TiendasController::class, 'EliminarTienda'])->name('tiendas.destroy');
 
-    //CrearUsuario
-    Route::post('/CrearUsuario', 'App\Http\Controllers\UsuariosController@CrearUsuario');
+    // Usuarios
+    Route::get('CatUsuarios', [UsuariosController::class, 'CatUsuarios'])->name('usuarios.index');
+    Route::post('CrearUsuario', [UsuariosController::class, 'CrearUsuario'])->name('usuarios.store');
+    Route::post('Editar/{id}', [UsuariosController::class, 'EditarUsuario'])->name('usuarios.update');
+    Route::post('Eliminar/{id}', [UsuariosController::class, 'Eliminar'])->name('usuarios.destroy');
+    Route::post('ActivarUsuario/{id}', [UsuariosController::class, 'ActivarUsuario'])->name('usuarios.activate');
+    Route::post('CambiarContraseña/{id}', [UsuariosController::class, 'CambiarContraseña'])->name('usuarios.password');
 
-    //EliminarUsuario
-    Route::post('Eliminar/{id}', 'App\Http\Controllers\UsuariosController@Eliminar');
+    // Tipo de Usuarios
+    Route::get('CatTipoUsuarios', [TipoUsuariosController::class, 'CatTipoUsuarios'])->name('tipos-usuario.index');
+    Route::post('CrearTipoUsuario', [TipoUsuariosController::class, 'CrearTipoUsuario'])->name('tipos-usuario.store');
+    Route::post('EditarTipoUsuario/{id}', [TipoUsuariosController::class, 'EditarTipoUsuario'])->name('tipos-usuario.update');
+    Route::post('EliminarTipoUsuario/{id}', [TipoUsuariosController::class, 'EliminarTipoUsuario'])->name('tipos-usuario.destroy');
 
-    //EditarUsuario
-    Route::post('Editar/{id}', 'App\Http\Controllers\UsuariosController@EditarUsuario');
+    // Estados
+    Route::get('CatEstados', [EstadosController::class, 'CatEstados'])->name('estados.index');
+    Route::post('CrearEstado', [EstadosController::class, 'CrearEstado'])->name('estados.store');
+    Route::post('EditarEstado/{id}', [EstadosController::class, 'EditarEstado'])->name('estados.update');
 
-    //Cambiar Contraseña de usuario
-    Route::post('CambiarContraseña/{id}', 'App\Http\Controllers\UsuariosController@CambiarContraseña');
+    // Ciudades
+    Route::get('CatCiudades', [CiudadesController::class, 'CatCiudades'])->name('ciudades.index');
+    Route::post('CrearCiudad', [CiudadesController::class, 'CrearCiudad'])->name('ciudades.store');
+    Route::post('EditarCiudad/{id}', [CiudadesController::class, 'EditarCiudad'])->name('ciudades.update');
 
-    //Activar Usuario
-    Route::post('ActivarUsuario/{id}', 'App\Http\Controllers\UsuariosController@ActivarUsuario');
+    // Plazas
+    Route::get('CatPlazas', [PlazasController::class, 'CatPlazas'])->name('plazas.index');
+    Route::post('CrearPlaza', [PlazasController::class, 'CrearPlaza'])->name('plazas.store');
+    Route::post('EditarPlaza/{id}', [PlazasController::class, 'EditarPlaza'])->name('plazas.update');
 
-    //MiPerfil
+    // Familias
+    Route::get('CatFamilias', [FamiliaArticulosController::class, 'CatFamilias'])->name('familias.index');
+    Route::post('CrearFamilia', [FamiliaArticulosController::class, 'CrearFamilia'])->name('familias.store');
+
+    // Grupos
+    Route::get('CatGrupos', [GruposController::class, 'CatGrupos'])->name('grupos.index');
+    Route::post('CrearGrupo', [GruposController::class, 'CrearGrupo'])->name('grupos.store');
+
+    // Artículos
+    Route::get('CatArticulos', [ArticulosController::class, 'CatArticulos'])->name('articulos.index');
+    Route::post('CrearArticulo', [ArticulosController::class, 'CrearArticulo'])->name('articulos.store');
+    Route::post('EditarArticulo/{id}', [ArticulosController::class, 'EditarArticulo'])->name('articulos.update');
+    Route::get('ExportExcelCatArticulos', [ArticulosController::class, 'ExportExcel'])->name('articulos.export');
+    Route::get('BuscarArticulo', [ArticulosController::class, 'BuscarArticulo'])->name('articulos.buscar');
+    Route::post('LigarArticulo', [ArticulosController::class, 'LigarArticulo'])->name('articulos.ligar');
+
+    // Listas de Precio
+    Route::get('CatListasPrecio', [ListasPrecioController::class, 'CatListasPrecio'])->name('listas-precio.index');
+    Route::post('CrearListaPrecio', [ListasPrecioController::class, 'CrearListaPrecio'])->name('listas-precio.store');
+    Route::post('EditarListaPrecio/{id}', [ListasPrecioController::class, 'EditarListaPrecio'])->name('listas-precio.update');
+
+    // Menú Posweb
+    Route::get('CatMenuPosweb', [MenuPoswebController::class, 'CatMenuPosweb'])->name('menus.index');
+    Route::post('CrearMenuPosweb', [MenuPoswebController::class, 'CrearMenuPosweb'])->name('menus.store');
+    Route::post('EditarMenu/{id}', [MenuPoswebController::class, 'EditarMenu'])->name('menus.update');
+
+    // Tipo de Menú
+    Route::get('CatTipoMenu', [TipoMenuController::class, 'CatTipoMenu'])->name('tipos-menu.index');
+    Route::post('CrearTipoMenu', [TipoMenuController::class, 'CrearTipoMenu'])->name('tipos-menu.store');
+    Route::post('EditarTipoMenu/{id}', [TipoMenuController::class, 'EditarTipoMenu'])->name('tipos-menu.update');
+
+    // Tipo de Pago
+    Route::get('CatTipoPago', [TipoPagoController::class, 'CatTipoPago'])->name('tipos-pago.index');
+    Route::get('AgregarTipoPago', [TipoPagoController::class, 'AgregarTipoPago'])->name('tipos-pago.store');
+
+    // Clientes Cloud
+    Route::get('CatClientesCloud', [ClientesCloudController::class, 'CatClientesCloud'])->name('clientes-cloud.index');
+    Route::get('BuscarCustomer', [ClientesCloudController::class, 'BuscarCustomer'])->name('clientes-cloud.buscar');
+    Route::get('GuardarCustomerCloud', [ClientesCloudController::class, 'GuardarCustomerCloud'])->name('clientes-cloud.store');
+
+    // Cajas
+    Route::get('CatCajas', [CajasController::class, 'CatCajas'])->name('cajas.index');
+    Route::get('CrearCaja', [CajasController::class, 'CrearCaja'])->name('cajas.store');
+
+    // Límite Crédito
+    Route::get('CatLimiteCredito', [LimiteCreditoController::class, 'CatLimiteCredito'])->name('limites-credito.index');
+    Route::post('EditarLimiteCredito/{tipoNomina}', [LimiteCreditoController::class, 'EditarLimiteCredito'])->name('limites-credito.update');
+
+    // Bancos
+    Route::get('CatBancos', [BancosController::class, 'CatBancos'])->name('bancos.index');
+    Route::post('AgregarBanco', [BancosController::class, 'AgregarBanco'])->name('bancos.store');
+
+    // Movimientos de Producto
+    Route::get('CatMovimientosProducto', [MovimientosProductoController::class, 'CatMovimientosProducto'])->name('movimientos.index');
+    Route::post('AgregarMovimiento', [MovimientosProductoController::class, 'AgregarMovimiento'])->name('movimientos.store');
+
+    // Tablas
+    Route::get('CatTablas', [TablasUpdateController::class, 'CatTablas'])->name('tablas.index');
+    Route::post('AgregarTablas', [TablasUpdateController::class, 'AgregarTablas'])->name('tablas.store');
+
+    // Tipo de Artículos
+    Route::get('TipoArticulos', [TipoArticulosController::class, 'TipoArticulos'])->name('tipos-articulo.index');
+    Route::post('AgregarTipoArticulo', [TipoArticulosController::class, 'AgregarTipoArticulo'])->name('tipos-articulo.store');
+    Route::post('EliminarTipoArticulo/{idCatTipoArticulo}', [TipoArticulosController::class, 'EliminarTipoArticulo'])->name('tipos-articulo.destroy');
+
+    // Cuentas Merma
+    Route::get('CuentasMerma', [CuentasMermaController::class, 'CuentasMerma'])->name('cuentas-merma.index');
+    Route::post('AgregarCuentaMerma', [CuentasMermaController::class, 'AgregarCuentaMerma'])->name('cuentas-merma.store');
+
+    // Tipos de Merma
+    Route::get('TiposMerma', [TiposMermaController::class, 'TiposMerma'])->name('tipos-merma.index');
+    Route::post('CrearTipoMerma', [TiposMermaController::class, 'CrearTipoMerma'])->name('tipos-merma.store');
+    Route::post('EliminarTipoMerma/{idTipoMerma}', [TiposMermaController::class, 'EliminarTipoMerma'])->name('tipos-merma.destroy');
+
+    // Sub Tipos de Merma
+    Route::get('SubTiposMerma', [TiposMermaController::class, 'SubTiposMerma'])->name('subtipos-merma.index');
+    Route::post('CrearSubTipoMerma/{idTipoMerma}', [TiposMermaController::class, 'CrearSubTipoMerma'])->name('subtipos-merma.store');
+    Route::post('EliminarSubTipoMerma/{idSubTipoMerma}', [TiposMermaController::class, 'EliminarSubTipoMerma'])->name('subtipos-merma.destroy');
+
+    // Límite Crédito Especial
+    Route::get('CatLimiteCreditoEspecial', [LimiteCreditoEspecialController::class, 'index'])->name('limites-credito-especial.index');
+    Route::post('CatLimiteCreditoEspecial', [LimiteCreditoEspecialController::class, 'create'])->name('limites-credito-especial.store');
+    Route::put('CatLimiteCreditoEspecial/{Id}', [LimiteCreditoEspecialController::class, 'update'])->name('limites-credito-especial.update');
+    Route::delete('CatLimiteCreditoEspecial/{Id}', [LimiteCreditoEspecialController::class, 'delete'])->name('limites-credito-especial.destroy');
+
+    //+==========================================================================================================+
+    // RESTO DE RUTAS (SE MANTIENEN IGUAL)
+    //+==========================================================================================================+
+
+    // Confirmar Contraseña
+    Route::get('/ConfirmarContrasena', 'App\Http\Controllers\ConfirmarContrasenaController@ConfirmarContrasena');
+    Route::post('/ConfirmContrasena/{id}', 'App\Http\Controllers\ConfirmarContrasenaController@ConfirmContrasena');
+
+    // Mi Perfil
     Route::get('MiPerfil', 'App\Http\Controllers\UsuariosController@MiPerfil')->name('miperfil');
-
-    //EditarPerfil
     Route::post('EditarPerfil/{id}', 'App\Http\Controllers\UsuariosController@EditarPerfil');
-
-    //Cambiar Pasword
     Route::post('CambiarPassword/{id}', 'App\Http\Controllers\UsuariosController@CambiarPassword');
 
-    //+============================================================================================================================================+//
-    //Mostrar Estados
-    Route::get('CatEstados', 'App\Http\Controllers\EstadosController@CatEstados');
-
-    //CrearEstado
-    Route::post('/CrearEstado', 'App\Http\Controllers\EstadosController@CrearEstado');
-
-    //Editar Estado
-    Route::post('EditarEstado/{id}', 'App\Http\Controllers\EstadosController@EditarEstado');
-
-    //+============================================================================================================================================+//
-    //Mostrar Ciudades
-    Route::get('CatCiudades', 'App\Http\Controllers\CiudadesController@CatCiudades');
-
-    //CrearCiudad
-    Route::post('/CrearCiudad', 'App\Http\Controllers\CiudadesController@CrearCiudad');
-
-    //Editar Ciudad
-    Route::post('/EditarCiudad/{id}', 'App\Http\Controllers\CiudadesController@EditarCiudad');
-
-    //Ruta Select Dinamico Estado-Ciudad
+    // Select Dinámico Estado-Ciudad
     Route::get('/Ciudades/{id}', 'App\Http\Controllers\CiudadesController@Ciudades');
 
-    //+============================================================================================================================================+//
-    //Mostrar Tiendas
-    Route::get('CatTiendas', 'App\Http\Controllers\TiendasController@CatTiendas');
-
-    //CrearTienda
-    Route::post('/CrearTienda', 'App\Http\Controllers\TiendasController@CrearTienda');
-
-    //Editar Tienda
-    Route::post('EditarTienda/{id}', 'App\Http\Controllers\TiendasController@EditarTienda');
-
-    //Eliminar Tienda
-    Route::post('EliminarTienda/{id}', 'App\Http\Controllers\TiendasController@EliminarTienda');
-
-    //+============================================================================================================================================+//
-    //Mostrar Tiendas Que Van A Procesar Cortes (TIENDAS)
+    // Procesar Cortes - Tiendas
     Route::get('CatTiendasProcesar', 'App\Http\Controllers\TiendasController@CatTiendasProcesar');
-
-    //Actualizando Procesar Corte (TIENDAS)
     Route::post('CatTiendas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorte');
-
-    //Historial de Procesar Corte Tiendas (TIENDAS)
     Route::get('CatTiendas/historial/{id}', 'App\Http\Controllers\TiendasController@historialCatTiendas');
 
-    //+============================================================================================================================================+//
-    //Mostrar Tiendas Que Van A Procesar Cortes Rutas (RUTAS)
+    // Procesar Cortes - Rutas
     Route::get('CatRutasProcesar', 'App\Http\Controllers\TiendasController@CatRutasProcesar');
-
-    //Actualizando Procesar Corte Rutas (RUTAS)
     Route::post('CatRutas/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorteRutas');
-
-    //Historial de Procesar Corte Rutas (RUTAS)
     Route::get('CatRutas/historial/{id}', 'App\Http\Controllers\TiendasController@historialRutas');
 
-    //+============================================================================================================================================+//
-    //Mostrar Centros De Venta Que Van A Procesar Cortes (ECOMMERCE)
+    // Procesar Cortes - Ecommerce
     Route::get('CatCentrosVentaProcesar', 'App\Http\Controllers\TiendasController@CatCentrosVentaProcesar');
-
-    //Actualizando Procesar Corte Centros De Venta (ECOMMERCE)
     Route::post('CatCentrosVenta/procesarcorte/{id}', 'App\Http\Controllers\TiendasController@actualizarProcesarCorteCentrosVenta');
-
-    //Historial de Procesar Corte Centros De Venta (ECOMMERCE)
     Route::get('CatCentrosVenta/historial/{id}', 'App\Http\Controllers\TiendasController@historialCentrosVenta');
 
-    //+============================================================================================================================================+//
-    //Mostrar Tipo de Usuarios
-    Route::get('/CatTipoUsuarios', 'App\Http\Controllers\TipoUsuariosController@CatTipoUsuarios');
-
-    //Crear Tipo Usuario
-    Route::post('/CrearTipoUsuario', 'App\Http\Controllers\TipoUsuariosController@CrearTipoUsuario');
-
-    //EditarTipoUsuario
-    Route::post('/EditarTipoUsuario/{id}', 'App\Http\Controllers\TipoUsuariosController@EditarTipoUsuario');
-
-    //EliminarTipoUsuario
-    Route::post('/EliminarTipoUsuario/{id}', 'App\Http\Controllers\TipoUsuariosController@EliminarTipoUsuario');
-
-    //+============================================================================================================================================+//
-    //Mostrar Plazas
-    Route::get('/CatPlazas', 'App\Http\Controllers\PlazasController@CatPlazas');
-    //Crear Plaza
-    Route::post('/CrearPlaza', 'App\Http\Controllers\PlazasController@CrearPlaza');
-    //Editar Plaza
-    Route::post('/EditarPlaza/{id}', 'App\Http\Controllers\PlazasController@EditarPlaza');
-
-    //+============================================================================================================================================+//
-    //Mostrar Usuarios Tienda
+    // Usuarios Tienda
     Route::get('/CatUsuariosTienda', 'App\Http\Controllers\UsuariosTiendaController@CatUsuariosTienda');
-
-    //Crear Usuario Tienda
     Route::post('/CrearUsuarioTienda', 'App\Http\Controllers\UsuariosTiendaController@CrearUsuarioTienda');
-
-    //Editar Usuario Tienda
     Route::post('/EditarUsuarioTienda/{id}', 'App\Http\Controllers\UsuariosTiendaController@EditarUsuarioTienda');
-
-    //Eliminar Usuario Tienda
     Route::post('EliminarUsuarioTienda/{id}', 'App\Http\Controllers\UsuariosTiendaController@EliminarUsuarioTienda');
 
-    //+============================================================================================================================================+//
-    //Mostrar Menu Posweb
-    Route::get('/CatMenuPosweb', 'App\Http\Controllers\MenuPoswebController@CatMenuPosweb');
-
-    //Crear Menu Posweb
-    Route::post('/CrearMenuPosweb', 'App\Http\Controllers\MenuPoswebController@CrearMenuPosweb');
-
-    //Editar Menu Posweb
-    Route::post('/EditarMenu/{id}', 'App\Http\Controllers\MenuPoswebController@EditarMenu');
-
-    //OrdenarMenus
+    // Menú Posweb (adicionales)
     Route::get('/OrdenarMenus', 'App\Http\Controllers\MenuPoswebController@OrdenarMenus');
-
-    //EditarPosicionMenu
     Route::get('/EditarPosicionMenu', 'App\Http\Controllers\MenuPoswebController@EditarPosicionMenu');
 
-    //+============================================================================================================================================+//
-    //Mostrar Tipo de Menu
-    Route::get('/CatTipoMenu', 'App\Http\Controllers\TipoMenuController@CatTipoMenu');
-
-    //Crear Tipo de Menu
-    Route::post('/CrearTipoMenu', 'App\Http\Controllers\TipoMenuController@CrearTipoMenu');
-
-    //Editar Tipo de Menu
-    Route::post('/EditarTipoMenu/{id}', 'App\Http\Controllers\TipoMenuController@EditarTipoMenu');
-
-    //+============================================================================================================================================+//
-    //Mostrar Dat Menu Tipo Usuario
+    // Menu Tipo Usuario
     Route::get('/DatMenuTipoUsuario', 'App\Http\Controllers\MenuTipoUsuarioController@DatMenuTipoUsuario');
-
-    //Crear Menu Tipo Usuario
     Route::post('/CrearMenuTipoUsuario', 'App\Http\Controllers\MenuTipoUsuarioController@CrearMenuTipoUsuario');
-
-    //Remover Menú
     Route::get('/RemoverMenu', 'App\Http\Controllers\MenuTipoUsuarioController@RemoverMenu')->name('RemoverMenu');
-
-    //Agregar Menú
     Route::get('/AgregarMenu', 'App\Http\Controllers\MenuTipoUsuarioController@AgregarMenu');
 
-    //+============================================================================================================================================+//
-    //Mostrar Articulos
-    Route::get('/CatArticulos', 'App\Http\Controllers\ArticulosController@CatArticulos');
-
-    //Export detalle de precios a excel
-    Route::get('/ExportExcelCatArticulos', 'App\Http\Controllers\ArticulosController@ExportExcel');
-
-    //Crear Articulo
-    Route::post('/CrearArticulo', 'App\Http\Controllers\ArticulosController@CrearArticulo');
-
-    //Editar Articulo
-    Route::post('EditarArticulo/{id}', 'App\Http\Controllers\ArticulosController@EditarArticulo');
-
-    //EnviarArticulo
+    // Artículos (adicionales)
     Route::get('EnviarArticulo', 'App\Http\Controllers\ArticulosController@EnviarArticulo')->name('EnviarArticulo');
-
-    //mostrarArticulo
     Route::get('mostrarArticulo', 'App\Http\Controllers\ArticulosController@mostrarArticulo');
-
-    //mostrarArticulo
     Route::post('AgregarArticulo/{id}', 'App\Http\Controllers\ArticulosController@AgregarArticulo');
-
-    //Articulo Item
-    Route::get('BuscarArticulo', 'App\Http\Controllers\ArticulosController@BuscarArticulo')->name('BuscarArticulo');
-
-    //LigarArticulo
-    Route::post('LigarArticulo', 'App\Http\Controllers\ArticulosController@LigarArticulo');
-
-    //ListadoCodEtiqueta
     Route::get('/ListaCodEtiquetas', 'App\Http\Controllers\ListaCodEtiquetaController@ListaCodEtiquetas');
-
-    //GenerarPDF
     Route::get('/GenerarPDF', 'App\Http\Controllers\ListaCodEtiquetaController@GenerarPDF');
 
-    //+============================================================================================================================================+//
-    //Mostrar Listas de Precio
-    Route::get('/CatListasPrecio', 'App\Http\Controllers\ListasPrecioController@CatListasPrecio');
-
-    //Crear Lista de Precio
-    Route::post('/CrearListaPrecio', 'App\Http\Controllers\ListasPrecioController@CrearListaPrecio');
-
-    //Editar Lista de Precio
-    Route::post('/EditarListaPrecio/{id}', 'App\Http\Controllers\ListasPrecioController@EditarListaPrecio');
-
-    //+============================================================================================================================================+//
-    //InterfazCreditos
+    // Interfaz Créditos
     Route::get('/InterfazCreditos', 'App\Http\Controllers\InterfazCreditosController@InterfazCreditos');
-    //InterfazCreditosExcel
     Route::get('/InterfazCreditosExcel', 'App\Http\Controllers\InterfazCreditosController@InterfazCreditosExcel');
-    //InterfazarCreditos
     Route::post('/InterfazarCreditos/{fecha1}/{fecha2}/{idTipoNomina}/{numNomina}', 'App\Http\Controllers\InterfazCreditosController@InterfazarCreditos');
-    //PrepagoCreditos
     Route::get('/PrepagoCreditos/{fecha1}/{fecha2}/{numNomina}/{idTipoNomina}', 'App\Http\Controllers\InterfazCreditosController@PrepagoCreditos');
-    //CreditosPagosAbonos
     Route::get('/CreditosPagosAbonos', 'App\Http\Controllers\InterfazCreditosController@CreditosPagosAbonos');
-    //AjusteDeuda
     Route::post('/AjusteDeuda/{idEncabezado}/{importeDeuda}', 'App\Http\Controllers\InterfazCreditosController@AjusteDeuda');
-    //EliminarAjuste
     Route::post('/EliminarAjuste/{idEncabezado}', 'App\Http\Controllers\InterfazCreditosController@EliminarAjuste');
 
-    //+============================================================================================================================================+//
-    //Mostrar Lista Precio Tienda
+    // Lista Precio Tienda
     Route::get('/CatListaPrecioTienda', 'App\Http\Controllers\ListasPrecioTiendaController@CatListaPrecioTienda');
-
-    //CrearListaPrecioTienda
     Route::post('/CrearListaPrecioTienda', 'App\Http\Controllers\ListasPrecioTiendaController@CrearListaPrecioTienda');
-
-    //REmover Lista
     Route::get('/RemoverLista', 'App\Http\Controllers\ListasPrecioTiendaController@RemoverLista');
-
-    //Agregar Lista
     Route::get('/AgregarLista', 'App\Http\Controllers\ListasPrecioTiendaController@AgregarLista');
-    //+============================================================================================================================================+//
 
-    //Mostrar Familias
-    Route::get('/CatFamilias', 'App\Http\Controllers\FamiliaArticulosController@CatFamilias');
-    //Crear Familia
-    Route::post('/CrearFamilia', 'App\Http\Controllers\FamiliaArticulosController@CrearFamilia');
-
-    //+============================================================================================================================================+//
-    //Mostrar Grupos
-    Route::get('/CatGrupos', 'App\Http\Controllers\GruposController@CatGrupos');
-    //Crear Grupo
-    Route::post('/CrearGrupo', 'App\Http\Controllers\GruposController@CrearGrupo');
-    //+============================================================================================================================================+//
-    //DatPrecios -> Precios POSWEB
+    // Precios
     Route::get('/Precios', 'App\Http\Controllers\PreciosController@Precios')->name('Precios');
-
-    //Actualizar Precios
     Route::post('/ActualizarPrecios', 'App\Http\Controllers\PreciosController@ActualizarPrecios');
-
-    //Detalle de precios
     Route::get('/DetallePrecios', 'App\Http\Controllers\PreciosController@DetallePrecios');
-
-    //Export detalle de precios a excel
     Route::get('/ExportExcelDetallePrecios', 'App\Http\Controllers\PreciosController@ExportExcel');
-
-    //Detalle de promociones
     Route::get('/DetallePromociones', 'App\Http\Controllers\PreciosController@DetallePromociones');
-
-    //Detalle de promociones
     Route::post('/DetallePromociones/update', 'App\Http\Controllers\PreciosController@DetallePromocionesUpdate');
 
-    //+============================================================================================================================================+//
-    //Pedidos
+    // Pedidos
     Route::get('/Pedidos', 'App\Http\Controllers\PedidosController@Pedidos');
-
-    //Pedidos
     Route::get('/DatPedidos', 'App\Http\Controllers\PedidosController@DatPedidos');
-
-    //Mostrar Pedidos
     Route::get('/MostrarPedidos', 'App\Http\Controllers\PedidosController@MostrarPedidos');
-
-    //EliminarArticuloPedido
     Route::post('/EliminarArticuloPedido/{id}', 'App\Http\Controllers\PedidosController@EliminarArticuloPedido');
-
-    //GuardarPedido
     Route::get('/GuardarPedido', 'App\Http\Controllers\PedidosController@GuardarPedido');
-
-    //PedidosGuardados
     Route::get('/PedidosGuardados', 'App\Http\Controllers\PedidosController@PedidosGuardados');
-
-    //CancelarPedido
     Route::post('/CancelarPedido/{idPedido}', 'App\Http\Controllers\PedidosController@CancelarPedido');
-
-    //Enviar a Preventa (POS)
     Route::post('/EnviarAPreventa/{idPedido}', 'App\Http\Controllers\PedidosController@EnviarAPreventa');
-
-    //HistorialGuardados
     Route::get('/HistorialGuardados', 'App\Http\Controllers\PedidosController@HistorialGuardados');
 
-    //+============================================================================================================================================+//
-    //Dashboard
+    // Dashboard
     Route::get('/Dashboard', 'App\Http\Controllers\DashboardController@Dashboard')->name('dashboard');
 
-    //+============================================================================================================================================+//
-    //CajCajas
-    Route::get('/CatCajas', 'App\Http\Controllers\CajasController@CatCajas');
-
-    //CrearCaja
-    Route::get('/CrearCaja', 'App\Http\Controllers\CajasController@CrearCaja');
-
-    //CajasTienda
+    // Cajas (adicionales)
     Route::get('/CajasTienda', 'App\Http\Controllers\CajasController@CajasTienda');
-
-    //AgregarCajaTienda
     Route::post('/AgregarCajaTienda', 'App\Http\Controllers\CajasController@AgregarCajaTienda');
 
-    //+============================================================================================================================================+//
-    //VentaTipoPago
+    // Venta por Tipo Pago
     Route::get('/VentaPorTipoPago', 'App\Http\Controllers\VentaPorTipoPagoController@VentaPorTipoPago');
 
-    //+============================================================================================================================================+//
-    //CatClientes
+    // Clientes
     Route::get('/CatClientes', 'App\Http\Controllers\ClientesController@CatClientes');
-
-    //CatClientesActualizar
     Route::post('/CatClientes/Actualizar', 'App\Http\Controllers\ClientesController@CatClientesActualizar');
 
-    //+============================================================================================================================================+//
-    //CatClientesCloud
-    Route::get('/CatClientesCloud', 'App\Http\Controllers\ClientesCloudController@CatClientesCloud');
-
-    //BuscarCustomer
-    Route::get('/BuscarCustomer', 'App\Http\Controllers\ClientesCloudController@BuscarCustomer');
-
-    //GuardarCustomerCloud
-    Route::get('/GuardarCustomerCloud', 'App\Http\Controllers\ClientesCloudController@GuardarCustomerCloud');
-
-
-    //+============================================================================================================================================+//
-    //SolicitudesFactura del lado de los administradores
+    // Solicitudes Factura (Admin)
     Route::get('/SolicitudesFactura', 'App\Http\Controllers\SolicitudesFacturaController@VerSolicitudes');
-    //SolicitudFactura
     Route::get('/SolicitudesFactura/{id}', 'App\Http\Controllers\SolicitudesFacturaController@VerSolicitud');
-    //SolicitudFactura
     Route::get('/SolicitudesFactura/Relacionar/{id}/{billTo}', 'App\Http\Controllers\SolicitudesFacturaController@Relacionar');
-    //SolicitudFactura
     Route::get('/SolicitudesFactura/Finalizar/{id}', 'App\Http\Controllers\SolicitudesFacturaController@Finalizar');
-    //SolicitudesFactura
     Route::post('/SolicitudesFactura/Cancelar/{id}', 'App\Http\Controllers\SolicitudesFacturaController@Cancelar');
 
-    //+============================================================================================================================================+//
-    //SolicitudFactura del lado del cajero
+    // Solicitud Factura (Cajero)
     Route::get('/SolicitudFactura', 'App\Http\Controllers\SolicitudFacturaController@SolicitudFactura');
-
-    //VerSolicitudesFactura
     Route::get('/VerSolicitudesFactura', 'App\Http\Controllers\SolicitudFacturaController@VerSolicitudesFactura');
-
-    //GuardarSolicitudFacturaClienteNuevo
     Route::post('/GuardarSolicitudFacturaClienteNuevo', 'App\Http\Controllers\SolicitudFacturaController@GuardarSolicitudFacturaClienteNuevo');
-
-    //VerificarSolicitudFactura
     Route::get('/VerificarSolicitudFactura/{idTicket}/{rfcCliente}/{bill_To}/{correo}', 'App\Http\Controllers\SolicitudFacturaController@VerificarSolicitudFactura');
-
-    //GuardarSolicitudFactura
     Route::post('/GuardarSolicitudFactura', 'App\Http\Controllers\SolicitudFacturaController@GuardarSolicitudFactura');
-
-    //SubirConstanciaSolicitud
     Route::post('/SubirConstanciaSolicitud/{idSolicitudFactura}', 'App\Http\Controllers\SolicitudFacturaController@SubirConstanciaSolicitud');
-
-    //Subir solicitudes de factura PROD
     Route::post('/SolicitudesFactura/Subir', 'App\Http\Controllers\SolicitudFacturaController@SolicitudFacturaSubir');
 
-    //+============================================================================================================================================+//
-    //ClientesNuevos
+    // Ligar Clientes
     Route::get('/ClientesNuevos', 'App\Http\Controllers\LigarClientesController@ClientesNuevos');
-
-    //LigarCliente
     Route::get('/LigarCliente', 'App\Http\Controllers\LigarClientesController@LigarCliente');
-
-    //Cancelar solicitud
     Route::post('/ClientesNuevos/Cancelar/{id}', 'App\Http\Controllers\LigarClientesController@Cancelar');
-
-    //Finalizar solicitud
     Route::get('/ClientesNuevos/Finalizar/{id}', 'App\Http\Controllers\LigarClientesController@Finalizar');
-
-    //GuardarLigueCliente
     Route::post('/GuardarLigueCliente/{idSolicitudFactura}/{bill_To}', 'App\Http\Controllers\LigarClientesController@GuardarLigueCliente');
-
-    //GuardarCheckClienteEditado
     Route::get('/GuardarCheckClienteEditado', 'App\Http\Controllers\LigarClientesController@GuardarCheckClienteEditado');
-
-    //VerConstanciaCliente
     Route::get('/VerConstanciaCliente/{idSolicitudFactura}', 'App\Http\Controllers\LigarClientesController@VerConstanciaCliente');
 
-    //+============================================================================================================================================+//
-
-    //ClientesCloudTienda
+    // Clientes Cloud Tienda
     Route::get('/ClientesCloudTienda', 'App\Http\Controllers\ClientesCloudTiendaController@ClientesCloudTienda');
-
-    //RelacionClienteCloudTienda
     Route::get('/RelacionClienteCloudTienda', 'App\Http\Controllers\ClientesCloudTiendaController@RelacionClienteCloudTienda');
-
-    //GuararRelacionClienteCloud
     Route::get('/GuardarRelacionClienteCloud', 'App\Http\Controllers\ClientesCloudTiendaController@GuardarRelacionClienteCloud');
-
-    //GuardarDatClienteCloud
     Route::post('/GuardarDatClienteCloud', 'App\Http\Controllers\ClientesCloudTiendaController@GuardarDatClienteCloud');
-
-    //VerClientesCloudTienda
     Route::get('/VerClientesCloudTienda', 'App\Http\Controllers\ClientesCloudTiendaController@VerClientesCloudTienda');
 
-    //+============================================================================================================================================+//
-    //RecepcionProducto
+    // Recepción
     Route::get('/RecepcionProducto', 'App\Http\Controllers\RecepcionController@RecepcionProducto');
-
-
-    //Read excel file
     Route::post('/importExcel', 'App\Http\Controllers\RecepcionController@importExcel');
-
     Route::get('/ReadExcel', 'App\Http\Controllers\RecepcionController@vistaDemo');
-    //Route::view('/readExcel', 'Recepcion.ReadExcel');
-
-    //RecepcionarProducto
     Route::post('/RecepcionarProducto/{idRecepcion}', 'App\Http\Controllers\RecepcionController@RecepcionarProducto');
-
-    //CancelarRecepcion
     Route::post('/CancelarRecepcion/{idRecepcion}', 'App\Http\Controllers\RecepcionController@CancelarRecepcion');
-
-    //AgregarProductoManual
     Route::get('/AgregarProductoManual', 'App\Http\Controllers\RecepcionController@AgregarProductoManual');
-
-    //CapturaManualTmp
     Route::get('/CapturaManualTmp', 'App\Http\Controllers\RecepcionController@CapturaManualTmp');
-
-    //EliminarProductoManual
     Route::post('/EliminarProductoManual/{IdCapRecepcionManual}', 'App\Http\Controllers\RecepcionController@EliminarProductoManual');
-
-    //ReporteRecepciones
     Route::get('/ReporteRecepciones', 'App\Http\Controllers\RecepcionController@ReporteRecepciones');
-
-    //RecepcionLocalSinInternet
     Route::get('/RecepcionLocalSinInternet', 'App\Http\Controllers\RecepcionController@RecepcionLocalSinInternet');
-
-    //AgregarProductoLocalSinInternet
     Route::get('/AgregarProductoLocalSinInternet', 'App\Http\Controllers\RecepcionController@AgregarProductoLocalSinInternet')->name('AgregarProductoLocalSinInternet');
-
-    //EliminarArticuloSinInternet
     Route::post('/EliminarArticuloSinInternet/{idCapRecepcionManual}', 'App\Http\Controllers\RecepcionController@EliminarArticuloSinInternet')->name('EliminarArticuloSinInternet');
-
-    //RecepcionarProductoSinInternet
     Route::post('/RecepcionarProductoSinInternet', 'App\Http\Controllers\RecepcionController@RecepcionarProductoSinInternet')->name('RecepcionarProductoSinInternet');
 
-    //+============================================================================================================================================+//
-    //Posweb Pantalla Principal
+    // POS
     Route::get('/Pos', 'App\Http\Controllers\PoswebController@Pos')->name('Pos');
-
-    //Tickets pendientes de subir
     Route::get('/tickets/pendientes', 'App\Http\Controllers\PoswebController@TicketsPendientes');
-
-    //EliminarPago
     Route::post('/EliminarPago/{idDatTipoPago}', 'App\Http\Controllers\PoswebController@EliminarPago');
-
-    //BuscarEmpleado
     Route::get('/BuscarEmpleado', 'App\Http\Controllers\PoswebController@BuscarEmpleado')->name('BuscarEmpleado');
-
-    //QuitarEmpleado
     Route::get('/QuitarEmpleado', 'App\Http\Controllers\PoswebController@QuitarEmpleado')->name('QuitarEmpleado');
-
-    //CobroEmpleado
     Route::get('/CobroEmpleado', 'App\Http\Controllers\PoswebController@CobroEmpleado')->name('CobroEmpleado');
-
-    //CobroFrecuenteSocio
     Route::post('/CobroFrecuenteSocio/{folioFrecuenteSocio}', 'App\Http\Controllers\PoswebController@CobroFrecuenteSocio')->name('CobroFrecuenteSocio');
-
-    //CalculosPreventa
     Route::get('/CalculosPreventa', 'App\Http\Controllers\PoswebController@CalculosPreventa');
-
-    //EliminarArticuloPreventa
     Route::post('/EliminarArticuloPreventa/{id}', 'App\Http\Controllers\PoswebController@EliminarArticuloPreventa');
-
-    //PaquetesPreventa
     Route::get('/PaquetesPreventa', 'App\Http\Controllers\PoswebController@PaquetesPreventa');
-
-    //EliminarPreventa
     Route::get('/EliminarPreventa', 'App\Http\Controllers\PoswebController@EliminarPreventa');
-
-    //iframeConsultarArticulo
     Route::get('/iframeConsultarArticulo', 'App\Http\Controllers\PoswebController@iframeConsultarArticulo');
-
-    //Guardar Venta
     Route::get('/GuardarVenta', 'App\Http\Controllers\PoswebController@GuardarVenta')->name('GuardarVenta');
-
-    //Corte Diario
     Route::get('/CorteDiario', 'App\Http\Controllers\PoswebController@CorteDiario');
-
-    //GenerarCortePDF
     Route::get('/GenerarCortePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\PoswebController@GenerarCortePDF');
-
-    //Calculo Pago
     Route::get('/CalculoMultiPago/{idEncabezado}/{restante}/{pago}/{idTipoPago}/{idBanco}/{numTarjeta}', 'App\Http\Controllers\PoswebController@CalculoMultiPago')->name('CalculoMultiPago');
-
-    //ImprimirTicketVenta
     Route::get('/ImprimirTicketVenta/{idEncabezado}/{restante}/{pago}', 'App\Http\Controllers\PoswebController@ImprimirTicketVenta')->name('ImprimirTicketVenta');
-
-    //ReimprimirTicket
-
     Route::get('ReimprimirTicket', 'App\Http\Controllers\PoswebController@ReimprimirTicket')->name('ReimprimirTicket');
-
-    //ImprimirTicket
     Route::get('/ImprimirTicket', 'App\Http\Controllers\PoswebController@ImprimirTicket');
-
-    //MandarPulso
     Route::get('/MandarPulso', 'App\Http\Controllers\PoswebController@MandarPulso');
-
-    //VentaTicketDiario
     Route::get('/VentaTicketDiario', 'App\Http\Controllers\PoswebController@VentaTicketDiario');
-
-    //Subir Venta por ticket diario
     Route::post('/VentaTicketDiario/Subir', 'App\Http\Controllers\PoswebController@VentaTicketDiarioSubir');
-
-    //ConcentradoVentas
     Route::get('/ConcentradoVentas', 'App\Http\Controllers\PoswebController@ConcentradoVentas');
-
-    //VentaPorGrupo
     Route::get('/VentaPorGrupo', 'App\Http\Controllers\PoswebController@VentaPorGrupo');
-
-    //PagoMonedero
     Route::post('/PagoMonedero', 'App\Http\Controllers\PoswebController@PagoMonedero');
-
-    ///CancelarDescuento
     Route::get('/CancelarDescuento', 'App\Http\Controllers\PoswebController@CancelarDescuento');
-
-    //ReporteVentasListaPrecio
     Route::get('/ReporteVentasListaPrecio', 'App\Http\Controllers\PoswebController@ReporteVentasListaPrecio')->name('ReporteVentasListasPrecio');
 
-    //+============================================================================================================================================+//
-    //LigarSocioFrecuente
+    // Socio Frecuente
     Route::get('/LigarSocioFrecuente', 'App\Http\Controllers\SocioFrecuenteController@LigarSocioFrecuente')->name('LigarSocioFrecuente');
-    //GuardarSocioFrecuente
     Route::post('/GuardarSocioFrecuente/{folioViejo}', 'App\Http\Controllers\SocioFrecuenteController@GuardarSocioFrecuente')->name('GuardarSocioFrecuente');
-    //DescargarSociosFrecuentes
     Route::post('/DescargarSociosFrecuentes/{folioViejo}', 'App\Http\Controllers\SocioFrecuenteController@DescargarSociosFrecuentes')->name('DescargarSociosFrecuentes');
 
-    //+============================================================================================================================================+//
-    //Reporte de Stock
+    // Stock
     Route::get('/ReporteStock', 'App\Http\Controllers\StockTiendaController@ReporteStock');
-    //Reporte de Stock
     Route::get('/ReporteStockAdmin', 'App\Http\Controllers\StockTiendaController@ReporteStockAdmin');
-    //Reporte de Stock
     Route::get('/UpdateStockViewAdmin', 'App\Http\Controllers\StockTiendaController@UpdateStockViewAdmin');
-    //Reporte de Stock
     Route::post('/UpdateStockAdmin/{id}', 'App\Http\Controllers\StockTiendaController@UpdateStockAdmin');
 
-    //+============================================================================================================================================+//
-    //CatBancos
-    Route::get('/CatBancos', 'App\Http\Controllers\BancosController@CatBancos');
-
-    //AgregarBanco
-    Route::post('/AgregarBanco', 'App\Http\Controllers\BancosController@AgregarBanco');
-
-    //+============================================================================================================================================+//
-    //DatTipoPagoTienda
+    // Tipo Pago Tienda
     Route::get('/DatTipoPagoTienda', 'App\Http\Controllers\TipoPagoTiendaController@DatTipoPagoTienda');
-
-    //AgregarDatTipoPagoTienda
     Route::get('/AgregarDatTipoPagoTienda', 'App\Http\Controllers\TipoPagoTiendaController@AgregarDatTipoPagoTienda');
-
-    //RemoverDatTipoPagoTienda
     Route::get('/RemoverDatTipoPagoTienda', 'App\Http\Controllers\TipoPagoTiendaController@RemoverDatTipoPagoTienda');
 
-    //+============================================================================================================================================+//
-    //TipoPago
-    Route::get('CatTipoPago', 'App\Http\Controllers\TipoPagoController@CatTipoPago');
-
-    //Agregar TipoPago
-    Route::get('AgregarTipoPago', 'App\Http\Controllers\TipoPagoController@AgregarTipoPago');
-
-    //+============================================================================================================================================+//
-    //AdeudosEmpleado
+    // Empleados
     Route::get('AdeudosEmpleado', 'App\Http\Controllers\EmpleadosController@AdeudosEmpleado');
-
-    //CreditosPagados
     Route::get('CreditosPagados', 'App\Http\Controllers\EmpleadosController@CreditosPagados');
-
-    //VentaEmpleados
     Route::get('VentaEmpleados', 'App\Http\Controllers\EmpleadosController@VentaEmpleados');
-
-    //VentaEmpleadosExcel
     Route::get('VentaEmpleadosExcel', 'App\Http\Controllers\EmpleadosController@VentaEmpleadosExcel');
-
-    //VentasCredito
     Route::get('/VentasCredito', 'App\Http\Controllers\EmpleadosController@VentasCredito');
-
-    //ConcentradoAdeudos
     Route::get('/ConcentradoAdeudos', 'App\Http\Controllers\EmpleadosController@ConcentradoAdeudos');
 
-    //+============================================================================================================================================+//
-    //CatLimiteCredito
-    Route::get('CatLimiteCredito', 'App\Http\Controllers\LimiteCreditoController@CatLimiteCredito');
-
-    //EditarLimiteCredito
-    Route::post('EditarLimiteCredito/{tipoNomina}', 'App\Http\Controllers\LimiteCreditoController@EditarLimiteCredito');
-
-    //+============================================================================================================================================+//
-    //CatLimiteCreditoEspecial
-    Route::get('CatLimiteCreditoEspecial', 'App\Http\Controllers\LimiteCreditoEspecialController@index');
-
-    //AgregarEmpleado
-    Route::post('CatLimiteCreditoEspecial', 'App\Http\Controllers\LimiteCreditoEspecialController@create');
-
-    //EditarEmpleado
-    Route::put('CatLimiteCreditoEspecial/{Id}', 'App\Http\Controllers\LimiteCreditoEspecialController@update');
-
-    //EliminarEmpleado
-    Route::delete('CatLimiteCreditoEspecial/{Id}', 'App\Http\Controllers\LimiteCreditoEspecialController@delete');
-    //+============================================================================================================================================+//
-
-    //CatMonederoElectronico
+    // Monedero Electrónico
     Route::get('/CatMonederoElectronico', 'App\Http\Controllers\MonederoElectronicoController@CatMonederoElectronico');
-
-    //EditarMonederoElectronico
     Route::post('/EditarMonederoElectronico/{idCatMonedero}', 'App\Http\Controllers\MonederoElectronicoController@EditarMonederoElectronico');
-
-    //ReporteMonedero
     Route::get('/ReporteMonedero', 'App\Http\Controllers\MonederoElectronicoController@ReporteMonedero');
 
-    //+============================================================================================================================================+//
-    //CatMovimientosProducto
-    Route::get('/CatMovimientosProducto', 'App\Http\Controllers\MovimientosProductoController@CatMovimientosProducto');
-
-    //AgregarMovimiento
-    Route::post('/AgregarMovimiento', 'App\Http\Controllers\MovimientosProductoController@AgregarMovimiento');
-
-    //+============================================================================================================================================+//
-    //TablasUpdate
+    // Tablas Update (adicionales)
     Route::get('/TablasUpdate', 'App\Http\Controllers\TablasUpdateController@TablasUpdate');
-
-    //CatTablas
-    Route::get('/CatTablas', 'App\Http\Controllers\TablasUpdateController@CatTablas');
-
-    //AgregarTablas
-    Route::post('/AgregarTablas', 'App\Http\Controllers\TablasUpdateController@AgregarTablas');
-
-    //AgregarTablasActualizablesTienda
     Route::get('/AgregarTablasActualizablesTienda/{idTienda}', 'App\Http\Controllers\TablasUpdateController@AgregarTablasActualizablesTienda');
-
-    //ActualizarTablas
     Route::get('/ActualizarTablas/{idTienda}', 'App\Http\Controllers\TablasUpdateController@ActualizarTablas');
-
-    //AgregarTablaUpdate
     Route::post('/AgregarTablaUpdate/{idTienda}', 'App\Http\Controllers\TablasUpdateController@AgregarTablaUpdate');
 
-    //+============================================================================================================================================+//
-    //CatPaquetes
+    // Paquetes
     Route::get('/CatPaquetes', 'App\Http\Controllers\PaquetesController@CatPaquetes');
-
-    //VerPaquetes
     Route::get('/VerPaquetes', 'App\Http\Controllers\PaquetesController@VerPaquetes');
-
-    ///BuscarCodArticuloPaquqete
     Route::get('/BuscarCodArticuloPaquqete', 'App\Http\Controllers\PaquetesController@BuscarCodArticuloPaquqete');
-
-    //GuardarPaquete
     Route::post('/GuardarPaquete', 'App\Http\Controllers\PaquetesController@GuardarPaquete');
-
-    //EditarPaquete
     Route::get('/EditarPaquete/{idPaquete}', 'App\Http\Controllers\PaquetesController@EditarPaquete');
-
-    //EditarPaqueteExistente
     Route::post('/EditarPaqueteExistente/{idPaquete}', 'App\Http\Controllers\PaquetesController@EditarPaqueteExistente');
-
-    //EliminarPaquete
     Route::post('/EliminarPaquete/{idPaquete}', 'App\Http\Controllers\PaquetesController@EliminarPaquete');
-
-    //+============================================================================================================================================+//
-    //CatPaquetes - Locales
     Route::get('/Paquetes', 'App\Http\Controllers\PaquetesController@PaquetesLocal');
-    //Dar de baja un paquete
     Route::get('/ActivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@ActivarPaquetesLocal');
-    //Dar de baja un paquete
     Route::get('/DesactivarPaquetes/{idPaquete}', 'App\Http\Controllers\PaquetesController@DesactivarPaquetesLocal');
-    //Dar de baja un paquete
     Route::post('/Paquetes/{idPreparado}', 'App\Http\Controllers\PaquetesController@ActualizarCantidadRecepcion');
 
-    //+============================================================================================================================================+//
-    //TransaccionProducto
+    // Transacciones
     Route::get('/TransaccionProducto', 'App\Http\Controllers\TransaccionProductoController@TransaccionProducto');
-
-    //BuscarArticuloTransaccion
     Route::get('/BuscarArticuloTransaccion', 'App\Http\Controllers\TransaccionProductoController@BuscarArticuloTransaccion');
-
-    //GuardarTransaccion
     Route::post('/GuardarTransaccion', 'App\Http\Controllers\TransaccionProductoController@GuardarTransaccion');
-
-    //HistorialTransaccion
     Route::get('/HistorialTransaccion', 'App\Http\Controllers\TransaccionProductoController@HistorialTransaccion');
-
-    //HistorialTransaccionExcel
     Route::get('/HistorialTransaccionExcel', 'App\Http\Controllers\TransaccionProductoController@HistorialTransaccion');
-
-    //+============================================================================================================================================+//
-    //TransaccionesTienda
     Route::get('/TransaccionesTienda', 'App\Http\Controllers\TransaccionesTiendaController@TransaccionesTienda');
-
-    //AgregarTransaccionTienda
     Route::post('/AgregarTransaccionTienda/{idTienda}', 'App\Http\Controllers\TransaccionesTiendaController@AgregarTransaccionTienda');
-
-    //EliminarTransaccionTienda
     Route::post('/EliminarTransaccionTienda/{idTienda}', 'App\Http\Controllers\TransaccionesTiendaController@EliminarTransaccionTienda');
 
-    //+============================================================================================================================================+//
-    //SolicitudCancelacionTicket
+    // Cancelación Tickets
     Route::get('/SolicitudCancelacionTicket', 'App\Http\Controllers\CancelacionTicketsController@SolicitudCancelacionTicket');
-
-    //SolicitudCancelacionTicket
     Route::post('/SolicitudCancelacionTicket/Subir', 'App\Http\Controllers\CancelacionTicketsController@SolicitudCancelacionTicketSubir');
-
-    //SolicitarCancelacion
     Route::post('/SolicitarCancelacion/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@SolicitarCancelacion');
-
-    //CancelacionTickets
     Route::get('/CancelacionTickets', 'App\Http\Controllers\CancelacionTicketsController@CancelacionTickets');
-
-    //CancelarTicket
     Route::post('/CancelarTicket/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@CancelarTicket');
-
-    //CancelarTicket
     Route::post('/CancelarTicket/Cancelar/{idEncabezado}', 'App\Http\Controllers\CancelacionTicketsController@CancelarCancelarTicket');
-
-    //HistorialCancelacionTickets
     Route::get('/HistorialCancelacionTickets', 'App\Http\Controllers\CancelacionTicketsController@HistorialCancelacionTickets');
 
-    //+============================================================================================================================================+//
-    //ReporteSolicitudCancelacion
+    // Reporte Solicitud Cancelación
     Route::get('/ReporteSolicitudCancelacion', 'App\Http\Controllers\ReporteCancelacionTicketsController@SolicitudesCancelacion');
 
-    //+============================================================================================================================================+//
-    //CorreosTienda
+    // Correos Tienda
     Route::get('/CorreosTienda', 'App\Http\Controllers\CorreosTiendaController@CorreosTienda');
-
-    //GuardarCorreosTienda
     Route::post('/GuardarCorreosTienda/{idTienda}', 'App\Http\Controllers\CorreosTiendaController@GuardarCorreosTienda');
-
-    //EditarCorreosTienda
     Route::post('/EditarCorreosTienda/{idTienda}', 'App\Http\Controllers\CorreosTiendaController@EditarCorreosTienda');
 
-    //+============================================================================================================================================+//
-    //TiposMerma
-    Route::get('/TiposMerma', 'App\Http\Controllers\TiposMermaController@TiposMerma')->name('TiposMerma');
-
-    //CrearTipoMerma
-    Route::post('/CrearTipoMerma', 'App\Http\Controllers\TiposMermaController@CrearTipoMerma')->name('CrearTipoMerma');
-
-    //SubTiposMerma
-    Route::get('/SubTiposMerma', 'App\Http\Controllers\TiposMermaController@SubTiposMerma')->name('SubTiposMerma');
-
-    //CrearSubTipoMerma
-    Route::post('/CrearSubTipoMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@CrearSubTipoMerma')->name('CrearSubTipoMerma');
-
-    //EliminarSubTipoMerma
-    Route::post('/EliminarSubTipoMerma/{idSubTipoMerma}', 'App\Http\Controllers\TiposMermaController@EliminarSubTipoMerma')->name('EliminarSubTipoMerma');
-
-    //TiposMermaArticulo
+    // Mermas (adicionales)
     Route::get('/TiposMermaArticulo', 'App\Http\Controllers\TiposMermaController@TiposMermaArticulo')->name('TiposMermaArticulo');
-
-    //AgregarArticuloMerma
     Route::post('/AgregarArticuloMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@AgregarArticuloMerma')->name('AgregarArticuloMerma');
-
-    //EliminarArticuloTipoMerma
     Route::post('/EliminarArticuloTipoMerma/{idTipoMerma}/{codArticulo}', 'App\Http\Controllers\TiposMermaController@EliminarArticuloTipoMerma')->name('EliminarArticuloTipoMerma');
 
-    //EliminarTipoMerma
-    Route::post('/EliminarTipoMerma/{idTipoMerma}', 'App\Http\Controllers\TiposMermaController@EliminarTipoMerma')->name('EliminarTipoMerma');
-
-    //+============================================================================================================================================+//
-    //TipoArticulos
-    Route::get('/TipoArticulos', 'App\Http\Controllers\TipoArticulosController@TipoArticulos')->name('TipoArticulos');
-
-    //AgregarTipoArticulo
-    Route::post('/AgregarTipoArticulo', 'App\Http\Controllers\TipoArticulosController@AgregarTipoArticulo')->name('AgregarTipoArticulo');
-
-    //EliminarTipoArticulo
-    Route::post('/EliminarTipoArticulo/{idCatTipoArticulo}', 'App\Http\Controllers\TipoArticulosController@EliminarTipoArticulo')->name('EliminarTipoArticulo');
-
-    //+============================================================================================================================================+//
-    //CuentasMerma
-    Route::get('/CuentasMerma', 'App\Http\Controllers\CuentasMermaController@CuentasMerma')->name('CuentasMerma');
-
-    //AgregarCuentaMerma
-    Route::post('/AgregarCuentaMerma', 'App\Http\Controllers\CuentasMermaController@AgregarCuentaMerma')->name('AgregarCuentaMerma');
-
-    //+============================================================================================================================================+//
-    //CapMermas
+    // Cap Mermas
     Route::get('/CapMermas', 'App\Http\Controllers\CapMermasController@CapMermas')->name('CapMermas');
-
-    //TmpMermas
     Route::post('/TmpMermas/{idTipoMerma}', 'App\Http\Controllers\CapMermasController@TmpMermas')->name('TmpMermas');
-
-    //GuardarMermas
     Route::post('/GuardarMermas', 'App\Http\Controllers\CapMermasController@GuardarMermas')->name('GuardarMermas');
-
-    //EliminarMermaTmp
     Route::post('/EliminarMermaTmp/{idMermaTmp}', 'App\Http\Controllers\CapMermasController@EliminarMermaTmp')->name('EliminarMermaTmp');
-
-    //ReporteMermas
     Route::get('/ReporteMermas', 'App\Http\Controllers\CapMermasController@ReporteMermas')->name('ReporteMermas');
 
-    //+============================================================================================================================================+//
-    //InterfazMermas
+    // Interfaz Mermas
     Route::get('/InterfazMermas', 'App\Http\Controllers\InterfazMermasController@InterfazMermas')->name('InterfazMermas');
-
-    //InterfazarMermas
     Route::post('/InterfazarMermas/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazMermasController@InterfazarMermas')->name('InterfazarMermas');
-
-    //InterfazCreditosExcel
     Route::get('/InterfazMermasExcel', 'App\Http\Controllers\InterfazMermasController@InterfazMermasExcel');
 
-    //+============================================================================================================================================+//
-    //Dashboard de tiendas
+    // Dashboards
     Route::get('DashTiendas', 'App\Http\Controllers\DashTiendasController@Tiendas')->name('DashTiendas');
-
-    //Informacion para mostrar en la grafica del dashboard
     Route::get('DashTiendas/graficas', 'App\Http\Controllers\DashTiendasController@Grafica')->name('DashTiendas.grafica');
-
-    //Dashboard de tienda
     Route::get('DashTienda', 'App\Http\Controllers\DashTiendaController@Index')->name('DashTienda');
-
-    //Informacion para mostrar en la grafica del dashboard
     Route::get('DashTienda/grafica', 'App\Http\Controllers\DashTiendaController@Grafica')->name('DashTienda.grafica');
-
-    // Enviar pedido a Oracle (proxy)
     Route::post('DashTienda/enviar-pedido/{orden}', 'App\Http\Controllers\DashTiendaController@enviarPedidoOracle')->name('DashTienda.enviar-pedido');
-
-    // Enviar correo al Cliente (proxy)
     Route::post('DashTienda/enviar-correo', 'App\Http\Controllers\DashTiendaController@enviarCorreoOracle')->name('DashTienda.enviar-correo-cliente');
-
-    //Dashboard de tienda
     Route::get('DashCorte', 'App\Http\Controllers\DashCorteController@Index')->name('DashCorte');
-
-    //Dashboard de tienda
     Route::get('DashTiendaAdmin', 'App\Http\Controllers\DashTiendaAdminController@Index')->name('DashTiendaAdmin');
-
-    //Dashboard de Venta por Tickets
     Route::get('DashVentaPorTicket', 'App\Http\Controllers\DashVentaPorTicketController@index')->name('DashVentaPorTicket');
 
-    //+============================================================================================================================================+//
-    //VerCortesTienda
+    // Cortes Tienda
     Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerCortesTienda')->name('VerCortesTienda');
-
-    //BuscarCajasTienda
     Route::get('/BuscarCajasTienda', 'App\Http\Controllers\CortesTiendaController@BuscarCajasTienda')->name('BuscarCajasTienda');
-
-    //GenerarCorteOraclePDF
     Route::get('/GenerarCorteOraclePDF/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@GenerarCorteOraclePDF')->name('GenerarCorteOraclePDF');
-
-    //Procesar pedidos
     Route::get('/procesarclientescontado/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesContado')->name('ProcesarClientesContado');
-
-    //Procesar facturas
     Route::get('/procesarclientesfacturas/{fecha}/{idTienda}/{idDatCaja}', 'App\Http\Controllers\CortesTiendaController@ProcesarClientesFacturas')->name('ProcesarClientesFacturas');
-
-    //VerCortesTienda
     Route::get('/InformacionVentas', 'App\Http\Controllers\ReportesController@ReporteInformacionVentas')->name('InformacionVentas');
 
-    //+============================================================================================================================================+//
-    //ReporteMermasAdmin
+    // Reportes
     Route::get('/ReporteMermasAdmin', 'App\Http\Controllers\ReportesController@ReporteMermasAdmin')->name('ReporteMermasAdmin');
-
-    //ReporteMermasAdmin
     Route::get('/ReporteMermasAdminExcel', 'App\Http\Controllers\ReportesController@ReporteMermasAdminExcel')->name('ReporteMermasAdminExcel');
-
-    //ReporteRosticeroAdmin
     Route::get('/ReporteRosticeroAdmin', 'App\Http\Controllers\ReportesController@ReporteRosticeroAdmin')->name('ReporteRosticeroAdmin');
-
-    //ReporteConcentradoDeArticulos
     Route::get('/ReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeArticulos')->name('ReporteConcentradoDeArticulos');
-
-    //ReporteConcentradoDeArticulos
     Route::get('/ExportReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeArticulos')->name('ExportReporteConcentradoDeArticulos');
-
-    // Reporte de descuentos
     Route::get('/ReporteDescuentos', 'App\Http\Controllers\ReportesController@reporteDescuentos')->name('ReporteDescuentos');
-
-    // Exports reporte de descuentos
     Route::get('/ExportsReporteDescuentos', 'App\Http\Controllers\ReportesController@exportsDescuentos')->name('ExportsReporteDescuentos');
-
-    // Reporte de paquetes
     Route::get('/ReportePaquetes', 'App\Http\Controllers\ReportesController@reportePaquetes')->name('ReportePaquetes');
-
-    // Exports reporte de paquetes
     Route::get('/ExportsReportePaquetes', 'App\Http\Controllers\ReportesController@exportsPaquetes')->name('ExportsReportePaquetes');
-
-    //ReporteConcentradoDeTickets
     Route::get('/ReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeTickets')->name('ReporteConcentradoDeTickets');
-
-    // //ExportReporteConcentradoDeTickets
     Route::get('/ExportReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeTickets')->name('ExportReporteConcentradoDeTickets');
-
-    //ReportePorTipoDePrecio
     Route::get('/ReportePorTipoDePrecio', 'App\Http\Controllers\ReportesController@ReportePorTipoDePrecio')->name('ReportePorTipoDePrecio');
-
-    //ReportePorTipoDePrecio
     Route::get('/ExportReportePorTipoDePrecio', 'App\Http\Controllers\ReportesController@ExportReportePorTipoDePrecio')->name('ExportReportePorTipoDePrecio');
-
-    //ReporteConcentradoPorCiudadYFamilia
     Route::get('/ReporteConcentradoPorCiudadYFamilia', 'App\Http\Controllers\ReportesController@ReporteConcentradoPorCiudadYFamilia')->name('ReporteConcentradoPorCiudadYFamilia');
-
-    //ReporteConcentradoPorCiudadYFamilia
     Route::get('/ExportReporteConcentradoPorCiudadYFamilia', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoPorCiudadYFamilia')->name('ExportReporteConcentradoPorCiudadYFamilia');
-
-    //ReporteConcentradoPorTiendaYFamilia
     Route::get('/ReporteConcentradoPorTiendaYFamilia', 'App\Http\Controllers\ReportesController@ReporteConcentradoPorTiendaYFamilia')->name('ReporteConcentradoPorTiendaYFamilia');
-
-    //ExportReporteConcentradoPorTiendaYFamilia
-    // Route::get('/ExportReporteConcentradoPorTiendaYFamilia', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoPorTiendaYFamilia')->name('ExportReporteConcentradoPorTiendaYFamilia');
-
-    //ReporteGrupoYTipoPrecio
     Route::get('/ReporteGrupoYTipoPrecio', 'App\Http\Controllers\ReportesController@ReporteGrupoYTipoPrecio')->name('ReporteGrupoYTipoPrecio');
-
-    //ReporteGrupoYTipoPrecio
     Route::get('/ExportReporteGrupoYTipoPrecio', 'App\Http\Controllers\ReportesController@ExportReporteGrupoYTipoPrecio')->name('ExportReporteGrupoYTipoPrecio');
-
-    //ReporteGrupoYTipoPrecio
     Route::get('/ReporteDineroElectronido', 'App\Http\Controllers\ReportesController@ReporteDineroElectronido')->name('ReporteDineroElectronido');
-
-    //ReporteGrupoYTipoPrecio
     Route::get('/ExportReporteDineroElectronido', 'App\Http\Controllers\ReportesController@ExportReporteDineroElectronido')->name('ExportReporteDineroElectronido');
-
-    //ReportePedidosOracle
     Route::get('/ReportePedidosOracle', 'App\Http\Controllers\ReportesController@ReportePedidosOracle')->name('ReportePedidosOracle');
 
-    //+============================================================================================================================================+//
-    //BloqueoEmpleados
+    // Bloqueo Empleados
     Route::get('/BloqueoEmpleados', 'App\Http\Controllers\BloqueoEmpleadosController@BloqueoEmpleados');
-    //AgregarBloqueoEmpleado
     Route::post('/AgregarBloqueoEmpleado', 'App\Http\Controllers\BloqueoEmpleadosController@AgregarBloqueoEmpleado');
-    //DesbloquearEmpleado
     Route::post('/DesbloquearEmpleado/{numNomina}', 'App\Http\Controllers\BloqueoEmpleadosController@DesbloquearEmpleado');
-    //BuscarEmpleadoParaBloqueo
     Route::get('/BuscarEmpleadoParaBloqueo/{numNomina}', 'App\Http\Controllers\BloqueoEmpleadosController@BuscarEmpleadoParaBloqueo');
 
-    //+============================================================================================================================================+//
-    //ResumenVentas
+    // Resumen Ventas
     Route::get('/ResumenVentas', 'App\Http\Controllers\ResumenVentasController@ResumenVentas');
 
-    //+============================================================================================================================================+//
-    //Preparados
+    // Preparados
     Route::get('/Preparados', 'App\Http\Controllers\PreparadosController@Preparados')->name('Preparados.index');
-    //AgregarPreparados
     Route::post('/Preparados', 'App\Http\Controllers\PreparadosController@AgregarPreparados');
-    //EditarPreparados
     Route::post('/EditarPreparados/{id}', 'App\Http\Controllers\PreparadosController@EditarPreparados');
-    //EditarListaPreciosPreparados
     Route::post('/EditarListaPreciosPreparados/{id}', 'App\Http\Controllers\PreparadosController@EditarListaPreciosPreparados');
-    //EnviarPreparados
     Route::post('/EnviarPreparados/{id}', 'App\Http\Controllers\PreparadosController@EnviarPreparados');
-    //EliminarPreparados
     Route::post('/EliminarPreparados/{id}', 'App\Http\Controllers\PreparadosController@EliminarPreparados');
-    //AgregarArticuloDePreparados
     Route::post('/AgregarArticuloDePreparados/{idPreparado}', 'App\Http\Controllers\PreparadosController@AgregarArticulo');
-    //EliminarArticuloDePreparados
     Route::post('/EliminarArticuloDePreparados/{id}', 'App\Http\Controllers\PreparadosController@EliminarArticulo');
 
-    //+============================================================================================================================================+//
-    //AsignarPreparados
+    // Asignar Preparados
     Route::get('/AsignarPreparados', 'App\Http\Controllers\AsignarPreparadosController@Preparados')->name('AsignarPreparados.index');
-    //AsignarPreparados/{id}
     Route::get('/AsignarPreparados/{id}', 'App\Http\Controllers\AsignarPreparadosController@VerPreparado')->name('AsignarPreparados.id');
-    //RegresarPreparado
     Route::post('/RegresarPreparado/{id}', 'App\Http\Controllers\AsignarPreparadosController@RegresarPreparado');
-    //FinalizarPreparado
     Route::post('/FinalizarPreparado/{id}', 'App\Http\Controllers\AsignarPreparadosController@FinalizarPreparado');
-    //AsignarTienda
     Route::post('/AsignarTienda/{id}', 'App\Http\Controllers\AsignarPreparadosController@AsignarTienda');
-    //EliminarTiendaAsignada
     Route::post('/EliminarTiendaAsignada/{id}', 'App\Http\Controllers\AsignarPreparadosController@EliminarTiendaAsignada');
 
-    //+============================================================================================================================================+//
-    //DetalleAsignados
+    // Detalle Asignados
     Route::get('/DetalleAsignados', 'App\Http\Controllers\AsignacionPreparadosController@Asignados')->name('Asignados.index');
 
-    //+============================================================================================================================================+//
-    //ActualizacionPrecios
+    // Actualización Precios
     Route::get('/ActualizacionPrecios', 'App\Http\Controllers\ActualizacionPreciosController@index');
 
-    //+============================================================================================================================================+//
-    //update(Actualiza el sistema con los ultimos cambios de git)
+    // Update Sistema
     Route::get('/Update', 'App\Http\Controllers\ConfigSystemController@Index')->name('Update.index');
 
-    //+============================================================================================================================================+//
-    //CatDescuentos
+    // Descuentos
     Route::get('/CatDescuentos', 'App\Http\Controllers\DescuentosController@CatDescuentos');
-
-    //VerDescuentos
     Route::get('/VerDescuentos', 'App\Http\Controllers\DescuentosController@VerDescuentos')->name('VerDescuentos');
-
     Route::get('/VerDescuentosDetallado', 'App\Http\Controllers\DescuentosController@VerDescuentosDetallado')->name('VerDescuentosDetallado');
-    ///BuscarCodArticuloPaquqete
-    // Route::get('/BuscarCodArticuloPaquqete', 'App\Http\Controllers\PaquetesController@BuscarCodArticuloPaquqete');
-
-    //GuardarDescuento
     Route::post('/GuardarDescuento', 'App\Http\Controllers\DescuentosController@GuardarDescuento');
-
-    // //EditarPaquete
     Route::get('/EditarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EditarDescuento');
-
-    //EditarDescuentoExistente
     Route::post('/EditarDescuentoExistente/{idDescuento}', 'App\Http\Controllers\DescuentosController@EditarDescuentoExistente');
-
-    // //EliminarDescuento
     Route::post('/EliminarDescuento/{IdEncDescuento}', 'App\Http\Controllers\DescuentosController@EliminarDescuento');
-
-    // Desactivar producto del descuento
     Route::post('/DesactivarArticuloPromocion', 'App\Http\Controllers\DescuentosController@DesactivarArticuloPromocion');
 
-    //+============================================================================================================================================+//
-    //CatProdDiez
+    // Cat Prod Diez
     Route::get('/CatProdDiez', 'App\Http\Controllers\CatProdDiezController@index')->name('CatProdDiez.index');
-
-    //CrearCatProdDiez
     Route::post('/CrearCatProdDiez', 'App\Http\Controllers\CatProdDiezController@store');
-
-    //EliminarCatProdDiez
     Route::delete('/EliminarCatProdDiez/{id}', 'App\Http\Controllers\CatProdDiezController@destroy');
-}); //->Termina Middleware Auth
+}); // Termina Middleware Auth
 
 // GRUPO ROSTICERO
-Route::group(['middleware' => 'auth'], function () {
-    //+============================================================================================================================================+//
-    // Rutas de rosticero para los administrativos
-    //+============================================================================================================================================+//
-    //BajaRosticero
+Route::middleware('auth')->group(function () {
+    // Interfaz Rosticero (Admin)
     Route::get('/InterfazarRosticero', 'App\Http\Controllers\InterfazRosticeroController@index');
-
-    //InterfazarRosticero
     Route::post('/InterfazarRosticeroBaja/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazRosticeroController@InterfazarBaja');
-
-    //InterfazarRosticero
     Route::post('/InterfazarRosticeroAlta/{idTienda}/{fecha1}/{fecha2}', 'App\Http\Controllers\InterfazRosticeroController@InterfazarAlta');
 
-    //+============================================================================================================================================+//
-    // Rutas de rosticero para el cajero
-    //+============================================================================================================================================+//
-    //VerRosticero
+    // Rosticero (Cajero)
     Route::get('/VerRosticero', 'App\Http\Controllers\RosticeroController@VerRosticero');
-
-    //Crear Rosticero
     Route::post('/CrearRosticero', 'App\Http\Controllers\RosticeroController@CrearRosticero');
-
-    //Editar Rosticero
     Route::post('/EditarRosticero/{id}', 'App\Http\Controllers\RosticeroController@EditarRosticero');
-
-    //Agregar Detalle De Rosticero
     Route::post('/AgregarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@AgregarDetalleRosticero');
-
-    //Agregar Detalle De Rosticero
     Route::post('/Api/AgregarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@ApiAgregarDetalleRosticero');
-
-    //Agregar Detalle De Rosticero
     Route::post('/RecalentadoRosticero/{id}', 'App\Http\Controllers\RosticeroController@RecalentadoRosticero');
-
-    //Eliminar Rosticero
     Route::delete('/EliminarRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarRosticero');
-
-    //Eliminar Rosticero
     Route::put('/CambiarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@CambiarDetalleRosticero');
-
-    //Eliminar Rosticero
     Route::delete('/EliminarDetalleRosticero/{id}', 'App\Http\Controllers\RosticeroController@EliminarDetalleRosticero');
-
-    //Finalizar Rosticero
     Route::post('/FinalizarRosticero/{id}', 'App\Http\Controllers\RosticeroController@FinalizarRosticero');
-
-    //Recalentar Rosticero
     Route::post('/RecalentarRosticero', 'App\Http\Controllers\RosticeroController@RecalentarRosticero');
-
-    //Mermar Rosticero
     Route::post('/MermarRosticero', 'App\Http\Controllers\RosticeroController@MermarRosticero');
-
-    //Historial Rosticero
     Route::get('/HistorialRosticero', 'App\Http\Controllers\RosticeroController@HistorialRosticero');
 
-    //Reporte de movimientos de producto
+    // Reporte Movimientos Inventario
     Route::get('/ReporteMovimientosInventario', 'App\Http\Controllers\ReporteMovimientosProductosController@index');
-
-    //Reporte de movimientos de producto export excel
     Route::get('/ReporteMovimientosInventario/exports', 'App\Http\Controllers\ReporteMovimientosProductosController@exports');
-}); //->Termina Middleware Rosticero
+});
 
+// Autenticación
 Route::get('/Login', 'App\Http\Controllers\Auth\LoginController@Login')->middleware('guest')->name('login');
-
 Route::post('/authenticate', 'App\Http\Controllers\Auth\LoginController@authenticate');
-
 Route::post('/Logout', 'App\Http\Controllers\Auth\LoginController@Logout');
 
+// Pruebas
 Route::get('/pruebas', 'App\Http\Controllers\PruebasController@pruebas');
-
 Route::get('/pruebas2', 'App\Http\Controllers\PruebasController@pruebas2');
-
 Route::get('/pruebasjob', 'App\Http\Controllers\PruebasController@pruebasjob');
-
 Route::get('/promesas', 'App\Http\Controllers\PruebasController@promesas');
-
-//SubirArchivo
 Route::post('/SubirArchivo', 'App\Http\Controllers\PruebasController@SubirArchivo');
-
-//Runner test
 Route::post('/runnertest', 'App\Http\Controllers\PruebasController@SubirArchivo');
 
-// pagina de error 404
+// 404
 Route::fallback(function () {
     return view('Errores.Error404');
 });
