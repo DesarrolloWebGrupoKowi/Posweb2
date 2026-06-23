@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Sub Tipos de Merma')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Sub Tipos de Merma">
         <x-card-gradient-header
             icon="exclamation-circle"
             title="Catálogo de Sub Tipos de Merma"
@@ -121,5 +116,3 @@
     </x-page-container>
 
     @include('TiposMerma.ModalAgregarSubTipoMerma')
-
-@endsection

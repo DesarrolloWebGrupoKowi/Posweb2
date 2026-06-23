@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Tipos de Pago')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Tipos de Pago">
         <x-card-gradient-header
             icon="cash-stack"
             title="Catálogo de Tipos de Pago"
@@ -75,4 +70,3 @@
     </x-page-container>
 
     @include('TipoPago.ModalAgregar')
-@endsection

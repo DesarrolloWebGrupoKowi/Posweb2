@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo Grupos')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo Grupos">
         <x-card-gradient-header
             icon="folder-symlink"
             title="Catálogo de Grupos"
@@ -71,4 +66,3 @@
     </x-page-container>
 
     @include('Grupos.ModalAgregar')
-@endsection

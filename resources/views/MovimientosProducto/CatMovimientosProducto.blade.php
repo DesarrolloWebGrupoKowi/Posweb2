@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Movimientos de Producto')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Movimientos de Producto">
         <x-card-gradient-header
             icon="arrow-left-right"
             title="Catálogo de Movimientos de Producto"
@@ -68,4 +63,3 @@
     </x-page-container>
 
     @include('MovimientosProducto.ModalAgregarMovimiento')
-@endsection

@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Dashboard por Tienda')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Dashboard por Tienda">
         <x-card-gradient-header
             icon="shop"
             title="Dashboard por Tienda"
@@ -703,7 +698,6 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
-@endsection
 
 @section('scripts')
     <script>

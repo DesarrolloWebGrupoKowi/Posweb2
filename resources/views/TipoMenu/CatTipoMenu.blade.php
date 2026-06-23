@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Tipo de Menús')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Tipo de Menús">
         <x-card-gradient-header
             icon="list-columns-reverse"
             title="Catálogo de Tipos de Menús"
@@ -100,4 +95,3 @@
 
     <!-- Modal Agregar Tipo de Menú -->
     @include('TipoMenu.ModalAgregar')
-@endsection

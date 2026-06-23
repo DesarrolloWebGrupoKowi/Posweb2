@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Límite Crédito Para Empleados')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Límite Crédito Para Empleados">
         <x-card-gradient-header
             icon="person-badge"
             title="Límites de Crédito Para Empleados"
@@ -99,4 +94,3 @@
     </x-page-container>
 
     @include('LimiteCreditoEspecial.ModalAgregar')
-@endsection

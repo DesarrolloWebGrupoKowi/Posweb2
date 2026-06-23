@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Usuarios')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Usuarios">
         <x-card-gradient-header
             icon="people-fill"
             title="Catálogo de Usuarios"
@@ -152,4 +147,3 @@
     </x-page-container>
     <!--Modal Agregar Usuario-->
     @include('Usuarios.ModalAgregar')
-@endsection

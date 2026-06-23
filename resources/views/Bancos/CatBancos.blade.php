@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Bancos')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Bancos">
         <x-card-gradient-header
             icon="bank"
             title="Catálogo de Bancos"
@@ -68,4 +63,3 @@
     </x-page-container>
 
     @include('Bancos.ModalAgregarBanco')
-@endsection

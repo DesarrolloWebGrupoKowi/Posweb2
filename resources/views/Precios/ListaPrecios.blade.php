@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Módulo de Precios')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Módulo de Precios">
         <x-card-gradient-header
             icon="currency-dollar"
             title="Módulo de Precios"
@@ -101,4 +96,3 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
-@endsection

@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Clientes Cloud')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Clientes Cloud">
         <x-card-gradient-header
             icon="cloud"
             title="Catálogo de Clientes Cloud"
@@ -86,4 +81,3 @@
     </x-page-container>
 
     @include('ClientesCloud.ModalAgregar')
-@endsection

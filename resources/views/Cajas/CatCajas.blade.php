@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Cajas')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Cajas">
         <x-card-gradient-header
             icon="inbox"
             title="Catálogo de Cajas"
@@ -67,4 +62,3 @@
     </x-page-container>
 
     @include('Cajas.ModalAgregar')
-@endsection

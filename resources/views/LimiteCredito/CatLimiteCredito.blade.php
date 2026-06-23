@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Límite Crédito')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Límite Crédito">
         <x-card-gradient-header
             icon="credit-card"
             title="Tipos de Nómina y Límites de Crédito"
@@ -81,4 +76,3 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
-@endsection

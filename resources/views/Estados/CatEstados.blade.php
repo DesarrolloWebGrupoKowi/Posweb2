@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Estados')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Estados">
         <x-card-gradient-header
             icon="geo-alt"
             title="Catálogo de Estados"
@@ -105,4 +100,3 @@
 
     <!-- Modal Agregar Estado -->
     @include('Estados.ModalAgregar')
-@endsection

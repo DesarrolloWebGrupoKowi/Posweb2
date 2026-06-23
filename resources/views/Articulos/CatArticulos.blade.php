@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Articulos')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Articulos">
         <x-card-gradient-header
             icon="box-seam"
             title="Catálogo de Artículos"
@@ -167,4 +162,3 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
-@endsection

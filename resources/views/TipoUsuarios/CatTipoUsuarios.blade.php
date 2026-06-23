@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Tipo de Usuarios')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Tipo de Usuarios">
         <x-card-gradient-header
             icon="person-gear"
             title="Tipo de Usuarios"
@@ -111,4 +106,3 @@
     @include('TipoUsuarios.ModalAgregar')
 
     <script src="js/scriptTipoUsuarios.js"></script>
-@endsection

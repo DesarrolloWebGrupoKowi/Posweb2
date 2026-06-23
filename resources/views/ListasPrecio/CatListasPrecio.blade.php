@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Listas de Precio')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Listas de Precio">
         <x-card-gradient-header
             icon="tags"
             title="Catálogo de Listas de Precio"
@@ -132,4 +127,3 @@
     @include('ListasPrecio.ModalAgregar')
 
     <script src="js/ListasPrecioScript.js"></script>
-@endsection

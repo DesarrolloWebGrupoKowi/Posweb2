@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Ciudades')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Ciudades">
         <x-card-gradient-header
             icon="building"
             title="Catálogo de Ciudades"
@@ -120,4 +115,3 @@
 
     <!-- Modal Agregar Ciudad -->
     @include('Ciudades.ModalAgregar')
-@endsection

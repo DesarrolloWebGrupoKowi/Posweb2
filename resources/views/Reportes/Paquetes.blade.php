@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Concentrado de Paquetes')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Concentrado de Paquetes">
 
         {{-- SECCIÓN 1: FILTROS --}}
         <x-card-gradient-header
@@ -611,7 +606,6 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
-@endsection
 
 @section('scripts')
     <script>

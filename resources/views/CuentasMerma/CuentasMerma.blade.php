@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Cuentas Mermas Por Tienda')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Cuentas Mermas Por Tienda">
         <x-card-gradient-header
             icon="receipt"
             title="Catálogo de Cuentas Merma"
@@ -102,4 +97,3 @@
             document.getElementById('formCuentasMerma').submit();
         });
     </script>
-@endsection

@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Reporte de Movimientos de Inventario')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Reporte de Movimientos de Inventario">
         <x-card-gradient-header
             icon="box-arrow-in-down"
             title="Reporte de Movimientos de Inventario"
@@ -373,7 +368,6 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
-@endsection
 
 @section('scripts')
     <script>

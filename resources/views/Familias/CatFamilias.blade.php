@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Familias')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Familias">
         <x-card-gradient-header
             icon="folder"
             title="Catálogo de Familias"
@@ -103,4 +98,3 @@
     </x-page-container>
 
     @include('Familias.ModalAgregar')
-@endsection

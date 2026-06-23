@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Solicitudes Factura')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Solicitudes Factura">
         <x-card-gradient-header
             icon="file-text"
             title="Solicitudes Factura"
@@ -201,4 +196,3 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
-@endsection

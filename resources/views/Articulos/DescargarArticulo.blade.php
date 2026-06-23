@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Descargar Artículo')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Descargar Artículo">
         <x-card-gradient-header
             icon="cloud-download"
             title="Descargar Artículo"
@@ -449,4 +444,3 @@
             document.getElementById('form-buscar').submit();
         }
     </script>
-@endsection

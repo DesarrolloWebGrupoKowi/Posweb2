@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Menú Posweb')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Menú Posweb">
         <x-card-gradient-header
             icon="menu-button-wide"
             title="Catálogo de Menús"
@@ -190,4 +185,3 @@
             /* Texto gris oscuro */
         }
     </style>
-@endsection

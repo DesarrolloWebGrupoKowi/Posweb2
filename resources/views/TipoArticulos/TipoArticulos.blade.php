@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Tipos de Articulo')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Tipos de Articulo">
         <x-card-gradient-header
             icon="tag"
             title="Catálogo de Tipos de Artículo"
@@ -78,4 +73,3 @@
     </x-page-container>
 
     @include('TipoArticulos.ModalAgregarTipoArticulo')
-@endsection

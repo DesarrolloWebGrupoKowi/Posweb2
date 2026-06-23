@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Catálogo de Plazas')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Catálogo de Plazas">
         <x-card-gradient-header
             icon="shop-window"
             title="Catálogo de Plazas"
@@ -114,4 +109,3 @@
 
     <!-- Modal Agregar Plaza -->
     @include('Plazas.ModalAgregar')
-@endsection

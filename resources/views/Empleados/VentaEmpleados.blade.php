@@ -1,9 +1,4 @@
-@extends('PlantillaBase.masterbladeDashboard')
-@section('title', 'Ventas a Empleados')
-@section('dashboardWidth', 'width-95')
-
-@section('contenido')
-    <x-page-container>
+<x-page-container title="Ventas a Empleados">
         <x-card-gradient-header
             icon="people"
             title="Ventas a Empleados"
@@ -607,7 +602,6 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
-@endsection
 
 @section('scripts')
     <script>
