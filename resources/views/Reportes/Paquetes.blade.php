@@ -1,360 +1,398 @@
-@extends('PlantillaBase.masterbladeNewStyle')
+@extends('PlantillaBase.masterbladeDashboard')
 @section('title', 'Concentrado de Paquetes')
 @section('dashboardWidth', 'width-95')
+
 @section('contenido')
-    <x-layout.page-container>
+    <x-page-container>
 
-        <!-- SECCIÓN 1: FILTROS -->
-        <x-layout.section-card>
-            <x-layout.section-title>
-                <x-title titulo="Concentrado de Paquetes" />
-                <div class="d-flex gap-2">
-                    <x-filters.buttons.excel-button
-                        route="/ExportsReportePaquetes"
-                        :params="[
-                            'idTienda' => request('idTienda'),
-                            'fecha_inicio' => request('fecha_inicio'),
-                            'fecha_fin' => request('fecha_fin'),
-                            'id_paquete' => request('id_paquete'),
-                            'nom_paquete' => request('nom_paquete'),
-                        ]"
-                    />
-                    <x-filters.buttons.refresh-button />
-                    <x-filters.buttons.home-button />
-                </div>
-            </x-layout.section-title>
-
-            <!-- Formulario de filtros -->
-            <x-filters.filter-form>
-                <!-- Filtros Básicos -->
-                <x-filters.filter-group>
-                    <x-filters.inputs.select-input
-                        name="idTienda"
-                        label="Tienda"
-                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
-                    />
-                    <x-filters.inputs.date-input
-                        name="fecha_inicio"
-                        label="Fecha Inicio"
-                        :value="request('fecha_inicio')"
-                        :autofocus="true"
-                    />
-                    <x-filters.inputs.date-input
-                        name="fecha_fin"
-                        label="Fecha Fin"
-                        :value="request('fecha_fin')"
-                    />
-                    <x-filters.inputs.select-input
-                        name="id_paquete"
-                        label="Paquete"
-                        :options="$paquetes->pluck('NomPaquete', 'IdPaquete')->toArray()"
-                    />
-                </x-filters.filter-group>
-
-                <!-- Filtros Avanzados -->
-                <x-filters.advanced-collapse
-                    :active="$filtrosAvanzadosActivos"
-                    :showBadge="true"
+        {{-- SECCIÓN 1: FILTROS --}}
+        <x-card-gradient-header
+            icon="gift"
+            title="Concentrado de Paquetes"
+            subtitle="Reporte de paquetes comercializados por ticket"
+        >
+            <x-slot:buttons>
+                <a
+                    href="/ExportsReportePaquetes?{{ http_build_query(request()->only(['idTienda', 'fecha_inicio', 'fecha_fin', 'id_paquete', 'nom_paquete'])) }}"
+                    class="btn-header-ghost"
+                    title="Exportar a Excel"
+                    style="background: #f0fdf4; color: #10b981;"
+                    onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
                 >
-                    <x-filters.filter-group>
-                        {{-- <x-filters.inputs.select-input
-                            name="id_grupo"
-                            label="Grupo"
-                            :options="$grupos->pluck('NomGrupo', 'IdGrupo')->toArray()"
-                            compact="true"
-                        />
-                        <x-filters.inputs.select-input
-                            name="id_familia"
-                            label="Familia"
-                            :options="$familias->pluck('NomFamilia', 'IdFamilia')->toArray()"
-                            compact="true"
-                        /> --}}
-                        {{-- <x-filters.inputs.text-input
-                            name="id_paquete"
-                            label="ID Paquete"
-                            placeholder="Id del paquete"
-                            :value="request('id_paquete')"
-                            compact="true"
-                        /> --}}
-                        <x-filters.inputs.text-input
-                            name="nom_paquete"
-                            label="Nombre Paquete"
-                            placeholder="Nombre del paquete"
-                            :value="request('nom_paquete')"
-                            compact="true"
-                        />
-                    </x-filters.filter-group>
-                </x-filters.advanced-collapse>
+                    <i class="bi bi-file-earmark-excel"></i> Exportar
+                </a>
+                <x-header.buttons.refresh-button />
+                <x-header.buttons.home-button />
+            </x-slot:buttons>
 
-                <x-slot:buttons>
-                    <x-filters.buttons.clear-button />
-                    <x-filters.buttons.advanced-button
-                        :active="$filtrosAvanzadosActivos"
-                        :hasBadge="true"
-                    />
-                    <x-filters.buttons.submit-button />
-                </x-slot:buttons>
-            </x-filters.filter-form>
-        </x-layout.section-card>
+            <!-- Filtros -->
+            <div class="border-bottom p-4">
+                <form
+                    method="GET"
+                    action="/ReportePaquetes"
+                >
+                    {{-- Fila 1: Filtros principales + Botones --}}
+                    <div class="row g-3 align-items-end">
+                        <!-- Tienda -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-shop me-1"></i>Tienda
+                            </label>
+                            <select
+                                name="idTienda"
+                                class="form-select"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            >
+                                <option value="">Todas las tiendas</option>
+                                @foreach ($tiendas as $tienda)
+                                    <option
+                                        value="{{ $tienda->IdTienda }}"
+                                        {{ request('idTienda') == $tienda->IdTienda ? 'selected' : '' }}
+                                    >
+                                        {{ $tienda->NomTienda }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-        <!-- SECCIÓN 2: KPIs -->
-        <div class="flex-shrink-0">
-            @php
-                $kpis = $paquetesKPIs ?? [];
-            @endphp
-            <div class="row g-4">
-                <!-- KPI 1: Total de Paquetes Diferentes -->
-                <x-kpi.kpi-card
-                    title="Paquetes Diferentes"
-                    :value="$kpis['total_paquetes'] ?? 0"
-                    subtitle="Tipos de paquetes comercializados"
-                    color="primary"
-                    icon="components.icons.box"
-                />
+                        <!-- Fecha Inicio -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-calendar3 me-1"></i>Fecha Inicio
+                            </label>
+                            <input
+                                type="date"
+                                name="fecha_inicio"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                value="{{ request('fecha_inicio') }}"
+                                autofocus
+                            >
+                        </div>
 
-                <!-- KPI 2: Tickets con Paquetes -->
-                <x-kpi.kpi-card
-                    title="Tickets con Paquetes"
-                    :value="$kpis['total_tickets_con_paquetes'] ?? 0"
-                    subtitle="Tickets que incluyen al menos un paquete"
-                    color="info"
-                    icon="components.icons.ticket"
-                />
+                        <!-- Fecha Fin -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-calendar3 me-1"></i>Fecha Fin
+                            </label>
+                            <input
+                                type="date"
+                                name="fecha_fin"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                value="{{ request('fecha_fin') }}"
+                            >
+                        </div>
 
-                <!-- KPI 3: Importe Total en Paquetes -->
-                <x-kpi.kpi-card
-                    title="Importe en Paquetes"
-                    :value="$kpis['total_importe_paquetes'] ?? 0"
-                    subtitle="Monto total vendido en paquetes"
-                    :currency="true"
-                    color="success"
-                    icon="components.icons.dolar"
-                />
+                        <!-- Paquete -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-gift me-1"></i>Paquete
+                            </label>
+                            <select
+                                name="id_paquete"
+                                class="form-select"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            >
+                                <option value="">Todos</option>
+                                @foreach ($paquetes as $paquete)
+                                    <option
+                                        value="{{ $paquete->IdPaquete }}"
+                                        {{ request('id_paquete') == $paquete->IdPaquete ? 'selected' : '' }}
+                                    >
+                                        {{ $paquete->NomPaquete }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                <!-- Paquete más frecuente -->
-                @php
-                    $paqueteMasFrecuente = $kpis['paquete_mas_frecuente'] ?? null;
-                    $nombrePaquete = $paqueteMasFrecuente['nombre'] ?? 'N/A';
-                    $vecesVendido = $paqueteMasFrecuente['veces_vendido'] ?? 0;
-                @endphp
-                <x-kpi.kpi-card
-                    title="🏆 Paquete más Vendido (Frecuencia)"
-                    :value="$nombrePaquete"
-                    :subtitleHtml="'Veces vendido: ' . $vecesVendido . ' tickets'"
-                    color="warning"
-                    icon="components.icons.shopping-cart"
-                />
+                        <!-- Botones -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <x-form.submit
+                                    text="Filtrar"
+                                    icon="funnel"
+                                    class="flex-grow-1"
+                                />
+                                <x-form.clear url="/ReportePaquetes" />
+                                <button
+                                    type="button"
+                                    id="btnFiltrosAvanzados"
+                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                    style="background: {{ $filtrosAvanzadosActivos ? '#e2e8f0' : '#f1f5f9' }}; color: #475569; border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; white-space: nowrap;"
+                                    onclick="togglePanel('filaFiltrosAvanzados', 'btnFiltrosAvanzados')"
+                                    title="Filtros avanzados"
+                                >
+                                    <i class="bi bi-sliders"></i>
+                                    @if ($filtrosAvanzadosActivos)
+                                        <span
+                                            style="background: #3b82f6; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px;"
+                                        >●</span>
+                                    @endif
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
+                    {{-- Fila 2: Filtros avanzados (ocultos) --}}
+                    <div
+                        id="filaFiltrosAvanzados"
+                        class="row g-3 align-items-end {{ $filtrosAvanzadosActivos ? '' : 'd-none' }} mt-3"
+                    >
+                        <!-- Nombre Paquete -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-search me-1"></i>Nombre Paquete
+                            </label>
+                            <input
+                                type="text"
+                                name="nom_paquete"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                placeholder="Nombre del paquete"
+                                value="{{ request('nom_paquete') }}"
+                            >
+                        </div>
+                    </div>
+                </form>
             </div>
 
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div
-                        class=""
-                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:10px; padding: 2px;"
-                    >
+            {{-- SECCIÓN 2: KPIs --}}
+            @php $kpis = $paquetesKPIs ?? []; @endphp
+            <div class="p-4">
+                <div class="row g-3">
+                    <div class="col-xl-3 col-md-6 col-12">
                         <div
-                            class="card d-flex flex-column w-100 table-responsive content-table-sm border-0 p-4"
-                            style="border-radius: 10px; min-height: 0;"
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
                         >
-                            <table class="table">
-                                <thead class="table-head">
-                                    <tr>
-                                        <th>ID Paquete</th>
-                                        <th>Nombre</th>
-                                        <th>Veces Vendido</th>
-                                        <th>Total Artículos</th>
-                                        <th class="text-center">Importe Paquetes</th>
-                                        <th class="text-center">Importe Total</th>
-                                        <th class="text-center">Ticket Promedio</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($kpis['paquetes_detalle'] ?? [] as $paquete)
-                                        <tr>
-                                            <td>{{ $paquete['id'] }}</td>
-                                            <td style="text-wrap: nowrap">{{ $paquete['nombre'] }}</td>
-                                            <td>
-                                                <div
-                                                    {{-- class="text-center" --}}
-                                                    style="color: #667eea;"
-                                                >
-                                                    {{ $paquete['veces_vendido'] }}
-                                                </div>
-                                            </td>
-                                            <td
-                                                {{-- class="text-center" --}}
-                                                style="color: #2d3748;"
-                                            >{{ number_format($paquete['total_cantidad'], 2) }}</td>
-                                            <td
-                                                class="text-end"
-                                                style="color: #10b981;"
-                                            >${{ number_format($paquete['total_importe'], 2) }}</td>
-                                            <td class="text-secondary text-end">
-                                                ${{ number_format($paquete['total_importe_todos_articulos'], 2) }}</td>
-                                            <td class="text-end">
-                                                ${{ number_format($paquete['total_importe_todos_articulos'] / $paquete['veces_vendido'], 2) }}
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td
-                                                colspan="7"
-                                                class="text-center"
-                                            >No hay datos de paquetes</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(59, 130, 246, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #1d4ed8; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    >Paquetes Dif.</span>
+                                    <i
+                                        class="bi bi-gift"
+                                        style="color: #3b82f6; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >{{ $kpis['total_paquetes'] ?? 0 }}</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">Tipos de paquetes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #059669; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    >Tickets c/Paq.</span>
+                                    <i
+                                        class="bi bi-receipt"
+                                        style="color: #10b981; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >{{ $kpis['total_tickets_con_paquetes'] ?? 0 }}</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">Tickets con paquetes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    >Importe Paq.</span>
+                                    <i
+                                        class="bi bi-cash-stack"
+                                        style="color":
+                                        #8b5cf6;
+                                        font-size:
+                                        1.3rem;
+                                        opacity:
+                                        0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >${{ number_format($kpis['total_importe_paquetes'] ?? 0, 2) }}</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">Monto total en paquetes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(245, 158, 11, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #d97706; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    >Más Vendido</span>
+                                    <i
+                                        class="bi bi-trophy"
+                                        style="color: #f59e0b; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.2rem;"
+                                >
+                                    {{ \Illuminate\Support\Str::limit($kpis['paquete_mas_frecuente']['nombre'] ?? 'N/A', 20) }}
+                                </h3>
+                                <span
+                                    style="color: #94a3b8; font-size: 0.78rem;">{{ $kpis['paquete_mas_frecuente']['veces_vendido'] ?? 0 }}
+                                    veces vendido</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- SECCIÓN GRÁFICAS Y TABLAS -->
-        {{-- <div class="row">
-            <div
-                class="col-12 col-xxl-8 d-flex flex-column pb-4"
-                style="flex: 2; min-width: 0; min-height: 0;"
-            >
-                <div
-                    class="card d-flex flex-column w-100 border-0 p-4"
-                    style="border-radius: 10px; min-height: 0;"
-                >
-                    <div
-                        id="vistaTabla"
-                        class="flex-grow-1 table-responsive content-table-sm overflow-auto"
-                        style="min-height: 0;"
-                    >
-                        <table class="table">
-                            <thead class="table-head">
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Articulo</th>
-                                    <th>Cantidad</th>
-                                    <th>Precios</th>
-                                    <th>Iva</th>
-                                    <th>Importe</th>
-                                    <th>Fecha venta</th>
-                                    <th>NomGrupo</th>
-                                    <th>Familia</th>
-                                    <th>Ticket</th>
-                                    <th>Tienda</th>
-                                    <th>Paquete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    // Inicializamos las variables para la suma
-                                    $totalPeso = 0;
-                                    $precioLista = 0;
-                                    $precioDesc = 0;
-                                    $totalIva = 0;
-                                    $totalImporte = 0;
-                                @endphp
-                                @forelse ($data as $item)
-                                    <tr>
-                                        <td>{{ $item->CodArticulo }}</td>
-                                        <td>{{ $item->NomArticulo }}</td>
-                                        <td>{{ number_format($item->CantArticulo, 3) }}</td>
-                                        <td>
-                                            ${{ number_format($item->PrecioArticulo, 2) }}
-                                        </td>
-
-                                        <td>{{ number_format($item->IvaArticulo, 2) }}</td>
-                                        <td>{{ number_format($item->ImporteArticulo, 2) }}</td>
-                                        <td>{{ $item->FechaVenta }}</td>
-                                        <td>{{ $item->NomGrupo }}</td>
-                                        <td>{{ $item->NomFamilia }}</td>
-                                        <td>{{ $item->IdEncabezado }}</td>
-                                        <td>{{ $item->NomTienda }}</td>
-                                        <td>{{ $item->NomPaquete }}</td>
-                                    </tr>
-
-                                    @php
-                                        // Acumulamos los valores
-                                        $totalPeso += $item->CantArticulo;
-                                        // $precioLista += $item->PrecioLista;
-                                        $precioDesc += $item->PrecioArticulo;
-                                        $totalIva += $item->IvaArticulo;
-                                        $totalImporte += $item->ImporteArticulo;
-                                    @endphp
-                                @empty
-                                    <tr>
-                                        <td
-                                            colspan="14"
-                                            class="py-5 text-center"
-                                        >
-                                            <x-table-empty-state
-                                                title="Sin datos disponibles"
-                                                icon="cube"
-                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
-                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
-                                                action="Limpiar filtros"
-                                                actionUrl="/ReportePaquetes"
-                                            />
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-
-                            @if (count($data) > 0)
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="7"><strong>Total:</strong></td>
-                                        <td><strong>{{ number_format($totalPeso, 2) }}</strong></td>
-                                        <td>
-                                        </td>
-                                        <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
-                                        <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
-                                    </tr>
-                                </tfoot>
-                            @endif
-                        </table>
+                {{-- Tabla de detalle de paquetes --}}
+                @if (!empty($kpis['paquetes_detalle']))
+                    <div class="mt-4">
+                        <div
+                            class="rounded p-4 shadow-sm"
+                            style="background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;"
+                        >
+                            <h5
+                                class="mb-3"
+                                style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                            >
+                                <i
+                                    class="bi bi-bar-chart me-2"
+                                    style="color: #64748b;"
+                                ></i>Resumen por Paquete
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table-hover table-custom table">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="bi bi-hash me-1"></i>ID</th>
+                                            <th><i class="bi bi-gift me-1"></i>Nombre</th>
+                                            <th class="text-center"><i class="bi bi-cart me-1"></i>Veces</th>
+                                            <th class="text-end"><i class="bi bi-box me-1"></i>Artículos</th>
+                                            <th class="text-end"><i class="bi bi-cash me-1"></i>Importe Paq.</th>
+                                            <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Importe Total</th>
+                                            <th class="text-end"><i class="bi bi-receipt me-1"></i>Ticket Prom.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($kpis['paquetes_detalle'] as $paquete)
+                                            <tr>
+                                                <td style="font-weight: 600; color: #0f172a;">{{ $paquete['id'] }}</td>
+                                                <td style="font-weight: 500;">{{ $paquete['nombre'] }}</td>
+                                                <td
+                                                    class="text-center"
+                                                    style="font-weight: 500;"
+                                                >{{ $paquete['veces_vendido'] }}</td>
+                                                <td class="text-end">{{ number_format($paquete['total_cantidad'], 2) }}
+                                                </td>
+                                                <td
+                                                    class="text-end"
+                                                    style="color: #10b981; font-weight: 500;"
+                                                >${{ number_format($paquete['total_importe'], 2) }}</td>
+                                                <td class="text-end">
+                                                    ${{ number_format($paquete['total_importe_todos_articulos'], 2) }}</td>
+                                                <td class="text-end">
+                                                    ${{ number_format($paquete['total_importe_todos_articulos'] / $paquete['veces_vendido'], 2) }}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
-        </div> --}}
-        <div class="row">
-            <div
-                class="col-12 col-xxl-8 d-flex flex-column pb-4"
-                style="flex: 2; min-width: 0; min-height: 0;"
-            >
+
+            {{-- SECCIÓN 3: TABLA DETALLADA POR TICKET --}}
+            <div class="px-4 pb-4">
                 <div
-                    class="card d-flex flex-column w-100 border-0 p-4"
-                    style="border-radius: 10px; min-height: 0;"
+                    class="rounded p-4 shadow-sm"
+                    style="background: white; border-radius: 12px;"
                 >
-                    <div
-                        id="vistaTabla"
-                        class="flex-grow-1 table-responsive content-table-sm overflow-auto"
-                        style="min-height: 0;"
+                    <h5
+                        class="mb-3"
+                        style="font-weight: 600; color: #0f172a; font-size: 1rem;"
                     >
-                        <table class="table">
-                            <thead class="table-head">
+                        <i
+                            class="bi bi-ticket-detailed me-2"
+                            style="color: #64748b;"
+                        ></i>Detalle por Ticket
+                    </h5>
+                    <div
+                        class="table-responsive"
+                        style="overflow-y: auto;"
+                        {{-- style="max-height: 600px; overflow-y: auto;" --}}
+                    >
+                        <table class="table-hover table-custom table">
+                            <thead style="position: sticky; top: 0; z-index: 2;">
                                 <tr>
-                                    <th>Código</th>
-                                    <th>Artículo</th>
-                                    <th>Cantidad</th>
-                                    <th>Precios</th>
-                                    <th>Iva</th>
-                                    <th>Importe</th>
-                                    <th>Fecha venta</th>
-                                    <th>Familia</th>
-                                    {{-- <th>Ticket</th>
-                                    <th>Tienda</th> --}}
-                                    <th>Paquete</th>
+                                    <th><i class="bi bi-upc-scan me-1"></i>Código</th>
+                                    <th><i class="bi bi-box me-1"></i>Artículo</th>
+                                    <th class="text-end"><i class="bi bi-hash me-1"></i>Cantidad</th>
+                                    <th><i class="bi bi-cash me-1"></i>Precio</th>
+                                    <th class="text-end"><i class="bi bi-percent me-1"></i>IVA</th>
+                                    <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Importe</th>
+                                    <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
+                                    <th><i class="bi bi-folder me-1"></i>Familia</th>
+                                    <th><i class="bi bi-gift me-1"></i>Paquete</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @php
-                                    // Inicializamos las variables para la suma
                                     $totalPeso = 0;
-                                    $precioDesc = 0;
                                     $totalIva = 0;
                                     $totalImporte = 0;
-
-                                    // Agrupar los datos por IdEncabezado (ticket)
                                     $groupedByTicket = [];
                                     foreach ($data as $item) {
                                         $ticketId = $item->IdEncabezado;
@@ -365,13 +403,11 @@
                                                 'ticket_info' => $item,
                                             ];
                                         }
-
-                                        // Si tiene paquete, agrupar por IdPaquete dentro del ticket
                                         if ($item->IdPaquete) {
                                             $paqueteId = $item->IdPaquete;
                                             if (!isset($groupedByTicket[$ticketId]['paquetes'][$paqueteId])) {
                                                 $groupedByTicket[$ticketId]['paquetes'][$paqueteId] = [
-                                                    'paquete_nombre' => $item->NomPaquete,
+                                                    'nombre' => $item->NomPaquete,
                                                     'items' => [],
                                                     'total_cantidad' => 0,
                                                     'total_importe' => 0,
@@ -383,146 +419,189 @@
                                             $groupedByTicket[$ticketId]['paquetes'][$paqueteId]['total_importe'] +=
                                                 $item->ImporteArticulo;
                                         } else {
-                                            // Items sin paquete
                                             $groupedByTicket[$ticketId]['items'][] = $item;
                                         }
                                     }
                                 @endphp
 
                                 @forelse ($groupedByTicket as $ticketId => $ticketData)
-                                    <!-- Fila de cabecera del ticket -->
-                                    <tr
-                                        class="table-primary"
-                                        style="background-color: #e3f2fd;"
-                                    >
+                                    {{-- Cabecera del ticket --}}
+                                    <tr style="background: #e2e8f0;">
                                         <td colspan="9">
-                                            <strong>🎫 TICKET #{{ $ticketId }}</strong>
-                                            - Tienda: {{ $ticketData['ticket_info']->NomTienda ?? 'N/A' }}
-                                            - Fecha: {{ $ticketData['ticket_info']->FechaVenta ?? 'N/A' }}
+                                            <i
+                                                class="bi bi-ticket-perforated me-2"
+                                                style="color: #475569;"
+                                            ></i>
+                                            <strong style="color: #0f172a;">TICKET #{{ $ticketId }}</strong>
+                                            <span style="color: #94a3b8;">|</span>
+                                            <span
+                                                style="color: #475569;">{{ $ticketData['ticket_info']->NomTienda ?? 'N/A' }}</span>
+                                            <span style="color: #94a3b8;">|</span>
+                                            {{ $ticketData['ticket_info']->FechaVenta }}
+                                            {{-- <span
+                                                style="color: #64748b; font-size: 0.85rem;">{{ \Carbon\Carbon::parse($ticketData['ticket_info']->FechaVenta ?? now())->format('d/m/Y') }}</span> --}}
                                         </td>
                                     </tr>
 
-                                    <!-- Mostrar paquetes dentro del ticket -->
-                                    @if (!empty($ticketData['paquetes']))
-                                        @foreach ($ticketData['paquetes'] as $paqueteId => $paqueteData)
-                                            <!-- Fila de cabecera del paquete -->
-                                            {{-- <tr
-                                                class="table-warning"
-                                                style="background-color: #fff3e0;"
-                                            >
-                                                <td colspan="9">
-                                                    <strong>📦 PAQUETE: {{ $paqueteData['paquete_nombre'] }} (ID:
-                                                        {{ $paqueteId }})</strong>
-                                                    <span class="badge bg-info ms-2">Total:
-                                                        {{ number_format($paqueteData['total_cantidad'], 3) }}
-                                                        unidades</span>
-                                                    <span class="badge bg-success ms-2">Importe:
-                                                        ${{ number_format($paqueteData['total_importe'], 2) }}</span>
-                                                </td>
-                                            </tr> --}}
-
-                                            <!-- Items del paquete -->
-                                            @foreach ($paqueteData['items'] as $item)
-                                                <tr style="background-color: #fffaf0;">
-                                                    <td>{{ $item->CodArticulo }}</td>
-                                                    <td>{{ $item->NomArticulo }}</td>
-                                                    <td>{{ number_format($item->CantArticulo, 3) }}</td>
-                                                    <td>${{ number_format($item->PrecioArticulo, 2) }}</td>
-                                                    <td>{{ number_format($item->IvaArticulo, 2) }}</td>
-                                                    <td>{{ number_format($item->ImporteArticulo, 2) }}</td>
-                                                    <td>{{ $item->FechaVenta }}</td>
-                                                    <td>{{ $item->NomFamilia }}</td>
-                                                    {{-- <td>{{ $item->IdEncabezado }}</td> --}}
-                                                    {{-- <td>{{ $item->NomTienda }}</td> --}}
-                                                    <td>{{ $item->NomPaquete }}</td>
-                                                </tr>
-                                                @php
-                                                    // Acumulamos los valores totales
-                                                    $totalPeso += $item->CantArticulo;
-                                                    $precioDesc += $item->PrecioArticulo;
-                                                    $totalIva += $item->IvaArticulo;
-                                                    $totalImporte += $item->ImporteArticulo;
-                                                @endphp
-                                            @endforeach
-                                        @endforeach
-                                    @endif
-
-                                    <!-- Items sin paquete del ticket -->
-                                    @if (!empty($ticketData['items']))
-                                        {{-- <tr
-                                            class="table-secondary"
-                                            style="background-color: #f8f9fa;"
-                                        >
-                                            <td colspan="11">
-                                                <strong>📝 Items sin paquete</strong>
+                                    {{-- Paquetes del ticket --}}
+                                    @foreach ($ticketData['paquetes'] as $paqueteId => $paqueteData)
+                                        {{-- Sub-cabecera del paquete dentro del ticket --}}
+                                        {{-- <tr style="background: #fef3c7;">
+                                            <td colspan="9">
+                                                <i
+                                                    class="bi bi-gift-fill me-2"
+                                                    style="color: #d97706;"
+                                                ></i>
+                                                <strong style="color: #92400e;">📦 PAQUETE:
+                                                    {{ $paqueteData['nombre'] }}</strong>
+                                                <span style="color: #b45309; font-size: 0.8rem;">
+                                                    ({{ number_format($paqueteData['total_cantidad'], 2) }} kg |
+                                                    ${{ number_format($paqueteData['total_importe'], 2) }})
+                                                </span>
                                             </td>
                                         </tr> --}}
-                                        @foreach ($ticketData['items'] as $item)
-                                            <tr>
-                                                <td>{{ $item->CodArticulo }}</td>
-                                                <td>{{ $item->NomArticulo }}</td>
-                                                <td>{{ number_format($item->CantArticulo, 3) }}</td>
+                                        @foreach ($paqueteData['items'] as $item)
+                                            <tr style="background: #fffbeb;">
+                                                <td style="font-weight: 500;">{{ $item->CodArticulo }}</td>
+                                                <td
+                                                    class="text-truncate"
+                                                    style="max-width: 180px;"
+                                                    title="{{ $item->NomArticulo }}"
+                                                >{{ $item->NomArticulo }}</td>
+                                                <td
+                                                    class="text-end"
+                                                    style="font-weight: 500;"
+                                                >{{ number_format($item->CantArticulo, 3) }}</td>
                                                 <td>${{ number_format($item->PrecioArticulo, 2) }}</td>
-                                                <td>{{ number_format($item->IvaArticulo, 2) }}</td>
-                                                <td>{{ number_format($item->ImporteArticulo, 2) }}</td>
-                                                <td>{{ $item->FechaVenta }}</td>
-                                                <td>{{ $item->NomFamilia }}</td>
-                                                {{-- <td>{{ $item->IdEncabezado }}</td> --}}
-                                                {{-- <td>{{ $item->NomTienda }}</td> --}}
-                                                <td>
-                                                    @if ($item->NomPaquete)
-                                                        {{ \Illuminate\Support\Str::limit($item->NomPaquete, strlen($item->NomPaquete) - 15, '') }}
-                                                    @else
-                                                        Sin paquete
-                                                    @endif
+                                                <td
+                                                    class="text-end"
+                                                    style="font-weight: 500;"
+                                                >${{ number_format($item->IvaArticulo, 2) }}</td>
+                                                <td
+                                                    class="text-end"
+                                                    style="font-weight: 500;"
+                                                >${{ number_format($item->ImporteArticulo, 2) }}</td>
+                                                <td style="font-size: 0.85rem;">
+                                                    {{-- {{ \Carbon\Carbon::parse($item->FechaVenta)->format('d/m/Y') }} --}}
+                                                    {{ $item->FechaVenta }}
                                                 </td>
-
+                                                <td>{{ $item->NomFamilia }}</td>
+                                                <td>
+                                                    <span
+                                                        style="background: #fde68a; color: #92400e; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;"
+                                                    >
+                                                        {{ $item->NomPaquete }}
+                                                    </span>
+                                                </td>
                                             </tr>
                                             @php
-                                                // Acumulamos los valores totales
                                                 $totalPeso += $item->CantArticulo;
-                                                $precioDesc += $item->PrecioArticulo;
                                                 $totalIva += $item->IvaArticulo;
                                                 $totalImporte += $item->ImporteArticulo;
                                             @endphp
                                         @endforeach
-                                    @endif
+                                    @endforeach
 
-                                    <!-- Separador entre tickets -->
+                                    {{-- Items sin paquete --}}
+                                    @foreach ($ticketData['items'] as $item)
+                                        <tr>
+                                            <td style="font-weight: 500;">{{ $item->CodArticulo }}</td>
+                                            <td
+                                                class="text-truncate"
+                                                style="max-width: 180px;"
+                                                title="{{ $item->NomArticulo }}"
+                                            >{{ $item->NomArticulo }}</td>
+                                            <td
+                                                class="text-end"
+                                                style="font-weight: 500;"
+                                            >{{ number_format($item->CantArticulo, 3) }}</td>
+                                            <td>${{ number_format($item->PrecioArticulo, 2) }}</td>
+                                            <td
+                                                class="text-end"
+                                                style="font-weight: 500;"
+                                            >${{ number_format($item->IvaArticulo, 2) }}</td>
+                                            <td
+                                                class="text-end"
+                                                style="font-weight: 500;"
+                                            >${{ number_format($item->ImporteArticulo, 2) }}</td>
+                                            <td style="font-size: 0.85rem;">
+                                                {{-- {{ \Carbon\Carbon::parse($item->FechaVenta)->format('d/m/Y') }}</td> --}}
+                                                {{ $item->FechaVenta }}
+                                            </td>
+                                            <td>{{ $item->NomFamilia }}</td>
+                                            <td>
+                                                @if ($item->NomPaquete)
+                                                    <span
+                                                        style="background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
+                                                    >
+                                                        {{ \Illuminate\Support\Str::limit($item->NomPaquete, 20) }}
+                                                    </span>
+                                                @else
+                                                    <span style="color: #94a3b8; font-size: 0.8rem;">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @php
+                                            $totalPeso += $item->CantArticulo;
+                                            $totalIva += $item->IvaArticulo;
+                                            $totalImporte += $item->ImporteArticulo;
+                                        @endphp
+                                    @endforeach
+
+                                    {{-- Separador entre tickets --}}
                                     <tr>
                                         <td
-                                            colspan="11"
-                                            style="border-bottom: 2px solid #dee2e6;"
+                                            colspan="9"
+                                            style="border-bottom: 2px solid #cbd5e1; padding: 0;"
                                         ></td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td
-                                            colspan="11"
+                                            colspan="9"
                                             class="py-5 text-center"
                                         >
-                                            <x-table-empty-state
-                                                title="Sin datos disponibles"
-                                                icon="cube"
-                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
-                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
-                                                action="Limpiar filtros"
-                                                actionUrl="/ReportePaquetes"
-                                            />
+                                            <i
+                                                class="bi bi-inbox"
+                                                style="font-size: 2.5rem; color: #94a3b8;"
+                                            ></i>
+                                            <p
+                                                class="mt-2"
+                                                style="color: #64748b; font-size: 0.85rem;"
+                                            >Sin datos disponibles</p>
+                                            <a
+                                                href="/ReportePaquetes"
+                                                class="btn btn-sm d-flex align-items-center mx-auto mt-2 gap-1"
+                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; width: fit-content;"
+                                            >
+                                                <i class="bi bi-x-circle"></i> Limpiar filtros
+                                            </a>
                                         </td>
                                     </tr>
                                 @endforelse
                             </tbody>
-
                             @if (count($data) > 0)
                                 <tfoot>
-                                    <tr>
-                                        <td colspan="2"><strong>Totales Generales:</strong></td>
-                                        <td><strong>{{ number_format($totalPeso, 2) }}</strong></td>
+                                    <tr style="font-weight: 700;">
+                                        <td
+                                            colspan="2"
+                                            class="text-end"
+                                            {{-- style="color: white;" --}}
+                                        >TOTALES GENERALES:</td>
+                                        <td
+                                            class="text-end"
+                                            {{-- style="color: white;" --}}
+                                        >{{ number_format($totalPeso, 2) }}</td>
                                         <td></td>
-                                        <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
-                                        <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
-                                        <td colspan="5"></td>
+                                        <td
+                                            class="text-end"
+                                            {{-- style="color: white;" --}}
+                                        >${{ number_format($totalIva, 2) }}</td>
+                                        <td
+                                            class="text-end"
+                                            {{-- style="color: white;" --}}
+                                        >${{ number_format($totalImporte, 2) }}</td>
+                                        <td colspan="3"></td>
                                     </tr>
                                 </tfoot>
                             @endif
@@ -530,174 +609,22 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </x-layout.page-container>
+        </x-card-gradient-header>
+    </x-page-container>
+@endsection
 
-    <style>
-        .table thead th {
-            position: sticky;
-            top: 0;
-            background: rgb(30, 41, 59);
-            z-index: 2;
+@section('scripts')
+    <script>
+        function togglePanel(panelId, buttonId) {
+            const panel = document.getElementById(panelId);
+            const btn = document.getElementById(buttonId);
+            if (panel.classList.contains('d-none')) {
+                panel.classList.remove('d-none');
+                if (btn) btn.style.background = '#e2e8f0';
+            } else {
+                panel.classList.add('d-none');
+                if (btn) btn.style.background = '#f1f5f9';
+            }
         }
-    </style>
-
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Gráfica 1: Top 10 Productos (Barras horizontales)
-            const topProductosCanvas = document.getElementById('topProductosChart');
-            if (topProductosCanvas && @json(count($topProductosLabels)) > 0) {
-                new Chart(topProductosCanvas, {
-                    type: 'bar',
-                    data: {
-                        labels: @json($topProductosLabels),
-                        datasets: [{
-                            label: 'Peso (kg)',
-                            data: @json($topProductosPeso),
-                            backgroundColor: '#4e73df',
-                            borderRadius: 5,
-                            barPercentage: 0.7
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        indexAxis: 'y',
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Peso: ${context.raw.toFixed(2)} kg`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Peso (kg)',
-                                    font: {
-                                        size: 11
-                                    }
-                                },
-                                grid: {
-                                    display: true
-                                },
-                                ticks: {
-                                    callback: function(value) {
-                                        return value.toFixed(2) + ' kg';
-                                    }
-                                }
-                            },
-                            y: {
-                                ticks: {
-                                    font: {
-                                        size: 10
-                                    },
-                                    maxRotation: 0,
-                                    autoSkip: false
-                                },
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Gráfica 2: Ventas por Grupo (Pie)
-            const grupoCanvas = document.getElementById('ventasPorGrupoChart');
-            if (grupoCanvas && @json(count($gruposLabels)) > 0) {
-                new Chart(grupoCanvas, {
-                    type: 'pie',
-                    data: {
-                        labels: @json($gruposLabels),
-                        datasets: [{
-                            data: @json($gruposData),
-                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-                                '#858796'
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    boxWidth: 10
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Gráfica 3: Ventas por Lista de Precio (Doughnut)
-            const listaCanvas = document.getElementById('ventasPorListaChart');
-            if (listaCanvas && @json(count($listaLabels)) > 0) {
-                new Chart(listaCanvas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: @json($listaLabels),
-                        datasets: [{
-                            data: @json($listaData),
-                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e',
-                                '#e74a3b'
-                            ],
-                            borderWidth: 0,
-                            cutout: '60%'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    boxWidth: 10
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    </script> --}}
+    </script>
 @endsection

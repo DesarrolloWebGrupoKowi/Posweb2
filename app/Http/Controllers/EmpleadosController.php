@@ -128,18 +128,18 @@ class EmpleadosController extends Controller
             })
             // Si NO vienen fechas Y NO viene código de interfaz, forzar un resultado vacío
             // PERO excluir cuando está activado nómina con adeudos
-            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($chkNomina == 'on' && $soloAdeudos == 'on'), function ($query) {
+            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($soloAdeudos == 'on'), function ($query) {
                 $query->whereRaw('1 = 0');
             })
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('a.IdTienda', $idTienda);
             })
-            ->when($chkNomina == 'on', function ($query) use ($numNomina) {
+            ->when($numNomina, function ($query) use ($numNomina) {
                 $query->where('a.NumNomina', $numNomina);
             })
-            ->when($chkNomina != 'on', function ($query) {
-                $query->whereNotNull('a.NumNomina');
-            })
+            // ->when($chkNomina != 'on', function ($query) {
+            //     $query->whereNotNull('a.NumNomina');
+            // })
             ->when($soloAdeudos == 'on', function ($query) {
                 $query->where('a.StatusCredito', 0);
             })
@@ -149,6 +149,7 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereNotNull('a.NumNomina')
             ->whereIn('a.IdTienda', $tiendasIds)
             ->where('d.StatusVenta', 0)
             ->orderBy('a.FechaVenta')
@@ -163,18 +164,18 @@ class EmpleadosController extends Controller
             })
             // Si NO vienen fechas Y NO viene código de interfaz, forzar un resultado vacío
             // PERO excluir cuando está activado nómina con adeudos
-            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($chkNomina == 'on' && $soloAdeudos == 'on'), function ($query) {
+            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($soloAdeudos == 'on'), function ($query) {
                 $query->whereRaw('1 = 0');
             })
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('IdTienda', $idTienda);
             })
-            ->when($chkNomina == 'on', function ($query) use ($numNomina) {
+            ->when($numNomina, function ($query) use ($numNomina) {
                 $query->where('DatCortesTienda.NumNomina', $numNomina);
             })
-            ->when($chkNomina != 'on', function ($query) {
-                $query->whereNotNull('DatCortesTienda.NumNomina');
-            })
+            // ->when($chkNomina != 'on', function ($query) {
+            //     $query->whereNotNull('DatCortesTienda.NumNomina');
+            // })
             ->when($soloAdeudos == 'on', function ($query) {
                 $query->where('StatusCredito', 0);
             })
@@ -184,6 +185,7 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereNotNull('DatCortesTienda.NumNomina')
             ->whereIn('IdTienda', $tiendasIds)
             ->where('StatusVenta', 0)
             ->sum('ImporteArticulo');
@@ -196,18 +198,18 @@ class EmpleadosController extends Controller
             })
             // Si NO vienen fechas Y NO viene código de interfaz, forzar un resultado vacío
             // PERO excluir cuando está activado nómina con adeudos
-            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($chkNomina == 'on' && $soloAdeudos == 'on'), function ($query) {
+            ->when(!$fecha1 && !$fecha2 && !$codigoInterfaz && !($soloAdeudos == 'on'), function ($query) {
                 $query->whereRaw('1 = 0');
             })
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('IdTienda', $idTienda);
             })
-            ->when($chkNomina == 'on', function ($query) use ($numNomina) {
+            ->when($numNomina, function ($query) use ($numNomina) {
                 $query->where('DatCortesTienda.NumNomina', $numNomina);
             })
-            ->when($chkNomina != 'on', function ($query) {
-                $query->whereNotNull('DatCortesTienda.NumNomina');
-            })
+            // ->when($chkNomina != 'on', function ($query) {
+            //     $query->whereNotNull('DatCortesTienda.NumNomina');
+            // })
             ->when($soloAdeudos == 'on', function ($query) {
                 $query->where('StatusCredito', 0);
             })
@@ -217,6 +219,7 @@ class EmpleadosController extends Controller
             ->when($codigoInterfaz, function ($query) use ($codigoInterfaz) {
                 $query->where('f.IdHistorialCredito', $codigoInterfaz);
             })
+            ->whereNotNull('DatCortesTienda.NumNomina')
             ->whereIn('IdTienda', $tiendasIds)
             ->where('StatusCredito', 0)
             ->where('StatusVenta', 0)

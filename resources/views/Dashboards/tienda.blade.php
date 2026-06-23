@@ -4,8 +4,6 @@
 
 @section('contenido')
     <x-page-container>
-
-        {{-- SECCIÓN 1: FILTROS --}}
         <x-card-gradient-header
             icon="shop"
             title="Dashboard por Tienda"

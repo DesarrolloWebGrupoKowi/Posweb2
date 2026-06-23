@@ -1,339 +1,483 @@
-@extends('PlantillaBase.masterbladeNewStyle')
+@extends('PlantillaBase.masterbladeDashboard')
 @section('title', 'Concentrado de Descuentos')
 @section('dashboardWidth', 'width-95')
-@section('contenido')
-    <x-layout.page-container>
 
-        <!-- SECCIÓN 1: FILTROS -->
-        <x-layout.section-card>
-            <div
-                class="d-flex justify-content-sm-between align-items-start align-items-sm-start flex-column flex-md-row mb-2">
-                <x-title titulo="Concentrado de Descuentos" />
-                <div class="d-flex gap-2">
-                    <x-filters.buttons.excel-button
-                        route="/ExportsReporteDescuentos"
-                        :params="[
-                            'idTienda' => request('idTienda'),
-                            'fecha_inicio' => request('fecha_inicio'),
-                            'fecha_fin' => request('fecha_fin'),
-                            'cod_articulo' => request('cod_articulo'),
-                            'id_familia' => request('id_familia'),
-                            'nom_descuento' => request('nom_descuento'),
-                        ]"
-                    />
-                    <x-filters.buttons.refresh-button />
-                    <x-filters.buttons.home-button />
+@section('contenido')
+    <x-page-container>
+
+        {{-- SECCIÓN 1: FILTROS --}}
+        <x-card-gradient-header
+            icon="percent"
+            title="Concentrado de Descuentos"
+            subtitle="Reporte de descuentos aplicados por artículo"
+        >
+            <x-slot:buttons>
+                <a
+                    href="/ExportsReporteDescuentos?{{ http_build_query(request()->only(['idTienda', 'fecha_inicio', 'fecha_fin', 'cod_articulo', 'id_familia', 'nom_descuento'])) }}"
+                    class="btn-header-ghost"
+                    title="Exportar a Excel"
+                    style="background: #f0fdf4; color: #10b981;"
+                    onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+                >
+                    <i class="bi bi-file-earmark-excel"></i> Exportar
+                </a>
+                <x-header.buttons.refresh-button />
+                <x-header.buttons.home-button />
+            </x-slot:buttons>
+
+            <!-- Filtros -->
+            <div class="border-bottom p-4">
+                <form
+                    method="GET"
+                    action="/ReporteDescuentos"
+                >
+                    {{-- Fila 1: Filtros principales + Botones --}}
+                    <div class="row g-3 align-items-end">
+                        <!-- Tienda -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-shop me-1"></i>Tienda
+                            </label>
+                            <select
+                                name="idTienda"
+                                class="form-select"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            >
+                                <option value="">Todas las tiendas</option>
+                                @foreach ($tiendas as $tienda)
+                                    <option
+                                        value="{{ $tienda->IdTienda }}"
+                                        {{ request('idTienda') == $tienda->IdTienda ? 'selected' : '' }}
+                                    >
+                                        {{ $tienda->NomTienda }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Fecha Inicio -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-calendar3 me-1"></i>Fecha Inicio
+                            </label>
+                            <input
+                                type="date"
+                                name="fecha_inicio"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                value="{{ request('fecha_inicio') }}"
+                                autofocus
+                            >
+                        </div>
+
+                        <!-- Fecha Fin -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-calendar3 me-1"></i>Fecha Fin
+                            </label>
+                            <input
+                                type="date"
+                                name="fecha_fin"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                value="{{ request('fecha_fin') }}"
+                            >
+                        </div>
+
+                        <!-- Artículo -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-search me-1"></i>Artículo
+                            </label>
+                            <input
+                                type="text"
+                                name="cod_articulo"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                placeholder="Código o nombre"
+                                value="{{ request('cod_articulo') }}"
+                            >
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <x-form.submit
+                                    text="Filtrar"
+                                    icon="funnel"
+                                    class="flex-grow-1"
+                                />
+                                <x-form.clear url="/ReporteDescuentos" />
+                                <button
+                                    type="button"
+                                    id="btnFiltrosAvanzados"
+                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                    style="background: {{ $filtrosAvanzadosActivos ? '#e2e8f0' : '#f1f5f9' }}; color: #475569; border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; white-space: nowrap;"
+                                    onclick="togglePanel('filaFiltrosAvanzados', 'btnFiltrosAvanzados')"
+                                    title="Filtros avanzados"
+                                >
+                                    <i class="bi bi-sliders"></i>
+                                    @if ($filtrosAvanzadosActivos)
+                                        <span
+                                            style="background: #3b82f6; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px;"
+                                        >●</span>
+                                    @endif
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Fila 2: Filtros avanzados (ocultos) --}}
+                    <div
+                        id="filaFiltrosAvanzados"
+                        class="row g-3 align-items-end {{ $filtrosAvanzadosActivos ? '' : 'd-none' }} mt-3"
+                    >
+                        <!-- Grupo -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-folder me-1"></i>Grupo
+                            </label>
+                            <select
+                                name="id_grupo"
+                                class="form-select"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            >
+                                <option value="">Todos</option>
+                                @foreach ($grupos as $grupo)
+                                    <option
+                                        value="{{ $grupo->IdGrupo }}"
+                                        {{ request('id_grupo') == $grupo->IdGrupo ? 'selected' : '' }}
+                                    >
+                                        {{ $grupo->NomGrupo }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Familia -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-folder-symlink me-1"></i>Familia
+                            </label>
+                            <select
+                                name="id_familia"
+                                class="form-select"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            >
+                                <option value="">Todas</option>
+                                @foreach ($familias as $familia)
+                                    <option
+                                        value="{{ $familia->IdFamilia }}"
+                                        {{ request('id_familia') == $familia->IdFamilia ? 'selected' : '' }}
+                                    >
+                                        {{ $familia->NomFamilia }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- ID Descuento -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-hash me-1"></i>ID Descuento
+                            </label>
+                            <input
+                                type="text"
+                                name="id_enc_descuento"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                placeholder="Id del descuento"
+                                value="{{ request('id_enc_descuento') }}"
+                            >
+                        </div>
+
+                        <!-- Nombre Descuento -->
+                        <div class="col-md-2">
+                            <label
+                                class="form-label fw-medium mb-2"
+                                style="color: #475569; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-tag me-1"></i>Nombre Descuento
+                            </label>
+                            <input
+                                type="text"
+                                name="nom_descuento"
+                                class="form-control"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                placeholder="Nombre del descuento"
+                                value="{{ request('nom_descuento') }}"
+                            >
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {{-- SECCIÓN 2: KPIs --}}
+            <div class="p-4">
+                <div class="row g-3">
+                    @php
+                        $diferencias = $data->map(function ($item) {
+                            $cantidad = floatval($item->CantArticulo);
+                            $precioLista = floatval($item->PrecioLista);
+                            $precioArticulo = floatval($item->PrecioArticulo);
+                            $item->totalLista = $cantidad * $precioLista;
+                            $item->totalArticulo = $cantidad * $precioArticulo;
+                            $item->diferencia = $item->totalLista - $item->totalArticulo;
+                            return $item;
+                        });
+                        $sumPrecioLista = $diferencias->sum('totalLista');
+                        $sumPrecioArticulo = $diferencias->sum('totalArticulo');
+                        $ahorroTotal = $sumPrecioLista - $sumPrecioArticulo;
+                        $descuentoPromedio = $sumPrecioLista > 0 ? ($ahorroTotal / $sumPrecioLista) * 100 : 0;
+                    @endphp
+
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(59, 130, 246, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #1d4ed8; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    >Valor de Lista</span>
+                                    <i
+                                        class="bi bi-tags"
+                                        style="color: #3b82f6; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >${{ number_format($sumPrecioLista, 2) }}</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">Suma (Cant × Precio Lista)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #059669; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    >Valor Real</span>
+                                    <i
+                                        class="bi bi-cash-stack"
+                                        style="color: #10b981; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >${{ number_format($sumPrecioArticulo, 2) }}</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">Suma (Cant × Precio Artículo)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    >Ahorro Total</span>
+                                    <i
+                                        class="bi bi-piggy-bank"
+                                        style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >${{ number_format($ahorroTotal, 2) }}</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">Lo que ahorraron los clientes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 col-12">
+                        <div
+                            class="kpi-card"
+                            style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        >
+                            <div
+                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(245, 158, 11, 0.08); border-radius: 50%;">
+                            </div>
+                            <div style="position: relative; z-index: 1;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span
+                                        style="color: #d97706; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    >Descuento Prom.</span>
+                                    <i
+                                        class="bi bi-percent"
+                                        style="color: #f59e0b; font-size: 1.3rem; opacity: 0.7;"
+                                    ></i>
+                                </div>
+                                <h3
+                                    class="mb-1"
+                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                >{{ number_format($descuentoPromedio, 2) }}%</h3>
+                                <span style="color: #94a3b8; font-size: 0.78rem;">Sobre el total de ventas</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Formulario de filtros -->
-            <x-filters.filter-form>
-                <!-- Filtros Básicos -->
-                <x-filters.filter-group>
-                    <x-filters.inputs.select-input
-                        name="idTienda"
-                        label="Tienda"
-                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
-                    />
-                    <x-filters.inputs.date-input
-                        name="fecha_inicio"
-                        label="Fecha Inicio"
-                        :value="request('fecha_inicio')"
-                        :autofocus="true"
-                    />
-                    <x-filters.inputs.date-input
-                        name="fecha_fin"
-                        label="Fecha Fin"
-                        :value="request('fecha_fin')"
-                    />
-                    <x-filters.inputs.text-input
-                        name="cod_articulo"
-                        label="Artículo"
-                        placeholder="Código o nombre del artículo"
-                        :value="request('cod_articulo')"
-                    />
-                </x-filters.filter-group>
-
-                <!-- Filtros Avanzados -->
-                <x-filters.advanced-collapse
-                    :active="$filtrosAvanzadosActivos"
-                    :showBadge="true"
-                >
-                    <x-filters.filter-group>
-                        <x-filters.inputs.select-input
-                            name="id_grupo"
-                            label="Grupo"
-                            :options="$grupos->pluck('NomGrupo', 'IdGrupo')->toArray()"
-                            compact="true"
-                        />
-                        <x-filters.inputs.select-input
-                            name="id_familia"
-                            label="Familia"
-                            :options="$familias->pluck('NomFamilia', 'IdFamilia')->toArray()"
-                            compact="true"
-                        />
-                        <x-filters.inputs.text-input
-                            name="id_enc_descuento"
-                            label="ID Descuento"
-                            placeholder="Id del descuento"
-                            :value="request('id_enc_descuento')"
-                            compact="true"
-                        />
-                        <x-filters.inputs.text-input
-                            name="nom_descuento"
-                            label="Nombre Descuento"
-                            placeholder="Nombre del descuento"
-                            :value="request('nom_descuento')"
-                            compact="true"
-                        />
-                    </x-filters.filter-group>
-                </x-filters.advanced-collapse>
-
-                <x-slot:buttons>
-                    <x-filters.buttons.clear-button />
-                    <x-filters.buttons.advanced-button
-                        :active="$filtrosAvanzadosActivos"
-                        :hasBadge="true"
-                    />
-                    <x-filters.buttons.submit-button />
-                </x-slot:buttons>
-            </x-filters.filter-form>
-        </x-layout.section-card>
-
-        <!-- SECCIÓN 2: KPIs -->
-        <div class="flex-shrink-0">
-            <div class="row g-4">
-                {{-- <!-- Total de artículos vendidos (suma de pesos) -->
-                <x-kpi.kpi-card
-                    title="Total de Peso Vendido"
-                    :value="$data->sum('CantArticulo')"
-                    subtitle="Kilogramos totales"
-                    color="primary"
-                    icon="components.icons.shopping-cart"
-                    :decimal="2"
-                />
-
-                <!-- KPI: Producto con Menor Descuento -->
-                <x-kpi.kpi-card
-                    title="Menor Descuento por Unidad"
-                    value="$4.00"
-                    subtitle="SALCHICHA DE PAVO TURI"
-                    subtitleHtml="Precio Lista: $65.00 → Precio Final: $61.00<br>Descuento: 6.15%"
-                    color="warning"
-                />
-
-                <!-- KPI: Producto con Mayor Descuento -->
-                <x-kpi.kpi-card
-                    title="Mayor Descuento por Unidad"
-                    value="$25.00"
-                    subtitle="CARNE DESHEBRADA 300 GR."
-                    subtitleHtml="Precio Lista: $150.00 → Precio Final: $125.00<br>Descuento: 16.67%"
-                    color="success"
-                />
-
-                <!-- Valor total de ventas -->
-                <x-kpi.kpi-card
-                    title="Venta Total"
-                    :value="$data->sum('ImporteArticulo')"
-                    subtitle="Monto facturado"
-                    color="success"
-                    icon="components.icons.ticket"
-                    currency="true"
-                    :decimal="2"
-                /> --}}
-                @php
-                    // Calcular diferencias desde los datos
-                    $diferencias = $data->map(function ($item) {
-                        $cantidad = floatval($item->CantArticulo);
-                        $precioLista = floatval($item->PrecioLista);
-                        $precioArticulo = floatval($item->PrecioArticulo);
-
-                        $item->totalLista = $cantidad * $precioLista;
-                        $item->totalArticulo = $cantidad * $precioArticulo;
-                        $item->diferencia = $item->totalLista - $item->totalArticulo;
-                        $item->diferenciaPorUnidad = $precioLista - $precioArticulo;
-                        $item->porcentajeDescuento = ($item->diferenciaPorUnidad / $precioLista) * 100;
-
-                        return $item;
-                    });
-
-                    // Producto con mayor y menor descuento POR UNIDAD
-                    $mayorDiferenciaUnidad = $diferencias->sortByDesc('diferenciaPorUnidad')->first();
-                    $menorDiferenciaUnidad = $diferencias->sortBy('diferenciaPorUnidad')->first();
-
-                    // Sumas totales (considerando cantidad)
-                    $sumPrecioLista = $diferencias->sum('totalLista');
-                    $sumPrecioArticulo = $diferencias->sum('totalArticulo');
-                    $ahorroTotal = $sumPrecioLista - $sumPrecioArticulo;
-                    $descuentoPromedio = $ahorroTotal > 0 ? ($ahorroTotal / $sumPrecioLista) * 100 : 0;
-                @endphp
-                {{-- @dump($diferencias) --}}
-
-                {{-- KPI: Suma total de Precio Lista (cantidad * precio) --}}
-                <x-kpi.kpi-card
-                    title="Total Valor de Lista"
-                    value="${{ number_format($sumPrecioLista, 2) }}"
-                    subtitle="Suma de (Cantidad × Precio Lista)"
-                    color="primary"
-                    icon="components.icons.dolar"
-                />
-
-                {{-- KPI: Suma total de Precio Artículo (cantidad * precio) --}}
-                <x-kpi.kpi-card
-                    title="Total Valor Real"
-                    value="${{ number_format($sumPrecioArticulo, 2) }}"
-                    subtitle="Suma de (Cantidad × Precio Artículo)"
-                    color="info"
-                    icon="components.icons.dolar"
-                />
-
-                {{-- KPI: Ahorro Total --}}
-                <x-kpi.kpi-card
-                    title="Ahorro Total"
-                    value="${{ number_format($ahorroTotal, 2) }}"
-                    subtitle="Lo que los clientes ahorraron"
-                    subtitleHtml="Precio Lista: ${{ number_format($sumPrecioLista, 2) }}<br>Precio Final: ${{ number_format($sumPrecioArticulo, 2) }}"
-                    color="success"
-                    icon="components.icons.upload"
-                />
-
-                {{-- KPI: Descuento Promedio General --}}
-                <x-kpi.kpi-card
-                    title="Descuento Promedio"
-                    value="{{ number_format($descuentoPromedio, 2) }}%"
-                    subtitle="Sobre el total de ventas"
-                    subtitleHtml="Ahorro: ${{ number_format($ahorroTotal, 2) }} sobre ${{ number_format($sumPrecioLista, 2) }}"
-                    color="warning"
-                    icon="components.icons.percent"
-                />
-
-                {{-- <!-- KPI: Mayor descuento por unidad -->
-                <x-kpi.kpi-card
-                    title="Mayor Descuento (por unidad)"
-                    value="${{ number_format($mayorDiferenciaUnidad->diferenciaPorUnidad, 2) }}"
-                    subtitle="{{ $mayorDiferenciaUnidad->NomArticulo }}"
-                    subtitleHtml="Precio Lista: ${{ number_format($mayorDiferenciaUnidad->PrecioLista, 2) }} → ${{ number_format($mayorDiferenciaUnidad->PrecioArticulo, 2) }}<br>Descuento: {{ number_format($mayorDiferenciaUnidad->porcentajeDescuento, 2) }}%"
-                    color="success"
-                    icon="components.icons.arrow-up"
-                />
-
-                <!-- KPI: Menor descuento por unidad -->
-                <x-kpi.kpi-card
-                    title="Menor Descuento (por unidad)"
-                    value="${{ number_format($menorDiferenciaUnidad->diferenciaPorUnidad, 2) }}"
-                    subtitle="{{ $menorDiferenciaUnidad->NomArticulo }}"
-                    subtitleHtml="Precio Lista: ${{ number_format($menorDiferenciaUnidad->PrecioLista, 2) }} → ${{ number_format($menorDiferenciaUnidad->PrecioArticulo, 2) }}<br>Descuento: {{ number_format($menorDiferenciaUnidad->porcentajeDescuento, 2) }}%"
-                    color="warning"
-                    icon="components.icons.arrow-down"
-                /> --}}
-            </div>
-        </div>
-
-        <!-- SECCIÓN GRÁFICAS Y TABLAS -->
-        <div class="row">
-            <div
-                class="col-12 col-xxl-8 d-flex flex-column pb-4"
-                style="flex: 2; min-width: 0; min-height: 0;"
-            >
+            {{-- SECCIÓN 3: TABLA --}}
+            <div class="px-4 pb-4">
                 <div
-                    class="card d-flex flex-column w-100 border-0 p-4"
-                    style="border-radius: 10px; min-height: 0;"
+                    class="rounded p-4 shadow-sm"
+                    style="background: white; border-radius: 12px;"
                 >
                     <div
-                        id="vistaTabla"
-                        class="flex-grow-1 table-responsive content-table-sm overflow-auto"
-                        style="min-height: 0;"
+                        class="table-responsive"
+                        style="max-height: 600px; overflow-y: auto;"
                     >
-                        <table class="table">
-                            <thead class="table-head">
+                        <table class="table-hover table-custom table">
+                            <thead style="position: sticky; top: 0; z-index: 2;">
                                 <tr>
-                                    <th>Descuento</th>
-                                    <th>Tienda</th>
-                                    <th>Fecha venta</th>
-                                    <th>Código</th>
-                                    <th>Articulo</th>
-                                    <th>NomGrupo</th>
-                                    <th>Familia</th>
-                                    <th>Cantidad</th>
-                                    <th>Precios</th>
-                                    <th>Iva</th>
-                                    <th>Importe</th>
+                                    <th><i class="bi bi-percent me-1"></i>Descuento</th>
+                                    <th><i class="bi bi-shop me-1"></i>Tienda</th>
+                                    <th><i class="bi bi-calendar3 me-1"></i>Fecha Venta</th>
+                                    <th><i class="bi bi-upc-scan me-1"></i>Código</th>
+                                    <th><i class="bi bi-box me-1"></i>Artículo</th>
+                                    <th><i class="bi bi-folder me-1"></i>Grupo</th>
+                                    <th><i class="bi bi-folder-symlink me-1"></i>Familia</th>
+                                    <th class="text-end"><i class="bi bi-hash me-1"></i>Cantidad</th>
+                                    <th><i class="bi bi-cash me-1"></i>Precios</th>
+                                    <th class="text-end"><i class="bi bi-percent me-1"></i>IVA</th>
+                                    <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Importe</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @php
-                                    // Inicializamos las variables para la suma
                                     $totalPeso = 0;
-                                    $precioLista = 0;
-                                    $precioDesc = 0;
                                     $totalIva = 0;
                                     $totalImporte = 0;
                                 @endphp
                                 @forelse ($data as $item)
                                     <tr>
-                                        <td>{{ $item->NomDescuento }}</td>
-                                        <td>{{ $item->NomTienda }}</td>
-                                        <td>{{ $item->FechaVenta }}</td>
-                                        <td>{{ $item->CodArticulo }}</td>
-                                        <td>{{ $item->NomArticulo }}</td>
-                                        <td>{{ $item->NomGrupo }}</td>
-                                        <td>{{ $item->NomFamilia }}</td>
-                                        <td>{{ number_format($item->CantArticulo, 3) }}</td>
                                         <td>
                                             <span
-                                                class="tags-red text-muted"
-                                                style="text-decoration: line-through;"
+                                                style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
                                             >
-                                                ${{ number_format($item->PrecioLista, 2) }}
+                                                {{ $item->NomDescuento }}
                                             </span>
-                                            <span class="tags-green">${{ number_format($item->PrecioArticulo, 2) }}</span>
                                         </td>
-
-                                        <td>{{ number_format($item->IvaArticulo, 2) }}</td>
-                                        <td>{{ number_format($item->ImporteArticulo, 2) }}</td>
+                                        <td style="font-weight: 500;">{{ $item->NomTienda }}</td>
+                                        <td style="font-size: 0.85rem;">
+                                            {{ \Carbon\Carbon::parse($item->FechaVenta)->format('d/m/Y') }}</td>
+                                        <td style="font-weight: 600; color: #0f172a;">{{ $item->CodArticulo }}</td>
+                                        <td
+                                            class="text-truncate"
+                                            style="max-width: 180px;"
+                                            title="{{ $item->NomArticulo }}"
+                                        >{{ $item->NomArticulo }}</td>
+                                        <td>{{ $item->NomGrupo }}</td>
+                                        <td>{{ $item->NomFamilia }}</td>
+                                        <td
+                                            class="text-end"
+                                            style="font-weight: 500;"
+                                        >{{ number_format($item->CantArticulo, 3) }}</td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <small
+                                                    style="color: #ef4444; text-decoration: line-through; font-size: 0.75rem;"
+                                                >${{ number_format($item->PrecioLista, 2) }}</small>
+                                                <span
+                                                    style="color: #10b981; font-weight: 600; font-size: 0.85rem;">${{ number_format($item->PrecioArticulo, 2) }}</span>
+                                            </div>
+                                        </td>
+                                        <td
+                                            class="text-end"
+                                            style="font-weight: 500;"
+                                        >${{ number_format($item->IvaArticulo, 2) }}</td>
+                                        <td
+                                            class="text-end"
+                                            style="font-weight: 500;"
+                                        >${{ number_format($item->ImporteArticulo, 2) }}</td>
                                     </tr>
-
                                     @php
-                                        // Acumulamos los valores
                                         $totalPeso += $item->CantArticulo;
-                                        $precioLista += $item->PrecioLista;
-                                        $precioDesc += $item->PrecioArticulo;
                                         $totalIva += $item->IvaArticulo;
                                         $totalImporte += $item->ImporteArticulo;
                                     @endphp
                                 @empty
                                     <tr>
                                         <td
-                                            colspan="14"
+                                            colspan="11"
                                             class="py-5 text-center"
                                         >
-                                            <x-table-empty-state
-                                                title="Sin datos disponibles"
-                                                icon="cube"
-                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
-                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
-                                                action="Limpiar filtros"
-                                                actionUrl="/ReporteDescuentos"
-                                            />
+                                            <i
+                                                class="bi bi-inbox"
+                                                style="font-size: 2.5rem; color: #94a3b8;"
+                                            ></i>
+                                            <p
+                                                class="mt-2"
+                                                style="color: #64748b; font-size: 0.85rem;"
+                                            >Sin datos disponibles</p>
+                                            <a
+                                                href="/ReporteDescuentos"
+                                                class="btn btn-sm d-flex align-items-center mx-auto mt-2 gap-1"
+                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; width: fit-content;"
+                                            >
+                                                <i class="bi bi-x-circle"></i> Limpiar filtros
+                                            </a>
                                         </td>
                                     </tr>
                                 @endforelse
                             </tbody>
-
                             @if (count($data) > 0)
                                 <tfoot>
-                                    <tr>
-                                        <td colspan="7"><strong>Total:</strong></td>
-                                        <td><strong>{{ number_format($totalPeso, 2) }}</strong></td>
-                                        <td>
-                                            {{-- <span class="tags-red text-muted">
-                                                <b>${{ number_format($precioLista, 2) }}</b>
-                                            </span>
-                                            /
-                                            <span class="tags-green"><b>${{ number_format($precioDesc, 2) }}</b></span> --}}
-                                        </td>
-                                        <td><strong>{{ number_format($totalIva, 2) }}</strong></td>
-                                        <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
+                                    <tr style="background: #f8fafc; font-weight: 700;">
+                                        <td
+                                            colspan="7"
+                                            class="text-end"
+                                        >TOTALES:</td>
+                                        <td class="text-end">{{ number_format($totalPeso, 2) }}</td>
+                                        <td></td>
+                                        <td class="text-end">${{ number_format($totalIva, 2) }}</td>
+                                        <td class="text-end">${{ number_format($totalImporte, 2) }}</td>
                                     </tr>
                                 </tfoot>
                             @endif
@@ -341,174 +485,22 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </x-layout.page-container>
+        </x-card-gradient-header>
+    </x-page-container>
+@endsection
 
-    <style>
-        .table thead th {
-            position: sticky;
-            top: 0;
-            background: rgb(30, 41, 59);
-            z-index: 2;
+@section('scripts')
+    <script>
+        function togglePanel(panelId, buttonId) {
+            const panel = document.getElementById(panelId);
+            const btn = document.getElementById(buttonId);
+            if (panel.classList.contains('d-none')) {
+                panel.classList.remove('d-none');
+                if (btn) btn.style.background = '#e2e8f0';
+            } else {
+                panel.classList.add('d-none');
+                if (btn) btn.style.background = '#f1f5f9';
+            }
         }
-    </style>
-
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Gráfica 1: Top 10 Productos (Barras horizontales)
-            const topProductosCanvas = document.getElementById('topProductosChart');
-            if (topProductosCanvas && @json(count($topProductosLabels)) > 0) {
-                new Chart(topProductosCanvas, {
-                    type: 'bar',
-                    data: {
-                        labels: @json($topProductosLabels),
-                        datasets: [{
-                            label: 'Peso (kg)',
-                            data: @json($topProductosPeso),
-                            backgroundColor: '#4e73df',
-                            borderRadius: 5,
-                            barPercentage: 0.7
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        indexAxis: 'y',
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Peso: ${context.raw.toFixed(2)} kg`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Peso (kg)',
-                                    font: {
-                                        size: 11
-                                    }
-                                },
-                                grid: {
-                                    display: true
-                                },
-                                ticks: {
-                                    callback: function(value) {
-                                        return value.toFixed(2) + ' kg';
-                                    }
-                                }
-                            },
-                            y: {
-                                ticks: {
-                                    font: {
-                                        size: 10
-                                    },
-                                    maxRotation: 0,
-                                    autoSkip: false
-                                },
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Gráfica 2: Ventas por Grupo (Pie)
-            const grupoCanvas = document.getElementById('ventasPorGrupoChart');
-            if (grupoCanvas && @json(count($gruposLabels)) > 0) {
-                new Chart(grupoCanvas, {
-                    type: 'pie',
-                    data: {
-                        labels: @json($gruposLabels),
-                        datasets: [{
-                            data: @json($gruposData),
-                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-                                '#858796'
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    boxWidth: 10
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Gráfica 3: Ventas por Lista de Precio (Doughnut)
-            const listaCanvas = document.getElementById('ventasPorListaChart');
-            if (listaCanvas && @json(count($listaLabels)) > 0) {
-                new Chart(listaCanvas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: @json($listaLabels),
-                        datasets: [{
-                            data: @json($listaData),
-                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e',
-                                '#e74a3b'
-                            ],
-                            borderWidth: 0,
-                            cutout: '60%'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    boxWidth: 10
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    </script> --}}
+    </script>
 @endsection
