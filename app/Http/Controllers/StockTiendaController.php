@@ -220,6 +220,7 @@ class StockTiendaController extends Controller
 
         $stocksActual = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $id)
+            ->where('b.Status', 0)
             ->get();
 
         try {

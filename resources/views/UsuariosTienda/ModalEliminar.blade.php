@@ -42,7 +42,7 @@
                         class="d-flex align-items-center justify-content-center mx-auto mb-3"
                         style="width: 64px; height: 64px; background-color: rgba(220, 38, 38, 0.1); border-radius: 50%;"
                     >
-                        <x-icons.alert-box
+                        <x-icons.box
                             :width="24"
                             :height="24"
                             color="#dc2626"
