@@ -49,7 +49,7 @@
                             class="d-flex align-items-center justify-content-center mx-auto mb-2"
                             style="width: 48px; height: 48px; background-color: rgba(220, 38, 38, 0.1); border-radius: 50%;"
                         >
-                            <x-icons.alert-box
+                            <x-icons.box
                                 :width="20"
                                 :height="20"
                                 color="#dc2626"
