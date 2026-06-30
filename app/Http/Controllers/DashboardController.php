@@ -53,4 +53,9 @@ class DashboardController extends Controller
 
         return view('Dashboard.DashboardMaterial', compact('menus', 'idCaja'));
     }
+
+    public function CalculoPrecios()
+    {
+        return view('CalculoPrecios.index');
+    }
 }
