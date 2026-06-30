@@ -92,6 +92,7 @@ class EmpleadosController extends Controller
         $codigoInterfaz = $request->codigoInterfaz;
         $filtrosAvanzadosActivos = $request->filled('idTienda') ||
             $request->filled('tipoNomina') ||
+            $request->filled('soloAdeudos') ||
             $request->filled('fechaInterfaz') ||
             $request->filled('codigoInterfaz');
 

@@ -30,7 +30,7 @@
                     {{-- Fila 1: Filtros principales + Botones --}}
                     <div class="row g-3 align-items-end">
                         <!-- Tienda -->
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label
                                 class="form-label fw-medium mb-2"
                                 style="color: #475569; font-size: 0.85rem;"
@@ -115,7 +115,7 @@
                         </div>
 
                         <!-- Botones -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="d-flex align-items-center gap-2">
                                 <x-form.submit
                                     text="Filtrar"

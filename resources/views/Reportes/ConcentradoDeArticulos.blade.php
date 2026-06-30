@@ -507,9 +507,6 @@
                 </div>
             </div>
         </x-card-gradient-header>
-    </x-page-container>
-
-@section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const topCanvas = document.getElementById('topProductosChart');
@@ -624,4 +621,4 @@
             }
         });
     </script>
-@endsection
+    </x-page-container>

@@ -95,7 +95,7 @@ class DashVentaPorTicketController extends Controller
             //         ->where('DC.rn', '=', DB::raw('1'));
             // })
             ->leftJoin(DB::raw("(
-                    SELECT IdEncabezado, IdArticulo, CantArticulo, ImporteArticulo, IdTipoPago, Linea, Source_Transaction_Identifier, IdSolicitudFactura
+                    SELECT IdEncabezado, IdArticulo, Linea, Source_Transaction_Identifier, IdSolicitudFactura
                     FROM DatCortesTienda dct1
                     WHERE dct1.IdCortesTienda in (
                         SELECT dct2.IdCortesTienda
@@ -110,7 +110,6 @@ class DashVentaPorTicketController extends Controller
                     ->on('DC.Linea', '=', 'DD.Linea');
             })
             ->leftJoin('SolicitudFactura as SF', 'SF.IdSolicitudFactura', '=', 'DC.IdSolicitudFactura')
-            ->leftJoin('CatTipoPago as CPP', 'CPP.IdTipoPago', '=', 'DC.IdTipoPago')
             ->select(
                 'DE.IdTicket',
                 'DE.IdEncabezado',
@@ -128,7 +127,6 @@ class DashVentaPorTicketController extends Controller
                 'DE.FechaCancelacion',
 
                 'DC.Source_Transaction_Identifier',
-                'CPP.NomTipoPago',
 
                 'DE.SolicitudFE',
                 'SF.IdSolicitudFactura',
@@ -143,16 +141,10 @@ class DashVentaPorTicketController extends Controller
                 'CA.NomArticulo',
                 'CF.NomFamilia',
                 'CG.NomGrupo',
-
-                // 'DD.CantArticulo',
-                'DC.CantArticulo',
-
+                'DD.CantArticulo',
                 'DD.PrecioArticulo',
                 'DD.PrecioLista',
-
-                // 'DD.ImporteArticulo',
-                'DC.ImporteArticulo',
-
+                'DD.ImporteArticulo',
                 'DD.IvaArticulo',
                 'DD.SubTotalArticulo',
                 'DD.IdListaPrecio',
@@ -296,134 +288,9 @@ class DashVentaPorTicketController extends Controller
             return $query->get();
     }
 
-    private function queryDetallado(string $idEncabezado)
-    {
-        $tiendasIds = $this->tiendasIds;
-
-        // Construir la consulta
-        $query = DB::connection('server')->table('DatEncabezado as DE')
-            ->leftJoin('DatDetalle as DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
-            ->leftJoin('CatPaquetes as CP', 'CP.IdPaquete', '=', 'DD.IdPaquete')
-            ->leftJoin('DatEncDescuentos as DED', 'DED.IdEncDescuento', '=', 'DD.IdEncDescuento')
-            ->leftJoin('CatArticulos as CA', 'CA.IdArticulo', '=', 'DD.IdArticulo')
-            ->leftJoin('CatFamilias as CF', 'CF.IdFamilia', '=', 'CA.IdFamilia')
-            ->leftJoin('CatGrupos as CG', 'CG.IdGrupo', '=', 'CA.IdGrupo')
-            ->leftJoin('CatEmpleados as CEC', 'CEC.NumNomina', '=', 'DE.NumNomina')
-            ->leftJoin('CatTiendas as CT', 'CT.IdTienda', '=', 'DE.IdTienda')
-            ->leftJoin('CatUsuarios as CU', 'CU.IdUsuario', '=', 'DE.IdUsuario')
-            ->leftJoin('CatEmpleados as CE', 'CE.NumNomina', '=', 'CU.NumNomina')
-            ->leftJoin('CatUsuarios as CUC', 'CUC.IdUsuario', '=', 'DE.IdUsuarioCancelacion')
-            ->leftJoin('CatEmpleados as CECC', 'CECC.NumNomina', '=', 'CUC.NumNomina')
-            ->select(
-                'DE.IdTicket',
-                'DE.IdEncabezado',
-                'DD.Linea',
-                'DE.FechaVenta',
-                'DE.FechaSubida',
-                'DE.SubTotal',
-                'DE.Iva',
-                'DE.ImporteVenta',
-                'DE.StatusVenta',
-                'DE.IdUsuarioCancelacion',
-                'CECC.Nombre as NombreUsuarioCancelacion',
-                'CECC.Apellidos as ApellidoUsuarioCancelacion',
-                'DE.MotivoCancel',
-                'DE.FechaCancelacion',
-
-                'DE.SolicitudFE',
-
-                'DE.NumNomina',
-                'CEC.Nombre as NombreEmpleadoComprador',
-                'CEC.Apellidos as ApellidosEmpleadoComprador',
-                'DD.IdArticulo',
-                'CA.CodArticulo',
-                'CA.NomArticulo',
-                'CF.NomFamilia',
-                'CG.NomGrupo',
-                'DD.CantArticulo',
-                'DD.PrecioArticulo',
-                'DD.PrecioLista',
-                'DD.ImporteArticulo',
-                'DD.IvaArticulo',
-                'DD.SubTotalArticulo',
-                'DD.IdListaPrecio',
-                'DD.Recorte',
-                'DD.IdPaquete',
-                'CP.NomPaquete',
-                'DD.IdEncDescuento',
-                'DED.NomDescuento',
-                'DE.IdTienda',
-                'CT.NomTienda',
-                'DE.IdUsuario',
-                'CU.NomUsuario',
-                DB::raw("CONCAT(CE.Nombre, ' ', CE.Apellidos) as NombreEmpleado")
-            )
-            ->when($idEncabezado, function ($query) use ($idEncabezado) {
-                $query->where('DE.IdEncabezado', $idEncabezado);
-            })
-            ->whereIn('DE.IdTienda', $tiendasIds)
-            ->orderBy('DE.IdTicket', 'desc')
-            ->orderBy('DD.Linea');
-
-        $queryPagos = DB::connection('server')
-            ->table('DatTipoPago as dt')
-            ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', '=', 'dt.IdTipoPago')
-            ->where('dt.IdEncabezado', $idEncabezado)
-            ->select(
-                'dt.*',
-                'ct.NomTipoPago'
-            );
-
-        $querySolicitud = DB::connection('server')
-            ->table('SolicitudFactura as sf')
-            ->where('sf.IdEncabezado', $idEncabezado)
-            ->select(
-                'sf.*'
-            );
-        return [
-            'detalle' => $query->get(),
-            'pagos' => $queryPagos->get(),
-            'facturas' => $querySolicitud->get(),
-        ];
-    }
-
     public function index(Request $request)
     {
-        // Solo validar si hay algún filtro activo (se hizo clic en Filtrar)
-        $hasAnyFilter = $request->filled('idTienda') ||
-            $request->filled('fecha') ||
-            $request->filled('id_ticket') ||
-            $request->filled('id_encabezado') ||
-            $request->filled('folio') ||
-            $request->filled('status_venta') ||
-            $request->filled('solicitud_fe') ||
-            $request->filled('cancelado');
-
-        if ($hasAnyFilter) {
-            if ($request->filled('id_encabezado') || $request->filled('folio')) {
-                // Si viene id_encabezado o folio, no requiere más filtros
-                $request->validate([
-                    'id_encabezado' => 'nullable|integer',
-                    'folio' => 'nullable|string',
-                ]);
-            } else {
-                // Si no, tienda y fecha son obligatorias
-                $request->validate([
-                    'idTienda' => 'required|integer',
-                    'fecha' => 'required|date',
-                ], [
-                    'idTienda.required' => 'Selecciona una tienda o busca por ID Encabezado/Folio.',
-                    'fecha.required' => 'La fecha es obligatoria o busca por ID Encabezado/Folio.',
-                ]);
-            }
-        }
-
-        $idEncabezado = $request->id_encabezado;
-        $folio = $request->folio;
-        if ($folio) {
-            $idEncabezado = \Vinkla\Hashids\Facades\Hashids::decode($folio);
-        }
-
+        // return 'sndfono';
         $filtrosAvanzadosActivos =
             $request->filled('folio') ||
             $request->filled('status_venta') ||
@@ -437,29 +304,13 @@ class DashVentaPorTicketController extends Controller
         $tiendas = $this->tiendas;
 
         // return
+        // return
         $data = $this->query($request);
-
-        $dataDetallado = collect();
-        $detalleData = null;
-        $pagosData = null;
-        $facturasData = null;
-        if ($idEncabezado) {
-            $dataDetallado = $this->queryDetallado($idEncabezado);
-
-            $detalleData = $dataDetallado['detalle'] ?? null;
-            $pagosData = $dataDetallado['pagos'] ?? null;
-            $facturasData = $dataDetallado['facturas'] ?? null;
-        }
 
         return view('Dashboards/venta-por-ticket', compact(
             'data',
-            'dataDetallado',
             'tiendas',
-            'idEncabezado',
-            'filtrosAvanzadosActivos',
-            'detalleData',
-            'pagosData',
-            'facturasData'
+            'filtrosAvanzadosActivos'
         ));
     }
 

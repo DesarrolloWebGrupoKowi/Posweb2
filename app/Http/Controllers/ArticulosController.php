@@ -58,6 +58,7 @@ class ArticulosController extends Controller
 
             Articulo::where('CodArticulo', $id)
                 ->update([
+                    'NomArticulo' => $request->NomArticulo,
                     'Amece' => $request->txtCodAmece,
                     'UOM' => $request->txtUOM,
                     'UOM2' => $request->txtUOM,

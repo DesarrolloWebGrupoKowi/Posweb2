@@ -10,6 +10,11 @@
     'required' => false,
 ])
 
+@php
+    // Prioridad: old() > request() > value prop
+    $selectedValue = old($name, request($name, $value));
+@endphp
+
 <div class="{{ $col }}">
     <label class="form-label" for="{{ $id ?? $name }}">
         @if ($icon)<i class="bi bi-{{ $icon }} me-1"></i>@endif
@@ -27,7 +32,7 @@
         @foreach ($options as $optionValue => $optionLabel)
             <option
                 value="{{ $optionValue }}"
-                {{ (request($name) == $optionValue || $value == $optionValue) ? 'selected' : '' }}
+                {{ $selectedValue == $optionValue ? 'selected' : '' }}
             >
                 {{ $optionLabel }}
             </option>

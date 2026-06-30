@@ -1411,21 +1411,30 @@ class ReportesController extends Controller
                 ->get();
         }
 
+        // return
         $concentrado = DatRosticero::with(['Detalle' => function ($q) {
-            $q->where('DatDetalleRosticero.Status', 0)
-                ->whereNull('CantMermaRecalentado')
-                ->select('Cantidad', 'IdRosticero'); // solo traer Cantidad y foránea
+            $q->select('DatDetalleRosticero.*', 'CatArticulos.NomArticulo')
+                ->orderBy('Linea');
         }])
-
             ->select(
                 'DatRosticero.*',
                 'CAMP.NomArticulo as ArticuloMatPrima',
                 'CAV.NomArticulo as ArticuloVenta',
-                'ct.NomTienda'
+                'ct.NomTienda',
+                'uBaja.NomUsuario as UsuarioInterfazBaja',
+                'eBaja.Nombre as NombreUsuarioBaja',
+                'eBaja.Apellidos as ApellidosUsuarioBaja',
+                'uAlta.NomUsuario as UsuarioInterfazAlta',
+                'eAlta.Nombre as NombreUsuarioAlta',
+                'eAlta.Apellidos as ApellidosUsuarioAlta'
             )
-            ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'DatRosticero.IdTienda')
-            ->leftjoin('CatArticulos as CAMP', 'CAMP.CodArticulo', 'DatRosticero.CodigoMatPrima')
-            ->leftjoin('CatArticulos as CAV', 'CAV.CodArticulo', 'DatRosticero.CodigoVenta')
+            ->leftJoin('CatTiendas as ct', 'ct.IdTienda', 'DatRosticero.IdTienda')
+            ->leftJoin('CatArticulos as CAMP', 'CAMP.CodArticulo', 'DatRosticero.CodigoMatPrima')
+            ->leftJoin('CatArticulos as CAV', 'CAV.CodArticulo', 'DatRosticero.CodigoVenta')
+            ->leftJoin('CatUsuarios as uBaja', 'uBaja.IdUsuario', 'DatRosticero.IdUsuarioInterfazBaja')
+            ->leftJoin('CatEmpleados as eBaja', 'eBaja.NumNomina', 'uBaja.NumNomina')
+            ->leftJoin('CatUsuarios as uAlta', 'uAlta.IdUsuario', 'DatRosticero.IdUsuarioInterfazAlta')
+            ->leftJoin('CatEmpleados as eAlta', 'eAlta.NumNomina', 'uAlta.NumNomina')
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('DatRosticero.IdTienda', $idTienda);
             })
@@ -1433,28 +1442,6 @@ class ReportesController extends Controller
             ->whereRaw("cast(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
             ->orderBy('DatRosticero.Fecha', 'desc')
             ->paginate(10);
-
-        // $concentrado = CapMerma::select(
-        //     'CapMermas.FolioMerma',
-        //     'CapMermas.CodArticulo',
-        //     'ca.NomArticulo',
-        //     'CapMermas.FechaCaptura',
-        //     'tm.NomTipoMerma',
-        //     'CapMermas.CantArticulo',
-        //     'CapMermas.FechaInterfaz',
-        //     'CapMermas.Comentario',
-        //     'CapMermas.IdTienda',
-        //     'ct.NomTienda'
-        // )
-        //     ->leftjoin('CatArticulos as ca', 'ca.CodArticulo', 'CapMermas.CodArticulo')
-        //     ->leftjoin('CatTiposMerma as tm', 'tm.IdTipoMerma', 'CapMermas.IdTipoMerma')
-        //     ->leftjoin('CatTiendas as ct', 'ct.IdTienda', 'CapMermas.IdTienda')
-        //     ->when($idTienda, function ($query) use ($idTienda) {
-        //         $query->where('CapMermas.IdTienda', $idTienda);
-        //     })
-        //     ->whereRaw("cast(CapMermas.FechaCaptura as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
-        //     ->orderBy('CapMermas.FechaCaptura', 'desc')
-        //     ->paginate(10);
 
         return view('Reportes.ConcentradoDeRostisados', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
     }

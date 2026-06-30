@@ -31,7 +31,7 @@
                         >
                             <i class="bi bi-box-seam"></i>
                         </div>
-                        <span>Editar Artículo: {{ $articulo->NomArticulo }}</span>
+                        <span>Editar Artículo</span>
                     </div>
                 </h5>
             </div>
@@ -44,35 +44,48 @@
                 >
                     @csrf
 
-                    <!-- Información del artículo -->
-                    <div class="row mb-3">
-                        <div class="col-md-6 mb-md-0 mb-3">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
+                    <!-- Nombre -->
+                    <div class="mb-3">
+                        <label
+                            for="NomArticulo{{ $articulo->CodArticulo }}"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
+                        >
+                            Nombre <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span
+                                class="input-group-text"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
                             >
-                                Nombre
-                            </label>
-                            <div
-                                class="rounded p-3"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; font-weight: 600; color: #0f172a; font-size: 0.9rem;"
+                                <i class="bi bi-fonts"></i>
+                            </span>
+                            <input
+                                type="text"
+                                id="NomArticulo{{ $articulo->CodArticulo }}"
+                                name="NomArticulo"
+                                class="form-control border-start-0"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                value="{{ $articulo->NomArticulo }}"
+                                tabindex="1"
+                                required
                             >
-                                {{ $articulo->NomArticulo }}
-                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label
-                                class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Código
-                            </label>
-                            <div
-                                class="rounded p-3"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; font-weight: 600; color: #0f172a; font-size: 0.9rem;"
-                            >
-                                {{ $articulo->CodArticulo }}
-                            </div>
+                    </div>
+
+                    <!-- Código (solo lectura) -->
+                    <div class="mb-3">
+                        <label
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
+                        >
+                            Código
+                        </label>
+                        <div
+                            class="rounded p-3"
+                            style="background: #f8fafc; border: 1px solid #e2e8f0; font-weight: 600; color: #0f172a; font-size: 0.9rem;"
+                        >
+                            {{ $articulo->CodArticulo }}
                         </div>
                     </div>
 
@@ -101,7 +114,7 @@
                                 placeholder="Amece"
                                 value="{{ $articulo->Amece }}"
                                 maxlength="13"
-                                tabindex="1"
+                                tabindex="2"
                             >
                         </div>
                     </div>
@@ -121,7 +134,7 @@
                                 id="txtUOM{{ $articulo->CodArticulo }}"
                                 class="form-select"
                                 style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
-                                tabindex="2"
+                                tabindex="3"
                             >
                                 <option
                                     {{ $articulo->UOM == 'KG' ? 'selected' : '' }}
@@ -153,7 +166,7 @@
                                 style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
                                 placeholder="Peso"
                                 value="{{ $articulo->Peso }}"
-                                tabindex="3"
+                                tabindex="4"
                             >
                         </div>
                         <div class="col-md-4 mb-3">
@@ -169,7 +182,7 @@
                                 id="txtTercero{{ $articulo->CodArticulo }}"
                                 class="form-select"
                                 style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
-                                tabindex="4"
+                                tabindex="5"
                             >
                                 <option
                                     {{ $articulo->Tercero == 0 ? 'selected' : '' }}
@@ -208,7 +221,7 @@
                                     style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                     placeholder="Precio Recorte"
                                     value="{{ $articulo->PrecioRecorte }}"
-                                    tabindex="5"
+                                    tabindex="6"
                                 >
                             </div>
                         </div>
@@ -229,7 +242,7 @@
                                 step="any"
                                 placeholder="Factor"
                                 value="{{ $articulo->Factor }}"
-                                tabindex="6"
+                                tabindex="7"
                             >
                         </div>
                         <div class="col-md-4 mb-3">
@@ -245,7 +258,7 @@
                                 id="idTipoArticulo{{ $articulo->CodArticulo }}"
                                 class="form-select"
                                 style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
-                                tabindex="7"
+                                tabindex="8"
                             >
                                 <option
                                     {{ empty($articulo->IdTipoArticulo) ? 'selected' : '' }}
@@ -278,7 +291,7 @@
                                 id="txtIdFamilia{{ $articulo->CodArticulo }}"
                                 class="form-select"
                                 style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
-                                tabindex="8"
+                                tabindex="9"
                             >
                                 @foreach ($familias as $familia)
                                     <option
@@ -303,7 +316,7 @@
                                 id="txtIdGrupo{{ $articulo->CodArticulo }}"
                                 class="form-select"
                                 style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
-                                tabindex="9"
+                                tabindex="10"
                             >
                                 @foreach ($grupos as $grupo)
                                     <option
@@ -328,7 +341,7 @@
                                 id="txtIva{{ $articulo->CodArticulo }}"
                                 class="form-select"
                                 style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
-                                tabindex="10"
+                                tabindex="11"
                             >
                                 <option
                                     {{ $articulo->Iva == 0 ? 'selected' : '' }}
@@ -360,8 +373,8 @@
                     type="submit"
                     class="btn d-flex align-items-center gap-1"
                     style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(30, 41, 59, 0.3)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #1e293b 0%, #334155 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                    onmouseover="this.style.background='linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'"
+                    onmouseout="this.style.background='linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                 >
                     <i class="bi bi-pencil"></i>
                     Guardar Cambios

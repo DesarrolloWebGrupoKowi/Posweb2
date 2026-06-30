@@ -1,83 +1,268 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Concentrado por Grupo y Tipo de Precio')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+<x-page-container title="Concentrado por Grupo y Tipo de Precio">
+    <x-card-gradient-header
+        icon="folder"
+        title="Concentrado por Grupo y Tipo de Precio"
+        subtitle="Reporte de ventas agrupadas por grupo y tipo de precio"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+            <a
+                href="/ExportReporteGrupoYTipoPrecio?{{ http_build_query(request()->only(['fecha1', 'fecha2'])) }}"
+                class="btn-header-ghost"
+                title="Exportar a Excel"
+                style="background: #f0fdf4; color: #10b981;"
+                onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+            >
+                <i class="bi bi-file-earmark-excel"></i> Exportar
+            </a>
+        </x-slot:buttons>
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Concentrado por Grupo y Tipo de Precio'])
-                <div>
-                    <form action="/ExportReporteGrupoYTipoPrecio" method="GET">
-                        <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-                        <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                        <button type="submit" class="input-group-text text-decoration-none btn-excel">
-                            Exportar @include('components.icons.excel')
-                        </button>
-                    </form>
+        <!-- Filtros -->
+        <x-form.form action="/ReporteGrupoYTipoPrecio">
+            <x-form.group>
+                <x-form.date
+                    name="fecha1"
+                    label="Fecha Inicio"
+                    icon="calendar3"
+                    col="col-md-5"
+                    :value="empty($fecha1) ? date('Y-m-d') : $fecha1"
+                    :autofocus="true"
+                />
+                <x-form.date
+                    name="fecha2"
+                    label="Fecha Fin"
+                    icon="calendar3"
+                    col="col-md-4"
+                    :value="empty($fecha2) ? date('Y-m-d') : $fecha2"
+                />
+            </x-form.group>
+            <div class="col-md-3 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                    class="flex-grow-1"
+                />
+                <x-form.clear />
+            </div>
+        </x-form.form>
+
+        <!-- KPIs -->
+        @php
+            $totales = [
+                'MENUDEO' => $concentrado->where('NomListaPrecio', 'MENUDEO')->sum('importe'),
+                'MINORISTA' => $concentrado->where('NomListaPrecio', 'MINORISTA')->sum('importe'),
+                'EMPYSOC' => $concentrado->where('NomListaPrecio', 'EMPYSOC')->sum('importe'),
+            ];
+            $kilos = [
+                'MENUDEO' => $concentrado->where('NomListaPrecio', 'MENUDEO')->sum('kilos'),
+                'MINORISTA' => $concentrado->where('NomListaPrecio', 'MINORISTA')->sum('kilos'),
+                'EMPYSOC' => $concentrado->where('NomListaPrecio', 'EMPYSOC')->sum('kilos'),
+            ];
+            $totalGeneral = $totales['MENUDEO'] + $totales['MINORISTA'] + $totales['EMPYSOC'];
+        @endphp
+
+        <div class="p-4 pb-0">
+            <div class="d-flex flex-wrap gap-3">
+                <div
+                    class="kpi-card"
+                    style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 16px 20px; position: relative; overflow: hidden; flex: 1; min-width: 160px;"
+                >
+                    <div
+                        style="position: absolute; top: -15px; right: -15px; width: 60px; height: 60px; background: rgba(59, 130, 246, 0.08); border-radius: 50%;">
+                    </div>
+                    <div style="position: relative; z-index: 1;">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span
+                                style="color: #1d4ed8; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                            >Menudeo</span>
+                            <i
+                                class="bi bi-cart"
+                                style="color: #3b82f6; font-size: 1.1rem; opacity: 0.6;"
+                            ></i>
+                        </div>
+                        <h3
+                            class="mb-1"
+                            style="font-weight: 700; color: #0f172a; font-size: 1.3rem;"
+                        >${{ number_format($totales['MENUDEO'], 2) }}</h3>
+                        <span style="color: #64748b; font-size: 0.75rem;">{{ number_format($kilos['MENUDEO'], 2) }}
+                            kg</span>
+                    </div>
+                </div>
+
+                <div
+                    class="kpi-card"
+                    style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 16px 20px; position: relative; overflow: hidden; flex: 1; min-width: 160px;"
+                >
+                    <div
+                        style="position: absolute; top: -15px; right: -15px; width: 60px; height: 60px; background: rgba(16, 185, 129, 0.08); border-radius: 50%;">
+                    </div>
+                    <div style="position: relative; z-index: 1;">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span
+                                style="color: #059669; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                            >Minorista</span>
+                            <i
+                                class="bi bi-shop"
+                                style="color: #10b981; font-size: 1.1rem; opacity: 0.6;"
+                            ></i>
+                        </div>
+                        <h3
+                            class="mb-1"
+                            style="font-weight: 700; color: #0f172a; font-size: 1.3rem;"
+                        >${{ number_format($totales['MINORISTA'], 2) }}</h3>
+                        <span style="color: #64748b; font-size: 0.75rem;">{{ number_format($kilos['MINORISTA'], 2) }}
+                            kg</span>
+                    </div>
+                </div>
+
+                <div
+                    class="kpi-card"
+                    style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 16px 20px; position: relative; overflow: hidden; flex: 1; min-width: 160px;"
+                >
+                    <div
+                        style="position: absolute; top: -15px; right: -15px; width: 60px; height: 60px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                    </div>
+                    <div style="position: relative; z-index: 1;">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span
+                                style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                            >EmpySoc</span>
+                            <i
+                                class="bi bi-people"
+                                style="color: #8b5cf6; font-size: 1.1rem; opacity: 0.6;"
+                            ></i>
+                        </div>
+                        <h3
+                            class="mb-1"
+                            style="font-weight: 700; color: #0f172a; font-size: 1.3rem;"
+                        >${{ number_format($totales['EMPYSOC'], 2) }}</h3>
+                        <span style="color: #64748b; font-size: 0.75rem;">{{ number_format($kilos['EMPYSOC'], 2) }}
+                            kg</span>
+                    </div>
+                </div>
+
+                {{-- Total General --}}
+                <div
+                    class="kpi-card"
+                    style="background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); border-radius: 12px; padding: 16px 20px; position: relative; overflow: hidden; flex: 1; min-width: 160px;"
+                >
+                    <div
+                        style="position: absolute; top: -15px; right: -15px; width: 60px; height: 60px; background: rgba(71, 85, 105, 0.06); border-radius: 50%;">
+                    </div>
+                    <div style="position: relative; z-index: 1;">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span
+                                style="color: #475569; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                            >Total</span>
+                            <i
+                                class="bi bi-cash-stack"
+                                style="color: #64748b; font-size: 1.1rem; opacity: 0.6;"
+                            ></i>
+                        </div>
+                        <h3
+                            class="mb-1"
+                            style="font-weight: 700; color: #0f172a; font-size: 1.3rem;"
+                        >${{ number_format($totalGeneral, 2) }}</h3>
+                        <span style="color: #64748b; font-size: 0.75rem;">Suma total</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <!--CONTAINER FILTROS-->
-            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/ReporteGrupoYTipoPrecio"
-                method="GET">
-                <div class="col-auto">
-                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" autofocus>
+        <!-- Tabla -->
+        <div class="p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                <div>
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-table me-2"
+                            style="color: #64748b;"
+                        ></i>Concentrado por Grupo y Tipo de Precio
+                    </h5>
+                    <p class="section-content-subtitle">Listado de ventas agrupadas por grupo y tipo de precio
+                    </p>
                 </div>
-                <div class="col-auto">
-                    <input class="form-control rounded" style="line-height: 18px" type="date" name="fecha2"
-                        id="fech2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                </div>
-                <button class="btn btn-dark-outline" title="Buscar">
-                    @include('components.icons.search')
-                </button>
-            </form>
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Tienda</th>
-                        <th>Grupo</th>
-                        <th>Tipo Precio</th>
-                        <th class="text-center">Cantidad</th>
-                        <th class="rounded-end text-center">Importe</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($concentrado->count() == 0)
-                        <tr>
-                            <td colspan="5">No Hay Ventas en Rango de Fechas Seleccionadas!</td>
-                        </tr>
-                    @else
-                        @php
-                            $importes = 0;
-                            $kilos = 0;
-                        @endphp
-                        @foreach ($concentrado as $tConcentrado)
-                            <tr>
-                                <td>{{ $tConcentrado->NomTienda }}</td>
-                                <td>{{ $tConcentrado->NomGrupo }}</td>
-                                <td>{{ $tConcentrado->NomListaPrecio }}</td>
-                                <td class="text-end">{{ number_format($tConcentrado->kilos, 2) }}</td>
-                                <td class="text-end">${{ number_format($tConcentrado->importe, 2) }}</td>
-                                @php
-                                    $kilos += $tConcentrado->kilos;
-                                    $importes += $tConcentrado->importe;
-                                @endphp
-                            </tr>
-                        @endforeach
-                        <tr>
-                            <td colspan="3" class="text-end fw-bold">Total:</td>
-                            <td class="text-end">{{ number_format($kilos, 2) }}</td>
-                            <td class="text-end">${{ number_format($importes, 2) }}</td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
-        </div>
-    </div>
+            </div>
 
-@endsection
+            <div class="table-responsive">
+                <table class="table-hover table-custom table">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-shop me-1"></i>Tienda</th>
+                            <th><i class="bi bi-folder me-1"></i>Grupo</th>
+                            <th><i class="bi bi-tag me-1"></i>Tipo Precio</th>
+                            <th class="text-center"><i class="bi bi-box me-1"></i>Cantidad</th>
+                            <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $kilosTotal = 0;
+                            $importesTotal = 0;
+                        @endphp
+
+                        @forelse ($concentrado as $tConcentrado)
+                            <tr>
+                                <td style="font-weight: 500;">{{ $tConcentrado->NomTienda }}</td>
+                                <td>
+                                    <span
+                                        style="background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;"
+                                    >
+                                        {{ $tConcentrado->NomGrupo }}
+                                    </span>
+                                </td>
+                                <td>{{ $tConcentrado->NomListaPrecio }}</td>
+                                <td
+                                    class="text-center"
+                                    style="font-weight: 500;"
+                                >{{ number_format($tConcentrado->kilos, 2) }} kg</td>
+                                <td
+                                    class="text-end"
+                                    style="font-weight: 600; color: #10b981;"
+                                >${{ number_format($tConcentrado->importe, 2) }}</td>
+                            </tr>
+                            @php
+                                $kilosTotal += $tConcentrado->kilos;
+                                $importesTotal += $tConcentrado->importe;
+                            @endphp
+                        @empty
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    class="py-5 text-center"
+                                >
+                                    <i
+                                        class="bi bi-inbox"
+                                        style="font-size: 2.5rem; color: #94a3b8;"
+                                    ></i>
+                                    <p
+                                        class="mt-2"
+                                        style="color: #64748b; font-size: 0.85rem;"
+                                    >No hay ventas en el rango de fechas seleccionadas</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    @if ($concentrado->count() > 0)
+                        <tfoot>
+                            <tr style="background: #f1f5f9; font-weight: 700;">
+                                <td
+                                    colspan="3"
+                                    class="text-end"
+                                    style="color: #0f172a;"
+                                >Totales:</td>
+                                <td class="text-center">{{ number_format($kilosTotal, 2) }} kg</td>
+                                <td
+                                    class="text-end"
+                                    style="color: #10b981;"
+                                >${{ number_format($importesTotal, 2) }}</td>
+                            </tr>
+                        </tfoot>
+                    @endif
+                </table>
+            </div>
+        </div>
+    </x-card-gradient-header>
+</x-page-container>

@@ -29,7 +29,7 @@
                         {{-- Buscador --}}
                         <form
                             id="form-buscar"
-                            action="{{ route('BuscarArticulo') }}"
+                            action="{{ route('articulos.buscar') }}"
                             method="GET"
                             class="mb-3"
                         >
@@ -81,7 +81,7 @@
                                             <td>{{ $item->DESCRIPTION }}</td>
                                             <td class="text-center">
                                                 <form
-                                                    action="{{ route('BuscarArticulo') }}"
+                                                    action="{{ route('articulos.buscar') }}"
                                                     method="GET"
                                                     class="search-form"
                                                     data-id="{{ $item->ITEM_NUMBER }}"

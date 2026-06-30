@@ -1,384 +1,550 @@
 <x-page-container title="Dashboard por Tienda">
-        <x-card-gradient-header
-            icon="shop"
-            title="Dashboard por Tienda"
-            subtitle="Resumen de ventas y corte por tienda"
-        >
-            <x-slot:buttons>
-                <a
-                    href="/GenerarCorteOraclePDF/{{ request('fecha_fin') }}/{{ request('tienda_id') }}/0"
-                    class="btn-header-ghost"
-                    target="_blank"
-                    title="Descargar corte"
-                    style="background: #f0fdf4; color: #10b981;"
-                    onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
-                >
-                    <i class="bi bi-file-text"></i> Descargar corte
-                </a>
-                <x-header.buttons.refresh-button />
-                <x-header.buttons.home-button />
-            </x-slot:buttons>
+    <x-card-gradient-header
+        icon="shop"
+        title="Dashboard por Tienda"
+        subtitle="Resumen de ventas y corte por tienda"
+    >
+        <x-slot:buttons>
+            <a
+                href="/GenerarCorteOraclePDF/{{ request('fecha_fin') }}/{{ request('tienda_id') }}/0"
+                class="btn-header-ghost"
+                target="_blank"
+                title="Descargar corte"
+                style="background: #f0fdf4; color: #10b981;"
+                onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+            >
+                <i class="bi bi-file-text"></i> Descargar corte
+            </a>
+            <x-header.buttons.refresh-button />
+            <x-header.buttons.home-button />
+        </x-slot:buttons>
 
-            <!-- Filtros -->
-            <x-form.form action="{{ route('DashTienda') }}">
-                <x-form.group>
-                    <x-form.select
-                        name="tienda_id"
-                        label="Tienda"
-                        icon="shop"
-                        col="col-md-3"
-                        placeholder="Todas las tiendas"
-                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
-                    />
-                    <x-form.date
-                        name="fecha_fin"
-                        label="Fecha"
-                        icon="calendar3"
-                        col="col-md-2"
-                        :autofocus="true"
-                    />
-                    <x-form.text
-                        name="pos"
-                        label="Pedido"
-                        icon="search"
-                        placeholder="POS_000000"
-                        col="col-md-2"
-                    />
-                    <x-form.checkbox-input
-                        name="detallado"
-                        label="Detalle"
-                        :checked="request('detallado') == 'on'"
-                    />
-                </x-form.group>
-                <div class="col-md-3 d-flex gap-2">
-                    <x-form.submit
-                        text="Filtrar"
-                        icon="funnel"
-                        class="flex-grow-1"
-                    />
-                    <x-form.clear />
+        <!-- Filtros -->
+        <x-form.form action="{{ route('DashTienda') }}">
+            <x-form.group>
+                <x-form.select
+                    name="tienda_id"
+                    label="Tienda"
+                    icon="shop"
+                    col="col-md-3"
+                    placeholder="Todas las tiendas"
+                    :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                />
+                <x-form.date
+                    name="fecha_fin"
+                    label="Fecha"
+                    icon="calendar3"
+                    col="col-md-2"
+                    :autofocus="true"
+                />
+                <x-form.text
+                    name="pos"
+                    label="Pedido"
+                    icon="search"
+                    placeholder="POS_000000"
+                    col="col-md-2"
+                />
+                <x-form.checkbox-input
+                    name="detallado"
+                    label="Detalle"
+                    :checked="request('detallado') == 'on'"
+                />
+            </x-form.group>
+            <div class="col-md-3 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                    class="flex-grow-1"
+                />
+                <x-form.clear />
+            </div>
+        </x-form.form>
+
+        {{-- SECCIÓN 2: KPIs --}}
+        <div class="p-4">
+            <div class="row g-3">
+                <div class="col-xl-3 col-md-6 col-12">
+                    <div
+                        class="kpi-card"
+                        style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                    >
+                        <div
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                        </div>
+                        <div style="position: relative; z-index: 1;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span
+                                    style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                >Solic. Facturas</span>
+                                <i
+                                    class="bi bi-file-text"
+                                    style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
+                                ></i>
+                            </div>
+                            <h3
+                                class="mb-1"
+                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                            >{{ $kpis['solicitudes_factura'] ?? 0 }}</h3>
+                            <span
+                                style="color: {{ ($kpis['facturas_pendientes'] ?? 0) > 0 ? '#ef4444' : '#10b981' }}; font-size: 0.78rem;"
+                            >{{ $kpis['facturas_pendientes'] ?? 0 }} pendientes</span>
+                        </div>
+                    </div>
                 </div>
-            </x-form.form>
-
-            {{-- SECCIÓN 2: KPIs --}}
-            <div class="p-4">
-                <div class="row g-3">
-                    <div class="col-xl-3 col-md-6 col-12">
+                <div class="col-xl-3 col-md-6 col-12">
+                    <div
+                        class="kpi-card"
+                        style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                    >
                         <div
-                            class="kpi-card"
-                            style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
-                        >
-                            <div
-                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
-                            </div>
-                            <div style="position: relative; z-index: 1;">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span
-                                        style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
-                                    >Solic. Facturas</span>
-                                    <i
-                                        class="bi bi-file-text"
-                                        style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
-                                    ></i>
-                                </div>
-                                <h3
-                                    class="mb-1"
-                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
-                                >{{ $kpis['solicitudes_factura'] ?? 0 }}</h3>
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(20, 184, 166, 0.08); border-radius: 50%;">
+                        </div>
+                        <div style="position: relative; z-index: 1;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: {{ ($kpis['facturas_pendientes'] ?? 0) > 0 ? '#ef4444' : '#10b981' }}; font-size: 0.78rem;"
-                                >{{ $kpis['facturas_pendientes'] ?? 0 }} pendientes</span>
+                                    style="color: #0d9488; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                >Tickets</span>
+                                <i
+                                    class="bi bi-receipt"
+                                    style="color: #14b8a6; font-size: 1.3rem; opacity: 0.7;"
+                                ></i>
                             </div>
+                            <h3
+                                class="mb-1"
+                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                            >{{ $kpis['tickets'] ?? 0 }}</h3>
+                            <span style="color: #94a3b8; font-size: 0.78rem;">Prom:
+                                ${{ number_format($kpis['promedio_ticket'] ?? 0, 2) }}</span>
                         </div>
                     </div>
-                    <div class="col-xl-3 col-md-6 col-12">
+                </div>
+                <div class="col-xl-3 col-md-6 col-12">
+                    <div
+                        class="kpi-card"
+                        style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                    >
                         <div
-                            class="kpi-card"
-                            style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
-                        >
-                            <div
-                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(20, 184, 166, 0.08); border-radius: 50%;">
-                            </div>
-                            <div style="position: relative; z-index: 1;">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span
-                                        style="color: #0d9488; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
-                                    >Tickets</span>
-                                    <i
-                                        class="bi bi-receipt"
-                                        style="color: #14b8a6; font-size: 1.3rem; opacity: 0.7;"
-                                    ></i>
-                                </div>
-                                <h3
-                                    class="mb-1"
-                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
-                                >{{ $kpis['tickets'] ?? 0 }}</h3>
-                                <span style="color: #94a3b8; font-size: 0.78rem;">Prom:
-                                    ${{ number_format($kpis['promedio_ticket'] ?? 0, 2) }}</span>
-                            </div>
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(249, 115, 22, 0.08); border-radius: 50%;">
                         </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 col-12">
-                        <div
-                            class="kpi-card"
-                            style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
-                        >
-                            <div
-                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(249, 115, 22, 0.08); border-radius: 50%;">
-                            </div>
-                            <div style="position: relative; z-index: 1;">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span
-                                        style="color: #ea580c; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
-                                    >Kilos</span>
-                                    <i
-                                        class="bi bi-box"
-                                        style="color: #f97316; font-size: 1.3rem; opacity: 0.7;"
-                                    ></i>
-                                </div>
-                                <h3
-                                    class="mb-1"
-                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
-                                >{{ number_format($kpis['kilos_hoy'] ?? 0, 1) }} kg</h3>
+                        <div style="position: relative; z-index: 1;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #94a3b8; font-size: 0.78rem;">{{ number_format(($kpis['kilos_promedio'] ?? 0) / max($kpis['tickets'] ?? 1, 1), 2) }}
-                                    kg/ticket</span>
+                                    style="color: #ea580c; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                >Kilos</span>
+                                <i
+                                    class="bi bi-box"
+                                    style="color: #f97316; font-size: 1.3rem; opacity: 0.7;"
+                                ></i>
                             </div>
+                            <h3
+                                class="mb-1"
+                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                            >{{ number_format($kpis['kilos_hoy'] ?? 0, 1) }} kg</h3>
+                            <span
+                                style="color: #94a3b8; font-size: 0.78rem;">{{ number_format(($kpis['kilos_promedio'] ?? 0) / max($kpis['tickets'] ?? 1, 1), 2) }}
+                                kg/ticket</span>
                         </div>
                     </div>
-                    <div class="col-xl-3 col-md-6 col-12">
+                </div>
+                <div class="col-xl-3 col-md-6 col-12">
+                    <div
+                        class="kpi-card"
+                        style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                    >
                         <div
-                            class="kpi-card"
-                            style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
-                        >
-                            <div
-                                style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(99, 102, 241, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(99, 102, 241, 0.08); border-radius: 50%;">
+                        </div>
+                        <div style="position: relative; z-index: 1;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span
+                                    style="color: #4f46e5; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                >Ventas Hoy</span>
+                                <i
+                                    class="bi bi-cash-stack"
+                                    style="color: #6366f1; font-size: 1.3rem; opacity: 0.7;"
+                                ></i>
                             </div>
-                            <div style="position: relative; z-index: 1;">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span
-                                        style="color: #4f46e5; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
-                                    >Ventas Hoy</span>
+                            <h3
+                                class="mb-1"
+                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                            >${{ number_format($kpis['ventas_hoy'] ?? 0, 2) }}</h3>
+                            <div class="d-flex align-items-center gap-1">
+                                <span
+                                    style="color: {{ ($kpis['ventas_vs_ayer'] ?? 0) >= 0 ? '#10b981' : '#ef4444' }}; font-size: 0.78rem; font-weight: 600;"
+                                >
                                     <i
-                                        class="bi bi-cash-stack"
-                                        style="color: #6366f1; font-size: 1.3rem; opacity: 0.7;"
-                                    ></i>
-                                </div>
-                                <h3
-                                    class="mb-1"
-                                    style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
-                                >${{ number_format($kpis['ventas_hoy'] ?? 0, 2) }}</h3>
-                                <div class="d-flex align-items-center gap-1">
-                                    <span
-                                        style="color: {{ ($kpis['ventas_vs_ayer'] ?? 0) >= 0 ? '#10b981' : '#ef4444' }}; font-size: 0.78rem; font-weight: 600;"
-                                    >
-                                        <i
-                                            class="bi bi-arrow-{{ ($kpis['ventas_vs_ayer'] ?? 0) >= 0 ? 'up' : 'down' }}"></i>
-                                        {{ abs($kpis['ventas_vs_ayer'] ?? 0) }}%
-                                    </span>
-                                    <span style="color: #94a3b8; font-size: 0.75rem;">vs ayer</span>
-                                </div>
+                                        class="bi bi-arrow-{{ ($kpis['ventas_vs_ayer'] ?? 0) >= 0 ? 'up' : 'down' }}"></i>
+                                    {{ abs($kpis['ventas_vs_ayer'] ?? 0) }}%
+                                </span>
+                                <span style="color: #94a3b8; font-size: 0.75rem;">vs ayer</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            {{-- Notificación de procesar tienda --}}
-            <x-dashboard-notificacion-procesar-tienda :tiendaActual="$tiendaActual" />
+        {{-- Notificación de procesar tienda --}}
+        <x-dashboard-notificacion-procesar-tienda :tiendaActual="$tiendaActual" />
 
-            {{-- SECCIÓN 3: TABLA Y GRÁFICAS --}}
-            <div class="px-4 pb-4">
-                <div class="row g-4">
-                    {{-- TABLA: Corte Tienda (FUNCIONALIDAD COMPLETA) --}}
-                    <div class="col-xxl-8">
+        {{-- SECCIÓN 3: TABLA Y GRÁFICAS --}}
+        <div class="px-4 pb-4">
+            <div class="row g-4">
+                {{-- TABLA: Corte Tienda (FUNCIONALIDAD COMPLETA) --}}
+                <div class="col-xxl-8">
+                    <div
+                        class="rounded p-4 shadow-sm"
+                        style="background: white; border-radius: 12px;"
+                    >
+                        @php $allowedUserTypes = [1, 4, 9, 11]; @endphp
                         <div
-                            class="rounded p-4 shadow-sm"
-                            style="background: white; border-radius: 12px;"
-                        >
-                            @php $allowedUserTypes = [1, 4, 9, 11]; @endphp
-                            <div
-                                class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
-                                <div>
-                                    <h5
-                                        class="mb-1"
-                                        style="font-weight: 600; color: #0f172a; font-size: 1rem;"
-                                    >CORTE TIENDA {{ $tiendaActual->NomTienda ?? '' }}</h5>
-                                    @if ($fechaActual)
-                                        <small
-                                            style="color: #64748b; font-size: 0.85rem;">{{ \Carbon\Carbon::parse($fechaActual)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</small>
-                                    @endif
-                                </div>
-                                <div class="d-flex gap-2">
-                                    @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
-                                        <x-dashboard-buttons-procesar
-                                            :corteTienda="$corteTienda"
-                                            :corteTiendaSolicitudes="$corteTiendaSolicitudes"
-                                        />
-                                    @endif
-                                    <button
-                                        class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                        onclick="toggleExpandirTabla()"
-                                        id="btnExpandir"
-                                        style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem;"
-                                    >
-                                        <i class="bi bi-arrows-fullscreen"></i>
-                                        <span id="btnExpandirTexto">Expandir</span>
-                                    </button>
-                                </div>
+                            class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                            <div>
+                                <h5
+                                    class="mb-1"
+                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                >CORTE TIENDA {{ $tiendaActual->NomTienda ?? '' }}</h5>
+                                @if ($fechaActual)
+                                    <small
+                                        style="color: #64748b; font-size: 0.85rem;">{{ \Carbon\Carbon::parse($fechaActual)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</small>
+                                @endif
                             </div>
+                            <div class="d-flex gap-2">
+                                @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                    <x-dashboard-buttons-procesar
+                                        :corteTienda="$corteTienda"
+                                        :corteTiendaSolicitudes="$corteTiendaSolicitudes"
+                                    />
+                                @endif
+                                <button
+                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                    onclick="toggleExpandirTabla()"
+                                    id="btnExpandir"
+                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem;"
+                                >
+                                    <i class="bi bi-arrows-fullscreen"></i>
+                                    <span id="btnExpandirTexto">Expandir</span>
+                                </button>
+                            </div>
+                        </div>
 
-                            <div
-                                id="vistaTabla"
-                                class="table-responsive"
-                            >
-                                <table class="table-hover table-custom table">
-                                    <thead>
-                                        <tr>
-                                            <th><i class="bi bi-person me-1"></i>Cliente</th>
-                                            <th><i class="bi bi-receipt me-1"></i>Pedido</th>
-                                            <th><i class="bi bi-circle me-1"></i>Estatus</th>
-                                            <th><i class="bi bi-database me-1"></i>Oracle</th>
-                                            <th class="text-end"><i class="bi bi-box me-1"></i>Cantidad</th>
-                                            <th class="text-end"><i class="bi bi-cash me-1"></i>Ventas</th>
-                                            @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
-                                                <th class="text-center"><i class="bi bi-gear me-1"></i>Acciones</th>
-                                            @endif
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                        <div
+                            id="vistaTabla"
+                            class="table-responsive"
+                        >
+                            <table class="table-hover table-custom table">
+                                <thead>
+                                    <tr>
+                                        <th><i class="bi bi-person me-1"></i>Cliente</th>
+                                        <th><i class="bi bi-receipt me-1"></i>Pedido</th>
+                                        <th><i class="bi bi-circle me-1"></i>Estatus</th>
+                                        <th><i class="bi bi-database me-1"></i>Oracle</th>
+                                        <th class="text-end"><i class="bi bi-box me-1"></i>Cantidad</th>
+                                        <th class="text-end"><i class="bi bi-cash me-1"></i>Ventas</th>
+                                        @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                            <th class="text-center"><i class="bi bi-gear me-1"></i>Acciones</th>
+                                        @endif
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $totalVentas = 0;
+                                        $totalKilos = 0;
+                                    @endphp
+
+                                    {{-- CORTE DE CONTADO --}}
+                                    @foreach ($corteTienda as $item)
                                         @php
-                                            $totalVentas = 0;
-                                            $totalKilos = 0;
+                                            $totalVentas += $item->total_importe;
+                                            $totalKilos += $item->total_cantidad;
+                                            $oracleData = $item->OracleData ?? null;
+                                            $status = $oracleData->STATUS ?? null;
+                                            $mensajeError = $oracleData->MENSAJE_ERROR ?? null;
+                                            $transactionOn = $oracleData->Transaction_On ?? null;
+                                            $sourceTransactionNumber = $oracleData->Source_Transaction_Number ?? null;
+                                            $sourceIdentifier = $item->Source_Transaction_Identifier ?? null;
                                         @endphp
-
-                                        {{-- CORTE DE CONTADO --}}
-                                        @foreach ($corteTienda as $item)
-                                            @php
-                                                $totalVentas += $item->total_importe;
-                                                $totalKilos += $item->total_cantidad;
-                                                $oracleData = $item->OracleData ?? null;
-                                                $status = $oracleData->STATUS ?? null;
-                                                $mensajeError = $oracleData->MENSAJE_ERROR ?? null;
-                                                $transactionOn = $oracleData->Transaction_On ?? null;
-                                                $sourceTransactionNumber =
-                                                    $oracleData->Source_Transaction_Number ?? null;
-                                                $sourceIdentifier = $item->Source_Transaction_Identifier ?? null;
-                                            @endphp
-                                            <tr id="row-{{ $sourceIdentifier ?? 'temp-' . $loop->index }}">
-                                                <td>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <div
-                                                            class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                                            style="background: #eff6ff; width: 28px; height: 28px;"
-                                                        >
-                                                            <i
-                                                                class="bi bi-box"
-                                                                style="color: #3b82f6; font-size: 0.75rem;"
-                                                            ></i>
-                                                        </div>
-                                                        <span
-                                                            class="text-truncate"
-                                                            style="max-width: 270px; display: inline-block;"
-                                                            title="{{ $item->NomClienteCloud }}"
-                                                        >{{ $item->NomClienteCloud }}</span>
+                                        <tr id="row-{{ $sourceIdentifier ?? 'temp-' . $loop->index }}">
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div
+                                                        class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                                        style="background: #eff6ff; width: 28px; height: 28px;"
+                                                    >
+                                                        <i
+                                                            class="bi bi-box"
+                                                            style="color: #3b82f6; font-size: 0.75rem;"
+                                                        ></i>
+                                                    </div>
+                                                    <span
+                                                        class="text-truncate"
+                                                        style="max-width: 270px; display: inline-block;"
+                                                        title="{{ $item->NomClienteCloud }}"
+                                                    >{{ $item->NomClienteCloud }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="{{ $sourceIdentifier ? 'tags-blue' : 'tags-red' }}">
+                                                    {{ $sourceTransactionNumber ?? ($sourceIdentifier ? 'SIN NÚMERO' : 'SIN PEDIDO') }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    id="status-{{ $sourceIdentifier }}"
+                                                    class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
+                                                >
+                                                    {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span
+                                                    id="status-oracle-{{ $sourceTransactionNumber }}"
+                                                    class="{{ $status === 'PROCESADO' ? 'status-oracle' : '' }} text-muted"
+                                                    data-pedido="{{ $sourceTransactionNumber }}"
+                                                    data-uuid-local="{{ $item->UUID ?? '' }}"
+                                                >-</span>
+                                            </td>
+                                            <td
+                                                class="text-end"
+                                                style="font-weight: 500;"
+                                            >{{ number_format($item->total_cantidad, 3) }} kg</td>
+                                            <td
+                                                class="text-end"
+                                                style="font-weight: 500;"
+                                            >${{ number_format($item->total_importe, 2) }}</td>
+                                            @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                                <td class="text-center">
+                                                    <div
+                                                        class="d-flex align-items-center justify-content-center gap-1">
+                                                        @if ($status === 'PROCESADO' && $sourceIdentifier)
+                                                            @php $POS = substr($sourceIdentifier, 0, 3) . '_' . substr($sourceIdentifier, 3); @endphp
+                                                            <a
+                                                                href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                                target="_blank"
+                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                                                style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                title="PDF"
+                                                            >
+                                                                <i class="bi bi-download"></i> PDF
+                                                            </a>
+                                                            <a
+                                                                href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
+                                                                target="_blank"
+                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                title="XML"
+                                                            >
+                                                                <i class="bi bi-download"></i> XML
+                                                            </a>
+                                                        @elseif ($sourceIdentifier && $status !== 'PROCESADO')
+                                                            <button
+                                                                type="button"
+                                                                id="btnEnviarPedido{{ $sourceIdentifier }}"
+                                                                class="btn btn-sm btn-enviar d-flex align-items-center btn-animated gap-1"
+                                                                style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                title="Enviar pedido a Oracle"
+                                                                data-pedido="{{ $sourceIdentifier }}"
+                                                                data-row-id="row-{{ $sourceIdentifier }}"
+                                                                data-original-status="{{ $status }}"
+                                                                data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                                            >
+                                                                <i class="bi bi-send"></i> ENVIAR
+                                                            </button>
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                        @if ($status === 'PROCESADO')
+                                                            <div
+                                                                class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
+                                                                data-pedido="{{ $sourceTransactionNumber }}"
+                                                                data-uuid-local="{{ $item->UUID ?? '' }}"
+                                                            ></div>
+                                                        @endif
                                                     </div>
                                                 </td>
-                                                <td>
-                                                    <span class="{{ $sourceIdentifier ? 'tags-blue' : 'tags-red' }}">
-                                                        {{ $sourceTransactionNumber ?? ($sourceIdentifier ? 'SIN NÚMERO' : 'SIN PEDIDO') }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        id="status-{{ $sourceIdentifier }}"
-                                                        class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
-                                                    >
-                                                        {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span
-                                                        id="status-oracle-{{ $sourceTransactionNumber }}"
-                                                        class="{{ $status === 'PROCESADO' ? 'status-oracle' : '' }} text-muted"
-                                                        data-pedido="{{ $sourceTransactionNumber }}"
-                                                        data-uuid-local="{{ $item->UUID ?? '' }}"
-                                                    >-</span>
-                                                </td>
+                                            @endif
+                                        </tr>
+                                        @if (!empty($mensajeError))
+                                            <tr
+                                                id="msg-{{ $sourceIdentifier }}"
+                                                class="bg-light"
+                                            >
                                                 <td
-                                                    class="text-end"
-                                                    style="font-weight: 500;"
-                                                >{{ number_format($item->total_cantidad, 3) }} kg</td>
-                                                <td
-                                                    class="text-end"
-                                                    style="font-weight: 500;"
-                                                >${{ number_format($item->total_importe, 2) }}</td>
-                                                @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
-                                                    <td class="text-center">
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-center gap-1">
-                                                            @if ($status === 'PROCESADO' && $sourceIdentifier)
-                                                                @php $POS = substr($sourceIdentifier, 0, 3) . '_' . substr($sourceIdentifier, 3); @endphp
-                                                                <a
-                                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
-                                                                    target="_blank"
-                                                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                    style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                                    title="PDF"
-                                                                >
-                                                                    <i class="bi bi-download"></i> PDF
-                                                                </a>
-                                                                <a
-                                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
-                                                                    target="_blank"
-                                                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                                    title="XML"
-                                                                >
-                                                                    <i class="bi bi-download"></i> XML
-                                                                </a>
-                                                            @elseif ($sourceIdentifier && $status !== 'PROCESADO')
-                                                                <button
-                                                                    type="button"
-                                                                    id="btnEnviarPedido{{ $sourceIdentifier }}"
-                                                                    class="btn btn-sm btn-enviar d-flex align-items-center btn-animated gap-1"
-                                                                    style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                                    title="Enviar pedido a Oracle"
-                                                                    data-pedido="{{ $sourceIdentifier }}"
-                                                                    data-row-id="row-{{ $sourceIdentifier }}"
-                                                                    data-original-status="{{ $status }}"
-                                                                    data-original-mensaje="{{ $mensajeError ?? '' }}"
-                                                                >
-                                                                    <i class="bi bi-send"></i> ENVIAR
-                                                                </button>
-                                                            @else
-                                                                <span class="text-muted">-</span>
-                                                            @endif
-                                                            @if ($status === 'PROCESADO')
-                                                                <div
-                                                                    class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
-                                                                    data-pedido="{{ $sourceTransactionNumber }}"
-                                                                    data-uuid-local="{{ $item->UUID ?? '' }}"
-                                                                ></div>
-                                                            @endif
-                                                        </div>
-                                                    </td>
-                                                @endif
-                                            </tr>
-                                            @if (!empty($mensajeError))
-                                                <tr
-                                                    id="msg-{{ $sourceIdentifier }}"
-                                                    class="bg-light"
+                                                    colspan="7"
+                                                    class="py-1 ps-5"
                                                 >
-                                                    <td
-                                                        colspan="7"
-                                                        class="py-1 ps-5"
+                                                    <small
+                                                        id="mensaje-container-{{ $sourceIdentifier }}"
+                                                        class="{{ $status === 'ERROR' ? 'text-danger' : 'text-success' }}"
                                                     >
-                                                        <small
-                                                            id="mensaje-container-{{ $sourceIdentifier }}"
-                                                            class="{{ $status === 'ERROR' ? 'text-danger' : 'text-success' }}"
+                                                        <strong id="mensaje-titulo-{{ $sourceIdentifier }}">
+                                                            @if ($transactionOn)
+                                                                {{ $transactionOn }} -
+                                                            @endif
+                                                            {{ $status === 'ERROR' ? 'Error:' : 'Mensaje:' }}
+                                                        </strong>
+                                                        <span
+                                                            id="mensaje-texto-{{ $sourceIdentifier }}">{{ $mensajeError }}</span>
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+
+                                    {{-- CORTE DE SOLICITUDES DE FACTURA --}}
+                                    @foreach ($corteTiendaSolicitudes as $item)
+                                        @php
+                                            $totalVentas += $item->total_importe;
+                                            $totalKilos += $item->total_cantidad;
+                                            $oracleData = $item->OracleData ?? null;
+                                            $status = $oracleData->STATUS ?? null;
+                                            $mensajeError = $oracleData->MENSAJE_ERROR ?? null;
+                                            $transactionOn = $oracleData->Transaction_On ?? null;
+                                            $sourceTransactionNumber = $oracleData->Source_Transaction_Number ?? null;
+                                            $sourceIdentifier = $item->Source_Transaction_Identifier ?? null;
+                                        @endphp
+                                        <tr id="row-{{ $sourceIdentifier ?? 'temp-' . $loop->index }}">
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div
+                                                        class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                                        style="background: #eff6ff; width: 28px; height: 28px;"
+                                                    >
+                                                        <i
+                                                            class="bi bi-person"
+                                                            style="color: #3b82f6; font-size: 0.75rem;"
+                                                        ></i>
+                                                    </div>
+                                                    <div class="d-flex flex-column">
+                                                        <span
+                                                            class="text-truncate"
+                                                            style="max-width: 300px; display: inline-block;"
+                                                            title="{{ $item->NomCliente }}"
+                                                        >{{ $item->NomCliente }}</span>
+                                                        @if ($item->UUID ?? false)
+                                                            <small>Facturación en Línea</small>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="{{ $sourceIdentifier ? 'tags-blue' : 'tags-red' }}">
+                                                    @if ($sourceIdentifier)
+                                                        {{ $sourceTransactionNumber }}
+                                                    @elseif ($item->Editar != null)
+                                                        SIN LIGAR
+                                                    @else
+                                                        SIN PEDIDO
+                                                    @endif
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    id="status-{{ $sourceIdentifier }}"
+                                                    class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
+                                                >
+                                                    {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span
+                                                    id="status-oracle-{{ $sourceTransactionNumber }}"
+                                                    class="{{ $status === 'PROCESADO' ? 'status-oracle' : '' }} text-muted"
+                                                    data-pedido="{{ $sourceTransactionNumber }}"
+                                                    data-uuid-local="{{ $item->UUID ?? '' }}"
+                                                    data-type="sf"
+                                                >-</span>
+                                            </td>
+                                            <td
+                                                class="text-end"
+                                                style="font-weight: 500;"
+                                            >{{ number_format($item->total_cantidad, 3) }} kg</td>
+                                            <td
+                                                class="text-end"
+                                                style="font-weight: 500;"
+                                            >${{ number_format($item->total_importe, 2) }}</td>
+                                            @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                                <td class="text-center">
+                                                    <div
+                                                        class="d-flex align-items-center justify-content-center gap-1">
+                                                        @if ($status === 'PROCESADO' && !($item->UUID ?? false))
+                                                            @php $POS = substr($sourceIdentifier, 0, 3) . '_' . substr($sourceIdentifier, 3); @endphp
+                                                            <a
+                                                                href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
+                                                                target="_blank"
+                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                                                style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                            >PDF</a>
+                                                            <a
+                                                                href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
+                                                                target="_blank"
+                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                            >XML</a>
+                                                        @endif
+                                                        @if ($item->UUID ?? false)
+                                                            <a
+                                                                href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadPdfCte?Uuid={{ $item->UUID }}"
+                                                                target="_blank"
+                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                                                style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                            > <i class="bi bi-download"></i> PDF
+                                                            </a>
+                                                            <a
+                                                                href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadXmlCte?Uuid={{ $item->UUID }}"
+                                                                target="_blank"
+                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                            ><i class="bi bi-download"></i> XML
+                                                            </a>
+                                                        @endif
+                                                        @if ($sourceIdentifier && $status != 'PROCESADO')
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-sm btn-enviar d-flex align-items-center btn-animated gap-1"
+                                                                style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                data-pedido="{{ $sourceIdentifier }}"
+                                                                data-row-id="row-{{ $sourceIdentifier }}"
+                                                                data-original-status="{{ $status }}"
+                                                                data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                                            >
+                                                                <i class="bi bi-send"></i> ENVIAR
+                                                            </button>
+                                                        @endif
+                                                        <a
+                                                            href="/SolicitudesFactura/{{ $item->IdSolicitudFactura }}"
+                                                            target="_blank"
+                                                            class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                                            style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
                                                         >
+                                                            <i class="bi bi-box-arrow-up-right"></i>
+                                                        </a>
+                                                        @if ($status === 'PROCESADO')
+                                                            <div
+                                                                class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
+                                                                data-pedido="{{ $sourceTransactionNumber }}"
+                                                                data-uuid-local="{{ $item->UUID ?? '' }}"
+                                                            ></div>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            @endif
+                                        </tr>
+                                        @if (!empty($mensajeError) || ($item->UUID ?? false))
+                                            <tr
+                                                id="msg-{{ $sourceIdentifier }}"
+                                                class="bg-light"
+                                            >
+                                                <td
+                                                    colspan="7"
+                                                    class="py-1 ps-5"
+                                                >
+                                                    <small
+                                                        id="mensaje-container-{{ $sourceIdentifier }}"
+                                                        class="{{ $status === 'ERROR' ? 'text-danger' : 'text-success' }}"
+                                                    >
+                                                        @if ($mensajeError)
                                                             <strong id="mensaje-titulo-{{ $sourceIdentifier }}">
                                                                 @if ($transactionOn)
                                                                     {{ $transactionOn }} -
@@ -386,320 +552,149 @@
                                                                 {{ $status === 'ERROR' ? 'Error:' : 'Mensaje:' }}
                                                             </strong>
                                                             <span
-                                                                id="mensaje-texto-{{ $sourceIdentifier }}">{{ $mensajeError }}</span>
-                                                        </small>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
-
-                                        {{-- CORTE DE SOLICITUDES DE FACTURA --}}
-                                        @foreach ($corteTiendaSolicitudes as $item)
-                                            @php
-                                                $totalVentas += $item->total_importe;
-                                                $totalKilos += $item->total_cantidad;
-                                                $oracleData = $item->OracleData ?? null;
-                                                $status = $oracleData->STATUS ?? null;
-                                                $mensajeError = $oracleData->MENSAJE_ERROR ?? null;
-                                                $transactionOn = $oracleData->Transaction_On ?? null;
-                                                $sourceTransactionNumber =
-                                                    $oracleData->Source_Transaction_Number ?? null;
-                                                $sourceIdentifier = $item->Source_Transaction_Identifier ?? null;
-                                            @endphp
-                                            <tr id="row-{{ $sourceIdentifier ?? 'temp-' . $loop->index }}">
-                                                <td>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <div
-                                                            class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                                            style="background: #eff6ff; width: 28px; height: 28px;"
-                                                        >
-                                                            <i
-                                                                class="bi bi-person"
-                                                                style="color: #3b82f6; font-size: 0.75rem;"
-                                                            ></i>
-                                                        </div>
-                                                        <div class="d-flex flex-column">
-                                                            <span
-                                                                class="text-truncate"
-                                                                style="max-width: 300px; display: inline-block;"
-                                                                title="{{ $item->NomCliente }}"
-                                                            >{{ $item->NomCliente }}</span>
-                                                            @if ($item->UUID ?? false)
-                                                                <small>Facturación en Línea</small>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span class="{{ $sourceIdentifier ? 'tags-blue' : 'tags-red' }}">
-                                                        @if ($sourceIdentifier)
-                                                            {{ $sourceTransactionNumber }}
-                                                        @elseif ($item->Editar != null)
-                                                            SIN LIGAR
-                                                        @else
-                                                            SIN PEDIDO
+                                                                id="mensaje-texto-{{ $sourceIdentifier }}">{{ $mensajeError }}</span><br>
                                                         @endif
-                                                    </span>
+                                                        @if ($item->UUID ?? false)
+                                                            <strong>UUID:</strong> <span>{{ $item->UUID }}</span>
+                                                        @endif
+                                                    </small>
                                                 </td>
-                                                <td>
-                                                    <span
-                                                        id="status-{{ $sourceIdentifier }}"
-                                                        class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
-                                                    >
-                                                        {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span
-                                                        id="status-oracle-{{ $sourceTransactionNumber }}"
-                                                        class="{{ $status === 'PROCESADO' ? 'status-oracle' : '' }} text-muted"
-                                                        data-pedido="{{ $sourceTransactionNumber }}"
-                                                        data-uuid-local="{{ $item->UUID ?? '' }}"
-                                                        data-type="sf"
-                                                    >-</span>
-                                                </td>
-                                                <td
-                                                    class="text-end"
-                                                    style="font-weight: 500;"
-                                                >{{ number_format($item->total_cantidad, 3) }} kg</td>
-                                                <td
-                                                    class="text-end"
-                                                    style="font-weight: 500;"
-                                                >${{ number_format($item->total_importe, 2) }}</td>
-                                                @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
-                                                    <td class="text-center">
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-center gap-1">
-                                                            @if ($status === 'PROCESADO' && !($item->UUID ?? false))
-                                                                @php $POS = substr($sourceIdentifier, 0, 3) . '_' . substr($sourceIdentifier, 3); @endphp
-                                                                <a
-                                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
-                                                                    target="_blank"
-                                                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                    style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                                >PDF</a>
-                                                                <a
-                                                                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
-                                                                    target="_blank"
-                                                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                                >XML</a>
-                                                            @endif
-                                                            @if ($item->UUID ?? false)
-                                                                <a
-                                                                    href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadPdfCte?Uuid={{ $item->UUID }}"
-                                                                    target="_blank"
-                                                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                    style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                                > <i class="bi bi-download"></i> PDF
-                                                                </a>
-                                                                <a
-                                                                    href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadXmlCte?Uuid={{ $item->UUID }}"
-                                                                    target="_blank"
-                                                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                                ><i class="bi bi-download"></i> XML
-                                                                </a>
-                                                            @endif
-                                                            @if ($sourceIdentifier && $status != 'PROCESADO')
-                                                                <button
-                                                                    type="button"
-                                                                    class="btn btn-sm btn-enviar d-flex align-items-center btn-animated gap-1"
-                                                                    style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                                    data-pedido="{{ $sourceIdentifier }}"
-                                                                    data-row-id="row-{{ $sourceIdentifier }}"
-                                                                    data-original-status="{{ $status }}"
-                                                                    data-original-mensaje="{{ $mensajeError ?? '' }}"
-                                                                >
-                                                                    <i class="bi bi-send"></i> ENVIAR
-                                                                </button>
-                                                            @endif
-                                                            <a
-                                                                href="/SolicitudesFactura/{{ $item->IdSolicitudFactura }}"
-                                                                target="_blank"
-                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                            >
-                                                                <i class="bi bi-box-arrow-up-right"></i>
-                                                            </a>
-                                                            @if ($status === 'PROCESADO')
-                                                                <div
-                                                                    class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
-                                                                    data-pedido="{{ $sourceTransactionNumber }}"
-                                                                    data-uuid-local="{{ $item->UUID ?? '' }}"
-                                                                ></div>
-                                                            @endif
-                                                        </div>
-                                                    </td>
-                                                @endif
                                             </tr>
-                                            @if (!empty($mensajeError) || ($item->UUID ?? false))
-                                                <tr
-                                                    id="msg-{{ $sourceIdentifier }}"
-                                                    class="bg-light"
-                                                >
-                                                    <td
-                                                        colspan="7"
-                                                        class="py-1 ps-5"
-                                                    >
-                                                        <small
-                                                            id="mensaje-container-{{ $sourceIdentifier }}"
-                                                            class="{{ $status === 'ERROR' ? 'text-danger' : 'text-success' }}"
-                                                        >
-                                                            @if ($mensajeError)
-                                                                <strong id="mensaje-titulo-{{ $sourceIdentifier }}">
-                                                                    @if ($transactionOn)
-                                                                        {{ $transactionOn }} -
-                                                                    @endif
-                                                                    {{ $status === 'ERROR' ? 'Error:' : 'Mensaje:' }}
-                                                                </strong>
-                                                                <span
-                                                                    id="mensaje-texto-{{ $sourceIdentifier }}">{{ $mensajeError }}</span><br>
-                                                            @endif
-                                                            @if ($item->UUID ?? false)
-                                                                <strong>UUID:</strong> <span>{{ $item->UUID }}</span>
-                                                            @endif
-                                                        </small>
-                                                    </td>
-                                                </tr>
+                                        @endif
+                                    @endforeach
+
+                                    {{-- Totales --}}
+                                    @if (count($corteTienda) > 0 || count($corteTiendaSolicitudes) > 0)
+                                        <tr style="background: #f8fafc;">
+                                            <td
+                                                colspan="{{ in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes) ? 4 : 3 }}"
+                                                class="fw-bold text-end"
+                                            >TOTALES:</td>
+                                            <td class="fw-bold text-end">{{ number_format($totalKilos, 2) }} kg</td>
+                                            <td class="fw-bold text-end">${{ number_format($totalVentas, 2) }}</td>
+                                            @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                                <td></td>
                                             @endif
-                                        @endforeach
+                                        </tr>
+                                    @endif
 
-                                        {{-- Totales --}}
-                                        @if (count($corteTienda) > 0 || count($corteTiendaSolicitudes) > 0)
-                                            <tr style="background: #f8fafc;">
-                                                <td
-                                                    colspan="{{ in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes) ? 4 : 3 }}"
-                                                    class="fw-bold text-end"
-                                                >TOTALES:</td>
-                                                <td class="fw-bold text-end">{{ number_format($totalKilos, 2) }} kg</td>
-                                                <td class="fw-bold text-end">${{ number_format($totalVentas, 2) }}</td>
-                                                @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
-                                                    <td></td>
-                                                @endif
-                                            </tr>
-                                        @endif
-
-                                        @if (count($corteTienda) == 0 && count($corteTiendaSolicitudes) == 0)
-                                            <tr>
-                                                <td
-                                                    colspan="{{ in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes) ? 7 : 6 }}"
-                                                    class="py-5 text-center"
-                                                >
-                                                    <i
-                                                        class="bi bi-inbox"
-                                                        style="font-size: 2.5rem; color: #94a3b8;"
-                                                    ></i>
-                                                    <p
-                                                        class="mt-2"
-                                                        style="color: #64748b; font-size: 0.85rem;"
-                                                    >No hay registros de corte diario</p>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
+                                    @if (count($corteTienda) == 0 && count($corteTiendaSolicitudes) == 0)
+                                        <tr>
+                                            <td
+                                                colspan="{{ in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes) ? 7 : 6 }}"
+                                                class="py-5 text-center"
+                                            >
+                                                <i
+                                                    class="bi bi-inbox"
+                                                    style="font-size: 2.5rem; color: #94a3b8;"
+                                                ></i>
+                                                <p
+                                                    class="mt-2"
+                                                    style="color: #64748b; font-size: 0.85rem;"
+                                                >No hay registros de corte diario</p>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
 
-                    {{-- GRÁFICAS --}}
-                    <div class="col-xxl-4">
-                        <div class="row g-4">
-                            <div class="col-12">
+                {{-- GRÁFICAS --}}
+                <div class="col-xxl-4">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div
+                                class="rounded p-4 shadow-sm"
+                                style="background: white; border-radius: 12px;"
+                            >
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5
+                                        class="mb-0"
+                                        style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                    >Ventas por Hora</h5>
+                                    @if (!empty($graficaVentas['data']) && array_sum($graficaVentas['data']) != 0)
+                                        <div class="btn-group">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm periodo-btn active"
+                                                data-periodo="hoy"
+                                                style="background: #1e293b; color: white; border: none; border-radius: 6px 0 0 6px; padding: 4px 10px; font-size: 0.75rem;"
+                                            >Hoy</button>
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm periodo-btn"
+                                                data-periodo="7d"
+                                                style="background: #f1f5f9; color: #475569; border: none; padding: 4px 10px; font-size: 0.75rem;"
+                                            >7d</button>
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm periodo-btn"
+                                                data-periodo="30d"
+                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 0 6px 6px 0; padding: 4px 10px; font-size: 0.75rem;"
+                                            >30d</button>
+                                        </div>
+                                    @endif
+                                </div>
                                 <div
-                                    class="rounded p-4 shadow-sm"
-                                    style="background: white; border-radius: 12px;"
+                                    class="position-relative"
+                                    style="height: 200px;"
                                 >
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h5
-                                            class="mb-0"
-                                            style="font-weight: 600; color: #0f172a; font-size: 1rem;"
-                                        >Ventas por Hora</h5>
-                                        @if (!empty($graficaVentas['data']) && array_sum($graficaVentas['data']) != 0)
-                                            <div class="btn-group">
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-sm periodo-btn active"
-                                                    data-periodo="hoy"
-                                                    style="background: #1e293b; color: white; border: none; border-radius: 6px 0 0 6px; padding: 4px 10px; font-size: 0.75rem;"
-                                                >Hoy</button>
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-sm periodo-btn"
-                                                    data-periodo="7d"
-                                                    style="background: #f1f5f9; color: #475569; border: none; padding: 4px 10px; font-size: 0.75rem;"
-                                                >7d</button>
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-sm periodo-btn"
-                                                    data-periodo="30d"
-                                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 0 6px 6px 0; padding: 4px 10px; font-size: 0.75rem;"
-                                                >30d</button>
+                                    @if (empty($graficaVentas['data']) || array_sum($graficaVentas['data']) == 0)
+                                        <div class="d-flex justify-content-center align-items-center h-100">
+                                            <div class="text-center"><i
+                                                    class="bi bi-bar-chart"
+                                                    style="font-size: 2.5rem; color: #94a3b8;"
+                                                ></i>
+                                                <p
+                                                    class="mt-2"
+                                                    style="color: #64748b;"
+                                                >Sin datos</p>
                                             </div>
-                                        @endif
-                                    </div>
-                                    <div
-                                        class="position-relative"
-                                        style="height: 200px;"
-                                    >
-                                        @if (empty($graficaVentas['data']) || array_sum($graficaVentas['data']) == 0)
-                                            <div class="d-flex justify-content-center align-items-center h-100">
-                                                <div class="text-center"><i
-                                                        class="bi bi-bar-chart"
-                                                        style="font-size: 2.5rem; color: #94a3b8;"
-                                                    ></i>
-                                                    <p
-                                                        class="mt-2"
-                                                        style="color: #64748b;"
-                                                    >Sin datos</p>
-                                                </div>
-                                            </div>
-                                        @else
-                                            <canvas id="ventasChart"></canvas>
-                                        @endif
-                                    </div>
+                                        </div>
+                                    @else
+                                        <canvas id="ventasChart"></canvas>
+                                    @endif
                                 </div>
                             </div>
-                            <div class="col-12">
+                        </div>
+                        <div class="col-12">
+                            <div
+                                class="rounded p-4 shadow-sm"
+                                style="background: white; border-radius: 12px;"
+                            >
+                                <h5
+                                    class="mb-3"
+                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                >Distribución de Pagos</h5>
                                 <div
-                                    class="rounded p-4 shadow-sm"
-                                    style="background: white; border-radius: 12px;"
+                                    class="position-relative"
+                                    style="height: 160px;"
                                 >
-                                    <h5
-                                        class="mb-3"
-                                        style="font-weight: 600; color: #0f172a; font-size: 1rem;"
-                                    >Distribución de Pagos</h5>
-                                    <div
-                                        class="position-relative"
-                                        style="height: 160px;"
-                                    >
-                                        @if (empty($graficaDistribucionPagos['data']) || array_sum($graficaDistribucionPagos['data']) == 0)
-                                            <div class="d-flex justify-content-center align-items-center h-100">
-                                                <div class="text-center"><i
-                                                        class="bi bi-pie-chart"
-                                                        style="font-size: 2.5rem; color: #94a3b8;"
-                                                    ></i>
-                                                    <p
-                                                        class="mt-2"
-                                                        style="color: #64748b;"
-                                                    >Sin datos</p>
-                                                </div>
+                                    @if (empty($graficaDistribucionPagos['data']) || array_sum($graficaDistribucionPagos['data']) == 0)
+                                        <div class="d-flex justify-content-center align-items-center h-100">
+                                            <div class="text-center"><i
+                                                    class="bi bi-pie-chart"
+                                                    style="font-size: 2.5rem; color: #94a3b8;"
+                                                ></i>
+                                                <p
+                                                    class="mt-2"
+                                                    style="color: #64748b;"
+                                                >Sin datos</p>
                                             </div>
-                                        @else
-                                            <canvas id="pagosChart"></canvas>
-                                        @endif
-                                    </div>
+                                        </div>
+                                    @else
+                                        <canvas id="pagosChart"></canvas>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </x-card-gradient-header>
-    </x-page-container>
-
-@section('scripts')
+        </div>
+    </x-card-gradient-header>
     <script>
         // ====================================================================================================
         // FUNCIONALIDAD COMPLETA DE ORACLE (STATUS, BOTONES, ENVÍO DE PEDIDOS)
@@ -942,8 +937,8 @@
             if (esExito && resultado.dato?.sourceTransactionNumber) {
                 button.parentNode.innerHTML =
                     `
-                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden=${resultado.dato.sourceTransactionNumber}" target="_blank" class="btn btn-sm d-flex align-items-center gap-1" style="background:#eff6ff;color:#3b82f6;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;">PDF</a>
-                    <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden=${resultado.dato.sourceTransactionNumber}" target="_blank" class="btn btn-sm d-flex align-items-center gap-1" style="background:#f1f5f9;color:#475569;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;">ZIP</a>`;
+                            <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden=${resultado.dato.sourceTransactionNumber}" target="_blank" class="btn btn-sm d-flex align-items-center gap-1" style="background:#eff6ff;color:#3b82f6;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;">PDF</a>
+                            <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden=${resultado.dato.sourceTransactionNumber}" target="_blank" class="btn btn-sm d-flex align-items-center gap-1" style="background:#f1f5f9;color:#475569;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;">ZIP</a>`;
             } else {
                 button.disabled = false;
                 button.innerHTML = '<i class="bi bi-send"></i> ENVIAR';
@@ -1058,6 +1053,8 @@
         $(document).ready(function() {
             const ctxV = document.getElementById('ventasChart')?.getContext('2d');
             const ctxP = document.getElementById('pagosChart')?.getContext('2d');
+            console.log(ctxV);
+
             if (ctxV) {
                 ventasChart = new Chart(ctxV, {
                     type: 'line',
@@ -1156,4 +1153,4 @@
             });
         });
     </script>
-@endsection
+</x-page-container>
