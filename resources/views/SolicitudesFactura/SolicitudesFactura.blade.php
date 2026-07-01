@@ -5,8 +5,8 @@
             subtitle="Gestión de solicitudes de facturación"
         >
             <x-slot:buttons>
-                <x-header.buttons.refresh-button />
                 <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
             </x-slot:buttons>
 
             <!-- Filtros -->

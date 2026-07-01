@@ -7,6 +7,8 @@
             subtitle="Reporte de paquetes comercializados por ticket"
         >
             <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
                 <a
                     href="/ExportsReportePaquetes?{{ http_build_query(request()->only(['idTienda', 'fecha_inicio', 'fecha_fin', 'id_paquete', 'nom_paquete'])) }}"
                     class="btn-header-ghost"
@@ -17,8 +19,6 @@
                 >
                     <i class="bi bi-file-earmark-excel"></i> Exportar
                 </a>
-                <x-header.buttons.refresh-button />
-                <x-header.buttons.home-button />
             </x-slot:buttons>
 
             <!-- Filtros -->

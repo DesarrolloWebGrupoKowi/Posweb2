@@ -5,6 +5,8 @@
             subtitle="Reporte de ventas por artículo"
         >
             <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
                 <a
                     href="/ExportReporteConcentradoDeArticulos?{{ http_build_query(request()->only(['idTienda', 'fecha1', 'fecha2', 'txtFiltro', 'optionsOnline', 'agrupado', 'agrupadoArticulo', 'codigoInterfaz', 'soloAdeudos'])) }}"
                     class="btn-header-ghost"
@@ -15,8 +17,6 @@
                 >
                     <i class="bi bi-file-earmark-excel"></i> Exportar
                 </a>
-                <x-header.buttons.refresh-button />
-                <x-header.buttons.home-button />
             </x-slot:buttons>
 
             <!-- Filtros -->

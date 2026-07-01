@@ -5,6 +5,8 @@
             subtitle="Consulta de movimientos de productos en tiendas"
         >
             <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
                 <a
                     href="/ReporteMovimientosInventario/exports?{{ http_build_query(request()->only(['idTienda', 'fecha_inicio', 'fecha_fin', 'fecha', 'cod_articulo', 'nom_articulo', 'id_movimiento', 'usuario', 'num_nomina', 'referencia', 'id_caja'])) }}"
                     class="btn-header-ghost"
@@ -15,8 +17,6 @@
                 >
                     <i class="bi bi-file-earmark-excel"></i> Exportar
                 </a>
-                <x-header.buttons.refresh-button />
-                <x-header.buttons.home-button />
             </x-slot:buttons>
 
             <!-- Filtros -->
