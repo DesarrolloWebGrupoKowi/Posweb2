@@ -58,6 +58,7 @@
                             <th>Metodo de pago</th>
                             <th>Banco</th>
                             <th>Cuenta</th>
+                            <th>Regimen Fiscal</th>
                             <th>Status</th>
                             <th class="rounded-end">Acciones</th>
                         </tr>
@@ -66,7 +67,9 @@
                         @include('components.table-empty', ['items' => $solicitudes, 'colspan' => 23])
                         @foreach ($solicitudes as $solicitud)
                             <tr>
+                                {{-- <td>{{ $solicitud->Id }}</td> --}}
                                 <td>{{ $solicitud->IdSolicitudFactura }}</td>
+                                {{-- <td>{{ $solicitud->IdEncabezado }}</td> --}}
                                 <td>{{ $solicitud->NomTienda }}</td>
                                 <td></td>
                                 <td>{{ $solicitud->TipoPersona }}</td>
@@ -87,6 +90,7 @@
                                 <td>{{ $solicitud->NomTipoPago }}</td>
                                 <td>{{ $solicitud->NomBanco }}</td>
                                 <td>{{ $solicitud->NumTarjeta }}</td>
+                                <td>{{ $solicitud->RegimenFiscal }}</td>
                                 <td> {{ $solicitud->Editar ? 'Actualizar' : 'Nuevo' }} </td>
                                 <td>
                                     {{-- <a href="/SolicitudesFactura/{{ $solicitud->Id }}" class="btn-table">
