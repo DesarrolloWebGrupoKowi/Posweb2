@@ -22,6 +22,7 @@ use App\Http\Controllers\MovimientosProductoController;
 use App\Http\Controllers\TablasUpdateController;
 use App\Http\Controllers\TipoArticulosController;
 use App\Http\Controllers\CuentasMermaController;
+use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\TiposMermaController;
 use App\Http\Controllers\LimiteCreditoEspecialController;
 
@@ -201,13 +202,13 @@ Route::middleware('auth')->group(function () {
 
     // Menú Posweb (adicionales)
     Route::get('/OrdenarMenus', 'App\Http\Controllers\MenuPoswebController@OrdenarMenus');
-    Route::get('/EditarPosicionMenu', 'App\Http\Controllers\MenuPoswebController@EditarPosicionMenu');
+    Route::post('/EditarPosicionMenu', 'App\Http\Controllers\MenuPoswebController@EditarPosicionMenu');
 
     // Menu Tipo Usuario
     Route::get('/DatMenuTipoUsuario', 'App\Http\Controllers\MenuTipoUsuarioController@DatMenuTipoUsuario');
     Route::post('/CrearMenuTipoUsuario', 'App\Http\Controllers\MenuTipoUsuarioController@CrearMenuTipoUsuario');
-    Route::get('/RemoverMenu', 'App\Http\Controllers\MenuTipoUsuarioController@RemoverMenu')->name('RemoverMenu');
-    Route::get('/AgregarMenu', 'App\Http\Controllers\MenuTipoUsuarioController@AgregarMenu');
+    Route::post('/RemoverMenu', 'App\Http\Controllers\MenuTipoUsuarioController@RemoverMenu')->name('RemoverMenu');
+    Route::post('/AgregarMenu', 'App\Http\Controllers\MenuTipoUsuarioController@AgregarMenu');
 
     // Artículos (adicionales)
     Route::get('EnviarArticulo', 'App\Http\Controllers\ArticulosController@EnviarArticulo')->name('EnviarArticulo');
@@ -228,8 +229,8 @@ Route::middleware('auth')->group(function () {
     // Lista Precio Tienda
     Route::get('/CatListaPrecioTienda', 'App\Http\Controllers\ListasPrecioTiendaController@CatListaPrecioTienda');
     Route::post('/CrearListaPrecioTienda', 'App\Http\Controllers\ListasPrecioTiendaController@CrearListaPrecioTienda');
-    Route::get('/RemoverLista', 'App\Http\Controllers\ListasPrecioTiendaController@RemoverLista');
-    Route::get('/AgregarLista', 'App\Http\Controllers\ListasPrecioTiendaController@AgregarLista');
+    Route::post('/RemoverLista', 'App\Http\Controllers\ListasPrecioTiendaController@RemoverLista');
+    Route::post('/AgregarLista', 'App\Http\Controllers\ListasPrecioTiendaController@AgregarLista');
 
     // Precios
     Route::get('/Precios', 'App\Http\Controllers\PreciosController@Precios')->name('Precios');
@@ -353,8 +354,8 @@ Route::middleware('auth')->group(function () {
 
     // Tipo Pago Tienda
     Route::get('/DatTipoPagoTienda', 'App\Http\Controllers\TipoPagoTiendaController@DatTipoPagoTienda');
-    Route::get('/AgregarDatTipoPagoTienda', 'App\Http\Controllers\TipoPagoTiendaController@AgregarDatTipoPagoTienda');
-    Route::get('/RemoverDatTipoPagoTienda', 'App\Http\Controllers\TipoPagoTiendaController@RemoverDatTipoPagoTienda');
+    Route::post('/AgregarDatTipoPagoTienda', 'App\Http\Controllers\TipoPagoTiendaController@AgregarDatTipoPagoTienda');
+    Route::post('/RemoverDatTipoPagoTienda', 'App\Http\Controllers\TipoPagoTiendaController@RemoverDatTipoPagoTienda');
 
     // Empleados
     Route::get('AdeudosEmpleado', 'App\Http\Controllers\EmpleadosController@AdeudosEmpleado');
@@ -372,7 +373,7 @@ Route::middleware('auth')->group(function () {
     // Tablas Update (adicionales)
     Route::get('/TablasUpdate', 'App\Http\Controllers\TablasUpdateController@TablasUpdate');
     Route::get('/AgregarTablasActualizablesTienda/{idTienda}', 'App\Http\Controllers\TablasUpdateController@AgregarTablasActualizablesTienda');
-    Route::get('/ActualizarTablas/{idTienda}', 'App\Http\Controllers\TablasUpdateController@ActualizarTablas');
+    Route::post('/ActualizarTablas/{idTienda}', 'App\Http\Controllers\TablasUpdateController@ActualizarTablas');
     Route::post('/AgregarTablaUpdate/{idTienda}', 'App\Http\Controllers\TablasUpdateController@AgregarTablaUpdate');
 
     // Paquetes
@@ -524,6 +525,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/CatProdDiez', 'App\Http\Controllers\CatProdDiezController@index')->name('CatProdDiez.index');
     Route::post('/CrearCatProdDiez', 'App\Http\Controllers\CatProdDiezController@store');
     Route::delete('/EliminarCatProdDiez/{id}', 'App\Http\Controllers\CatProdDiezController@destroy');
+
+    // Interfaz/Envio de pedidos a Oracle
+    Route::get('/InterfazPedidos', 'App\Http\Controllers\InterfazController@index')->name('interfaz.index');
+
+    // Ordenes Oracle
+    Route::get('/OrdenesOracle', 'App\Http\Controllers\OrdenesOracleController@index');
+
+    // Devoluciones
+    Route::get('/Devoluciones', 'App\Http\Controllers\DevolucionController@index');
+    Route::get('/devoluciones/{folio}/refresh', 'App\Http\Controllers\DevolucionController@refresh')->name('devoluciones.refresh');
+    Route::get('/api/devoluciones/{folio}', 'App\Http\Controllers\DevolucionController@show');
+    Route::post('/api/devoluciones', 'App\Http\Controllers\DevolucionController@store');
 }); // Termina Middleware Auth
 
 // GRUPO ROSTICERO

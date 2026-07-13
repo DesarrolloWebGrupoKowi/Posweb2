@@ -16,8 +16,8 @@
             >
                 <i class="bi bi-file-text"></i> Descargar corte
             </a>
-            <x-header.buttons.refresh-button />
             <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
         </x-slot:buttons>
 
         <!-- Filtros -->

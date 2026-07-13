@@ -10,23 +10,28 @@ use App\Models\DatCaja;
 
 class CajasController extends Controller
 {
-    public function CatCajas(Request $request){
+    public function CatCajas(Request $request)
+    {
         $cajas = Caja::all();
 
         return view('Cajas.CatCajas', compact('cajas'));
     }
 
-    public function CrearCaja(Request $request){
+    public function CrearCaja(Request $request)
+    {
         $caja = new Caja();
-        $caja -> NumCaja = $request->NumCaja;
-        $caja -> Status = 0;
-        $caja -> save();
+        $caja->NumCaja = $request->NumCaja;
+        $caja->Status = 0;
+        $caja->save();
 
         return redirect('CatCajas');
     }
 
-    public function CajasTienda(Request $request){
-        $tiendas = Tienda::all();
+    public function CajasTienda(Request $request)
+    {
+        $tiendas = Tienda::where('Status', 0)
+            ->orderBy('NomTienda')
+            ->get();
 
         $idTienda = $request->idTienda;
 
@@ -43,14 +48,15 @@ class CajasController extends Controller
         $cajas = Caja::where('Status', 0)
             ->whereNotIn('IdCaja', $cajasTiendaAgregadas)
             ->get();
-        
+
         //return $cajas;
 
 
-        return view('Cajas.CajasTienda', compact('tiendas', 'cajasTienda', 'idTienda', 'cajas')); 
+        return view('Cajas.CajasTienda', compact('tiendas', 'cajasTienda', 'idTienda', 'cajas'));
     }
 
-    public function AgregarCajaTienda(Request $request){
+    public function AgregarCajaTienda(Request $request)
+    {
         $idTienda = $request->idTiendaCaja;
         $idCaja = $request->idCaja;
 

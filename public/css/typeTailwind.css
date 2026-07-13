@@ -781,6 +781,11 @@ table > tbody > tr > td {
     color: #ef4444;
 }
 
+.badge-pending {
+    background: #fefce8;
+    color: #a16207;
+}
+
 /* ========== TABLE CUSTOM ========== */
 .table-custom {
     font-size: 0.85rem;
@@ -1025,4 +1030,201 @@ table > tbody > tr > td {
     transform: scale(0, 0);
     opacity: 0.3;
     transition: 0s;
+}
+
+/* ========== BUTTON: Modern (reemplaza .btn-modern) ========== */
+.btn-modern {
+    padding: 0.5rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-modern:hover {
+    transform: translateY(-2px);
+}
+
+.btn-modern:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* Variante: Agregar/Asignar (verde) */
+.btn-agregar {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-agregar:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    color: white;
+}
+
+/* Variante: Remover/Eliminar (rojo) */
+.btn-remover {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-remover:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    color: white;
+}
+
+/* Variante: Warning (ámbar) */
+.btn-warning-modern {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-warning-modern:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    color: white;
+}
+
+/* Variante: Outline */
+.btn-outline-modern {
+    background: white;
+    color: #3b82f6;
+    border: 2px solid #3b82f6;
+}
+
+.btn-outline-modern:hover {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Estado: Disabled */
+.btn-modern:disabled,
+.btn-modern.btn-disabled {
+    background: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* ========== FORM CHECKBOX MODERN ========== */
+.form-check-input-modern {
+    width: 1.3rem;
+    height: 1.3rem;
+    cursor: pointer;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-check-input-modern:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+    transform: scale(1.1);
+}
+
+.form-check-input-modern:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ========== MENU ROW HOVER ========== */
+.menu-row {
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.menu-row:hover {
+    background-color: #f8fafc;
+    transform: translateX(2px);
+    border-left: 3px solid #3b82f6;
+}
+
+/* ========== MENU LINK ========== */
+.menu-link {
+    color: #0f172a;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.menu-link:hover {
+    color: #3b82f6;
+}
+
+/* ========== NAV PILLS MODERN ========== */
+.nav-pills-modern .nav-link {
+    color: #64748b;
+    font-size: 0.813rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.nav-pills-modern .nav-link:hover {
+    color: #3b82f6;
+    background: #f0f9ff;
+    border-color: #bfdbfe;
+}
+
+.nav-pills-modern .nav-link.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+/* ========== FORM CONTROL SM ========== */
+.form-control-sm-modern {
+    border: 2px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.form-control-sm-modern:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ========== CARD MODERN ========== */
+.card-modern {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.card-modern:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ========== BADGE ========== */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* ========== CARD BODY SCROLL ========== */
+.card-body-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* ========== ANIMACIÓN SHIMMER ========== */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.loading {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(to right, #f1f5f9 8%, #e2e8f0 18%, #f1f5f9 33%);
+    background-size: 2000px 100%;
 }

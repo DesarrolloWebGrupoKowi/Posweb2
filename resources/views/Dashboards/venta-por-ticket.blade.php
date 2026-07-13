@@ -5,8 +5,6 @@
         subtitle="Consulta de ventas detalladas por ticket"
     >
         <x-slot:buttons>
-            <x-header.buttons.home-button />
-            <x-header.buttons.refresh-button />
             <a
                 href="/DashVentaPorTicket/exports?{{ http_build_query(request()->only(['idTienda', 'fecha', 'id_ticket', 'id_encabezado', 'folio', 'status_venta', 'solicitud_fe', 'cancelado'])) }}"
                 class="btn-header-ghost"
@@ -17,6 +15,8 @@
             >
                 <i class="bi bi-file-earmark-excel"></i> Exportar
             </a>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
         </x-slot:buttons>
 
         <!-- Filtros -->

@@ -11,14 +11,16 @@ use App\Models\Articulo;
 
 class TiposMermaController extends Controller
 {
-    public function TiposMerma(Request $request){
+    public function TiposMerma(Request $request)
+    {
         $tiposMerma = TipoMerma::where('Status', 0)
             ->get();
 
         return view('TiposMerma.TiposMerma', compact('tiposMerma'));
     }
 
-    public function CrearTipoMerma(Request $request){
+    public function CrearTipoMerma(Request $request)
+    {
         $nomTipoMerma = $request->nomTipoMerma;
 
         try {
@@ -28,7 +30,6 @@ class TiposMermaController extends Controller
                 'NomTipoMerma' => strtoupper($nomTipoMerma),
                 'Status' => 0
             ]);
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
@@ -38,7 +39,8 @@ class TiposMermaController extends Controller
         return back()->with('msjAdd', 'Se agrego correctamente el tipo de merma: ' . $nomTipoMerma);
     }
 
-    public function SubTiposMerma(Request $request){
+    public function SubTiposMerma(Request $request)
+    {
         $tiposMerma = TipoMerma::where('Status', 0)
             ->get();
 
@@ -52,7 +54,6 @@ class TiposMermaController extends Controller
                 ->where('b.IdTipoMerma', $idTipoMerma)
                 ->where('b.Status', 0)
                 ->get();
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error:' . $th->getMessage());
@@ -62,7 +63,8 @@ class TiposMermaController extends Controller
         return view('TiposMerma.SubTiposMerma', compact('tiposMerma', 'idTipoMerma', 'subTiposMerma'));
     }
 
-    public function CrearSubTipoMerma(Request $request, $idTipoMerma){
+    public function CrearSubTipoMerma(Request $request, $idTipoMerma)
+    {
         $nomSubTipoMerma = $request->nomSubTipoMerma;
 
         try {
@@ -73,17 +75,17 @@ class TiposMermaController extends Controller
                 'NomSubTipoMerma' => strtoupper($nomSubTipoMerma),
                 'Status' => 0
             ]);
-                
         } catch (\Throwable $th) {
             DB::rollback();
-            return back()->with('msjdelete', 'Error: ' .$th->getMeesage());
+            return back()->with('msjdelete', 'Error: ' . $th->getMeesage());
         }
 
         DB::commit();
         return back()->with('msjAdd', 'Se Agrego Sub Tipo de Merma: ' . strtoupper($nomSubTipoMerma));
     }
 
-    public function EliminarSubTipoMerma($idSubTipooMerma){
+    public function EliminarSubTipoMerma($idSubTipooMerma)
+    {
         try {
             DB::beginTransaction();
 
@@ -91,7 +93,6 @@ class TiposMermaController extends Controller
                 ->update([
                     'Status' => 1
                 ]);
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
@@ -101,17 +102,14 @@ class TiposMermaController extends Controller
         return back()->with('msjAdd', 'Se eliminó el sub tipo de merma correctamente!');
     }
 
-    public function TiposMermaArticulo(Request $request){
+    public function TiposMermaArticulo(Request $request)
+    {
         try {
             DB::beginTransaction();
             $tiposMerma = TipoMerma::where('Status', 0)
                 ->get();
 
             $idTipoMerma = $request->idTipoMerma;
-
-            $articulos = Articulo::where('Status', 0)
-                ->orderBy('CodArticulo')
-                ->get();
 
             $tiposMermaArticulo = DB::table('DatArticulosTipoMerma as a')
                 ->leftJoin('CatTiposMerma as b', 'b.IdTipoMerma', 'a.IdTipoMerma')
@@ -121,11 +119,23 @@ class TiposMermaController extends Controller
                 ->orderBy('c.CodArticulo')
                 ->get();
 
+            // Solo obtener artículos que NO están asociados a ningún tipo de merma
+            $articulos = Articulo::where('Status', 0)
+                ->whereNotIn('CodArticulo', function ($query) {
+                    $query->select('CodArticulo')
+                        ->from('DatArticulosTipoMerma')
+                        ->where('Status', 0);
+                })
+                ->orderBy('CodArticulo')
+                ->get();
+
+
+
             //return $tiposMermaArticulo;
-                
+
         } catch (\Throwable $th) {
             DB::rollback();
-            return back()->with('msjdelete', 'Error: ' .$th->getMessage());
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
         }
 
         DB::commit();
@@ -133,38 +143,38 @@ class TiposMermaController extends Controller
         return view('TiposMerma.TiposMermaArticulo', compact('tiposMerma', 'idTipoMerma', 'tiposMermaArticulo', 'articulos'));
     }
 
-    public function AgregarArticuloMerma(Request $request, $idTipoMerma){
+    public function AgregarArticuloMerma(Request $request, $idTipoMerma)
+    {
         $codArticulo = $request->codArticulo;
 
         try {
             DB::beginTransaction();
-            
+
             if (!Articulo::where('CodArticulo', $codArticulo)->where('Status', 0)->exists()) {
                 DB::rollback();
-                return back()->with('msjdelete', 'Articulo Desconocido: (' . $codArticulo .')');
+                return back()->with('msjdelete', 'Articulo Desconocido: (' . $codArticulo . ')');
             }
-            if(TipoMermaArticulo::where('CodArticulo', $codArticulo)->where('IdTipoMerma', $idTipoMerma)->exists()){
+            if (TipoMermaArticulo::where('CodArticulo', $codArticulo)->where('IdTipoMerma', $idTipoMerma)->exists()) {
                 DB::rollback();
                 return back()->with('msjdelete', 'El Articulo ya esta agregado para este tipo de Merma!');
-            } 
-            else {
+            } else {
                 TipoMermaArticulo::insert([
                     'IdTipoMerma' => $idTipoMerma,
                     'CodArticulo' => $codArticulo,
                     'Status' => 0
                 ]);
             }
-                
         } catch (\Throwable $th) {
             DB::rollback();
-            return back()->with('msjdelete', 'Error: ' .$th->getMeesage());
+            return back()->with('msjdelete', 'Error: ' . $th->getMeesage());
         }
 
         DB::commit();
         return back()->with('msjAdd', 'Se Agrego Correctamente el Articulo!');
     }
 
-    public function EliminarTipoMerma($idTipoMerma){
+    public function EliminarTipoMerma($idTipoMerma)
+    {
         try {
             DB::beginTransaction();
 
@@ -172,7 +182,6 @@ class TiposMermaController extends Controller
                 ->update([
                     'Status' => 1
                 ]);
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
@@ -182,14 +191,14 @@ class TiposMermaController extends Controller
         return back()->with('msjAdd', 'Se eliminó el tipo de merma correctamente!');
     }
 
-    public function EliminarArticuloTipoMerma($idTipoMerma, $codArticulo){
+    public function EliminarArticuloTipoMerma($idTipoMerma, $codArticulo)
+    {
         try {
             DB::beginTransaction();
 
             TipoMermaArticulo::where('IdTipoMerma', $idTipoMerma)
                 ->where('CodArticulo', $codArticulo)
                 ->delete();
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());

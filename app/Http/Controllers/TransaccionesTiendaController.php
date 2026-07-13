@@ -10,8 +10,10 @@ use App\Models\Tienda;
 
 class TransaccionesTiendaController extends Controller
 {
-    public function TransaccionesTienda(Request $request){
+    public function TransaccionesTienda(Request $request)
+    {
         $tiendas = Tienda::where('Status', 0)
+            ->orderBy('NomTienda')
             ->get();
 
         $idTienda = $request->idTienda;
@@ -36,10 +38,11 @@ class TransaccionesTiendaController extends Controller
         return view('TransaccionesTienda.TransaccionesTienda', compact('tiendas', 'idTienda', 'tiendasAgregadas', 'tiendasPorAgregar'));
     }
 
-    public function AgregarTransaccionTienda($idTienda, Request $request){
+    public function AgregarTransaccionTienda($idTienda, Request $request)
+    {
         $idsTienda = $request->chkAgregar;
 
-        if(empty($idsTienda)){
+        if (empty($idsTienda)) {
             return back()->with('msjdelete', 'Seleccione Tiendas Destino!');
         }
 
@@ -63,10 +66,11 @@ class TransaccionesTiendaController extends Controller
         }
     }
 
-    public function EliminarTransaccionTienda($idTienda, Request $request){
+    public function EliminarTransaccionTienda($idTienda, Request $request)
+    {
         $idsTienda = $request->chkEliminar;
 
-        if(empty($idsTienda)){
+        if (empty($idsTienda)) {
             return back()->with('msjdelete', 'Seleccione Destinos a Eliminar!');
         }
 

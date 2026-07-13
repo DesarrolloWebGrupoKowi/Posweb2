@@ -5,7 +5,11 @@
     @include('Alertas.AlertasDashboard')
 </div>
 
-<div class="card-section bg-white">
+<div
+    class="card-section {{ $attributes->get('class') }} bg-white"
+    style="{{ $attributes->get('style') }}"
+    {{-- style="{{ $attributes->get('style') }} border-radius:0px" --}}
+>
     <div class="card-section-header">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">

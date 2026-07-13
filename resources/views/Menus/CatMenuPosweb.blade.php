@@ -37,10 +37,11 @@
                 </x-form.group>
                 <div class="col-md-2 d-flex gap-2">
                     <x-form.submit
-                        text="Filtrar"
-                        icon="funnel"
+                        text="Buscar"
+                        icon="search"
+                        class="flex-grow-1"
                     />
-                    <x-form.clear url="/CatMenusPosweb" />
+                    <x-form.clear />
                 </div>
             </x-form.form>
 

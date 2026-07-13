@@ -13,7 +13,9 @@ class TablasUpdateController extends Controller
 {
     public function TablasUpdate(Request $request)
     {
-        $tiendas = Tienda::all();
+        $tiendas = Tienda::where('Status', 0)
+            ->orderBy('NomTienda')
+            ->get();
 
         $idTienda = $request->idTienda;
 

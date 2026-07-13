@@ -1,56 +1,128 @@
-<!-- Modal Agregar Tabla Update-->
-<div class="modal fade" id="AgregarTablaUpdate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog {{ $tablas->count() == 0 ? '' : 'modal-xl' }}">
-        <div class="modal-content border-0">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Agregar Tabla Actualizable</h5>
+<!-- Modal Agregar Tabla Update -->
+<div
+    class="modal fade"
+    id="AgregarTablaUpdate"
+    tabindex="-1"
+    aria-labelledby="AgregarTablaUpdateLabel"
+    aria-hidden="true"
+>
+    <div
+        class="modal-dialog {{ $tablas->count() == 0 ? '' : 'modal-xl' }}"
+        style="margin-top: 10vh;"
+    >
+        <div
+            class="modal-content border-0 shadow"
+            style="border-radius: 10px; overflow: hidden;"
+        >
+            <!-- Modal Header -->
+            <div
+                class="modal-header border-bottom-0 px-4 pb-0 pt-3"
+                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
+            >
+                <h5
+                    class="mb-0 text-white"
+                    style="font-weight: 600; font-size: 1.1rem;"
+                    id="AgregarTablaUpdateLabel"
+                >
+                    <div class="d-flex align-items-center gap-3 pb-2">
+                        <div
+                            class="rounded-circle d-flex align-items-center justify-content-center"
+                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
+                        >
+                            <i class="fa fa-database"></i>
+                        </div>
+                        <span>Agregar Tabla Actualizable</span>
+                    </div>
+                </h5>
             </div>
-            <form action="/AgregarTablaUpdate/{{ $idTienda }}" method="POST">
+
+            <!-- Modal Body -->
+            <form
+                action="/AgregarTablaUpdate/{{ $idTienda }}"
+                method="POST"
+            >
                 @csrf
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-auto">
-                            <div class="row">
-                                @if ($tablas->count() == 0)
-                                    <div class="container">
-                                        <div class="d-flex justify-content-center">
-                                            {{-- <h4 style="text-align: center"></h4> --}}
-                                            <p class="fs-6 text-center fw-normal text-secondary m-0"
-                                                style="line-height: 24px">
-                                                No hay tablas por agregar
-                                            </p>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="col-12 mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="seleccionarTodos">
-                                            <label class="form-check-label fw-bold" for="seleccionarTodos">
-                                                Seleccionar todos
-                                            </label>
-                                        </div>
-                                    </div>
-                                    @foreach ($tablas as $tabla)
-                                        <div class="col-4">
-                                            <input class="form-check-input checkbox-nomTabla" type="checkbox" name="nomTablas[]"
-                                                id="nomTablas_{{ $loop->index }}" value="{{ $tabla->NomTabla }}">
-                                            <label class="form-check-label" for="nomTablas_{{ $loop->index }}">
-                                                {{ $tabla->NomTabla }}
-                                            </label>
-                                        </div>
-                                    @endforeach
-                                @endif
+                <div class="modal-body p-4">
+                    @if ($tablas->count() == 0)
+                        <div class="py-5 text-center">
+                            <i
+                                class="bi bi-inbox fs-1 d-block mb-3"
+                                style="color: #cbd5e1;"
+                            ></i>
+                            <p
+                                class="fs-6 fw-normal text-secondary m-0"
+                                style="line-height: 24px"
+                            >
+                                No hay tablas por agregar
+                            </p>
+                        </div>
+                    @else
+                        <div class="col-12 mb-3">
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input-modern"
+                                    type="checkbox"
+                                    id="seleccionarTodos"
+                                >
+                                <label
+                                    class="form-check-label fw-bold"
+                                    for="seleccionarTodos"
+                                    style="color: #0f172a; font-size: 0.9rem;"
+                                >
+                                    Seleccionar todos
+                                </label>
                             </div>
                         </div>
-                    </div>
+                        <div
+                            class="row"
+                            style="max-height: 50vh; overflow-y: auto; padding-right: 8px;"
+                        >
+                            @foreach ($tablas as $tabla)
+                                <div class="col-4 mb-2">
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input-modern checkbox-nomTabla"
+                                            type="checkbox"
+                                            name="nomTablas[]"
+                                            id="nomTablas_{{ $loop->index }}"
+                                            value="{{ $tabla->NomTabla }}"
+                                        >
+                                        <label
+                                            class="form-check-label menu-link"
+                                            for="nomTablas_{{ $loop->index }}"
+                                        >
+                                            {{ $tabla->NomTabla }}
+                                        </label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
-                        <i class="fa fa-close"></i> Cerrar
+
+                <!-- Modal Footer -->
+                <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
+                    <button
+                        type="button"
+                        class="btn d-flex align-items-center gap-1"
+                        data-bs-dismiss="modal"
+                        style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                        onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
+                        onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                    >
+                        <i class="fa fa-times"></i>
+                        Cerrar
                     </button>
                     @if ($tablas->count() > 0)
-                        <button class="btn btn-sm btn-warning">
-                            <i class="fa fa-save"></i> Agregar
+                        <button
+                            type="submit"
+                            class="btn d-flex align-items-center gap-1"
+                            style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                            onmouseover="this.style.background='linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(30, 41, 59, 0.3)'"
+                            onmouseout="this.style.background='linear-gradient(135deg, #1e293b 0%, #334155 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                        >
+                            <i class="fa fa-save"></i>
+                            Agregar
                         </button>
                     @endif
                 </div>
@@ -60,29 +132,30 @@
 </div>
 
 <script>
-    // Funcionalidad para seleccionar/deseleccionar todos los checkboxes de nomTablas
     (function() {
         function initSeleccionarTodos() {
             const modal = document.getElementById('AgregarTablaUpdate');
             if (modal) {
-                // Event delegation para el checkbox "seleccionar todos"
                 modal.addEventListener('click', function(e) {
                     if (e.target && e.target.id === 'seleccionarTodos') {
                         const checkboxesNomTablas = modal.querySelectorAll('.checkbox-nomTabla');
                         checkboxesNomTablas.forEach(checkbox => {
                             checkbox.checked = e.target.checked;
+                            toggleRowHighlight(checkbox);
                         });
                     }
                 });
 
-                // Event delegation para los checkboxes individuales
                 modal.addEventListener('click', function(e) {
                     if (e.target && e.target.classList.contains('checkbox-nomTabla')) {
+                        toggleRowHighlight(e.target);
                         setTimeout(function() {
                             const seleccionarTodos = modal.querySelector('#seleccionarTodos');
-                            const checkboxesNomTablas = modal.querySelectorAll('.checkbox-nomTabla');
+                            const checkboxesNomTablas = modal.querySelectorAll(
+                                '.checkbox-nomTabla');
                             if (seleccionarTodos) {
-                                const todosMarcados = Array.from(checkboxesNomTablas).every(cb => cb.checked);
+                                const todosMarcados = Array.from(checkboxesNomTablas).every(cb => cb
+                                    .checked);
                                 seleccionarTodos.checked = todosMarcados;
                             }
                         }, 10);
@@ -91,7 +164,21 @@
             }
         }
 
-        // Intentar inicializar cuando el DOM esté listo
+        function toggleRowHighlight(checkbox) {
+            const row = checkbox.closest('.form-check');
+            if (row) {
+                if (checkbox.checked) {
+                    row.style.backgroundColor = '#eff6ff';
+                    row.style.borderRadius = '6px';
+                    row.style.padding = '4px 8px';
+                    row.style.transition = 'all 0.2s ease';
+                } else {
+                    row.style.backgroundColor = '';
+                    row.style.padding = '';
+                }
+            }
+        }
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initSeleccionarTodos);
         } else {

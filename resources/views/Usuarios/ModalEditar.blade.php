@@ -78,6 +78,44 @@
                         ></div>
                     </div>
 
+                    <!-- Nombre del Empleado -->
+                    <div class="mb-3">
+                        <label
+                            for="EmployeeName{{ $usuario->IdUsuario }}"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
+                        >
+                            Nombre del Empleado (ORACLE)
+                        </label>
+
+                        <div class="input-group">
+                            <span
+                                class="input-group-text"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                            >
+                                @include('components.icons.user')
+                            </span>
+
+                            <input
+                                type="text"
+                                id="EmployeeName{{ $usuario->IdUsuario }}"
+                                name="EmployeeName"
+                                class="form-control border-start-0"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                tabindex="2"
+                                value="{{ $usuario->EmployeeName }}"
+                                placeholder="Nombre del empleado en ORACLE"
+                                autocomplete="off"
+                            >
+                        </div>
+
+                        <div
+                            class="form-text mt-1"
+                            id="error-EmployeeName{{ $usuario->IdUsuario }}"
+                            style="font-size: 0.78rem; color: #ef4444;"
+                        ></div>
+                    </div>
+
                     <!-- Correo -->
                     <div class="mb-3">
                         <label

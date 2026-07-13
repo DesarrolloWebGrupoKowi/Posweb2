@@ -76,6 +76,7 @@
                             <th><i class="bi bi-envelope me-1"></i>Correo</th>
                             <th><i class="bi bi-person-circle me-1"></i>Usuario</th>
                             <th><i class="bi bi-shield me-1"></i>Tipo</th>
+                            <th><i class="bi bi-shield me-1"></i>Nombre Oracle</th>
                             <th><i
                                     class="bi bi-circle-fill me-1"
                                     style="font-size: 0.5rem;"
@@ -85,12 +86,13 @@
                     </thead>
                     <tbody>
                         @forelse ($usuarios as $usuario)
-                            <tr>
+                            <tr @if ($usuario->IdUsuario == Auth::user()->IdUsuario) style="background-color: #fffbeb !important;" @endif>
                                 <td style="font-weight: 600; color: #0f172a;">{{ $usuario->NumNomina }}</td>
                                 <td>{{ $usuario->Nombre }} {{ $usuario->Apellidos }}</td>
                                 <td style="color: #64748b;">{{ $usuario->Correo }}</td>
                                 <td style="font-weight: 600;">{{ $usuario->NomUsuario }}</td>
                                 <td>{{ $usuario->NomTipoUsuario }}</td>
+                                <td>{{ $usuario->EmployeeName }}</td>
                                 <td>
                                     <x-status-badge :status="$usuario->Status != 1" />
                                 </td>
@@ -123,6 +125,7 @@
                                     </div>
                                 </td>
                             </tr>
+
                             @include('Usuarios.ModalActivarUsuario')
                             @include('Usuarios.ModalEditar')
                             @include('Usuarios.modalEliminar')

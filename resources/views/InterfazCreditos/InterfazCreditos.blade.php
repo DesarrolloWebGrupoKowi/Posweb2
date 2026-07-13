@@ -1,142 +1,326 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Interfaz de Creditos')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
+<x-page-container title="Interfaz de Créditos">
+    <x-card-gradient-header
+        icon="cash-stack"
+        title="Interfaz de Créditos"
+        subtitle="Gestión de interfaz de créditos al ERP"
+        class="d-flex flex-column"
+        style="height: calc(100vh - 100px); overflow: hidden;"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-        <div class="p-4 border-0 card" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Interfaz de Créditos'])
-                <form action="/InterfazCreditosExcel" method="GET">
+        <!-- Filtros -->
+        <x-form.form
+            action="{{ url('/InterfazCreditos') }}"
+            id="formBuscarCreditos"
+            method="GET"
+        >
+            <x-form.group>
+                <x-form.date
+                    name="fecha1"
+                    label="Fecha Inicio"
+                    icon="calendar3"
+                    col="col-md-2"
+                    :value="request('fecha1', date('Y-m-d'))"
+                />
+                <x-form.date
+                    name="fecha2"
+                    label="Fecha Fin"
+                    icon="calendar3"
+                    col="col-md-2"
+                    :value="request('fecha2', date('Y-m-d'))"
+                />
+                <x-form.select
+                    name="tipoNomina"
+                    label="Tipo Nómina"
+                    icon="people"
+                    col="col-md-3"
+                    :options="$tiposNomina->pluck('NomTipoNomina', 'TipoNomina')->toArray()"
+                    :value="request('tipoNomina')"
+                    :disabled="!empty($chkNomina)"
+                />
+                <div class="col-md-3">
+                    <label
+                        class="form-label fw-medium"
+                        style="font-size: 0.8rem; color: #64748b;"
+                    >
+                        <i class="bi bi-check-square me-1"></i>Buscar por Nómina
+                    </label>
+                    <div class="input-group">
+                        <span
+                            class="input-group-text"
+                            style="background: #f8fafc; border-right: none;"
+                        >
+                            <input
+                                class="form-check-input mt-0"
+                                type="checkbox"
+                                name="chkNomina"
+                                id="chkNomina"
+                                {{ !empty($chkNomina) ? 'checked' : '' }}
+                            >
+                        </span>
+                        <input
+                            class="form-control"
+                            type="number"
+                            name="numNomina"
+                            id="numNomina"
+                            value="{{ old('numNomina', $numNomina) }}"
+                            placeholder="# Nómina"
+                            {{ empty($chkNomina) ? 'disabled' : '' }}
+                            style="border-left: none;"
+                        >
 
-                    <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-                    <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                    <input type="hidden" name="tipoNomina" value="{{ $idTipoNomina }}">
-                    <input type="hidden" name="chkNomina" value="{{ $chkNomina }}">
-                    <input type="hidden" name="numNomina" value="{{ $numNomina }}">
-                    <button class="btn card" type="submit">
-                        @include('components.icons.print')
-                    </button>
-                </form>
+                    </div>
+                </div>
+            </x-form.group>
+            <div class="col-md-2 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                    class="flex-grow-1"
+                    id="btnBuscar"
+                />
+                <button
+                    id="btnBuscandoCreditos"
+                    hidden
+                    class="btn btn-warning flex-grow-1"
+                    style="border-radius: 8px"
+                    type="button"
+                >
+                    <span
+                        class="spinner-border spinner-border-sm me-1"
+                        role="status"
+                    ></span>
+                    Buscando...
+                </button>
+                <x-form.clear />
             </div>
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
+        </x-form.form>
 
-        {{-- @if (!empty($fecha1) && !empty($fecha2)) --}}
-        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
-            <form class="flex-wrap gap-2 pb-2 d-flex align-items-center justify-content-end" id="formBuscarCreditos"
-                action="/InterfazCreditos" method="GET">
-                <div class="input-group" style="max-width: 150px">
-                    <input type="date" class="rounded form-control" style="line-height: 18px" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-                </div>
-                <div class="input-group" style="max-width: 150px">
-                    <input type="date" class="rounded form-control" style="line-height: 18px" name="fecha2"
-                        id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                </div>
-                <div class="input-group" style="max-width: 300px">
-                    <select {!! !empty($chkNomina) ? 'disabled' : '' !!} class="rounded form-select" style="line-height: 18px" name="tipoNomina"
-                        id="tipoNomina">
-                        @foreach ($tiposNomina as $tipoNomina)
-                            <option {!! $idTipoNomina == $tipoNomina->TipoNomina ? 'selected' : '' !!} value="{{ $tipoNomina->TipoNomina }}">
-                                {{ $tipoNomina->NomTipoNomina }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="input-group" style="max-width: 300px">
-                    <span class="input-group-text">
-                        <input {!! !empty($chkNomina) ? 'checked' : '' !!} class="mt-0 rounded form-check-input" style="line-height: 18px"
-                            type="checkbox" name="chkNomina" id="chkNomina">
-                    </span>
-                    <input {!! empty($chkNomina) ? 'disabled' : '' !!} class="rounded form-control" style="line-height: 18px" type="number"
-                        name="numNomina" id="numNomina" value="{{ $numNomina }}" placeholder="# Nómina" required>
-                </div>
-                <div class="col-auto">
-                    {{-- <button id="btnBuscar" class="btn btn-warning">
-                        <i class="fa fa-search"></i> Buscar
-                    </button> --}}
-                    <button id="btnBuscar" class="btn btn-dark-outline">
-                        @include('components.icons.search')
-                    </button>
-                    <button id="btnBuscandoCreditos" hidden class="btn btn-warning" type="button">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Buscando...
-                    </button>
-                </div>
-            </form>
-
-            <div class="flex-wrap d-flex justify-content-between">
-                <p class="text-uppercase fs-6" style="font-weight: 500">
-                    Créditos Empleado - {{ empty($chkNomina) ? $nomTipoNomina : $empleado }}
+        <!-- Resultados -->
+        <div
+            class="d-flex flex-column flex-grow-1 rounded p-4 shadow-sm"
+            style="background: white;
+                   border-radius: 12px;
+                   min-height: 0;
+                   overflow: hidden;"
+        >
+            <!-- Info de resultados -->
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0 flex-wrap">
+                <p
+                    class="text-uppercase mb-0"
+                    style="font-weight: 500; font-size: 0.85rem; color: #0f172a;"
+                >
+                    <i class="bi bi-person-badge me-1"></i>
+                    Créditos Empleado — {{ empty($chkNomina) ? $nomTipoNomina : $empleado }}
                 </p>
-                <p class="fs-6" style="font-weight: 500"><u>Se encontraron ({{ count($creditos) }}) registros</u></p>
+                <span style="font-size: 0.8rem; color: #64748b;">
+                    <i class="bi bi-list-ul me-1"></i>
+                    Se encontraron ({{ count($creditos) }}) registros
+                </span>
             </div>
-            <div class="content-table content-table-full" style="height: 58vh">
-                <table style="width: 100%;">
-                    <thead class="table-head">
+
+            <!-- Contenedor de tabla con scroll interno -->
+            <div class="table-responsive flex-grow-1">
+                <table
+                    class="table-hover table-custom table"
+                    style="height: {{ count($creditos) > 0 ? 'auto' : '90%' }}"
+                >
+                    <thead style="position: sticky; top: 0; z-index: 2; background: white;">
                         <tr>
-                            <th class="rounded-start">Ciudad</th>
-                            <th>Tienda</th>
-                            <th>Nómina</th>
-                            <th>Empleado</th>
-                            <th>Importe</th>
-                            <th class="rounded-end">Sistema</th>
+                            <th><i class="bi bi-geo-alt me-1"></i>Ciudad</th>
+                            <th><i class="bi bi-shop me-1"></i>Tienda</th>
+                            <th><i class="bi bi-123 me-1"></i>Nómina</th>
+                            <th><i class="bi bi-person me-1"></i>Empleado</th>
+                            <th class="text-end"><i class="bi bi-cash me-1"></i>Importe</th>
+                            <th class="text-center"><i class="bi bi-display me-1"></i>Sistema</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @include('components.table-empty', ['items' => $creditos, 'colspan' => 6])
-                        @foreach ($creditos as $credito)
+                    <tbody class="position-relative">
+                        @forelse ($creditos as $credito)
                             <tr>
-                                <td>{{ $credito->NomCiudad }}</td>
+                                <td>
+                                    <span style="color: #475569;">{{ $credito->NomCiudad }}</span>
+                                </td>
                                 <td>{{ $credito->NomTienda }}</td>
-                                <td>{{ $credito->NumNomina }}</td>
+                                <td>
+                                    <span
+                                        class="fw-semibold"
+                                        style="color: #0f172a;"
+                                    >
+                                        {{ $credito->NumNomina }}
+                                    </span>
+                                </td>
                                 <td>{{ $credito->Nombre }} {{ $credito->Apellidos }}</td>
-                                <th>$ {{ number_format($credito->ImporteCredito, 2) }}</th>
-                                <th>
+                                <td
+                                    class="text-end"
+                                    style="font-weight: 700;"
+                                >
+                                    $ {{ number_format($credito->ImporteCredito, 2) }}
+                                </td>
+                                <td class="text-center">
                                     @if ($credito->isSistemaNuevo == 1)
-                                        <span class="text-success">@include('components.icons.chrome')</span> Sistema nuevo
+                                        <span style="color: #166534; font-size: 0.8rem;">
+                                            <i class="bi bi-browser-chrome me-1"></i> Sistema nuevo
+                                        </span>
                                     @else
-                                        <span class="text-danger">@include('components.icons.edge')</span> Sistema viejo
+                                        <span style="color: #ef4444; font-size: 0.8rem;">
+                                            <i class="bi bi-browser-edge me-1"></i> Sistema viejo
+                                        </span>
                                     @endif
-                                </th>
+                                </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <!-- Fila vacía que ocupa todo el alto -->
+                            <tr style="height: 100%;">
+                                <td
+                                    colspan="6"
+                                    style="vertical-align: middle; height: 100%;"
+                                >
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                                        <i
+                                            class="bi bi-search"
+                                            style="font-size: 3rem; color: #cbd5e1;"
+                                        ></i>
+                                        <h5
+                                            class="mt-3"
+                                            style="color: #64748b;"
+                                        >Sin datos disponibles</h5>
+                                        <p style="color: #94a3b8;">No se encontraron registros con los filtros
+                                            seleccionados</p>
+                                        <a
+                                            href="/InterfazCreditos"
+                                            class="btn btn-sm"
+                                            style="background: #f1f5f9; color: #475569; border-radius: 8px;"
+                                        >
+                                            <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                     @if (count($creditos) > 0)
                         <tfoot>
-                            <tr>
+                            <tr style="background: #f8fafc; border-top: 2px solid #e2e8f0;">
                                 <td></td>
-                                <th></th>
-                                <th></th>
-                                <th style="text-align: right; font-size: 23px">Total: </th>
-                                <th style="font-size: 23px">${{ number_format($totalAdeudo, 2) }}</th>
-                                <th></th>
+                                <td></td>
+                                <td></td>
+                                <td
+                                    class="fw-bold py-2 text-end"
+                                    style="color: #0f172a; font-size: 0.9rem;"
+                                >
+                                    <i class="bi bi-calculator me-1"></i>Total:
+                                </td>
+                                <td
+                                    class="fw-bold py-2 text-end"
+                                    style="color: #0f172a; font-size: 0.9rem;"
+                                >
+                                    ${{ number_format($totalAdeudo, 2) }}
+                                </td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     @endif
                 </table>
             </div>
 
-            @if (!empty($creditos))
-                <div class="container mt-2">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-auto">
-                            <button class="btn btn-warning" data-bs-toggle="modal"
-                                data-bs-target="#ModalConfirmarInterfazCreditos">
-                                <i class="fa fa-check"></i> Interfazar Créditos
+            <!-- Footer fijo abajo: Paginación + Botones de interfaz -->
+            <div style="flex-shrink: 0; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                <!-- Botones de interfaz -->
+                @if (!empty($creditos) && count($creditos) > 0)
+                    <div class="d-flex justify-content-center gap-2">
+                        <button
+                            class="btn btn-sm d-flex align-items-center btn-animated gap-2"
+                            style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.85rem;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ModalConfirmarInterfazCreditos"
+                        >
+                            <i class="bi bi-check-circle"></i> Interfazar Créditos
+                        </button>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Modal de Éxito - Créditos Interfazados -->
+        <div
+            class="modal fade"
+            id="modalExitoCreditos"
+            tabindex="-1"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div
+                    class="modal-content"
+                    style="border-radius: 16px; border: none; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);"
+                >
+                    <div class="p-4 text-center">
+                        <!-- Icono éxito -->
+                        <div
+                            class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 64px; height: 64px; background: #f0fdf4;"
+                        >
+                            <i
+                                class="bi bi-check-circle"
+                                style="font-size: 2rem; color: #10b981;"
+                            ></i>
+                        </div>
+
+                        <!-- Título -->
+                        <h5
+                            class="fw-bold mb-2"
+                            style="color: #0f172a;"
+                        >¡Créditos Interfazados!</h5>
+
+                        <!-- Mensaje -->
+                        <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 16px;">
+                            Los créditos se han interfazado correctamente
+                        </p>
+
+                        <!-- Identificador SPARH -->
+                        <div class="d-flex align-items-center justify-content-center mb-4 gap-2">
+                            <span
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;"
+                            >
+                                Identificador SPARH
+                            </span>
+                            <input
+                                type="text"
+                                id="identificador-sparh"
+                                value=""
+                                readonly
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-weight: 700; color: #0f172a; font-size: 1rem; text-align: center; width: 180px;"
+                                onclick="this.select()"
+                            >
+                            <button
+                                type="button"
+                                onclick="copiarIdentificador()"
+                                class="btn btn-sm d-flex align-items-center gap-1"
+                                style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 8px; padding: 6px 12px; font-weight: 500; font-size: 0.8rem;"
+                            >
+                                <i class="bi bi-clipboard"></i> Copiar
                             </button>
                         </div>
+
+                        <!-- Botón Aceptar -->
+                        <button
+                            type="button"
+                            class="btn w-100"
+                            data-bs-dismiss="modal"
+                            style="background: #0f172a; color: white; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 0.85rem;"
+                        >
+                            Aceptar
+                        </button>
                     </div>
                 </div>
-                @include('InterfazCreditos.ModalConfirmacion')
-            @endif
+            </div>
         </div>
-        {{-- @endif --}}
-    </div>
+    </x-card-gradient-header>
 
-
+    <!-- Modal de confirmación -->
+    @include('InterfazCreditos.ModalConfirmacion')
     <script>
         const chkNomina = document.getElementById('chkNomina');
         const numNomina = document.getElementById('numNomina');
@@ -148,18 +332,44 @@
                 tipoNomina.disabled = true;
             } else {
                 numNomina.disabled = true;
+                numNomina.value = '';
                 tipoNomina.disabled = false;
             }
-        });
-
-        document.getElementById('btnExportar').addEventListener('click', function() {
-            document.getElementById('btnExportar').hidden = true;
-            document.getElementById('btnCargandoDatos').hidden = false;
         });
 
         document.getElementById('formBuscarCreditos').addEventListener('submit', function() {
             document.getElementById('btnBuscar').hidden = true;
             document.getElementById('btnBuscandoCreditos').hidden = false;
         });
+
+        // Función para copiar el identificador
+        function copiarIdentificador() {
+            const input = document.getElementById('identificador-sparh');
+            input.select();
+            document.execCommand('copy');
+
+            // Feedback visual
+            const btn = event.target.closest('button');
+            const icon = btn.querySelector('i');
+            icon.className = 'bi bi-check-lg';
+            setTimeout(() => {
+                icon.className = 'bi bi-clipboard';
+            }, 2000);
+        }
+
+        // Detectar si existe el mensaje de éxito en la sesión
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session()->has('IdentificadorSparh'))
+                const identificador = "{{ session('IdentificadorSparh') }}";
+                // Extraer solo el número si viene con texto
+                const match = identificador.match(/[\d]+$/);
+                const valor = match ? match[0] : identificador;
+
+                document.getElementById('identificador-sparh').value = valor;
+
+                const modal = new bootstrap.Modal(document.getElementById('modalExitoCreditos'));
+                modal.show();
+            @endif
+        });
     </script>
-@endsection
+</x-page-container>
