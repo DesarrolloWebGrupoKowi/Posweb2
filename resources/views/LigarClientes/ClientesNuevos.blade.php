@@ -58,6 +58,7 @@
                             <th>Metodo de pago</th>
                             <th>Banco</th>
                             <th>Cuenta</th>
+                            <th>Regimen Fiscal</th>
                             <th>Status</th>
                             <th class="rounded-end">Acciones</th>
                         </tr>
@@ -89,6 +90,7 @@
                                 <td>{{ $solicitud->NomTipoPago }}</td>
                                 <td>{{ $solicitud->NomBanco }}</td>
                                 <td>{{ $solicitud->NumTarjeta }}</td>
+                                <td>{{ $solicitud->RegimenFiscal }}</td>
                                 <td> {{ $solicitud->Editar ? 'Actualizar' : 'Nuevo' }} </td>
                                 <td>
                                     {{-- <a href="/SolicitudesFactura/{{ $solicitud->Id }}" class="btn-table">

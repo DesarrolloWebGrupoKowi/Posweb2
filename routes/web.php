@@ -579,7 +579,10 @@ Route::get('/promesas', 'App\Http\Controllers\PruebasController@promesas');
 Route::post('/SubirArchivo', 'App\Http\Controllers\PruebasController@SubirArchivo');
 Route::post('/runnertest', 'App\Http\Controllers\PruebasController@SubirArchivo');
 
-// 404
+//Precios test
+Route::get('/CalculoPrecios', 'App\Http\Controllers\DashboardController@CalculoPrecios')->name('CalculoPrecios');
+
+// pagina de error 404
 Route::fallback(function () {
     return view('Errores.Error404');
 });
