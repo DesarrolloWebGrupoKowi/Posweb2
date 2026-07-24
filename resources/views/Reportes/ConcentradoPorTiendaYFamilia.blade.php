@@ -77,7 +77,7 @@
             </x-form.group>
             <div class="col-md-3 d-flex gap-2">
                 <x-form.submit
-                    text="Filtrar"
+                    text="Buscar"
                     icon="funnel"
                     class="flex-grow-1"
                 />
@@ -204,7 +204,7 @@
                                 <td
                                     class="text-center"
                                     style="font-weight: 500;"
-                                >{{ number_format($tConcentrado->kilos, 2) }} kg</td>
+                                >{{ number_format($tConcentrado->kilos, 2) }}</td>
                                 <td
                                     class="text-end"
                                     style="font-weight: 600; color: #10b981;"

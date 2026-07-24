@@ -108,7 +108,7 @@
                     <div class="col-md-3">
                         <div class="d-flex align-items-center gap-2">
                             <x-form.submit
-                                text="Filtrar"
+                                text="Buscar"
                                 icon="funnel"
                                 class="flex-grow-1"
                             />

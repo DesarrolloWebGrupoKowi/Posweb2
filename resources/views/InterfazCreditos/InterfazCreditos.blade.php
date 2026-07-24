@@ -77,7 +77,7 @@
             </x-form.group>
             <div class="col-md-2 d-flex gap-2">
                 <x-form.submit
-                    text="Filtrar"
+                    text="Buscar"
                     icon="funnel"
                     class="flex-grow-1"
                     id="btnBuscar"

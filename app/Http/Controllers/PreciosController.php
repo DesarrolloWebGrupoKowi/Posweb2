@@ -21,57 +21,70 @@ class PreciosController extends Controller
     {
         $grupos = Grupo::where('Status', 0)->get();
         $idGrupo = $request->IdGrupo;
+        $codArticulo = $request->cod_articulo;
+        $nomArticulo = $request->nom_articulo;
 
         $preciosAgrupados = [];
         $listasPrecioUnicas = collect();
         $idsListas = [];
 
-        if ($idGrupo) {
-            // Obtener TODAS las listas de precios activas (no solo las que tienen datos)
-            $listaPrecios = ListaPrecio::where('Status', 0)->get();
-            $listasPrecioUnicas = $listaPrecios->pluck('NomListaPrecio', 'IdListaPrecio');
-            $idsListas = $listasPrecioUnicas->keys()->toArray();
+        // Obtener TODAS las listas de precios activas (no solo las que tienen datos)
+        $listaPrecios = ListaPrecio::where('Status', 0)->get();
+        $listasPrecioUnicas = $listaPrecios->pluck('NomListaPrecio', 'IdListaPrecio');
+        $idsListas = $listasPrecioUnicas->keys()->toArray();
 
-            // Obtener artículos del grupo
-            $articulos = DB::table('CatArticulos as a')
-                ->select('a.CodArticulo', 'a.NomArticulo', 'a.IdArticulo')
-                ->where('a.IdGrupo', 'like', '%' . $idGrupo . '%')
-                ->where('a.Status', 0)
-                ->orderBy('a.CodArticulo')
-                ->get();
+        // Obtener artículos del grupo
+        $articulos = DB::table('CatArticulos as a')
+            ->select('a.CodArticulo', 'a.NomArticulo', 'a.IdArticulo', 'a.idGrupo')
+            // ->where('a.IdGrupo', 'like', '%' . $idGrupo . '%')
+            ->where('a.Status', 0)
+            ->when($idGrupo, function ($query) use ($idGrupo) {
+                $query->where('a.IdGrupo', $idGrupo);
+            })
+            ->when($codArticulo, function ($query) use ($codArticulo) {
+                $query->where('a.CodArticulo', 'LIKE', "%{$codArticulo}%");
+            })
+            ->when($nomArticulo, function ($query) use ($nomArticulo) {
+                $query->where('a.NomArticulo', 'LIKE', "%{$nomArticulo}%");
+            })
+            ->when(!$idGrupo && !$codArticulo && !$nomArticulo, function ($query) {
+                $query->whereRaw('1 = 0');
+            })
+            ->orderBy('a.CodArticulo')
+            ->get();
 
-            // Obtener precios existentes
-            $preciosExistentes = DB::table('DatPreciosTmp')
-                ->whereIn('CodArticulo', $articulos->pluck('CodArticulo'))
-                ->whereIn('IdListaPrecio', $idsListas)
-                ->get()
-                ->groupBy('CodArticulo');
+        // Obtener precios existentes
+        $preciosExistentes = DB::table('DatPreciosTmp')
+            ->whereIn('CodArticulo', $articulos->pluck('CodArticulo'))
+            ->whereIn('IdListaPrecio', $idsListas)
+            ->get()
+            ->groupBy('CodArticulo');
 
-            // Construir estructura agrupada
-            foreach ($articulos as $articulo) {
-                $codArticulo = $articulo->CodArticulo;
+        // Construir estructura agrupada
+        foreach ($articulos as $articulo) {
+            $codArticulo = $articulo->CodArticulo;
 
-                $preciosAgrupados[$codArticulo] = [
-                    'CodArticulo' => $articulo->CodArticulo,
-                    'NomArticulo' => $articulo->NomArticulo,
-                    'IdArticulo' => $articulo->IdArticulo,
-                    'precios' => [],
-                ];
+            $preciosAgrupados[$codArticulo] = [
+                'CodArticulo' => $articulo->CodArticulo,
+                'NomArticulo' => $articulo->NomArticulo,
+                'IdArticulo' => $articulo->IdArticulo,
+                'idGrupo' => $articulo->idGrupo,
+                'precios' => [],
+            ];
 
-                // Inicializar todas las listas con null
-                foreach ($idsListas as $idLista) {
-                    $preciosAgrupados[$codArticulo]['precios'][$idLista] = null;
-                }
+            // Inicializar todas las listas con null
+            foreach ($idsListas as $idLista) {
+                $preciosAgrupados[$codArticulo]['precios'][$idLista] = null;
+            }
 
-                // Llenar con precios existentes
-                if (isset($preciosExistentes[$codArticulo])) {
-                    foreach ($preciosExistentes[$codArticulo] as $precio) {
-                        $preciosAgrupados[$codArticulo]['precios'][$precio->IdListaPrecio] = [
-                            'IdListaPrecio' => $precio->IdListaPrecio,
-                            'NomListaPrecio' => $listasPrecioUnicas[$precio->IdListaPrecio] ?? '',
-                            'PrecioArticulo' => $precio->PrecioArticulo,
-                        ];
-                    }
+            // Llenar con precios existentes
+            if (isset($preciosExistentes[$codArticulo])) {
+                foreach ($preciosExistentes[$codArticulo] as $precio) {
+                    $preciosAgrupados[$codArticulo]['precios'][$precio->IdListaPrecio] = [
+                        'IdListaPrecio' => $precio->IdListaPrecio,
+                        'NomListaPrecio' => $listasPrecioUnicas[$precio->IdListaPrecio] ?? '',
+                        'PrecioArticulo' => $precio->PrecioArticulo,
+                    ];
                 }
             }
         }
@@ -81,7 +94,9 @@ class PreciosController extends Controller
             'listasPrecioUnicas',
             'idsListas',
             'grupos',
-            'idGrupo'
+            'idGrupo',
+            'codArticulo',
+            'nomArticulo'
         ));
     }
 

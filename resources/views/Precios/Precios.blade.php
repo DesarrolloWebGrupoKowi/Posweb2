@@ -15,20 +15,34 @@
             id="formFiltros"
         >
             <x-form.group>
+                <x-form.text
+                    name="cod_articulo"
+                    label="Código"
+                    icon="upc"
+                    col="col-md-4"
+                    placeholder="Buscar por código..."
+                    autofocus
+                />
+                <x-form.text
+                    name="nom_articulo"
+                    label="Artículo"
+                    icon="box"
+                    col="col-md-3"
+                    placeholder="Buscar por nombre..."
+                    :value="$nomArticulo ?? ''"
+                />
                 <x-form.select
                     name="IdGrupo"
                     label="Grupo"
                     icon="collection"
-                    col="col-md-4"
-                    placeholder="Todos los grupos"
+                    col="col-md-3"
                     :options="$grupos->pluck('NomGrupo', 'IdGrupo')->toArray()"
                     :selected="$idGrupo ?? ''"
-                    autofocus
                 />
             </x-form.group>
             <div class="col-md-2 d-flex gap-2">
                 <x-form.submit
-                    text="Filtrar"
+                    text="Buscar"
                     icon="funnel"
                     class="flex-grow-1"
                 />
@@ -93,7 +107,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($preciosAgrupados as $codArticulo => $articulo)
-                                    <tr>
+                                    <tr data-grupo="{{ $articulo['idGrupo'] }}">
                                         <td
                                             style="position: sticky; left: 0; background: white; font-weight: 600; color: #0f172a; z-index: 1;">
                                             {{ $articulo['CodArticulo'] }}
@@ -178,8 +192,9 @@
                                 style="color: #94a3b8;"
                             ></i>
                         </div>
-                        <h6 class="text-muted">Seleccione un grupo</h6>
-                        <small class="text-muted">Elija un grupo para ver y editar los precios de sus artículos</small>
+                        <h6 class="text-muted">Seleccione un filtro</h6>
+                        <small class="text-muted">Especifique al menos un criterio de búsqueda para mostrar los
+                            artículos</small>
                     </div>
                 </div>
             </div>
@@ -236,6 +251,52 @@
             }
         }
 
+        // Función para obtener el grupo del artículo desde el DOM
+        function obtenerGrupoArticulo(codArticulo) {
+            // Buscar en la tabla el grupo del artículo
+            const fila = document.querySelector(`tr:has(.input-precio[data-cod-articulo="${codArticulo}"])`);
+            if (fila) {
+                const grupoDataset = fila.dataset.grupo;
+                return grupoDataset ? parseInt(grupoDataset) : null;
+            }
+            return null;
+        }
+
+        // Nueva función para actualizar lista 4 cuando cambia lista 1
+        function actualizarLista4(inputLista1) {
+            const codArticulo = inputLista1.dataset.codArticulo;
+            const idGrupo = obtenerGrupoArticulo(codArticulo);
+
+            // Solo aplicar el descuento si el grupo es 1, 2 o 4
+            if (idGrupo && [1, 2, 4].includes(idGrupo)) {
+                const valorLista1 = parseFloat(inputLista1.value) || 0;
+                const precioConDescuento = valorLista1 * 0.9; // 10% de descuento
+
+                // Buscar el input correspondiente a la lista 4 para el mismo artículo
+                const inputLista4 = document.querySelector(
+                    `.input-precio[data-cod-articulo="${codArticulo}"][data-id-lista="4"]`
+                );
+
+                if (inputLista4) {
+                    // Actualizar el valor con el descuento
+                    inputLista4.value = precioConDescuento.toFixed(2);
+
+                    // Marcar como cambiado si es diferente al original
+                    const valorOriginalLista4 = parseFloat(inputLista4.dataset.original) || 0;
+                    if (precioConDescuento !== valorOriginalLista4) {
+                        inputLista4.classList.add('input-cambiado');
+                    } else {
+                        inputLista4.classList.remove('input-cambiado');
+                    }
+
+                    // Disparar evento change para que verificarCambios lo detecte
+                    inputLista4.dispatchEvent(new Event('change', {
+                        bubbles: true
+                    }));
+                }
+            }
+        }
+
         function prepararEnvio() {
             // Limpiar contenedor
             contenedorPrecios.innerHTML = '';
@@ -261,8 +322,21 @@
         }
 
         inputsPrecio.forEach(input => {
-            input.addEventListener('input', verificarCambios);
-            input.addEventListener('change', verificarCambios);
+            input.addEventListener('input', function() {
+                // Si el input modificado es de la lista 1
+                if (this.dataset.idLista === '1') {
+                    actualizarLista4(this);
+                }
+                verificarCambios();
+            });
+
+            input.addEventListener('change', function() {
+                // Si el input modificado es de la lista 1
+                if (this.dataset.idLista === '1') {
+                    actualizarLista4(this);
+                }
+                verificarCambios();
+            });
         });
 
         btnGuardar.addEventListener('click', function(e) {
