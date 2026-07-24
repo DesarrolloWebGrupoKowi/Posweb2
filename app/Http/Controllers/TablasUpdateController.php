@@ -13,7 +13,9 @@ class TablasUpdateController extends Controller
 {
     public function TablasUpdate(Request $request)
     {
-        $tiendas = Tienda::all();
+        $tiendas = Tienda::where('Status', 0)
+            ->orderBy('NomTienda')
+            ->get();
 
         $idTienda = $request->idTienda;
 
@@ -44,8 +46,16 @@ class TablasUpdateController extends Controller
 
     public function CatTablas(Request $request)
     {
-        $tablas = Tabla::all();
-        return view('TablasUpdate.Tablas', compact('tablas'));
+        $txtFiltro = $request->txtFiltro;
+
+        $tablas = Tabla::query()
+            ->when($txtFiltro, function ($query, $txtFiltro) {
+                return $query->where('NomTabla', 'like', '%' . $txtFiltro . '%');
+            })
+            ->paginate(10)
+            ->appends(request()->query());
+
+        return view('TablasUpdate.Tablas', compact('tablas', 'txtFiltro'));
     }
 
     public function AgregarTablas(Request $request)

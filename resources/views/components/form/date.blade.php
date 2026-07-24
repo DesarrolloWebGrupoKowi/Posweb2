@@ -1,0 +1,40 @@
+@props([
+    'name',
+    'label',
+    'icon' => null,
+    'value' => null,
+    'id' => null,
+    'col' => 'col-md-3',
+    'autofocus' => false,
+    'required' => false,
+])
+
+@php
+    // Prioridad: old() > request() > value prop
+    $inputValue = old($name, request($name, $value));
+@endphp
+
+<div class="{{ $col }}">
+    <label
+        class="form-label"
+        for="{{ $id ?? $name }}"
+    >
+        @if ($icon)
+            <i class="bi bi-{{ $icon }} me-1"></i>
+        @endif
+        {{ $label }}
+        @if ($required)
+            <span class="text-danger">*</span>
+        @endif
+    </label>
+    <input
+        type="date"
+        class="form-control form-input"
+        name="{{ $name }}"
+        id="{{ $id ?? $name }}"
+        value="{{ $inputValue }}"
+        @if ($autofocus) autofocus @endif
+        @if ($required) required @endif
+        {{ $attributes }}
+    >
+</div>

@@ -12,21 +12,21 @@
     >
         <div
             class="modal-content border-0 shadow"
-            style="border-radius: 10px;"
+            style="border-radius: 10px; overflow: hidden;"
         >
             <!-- Modal Header -->
             <div
-                class="modal-header border-bottom-0 pb-0"
-                style="background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%); border-radius: 10px 10px 0 0;"
+                class="modal-header border-bottom-0 px-4 pb-0 pt-3"
+                style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);"
             >
                 <h5
-                    class="text-white"
-                    id="ModalEliminar{{ $usuario->IdUsuario }}"
+                    class="mb-0 text-white"
+                    style="font-weight: 600; font-size: 1.1rem;"
                 >
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.2); width: 32px; height: 32px;"
+                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
                         >
                             @include('components.icons.trash')
                         </div>
@@ -46,8 +46,8 @@
                     <!-- Mensaje de confirmación -->
                     <div class="mb-4 text-center">
                         <div
-                            class="d-flex align-items-center justify-content-center mx-auto mb-2"
-                            style="width: 48px; height: 48px; background-color: rgba(220, 38, 38, 0.1); border-radius: 50%;"
+                            class="d-flex align-items-center justify-content-center mx-auto mb-3"
+                            style="width: 48px; height: 48px; background-color: #fef2f2; border-radius: 50%;"
                         >
                             <x-icons.box
                                 :width="20"
@@ -55,38 +55,33 @@
                                 color="#dc2626"
                             />
                         </div>
-                        <p class="fw-medium m-0 text-gray-700">
+                        <p style="font-weight: 500; color: #475569; margin-bottom: 0.25rem; font-size: 0.9rem;">
                             ¿Seguro que desea desactivar el usuario?
                         </p>
-                        <p class="fw-semibold text-danger mb-0 mt-1">
+                        <p style="font-weight: 600; color: #dc2626; margin-bottom: 0.25rem; font-size: 0.9rem;">
                             {{ $usuario->NomUsuario }}
                         </p>
-                        <p class="small text-muted mb-0 mt-2">
+                        <small style="color: #94a3b8; font-size: 0.78rem;">
                             Esta acción puede ser revertida posteriormente.
-                        </p>
+                        </small>
                     </div>
 
                     <!-- Línea divisoria -->
-                    <hr
-                        class="my-4"
-                        style="border-color: #e5e7eb;"
-                    >
+                    <hr style="border-color: #e2e8f0; margin: 1.25rem 0;">
 
                     <!-- Confirmar Contraseña -->
                     <div class="mb-3">
                         <label
                             for="passAdminD{{ $usuario->IdUsuario }}"
-                            class="form-label fw-500 mb-2 text-gray-700"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
                         >
-                            <div class="d-flex align-items-center gap-2">
-                                <span>Confirmar Contraseña</span>
-                                <span class="text-danger">*</span>
-                            </div>
+                            Confirmar Contraseña <span style="color: #ef4444;">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background-color: rgba(30, 41, 59, 0.1); border-color: #e5e7eb; color: #1e293b"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
                             >
                                 @include('components.icons.lock')
                             </span>
@@ -95,7 +90,7 @@
                                 id="passAdminD{{ $usuario->IdUsuario }}"
                                 name="passAdmin"
                                 class="form-control border-start-0"
-                                style="border-color: #e5e7eb; border-radius: 0 6px 6px 0; line-height: 18px;"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 tabindex="1"
                                 placeholder="Ingresa tu contraseña para confirmar"
                                 autocomplete="new-password"
@@ -104,52 +99,57 @@
                             >
                         </div>
                         <div
-                            class="form-text text-muted mt-2"
+                            class="form-text mt-1"
                             id="error-passAdminD{{ $usuario->IdUsuario }}"
-                        >
-                            Ingresa la contraseña del administrador para continuar
-                        </div>
+                            style="font-size: 0.78rem; color: #ef4444;"
+                        ></div>
+                        <small style="color: #94a3b8; font-size: 0.75rem;">
+                            <i class="bi bi-info-circle me-1"></i>Ingresa la contraseña del administrador para continuar
+                        </small>
                     </div>
 
-                    <!-- Información del usuario a eliminar (resumida) -->
+                    <!-- Información del usuario a desactivar -->
                     <div
-                        class="mt-4 rounded p-3"
-                        style="background-color: #f8f9fa; border-left: 3px solid #dc2626;"
+                        class="d-flex align-items-center gap-3 rounded p-3"
+                        style="background: #fef2f2; border-left: 3px solid #ef4444;"
                     >
-                        <div class="d-flex align-items-center gap-2">
-                            <div style="width: 16px; height: 16px; color: #dc2626;">
-                                @include('components.icons.user')
-                            </div>
-                            <span class="small text-muted">Usuario:</span>
-                            <span class="small fw-semibold text-dark">{{ $usuario->NomUsuario }}</span>
+                        <div
+                            class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="background: #fee2e2; width: 36px; height: 36px;"
+                        >
+                            @include('components.icons.user')
+                        </div>
+                        <div>
+                            <small style="color: #64748b; font-size: 0.78rem;">Usuario a desactivar:</small>
+                            <br>
+                            <span
+                                style="font-weight: 600; color: #0f172a; font-size: 0.85rem;">{{ $usuario->NomUsuario }}</span>
                         </div>
                     </div>
             </div>
 
             <!-- Modal Footer -->
-            <div class="modal-footer border-top-0 pt-0">
+            <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
                 <button
                     type="button"
-                    class="btn btn-outline-secondary"
+                    class="btn d-flex align-items-center gap-1"
                     data-bs-dismiss="modal"
-                    style="border-radius: 6px; padding: 6px 16px;"
+                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
                 >
-                    <span class="d-flex align-items-center gap-1">
-                        @include('components.icons.x')
-                        Cancelar
-                    </span>
+                    @include('components.icons.x')
+                    Cancelar
                 </button>
                 <button
                     type="submit"
-                    class="btn btn-danger"
-                    style="border-radius: 6px; padding: 6px 16px; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; border: none; transition: all 0.2s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #b91c1c 0%, #991b1b 100%)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'"
+                    class="btn d-flex align-items-center gap-1"
+                    style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.3)'"
+                    onmouseout="this.style.background='linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                 >
-                    <span class="d-flex align-items-center gap-1">
-                        @include('components.icons.trash')
-                        Desactivar
-                    </span>
+                    @include('components.icons.trash')
+                    Desactivar
                 </button>
                 </form>
             </div>

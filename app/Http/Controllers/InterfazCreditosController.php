@@ -27,6 +27,38 @@ class InterfazCreditosController extends Controller
         $fecha1 = $request->fecha1;
         $fecha2 = $request->fecha2;
         $idTipoNomina = $request->tipoNomina;
+        // Solo validar si hay algún filtro activo (se hizo clic en Filtrar)
+        $hasAnyFilter = $request->filled('fecha1') ||
+            $request->filled('fecha2') ||
+            $request->filled('tipoNomina') ||
+            $request->filled('chkNomina') ||
+            $request->filled('numNomina');
+
+        if ($hasAnyFilter) {
+            if ($request->filled('chkNomina')) {
+                // Si viene marcado "Buscar por Nómina", numNomina es obligatorio
+                $request->validate([
+                    'fecha1' => 'required|date',
+                    'fecha2' => 'required|date',
+                    'numNomina' => 'required|numeric',
+                ], [
+                    'fecha1.required' => 'La fecha de inicio es obligatoria.',
+                    'fecha2.required' => 'La fecha de fin es obligatoria.',
+                    'numNomina.required' => 'El número de nómina es obligatorio al buscar por nómina.',
+                ]);
+            } else {
+                // Si no, tipoNomina es obligatorio
+                $request->validate([
+                    'fecha1' => 'required|date',
+                    'fecha2' => 'required|date',
+                    'tipoNomina' => 'required',
+                ], [
+                    'fecha1.required' => 'La fecha de inicio es obligatoria.',
+                    'fecha2.required' => 'La fecha de fin es obligatoria.',
+                    'tipoNomina.required' => 'El tipo de nómina es obligatorio o marca buscar por nómina.',
+                ]);
+            }
+        }
 
         if ($chkNomina == 'on') {
             // tablas nuevas VENTAWEB_NEW

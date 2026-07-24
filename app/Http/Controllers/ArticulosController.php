@@ -16,6 +16,8 @@ class ArticulosController extends Controller
     public function CatArticulos(Request $request)
     {
         $txtFiltro = $request->txtFiltro;
+        $idTipoArticulo = $request->IdTipoArticulo;
+        $idFamilia = $request->IdFamilia;
 
         $articulos = DB::table('CatArticulos as a')
             ->leftJoin('CatGrupos as b', 'b.IdGrupo', 'a.IdGrupo')
@@ -24,22 +26,26 @@ class ArticulosController extends Controller
             ->select('a.*', 'b.NomGrupo', 'c.NomFamilia', 'd.NomTipoArticulo')
             ->where('a.Status', 0)
             ->when($txtFiltro, function ($q) use ($txtFiltro) {
-                $q->where('a.NomArticulo', 'like', '%' . $txtFiltro . '%');
-                $q->orWhere('a.IdArticulo', 'like', '%' . $txtFiltro . '%');
-                $q->orWhere('a.CodArticulo', 'like', '%' . $txtFiltro . '%');
+                return $q->where(function ($query) use ($txtFiltro) {
+                    $query->where('a.NomArticulo', 'like', '%' . $txtFiltro . '%')
+                        ->orWhere('a.IdArticulo', 'like', '%' . $txtFiltro . '%')
+                        ->orWhere('a.CodArticulo', 'like', '%' . $txtFiltro . '%')
+                        ->orWhere('a.Amece', 'like', '%' . $txtFiltro . '%');
+                });
+            })
+            ->when($idTipoArticulo, function ($q) use ($idTipoArticulo) {
+                return $q->where('a.IdTipoArticulo', $idTipoArticulo);
+            })
+            ->when($idFamilia, function ($q) use ($idFamilia) {
+                return $q->where('a.IdFamilia', $idFamilia);
             })
             ->orderBy('a.CodArticulo')
             ->paginate(10)
-            ->withQueryString();
+            ->appends(request()->query());
 
-        //return $articulos;
-
-        $familias = Familia::where('Status', 0)
-            ->get();
-        $grupos = Grupo::where('Status', 0)
-            ->get();
-        $tiposArticulo = TipoArticulo::where('Status', 0)
-            ->get();
+        $familias = Familia::where('Status', 0)->get();
+        $grupos = Grupo::where('Status', 0)->get();
+        $tiposArticulo = TipoArticulo::where('Status', 0)->get();
 
         return view('Articulos.CatArticulos', compact('articulos', 'txtFiltro', 'familias', 'grupos', 'tiposArticulo'));
     }
@@ -52,6 +58,7 @@ class ArticulosController extends Controller
 
             Articulo::where('CodArticulo', $id)
                 ->update([
+                    'NomArticulo' => $request->NomArticulo,
                     'Amece' => $request->txtCodAmece,
                     'UOM' => $request->txtUOM,
                     'UOM2' => $request->txtUOM,

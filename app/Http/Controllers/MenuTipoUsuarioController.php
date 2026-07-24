@@ -15,6 +15,7 @@ class MenuTipoUsuarioController extends Controller
     {
         $tipoUsuarios = DB::table('CatTipoUsuarios')
             ->where('Status', 0)
+            ->orderBy('NomTipoUsuario')
             ->get();
 
 

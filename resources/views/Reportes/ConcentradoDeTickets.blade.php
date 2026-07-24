@@ -1,107 +1,132 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Concentrado de Tickets')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
+<x-page-container title="Concentrado de Tickets">
+    <x-card-gradient-header
+        icon="ticket-perforated"
+        title="Concentrado de Tickets"
+        subtitle="Reporte de tickets por tienda"
+    >
+        <x-slot:buttons>
+            <a
+                href="/ExportReporteConcentradoDeTickets?{{ http_build_query(request()->only(['idTienda', 'fecha1', 'fecha2'])) }}"
+                class="btn-header-ghost"
+                title="Exportar a Excel"
+                style="background: #f0fdf4; color: #10b981;"
+                onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+            >
+                <i class="bi bi-file-earmark-excel"></i> Exportar
+            </a>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-        <div class="p-4 border-0 card" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Concentrado de Tickets'])
+        <!-- Filtros -->
+        <x-form.form action="/ReporteConcentradoDeTickets">
+            <x-form.group>
+                <x-form.select
+                    name="idTienda"
+                    label="Tienda"
+                    icon="shop"
+                    col="col-md-4"
+                    :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    :autofocus="true"
+                />
+                <x-form.date
+                    name="fecha1"
+                    label="Fecha Inicio"
+                    icon="calendar3"
+                    col="col-md-3"
+                    :value="empty($fecha1) ? date('Y-m-d') : $fecha1"
+                />
+                <x-form.date
+                    name="fecha2"
+                    label="Fecha Fin"
+                    icon="calendar3"
+                    col="col-md-2"
+                    :value="empty($fecha2) ? date('Y-m-d') : $fecha2"
+                />
+            </x-form.group>
+            <div class="col-md-3 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                    class="flex-grow-1"
+                />
+                <x-form.clear />
+            </div>
+        </x-form.form>
+
+        <!-- Tabla -->
+        <div class="p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                 <div>
-                    <form action="/ExportReporteConcentradoDeTickets" method="GET">
-                        <select class="d-none" name="idTienda">
-                            <option value="">Seleccione Tienda</option>
-                            @foreach ($tiendas as $tienda)
-                                <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-                        <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                        <button type="submit" class="input-group-text text-decoration-none btn-excel">
-                            Exportar @include('components.icons.excel')
-                        </button>
-                    </form>
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-table me-2"
+                            style="color: #64748b;"
+                        ></i>Concentrado de Tickets
+                    </h5>
+                    <p class="section-content-subtitle">Listado de tickets registrados en el sistema</p>
                 </div>
             </div>
-        </div>
 
-        <!--CONCENTRADO DE VENTAS POR RANGO DE FECHAS-->
-        <div class="p-4 border-0 card" style="border-radius: 10px">
-            <!--CONTAINER FILTROS-->
-            <form class="gap-2 pb-2 d-flex align-items-center justify-content-end flex-wrap"
-                action="/ReporteConcentradoDeTickets" method="GET">
-                <div class="col-auto">
-                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda">
-                        <option value="">Seleccione Tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" autofocus>
-                </div>
-                <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha2"
-                        id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-dark-outline" title="Buscar">
-                        @include('components.icons.search')
-                    </button>
-                </div>
-            </form>
-
-            <div class="content-table content-table-full" style="max-height: calc(65vh);">
-                <table class="w-100">
-                    <thead class="table-head">
+            <div class="table-responsive">
+                <table class="table-hover table-custom table">
+                    <thead>
                         <tr>
-                            <th class="rounded-start">Ciudad</th>
-                            <th>Tienda</th>
-                            <th>Fecha</th>
-                            <th>Tickets</th>
-                            <th class="rounded-end">Importe</th>
+                            <th><i class="bi bi-building me-1"></i>Ciudad</th>
+                            <th><i class="bi bi-shop me-1"></i>Tienda</th>
+                            <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
+                            <th class="text-center"><i class="bi bi-ticket me-1"></i>Tickets</th>
+                            <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Importe</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @php
-                            $totalImporte = 0;
-                        @endphp
+                        @php $totalImporte = 0; @endphp
 
-                        @if ($concentrado->count() == 0)
+                        @forelse ($concentrado as $tConcentrado)
                             <tr>
-                                <td colspan="9">No Hay Ventas en Rango de Fechas Seleccionadas!</td>
+                                <td>{{ $tConcentrado->NomCiudad }}</td>
+                                <td style="font-weight: 500;">{{ $tConcentrado->NomTienda }}</td>
+                                <td style="font-size: 0.85rem;">
+                                    {{ \Carbon\Carbon::parse($tConcentrado->Fecha)->format('d/m/Y') }}</td>
+                                <td
+                                    class="text-center"
+                                    style="font-weight: 500;"
+                                >{{ $tConcentrado->Tickets }}</td>
+                                <td
+                                    class="text-end"
+                                    style="font-weight: 500;"
+                                >${{ number_format($tConcentrado->Importe, 2) }}</td>
                             </tr>
-                        @else
-                            @foreach ($concentrado as $tConcentrado)
-                                <tr>
-                                    <td>{{ $tConcentrado->NomCiudad }}</td>
-                                    <td>{{ $tConcentrado->NomTienda }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($tConcentrado->Fecha)->format('d/m/Y') }}</td>
-                                    <td>{{ $tConcentrado->Tickets }}</td>
-                                    <td>{{ number_format($tConcentrado->Importe, 2) }}</td>
-                                </tr>
-
-                                @php
-                                    $totalImporte += $tConcentrado->Importe;
-                                @endphp
-                            @endforeach
-                        @endif
+                            @php $totalImporte += $tConcentrado->Importe; @endphp
+                        @empty
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    class="py-5 text-center"
+                                >
+                                    <i
+                                        class="bi bi-inbox"
+                                        style="font-size: 2.5rem; color: #94a3b8;"
+                                    ></i>
+                                    <p
+                                        class="mt-2"
+                                        style="color: #64748b; font-size: 0.85rem;"
+                                    >No hay ventas en el rango de fechas seleccionadas</p>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
-
-                    <tfoot>
-                        <tr>
-                            <td colspan="4"><strong>Total:</strong></td>
-                            <td><strong>{{ number_format($totalImporte, 2) }}</strong></td>
-                        </tr>
-                    </tfoot>
-
+                    @if ($concentrado->count() > 0)
+                        <tfoot>
+                            <tr style="background: #f8fafc; font-weight: 700;">
+                                <td colspan="4">Total:</td>
+                                <td class="text-end">${{ number_format($totalImporte, 2) }}</td>
+                            </tr>
+                        </tfoot>
+                    @endif
                 </table>
             </div>
         </div>
-    </div>
-
-@endsection
+    </x-card-gradient-header>
+</x-page-container>

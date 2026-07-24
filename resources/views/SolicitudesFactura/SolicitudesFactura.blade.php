@@ -1,223 +1,190 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Solicitudes Factura')
-@section('dashboardWidth', 'width-95')
-@section('contenido')
-    <x-layout.page-container>
-        <!-- SECCIÓN 1: TITULO Y FILTROS -->
-        <x-layout.section-card>
-            <!-- Título y botones principales -->
-            <x-layout.section-title>
-                <x-title titulo="Solicitudes Factura" />
-                <div class="d-flex gap-2">
-                    <x-filters.buttons.refresh-button />
-                    <x-filters.buttons.home-button />
-                </div>
-            </x-layout.section-title>
-            <!-- Formulario de filtros -->
-            <x-filters.filter-form>
-                <!-- Filtros Básicos -->
-                <x-filters.filter-group>
-                    <x-filters.inputs.select-input
+<x-page-container title="Solicitudes Factura">
+        <x-card-gradient-header
+            icon="file-text"
+            title="Solicitudes Factura"
+            subtitle="Gestión de solicitudes de facturación"
+        >
+            <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
+            </x-slot:buttons>
+
+            <!-- Filtros -->
+            <x-form.form action="/SolicitudesFactura">
+                <x-form.group>
+                    <x-form.select
                         name="idTienda"
                         label="Tienda"
+                        icon="shop"
+                        col="col-md-3"
                         :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
                     />
-                    <x-filters.inputs.date-input
+                    <x-form.date
                         name="fecha"
                         label="Fecha"
-                        :value="request('fecha')"
+                        icon="calendar3"
+                        col="col-md-2"
                         :autofocus="true"
                     />
-                    <x-filters.inputs.text-input
+                    <x-form.text
                         name="rfc"
                         label="RFC"
-                        placeholder="Buscar por RFC"
+                        icon="search"
+                        placeholder="Buscar por RFC..."
+                        col="col-md-2"
                     />
-                    <x-filters.inputs.text-input
+                    <x-form.text
                         name="nombre"
                         label="Nombre"
-                        placeholder="Buscar por Nombre"
+                        icon="person"
+                        placeholder="Buscar por Nombre..."
+                        col="col-md-2"
                     />
-                    {{-- <x-filters.inputs.text-input
-                        name="pos"
-                        label="Pedido"
-                        placeholder="Buscar por Pedido POS_000000"
-                    /> --}}
-                    {{-- <x-filters.inputs.checkbox-input
-                        name="sinProcesar"
-                        label="Sin Procesar"
-                        :checked="request('sinProcesar') == 'on'"
-                        helperText="Ver sin procesar"
-                    /> --}}
-                </x-filters.filter-group>
-                <x-slot:buttons>
-                    <x-filters.buttons.clear-button />
-                    {{-- <x-filters.buttons.advanced-button
-                        :active="$filtrosAvanzadosActivos"
-                        :hasBadge="true"
-                    /> --}}
-                    <x-filters.buttons.submit-button />
-                </x-slot:buttons>
-            </x-filters.filter-form>
-        </x-layout.section-card>
+                </x-form.group>
+                <div class="col-md-3 d-flex gap-2">
+                    <x-form.submit
+                        text="Filtrar"
+                        icon="funnel"
+                        class="flex-grow-1"
+                    />
+                    <x-form.clear />
+                </div>
+            </x-form.form>
 
-        <!-- SECCIÓN: TABLAS -->
-        <div
-            class="flex-grow-1 d-flex gap-4 pb-4"
-            {{-- style="min-height: 0;" --}}
-        >
-            <div
-                class="d-flex flex-column"
-                {{-- style="flex: 2; min-width: 0; min-height: 0;" --}}
-                style="flex: 2; min-width: 0;"
-            >
+            {{-- SECCIÓN 2: TABLA --}}
+            <div class="p-4">
                 <div
-                    class="card d-flex flex-column border-0 p-4"
-                    {{-- style="border-radius: 10px; min-height: 0;" --}}
-                    style="border-radius: 10px;"
+                    class="rounded p-4 shadow-sm"
+                    style="background: white; border-radius: 12px;"
                 >
-                    <div class="table-responsive content-table-sm">
-                        <table class="table">
-                            <thead class="table-head">
+                    <div class="table-responsive">
+                        <table class="table-hover table-custom table">
+                            <thead style="position: sticky; top: 0; z-index: 2;">
                                 <tr>
-                                    <th>Folio</th>
-                                    <th>Ticket</th>
-                                    <th>Folio Encriptado</th>
-                                    <th>Tienda</th>
-                                    <th>Fecha</th>
-                                    <th>RFC</th>
-                                    <th>Nombre</th>
-                                    <th>Total</th>
-                                    <th>Pedido</th>
-                                    {{-- <th>Cliente</th> --}}
-                                    {{-- <th>MP</th>
-                                <th>CFDI</th> --}}
-                                    <th>Estatus</th>
-                                    <th>Acciones</th>
+                                    <th><i class="bi bi-hash me-1"></i>Folio</th>
+                                    <th><i class="bi bi-ticket me-1"></i>Ticket</th>
+                                    <th><i class="bi bi-shield-lock me-1"></i>Folio Encriptado</th>
+                                    <th><i class="bi bi-shop me-1"></i>Tienda</th>
+                                    <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
+                                    <th><i class="bi bi-file-text me-1"></i>RFC</th>
+                                    <th><i class="bi bi-person me-1"></i>Nombre</th>
+                                    <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Total</th>
+                                    <th class="text-center"><i class="bi bi-receipt me-1"></i>Pedido</th>
+                                    <th class="text-center"><i class="bi bi-circle me-1"></i>Estatus</th>
+                                    <th class="text-center"><i class="bi bi-gear me-1"></i>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($solicitudes as $solicitud)
-                                    {{-- <tr style="line-height: .9rem"> --}}
                                     <tr>
-                                        <td>{{ $solicitud->IdSolicitudFactura }}</td>
-                                        <td>{{ $solicitud->IdEncabezado }}</td>
-                                        <td> {{ \Vinkla\Hashids\Facades\Hashids::encode($solicitud->IdEncabezado) }}</td>
-                                        <td style="min-width: 150px;">{{ $solicitud->NomTienda }}</td>
-                                        <td style="min-width: 120px;">
-                                            {{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</td>
-                                        <td>{{ $solicitud->RFC }}</td>
-                                        <td style="min-width: 230px;">{{ $solicitud->NomCliente }}</td>
-                                        <td class="text-end">${{ number_format($solicitud->TotalFactura, 2) }}</td>
+                                        <td style="font-weight: 600; color: #0f172a;">{{ $solicitud->IdSolicitudFactura }}
+                                        </td>
+                                        <td style="font-weight: 500;">{{ $solicitud->IdEncabezado }}</td>
+                                        <td style="font-size: 0.8rem; color: #64748b;">
+                                            {{ \Vinkla\Hashids\Facades\Hashids::encode($solicitud->IdEncabezado) }}
+                                        </td>
+                                        <td style="font-weight: 500;">{{ $solicitud->NomTienda }}</td>
+                                        <td style="font-size: 0.85rem;">
+                                            {{ \Carbon\Carbon::parse($solicitud->FechaSolicitud)->locale('es')->isoFormat('D MMM YYYY, HH:mm') }}
+                                        </td>
+                                        <td style="font-weight: 500;">{{ $solicitud->RFC }}</td>
+                                        <td>
+                                            <span
+                                                class="text-truncate"
+                                                style="max-width: 200px; display: inline-block;"
+                                                title="{{ $solicitud->NomCliente }}"
+                                            >
+                                                {{ $solicitud->NomCliente }}
+                                            </span>
+                                        </td>
+                                        <td
+                                            class="text-end"
+                                            style="font-weight: 500;"
+                                        >${{ number_format($solicitud->TotalFactura, 2) }}</td>
                                         <td class="text-center">
-                                            <div class="d-flex justify-content-center gap-2">
-                                                @if ($solicitud->Source_Transaction_Identifier)
-                                                    <span
-                                                        class="tags-blue"
-                                                        style="white-space: nowrap;"
-                                                    >
-                                                        {{ $solicitud->Source_Transaction_Identifier }}
-                                                    </span>
-                                                @elseif($solicitud->Editar !== null)
-                                                    <span
-                                                        class="tags-red"
-                                                        style="white-space: nowrap;"
-                                                    >
-                                                        SIN LIGAR
-                                                    </span>
-                                                    @if ($solicitud->Editar == '0')
-                                                        <span class="tags-red">
-                                                            NUEVO
-                                                        </span>
-                                                    @else
-                                                        <span class="tags-red">
-                                                            ACTUALIZAR
-                                                        </span>
-                                                    @endif
-                                                @else
-                                                    <span
-                                                        class="tags-red"
-                                                        style="white-space: nowrap;"
-                                                    >
-                                                        SIN PEDIDO
-                                                    </span>
-                                                @endif
-                                            </div>
+                                            @if ($solicitud->Source_Transaction_Identifier)
+                                                <span
+                                                    style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                >
+                                                    {{ $solicitud->Source_Transaction_Identifier }}
+                                                </span>
+                                            @elseif($solicitud->Editar !== null)
+                                                <span
+                                                    style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                >
+                                                    SIN LIGAR
+                                                </span>
+                                            @else
+                                                <span
+                                                    style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                >
+                                                    SIN PEDIDO
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="text-center">
                                             @if ($solicitud->Status == 1)
-                                                <span class="tags-red">Cancelada</span>
+                                                <span
+                                                    style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                >Cancelada</span>
                                             @elseif ($solicitud->Status == 0 && $solicitud->Editar != null)
                                                 <span
-                                                    class="tags-yellow"
-                                                    style="white-space: nowrap;"
+                                                    style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
                                                 >SIN PROCESAR</span>
                                             @else
                                                 @if ($solicitud->InterfaceStatus == 'PROCESADO')
-                                                    <span class="tags-green">{{ $solicitud->InterfaceStatus }}</span>
+                                                    <span
+                                                        style="background: #f0fdf4; color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                    >{{ $solicitud->InterfaceStatus }}</span>
                                                 @elseif ($solicitud->InterfaceStatus == 'ERROR')
-                                                    <span class="tags-red">{{ $solicitud->InterfaceStatus }}</span>
+                                                    <span
+                                                        style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                    >{{ $solicitud->InterfaceStatus }}</span>
                                                 @elseif ($solicitud->InterfaceStatus == 'PENDIENTE')
-                                                    <span class="tags-yellow">{{ $solicitud->InterfaceStatus }}</span>
+                                                    <span
+                                                        style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                    >{{ $solicitud->InterfaceStatus }}</span>
                                                 @else
                                                     <span
-                                                        class="tags-yellow"
-                                                        style="white-space: nowrap;"
-                                                    >{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}
-                                                    </span>
+                                                        style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                    >{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}</span>
                                                 @endif
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            <div class="d-flex justify-content-center align-items-center gap-2">
-                                                {{-- <button
-                                                    class="btn btn-sm btn-outline-primary d-flex gap-2"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ModalTickets{{ $solicitud->Id }}"
-                                                    title="Detalle de ticket"
-                                                >
-                                                    @include('components.icons.list-ol')
-                                                    <span class="d-none d-md-inline">DETALLE</span>
-                                                </button> --}}
-                                                <a
-                                                    href="/SolicitudesFactura/{{ $solicitud->IdSolicitudFactura }}"
-                                                    {{-- target="_blank" --}}
-                                                    class="btn btn-sm btn-outline-primary d-flex gap-2"
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <x-table.buttons.link-button
+                                                    :id="$solicitud->IdSolicitudFactura"
+                                                    url="/SolicitudesFactura"
                                                     title="Ver detalle de solicitud"
-                                                >
-                                                    @include('components.icons.list')
-                                                    <span class="d-none d-md-inline">VER</span>
-                                                </a>
-                                                {{-- @if ($solicitud->Status == 0 && !$solicitud->InterfaceStatus == 'PROCESADO')
-                                                    <button
-                                                        class="btn btn-sm btn-outline-danger d-flex gap-2"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#ModalCancelarSolicitud{{ $solicitud->Id }}"
-                                                        title="Cancelar solicitud"
-                                                    >
-                                                        @include('components.icons.delete')
-                                                        <span class="d-none d-md-inline">Cancelar</span>
-                                                    </button>
-                                                @endif --}}
-                                                {{-- @include('SolicitudesFactura.ModalTickets') --}}
-                                                @include('SolicitudesFactura.ModalCancelarSolicitud')
+                                                    label="Ver"
+                                                    icon="list"
+                                                />
                                             </div>
+                                            @include('SolicitudesFactura.ModalCancelarSolicitud')
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td
-                                            colspan="14"
+                                            colspan="11"
                                             class="py-5 text-center"
                                         >
-                                            <x-table-empty-state
-                                                title="Sin datos disponibles"
-                                                icon="cube"
-                                                :message="'No se encontraron resultados con los filtros seleccionados.'"
-                                                :suggestion="'Intenta ampliar el rango de fechas o modificar los criterios de búsqueda.'"
-                                                action="Limpiar filtros"
-                                                actionUrl="/SolicitudesFactura"
-                                            />
+                                            <i
+                                                class="bi bi-inbox"
+                                                style="font-size: 2.5rem; color: #94a3b8;"
+                                            ></i>
+                                            <p
+                                                class="mt-2"
+                                                style="color: #64748b; font-size: 0.85rem;"
+                                            >Sin datos disponibles</p>
+                                            <a
+                                                href="/SolicitudesFactura"
+                                                class="btn btn-sm d-flex align-items-center mx-auto mt-2 gap-1"
+                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; width: fit-content;"
+                                            >
+                                                <i class="bi bi-x-circle"></i> Limpiar filtros
+                                            </a>
                                         </td>
                                     </tr>
                                 @endforelse
@@ -227,16 +194,5 @@
                     @include('components.paginate', ['items' => $solicitudes])
                 </div>
             </div>
-        </div>
-
-    </x-layout.page-container>
-
-    <style>
-        .table thead th {
-            position: sticky;
-            top: 0;
-            background: rgb(30, 41, 59);
-            z-index: 2;
-        }
-    </style>
-@endsection
+        </x-card-gradient-header>
+    </x-page-container>

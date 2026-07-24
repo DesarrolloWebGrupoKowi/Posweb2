@@ -1,124 +1,104 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Catálogo de Clientes')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+<x-page-container title="Catálogo de Clientes">
+    <x-card-gradient-header
+        icon="people"
+        title="Catálogo de Clientes"
+        subtitle="Gestione el catálogo de clientes del sistema"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+            {{-- <form
+                action="/CatClientes/Actualizar"
+                method="POST"
+                class="d-inline"
+            >
+                @csrf
+                <button
+                    type="submit"
+                    class="btn-modern btn-agregar"
+                >
+                    <i class="bi bi-cloud-upload me-2"></i>Actualizar clientes
+                </button>
+            </form> --}}
+        </x-slot:buttons>
 
-        <!-- HEADER COMPACTO (Solo título y alertas) -->
-        <div class="card border-0 p-3"
-            style="border-radius: 10px; background-color: white;">
-            <div class="row gap-4">
-                <div class="col-12 col-lg-auto d-flex align-items-center gap-3">
-                    @include('components.title', ['titulo' => 'Catálogo de Clientes'])
+        <x-form.form
+            action="/CatClientes"
+            method="GET"
+        >
+            <x-form.group>
+                <x-form.text
+                    name="txtFiltro"
+                    label="Buscar"
+                    icon="search"
+                    placeholder="RFC, Nombre o Locación..."
+                    col="col-md-4"
+                    :autofocus="true"
+                    :value="$txtFiltro ?? ''"
+                />
+            </x-form.group>
+            <div class="col-md-2 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                    class="flex-grow-1"
+                />
+                <x-form.clear />
+            </div>
+        </x-form.form>
+
+        <div class="p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                <div>
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-table me-2"
+                            style="color: #64748b;"
+                        ></i>Clientes Registrados
+                    </h5>
+                    <p class="section-content-subtitle">{{ $clientes->total() }} clientes</p>
                 </div>
-
-                <!-- Filtro de Fecha -->
-                <form action="CatClientes"
-                    method="GET"
-                    class="col-12 col-lg d-lg-flex justify-content-end">
-
-                    <div class="row">
-                        <!-- Campo de Texto de Busqueda -->
-                        <div class="col-12 col-md col-lg mb-2">
-                            <div class="input-group"
-                                style="width: 100%;">
-                                <span class="input-group-text bg-gray-100 border-gray-300"
-                                    style="width: 100px;">
-                                    Buscar
-                                </span>
-                                <input type="text"
-                                    class="form-control form-control-sm border-gray-300"
-                                    name="txtFiltro"
-                                    id="txtFiltro"
-                                    value="{{ $txtFiltro }}"
-                                    placeholder="RFC, Nombre o Locacion..."
-                                    autofocus>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-auto">
-                            <div>
-                                <button type="submit"
-                                    class="btn btn-outline-dark bg-dark text-white w-100"
-                                    title="Buscar">
-                                    @include('components.icons.search')
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </form>
             </div>
 
-            <div class="mt-2">
-                @include('Alertas.Alertas')
-            </div>
-        </div>
-
-        <!-- CONTENIDO -->
-        <div class="card border-0 p-4"
-            style="border-radius: 10px; background-color: white; border: 1px solid #e5e7eb;">
-
-            <div class="d-flex justify-content-between">
-                @include('components.number-paginate')
-
-                <form action="/CatClientes/Actualizar"
-                    method="POST"
-                    class="d-inline">
-                    @csrf
-                    <button type="submit"
-                        class="btn-loading btn btn-sm"
-                        style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.75rem;">
-                        <span id="buttonIcon">
-                            @include('components.icons.upload')
-                        </span>
-                        Actualizar clientes
-                    </button>
-                </form>
-            </div>
-
-            <div class="table-responsive content-table-sm mt-3">
-                <table class="table">
-                    <thead class="table-head">
+            <table class="table-hover table-custom table">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-cloud me-1"></i>Id Cliente</th>
+                        <th><i class="bi bi-rss me-1"></i>RFC</th>
+                        <th><i class="bi bi-person me-1"></i>Nombre</th>
+                        <th><i class="bi bi-person-badge me-1"></i>Tipo de Cliente</th>
+                        <th><i class="bi bi-geo-alt me-1"></i>Locación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($clientes as $cliente)
                         <tr>
-                            <th class="rounded-start">Id Cliente</th>
-                            <th>RFC</th>
-                            <th>Nombre</th>
-                            <th>Tipo de Cliente</th>
-                            <th class="rounded-end">Locacion</th>
+                            <td style="font-weight: 600; color: #0f172a;">{{ $cliente->IdClienteCloud }}</td>
+                            <td style="font-weight: 500;">{{ $cliente->RFC }}</td>
+                            <td>{{ $cliente->NomCliente }}</td>
+                            <td>{{ $cliente->TipoPersona }}</td>
+                            <td style="color: #64748b;">{{ $cliente->Locacion }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @include('components.table-empty', ['items' => $clientes, 'colspan' => 5])
-                        @foreach ($clientes as $cliente)
-                            <tr>
-                                <td>{{ $cliente->IdClienteCloud }}</td>
-                                <td>{{ $cliente->RFC }}</td>
-                                <td>{{ $cliente->NomCliente }}</td>
-                                <td>{{ $cliente->TipoPersona }}</td>
-                                <td>{{ $cliente->Locacion }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
+                    @empty
+                        <tr>
+                            <td colspan="5">
+                                <div class="py-5 text-center">
+                                    <div class="empty-state-icon mx-auto mb-3">
+                                        <i
+                                            class="bi bi-people fs-3"
+                                            style="color: #94a3b8;"
+                                        ></i>
+                                    </div>
+                                    <h6 class="text-muted">Sin clientes registrados</h6>
+                                    <small class="text-muted">No se encontraron clientes con los filtros
+                                        seleccionados</small>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
             @include('components.paginate', ['items' => $clientes])
         </div>
-    </div>
-@endsection
-
-@section('styles')
-    <style>
-        /* Ajuste para el mensaje vacío (componente table-empty) */
-        .table tbody tr td.py-5 {
-            background-color: white;
-        }
-
-        /* Hacer el ícono más grande en el mensaje vacío */
-        .rounded-circle svg {
-            width: 40px;
-            height: 40px;
-        }
-    </style>
-@endsection
+    </x-card-gradient-header>
+</x-page-container>

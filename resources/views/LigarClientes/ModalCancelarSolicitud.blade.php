@@ -1,23 +1,74 @@
-<div class="modal fade" id="ModalCancelarSolicitud{{ $solicitud->Id }}" aria-hidden="true"
-    aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content border-0">
-            <div class="modal-header">
-                <h5 class="modal-title">Cancelar solicitud</h5>
+<!-- Modal Cancelar Solicitud -->
+<div
+    class="modal fade"
+    id="ModalCancelarSolicitud{{ $solicitud->Id }}"
+    tabindex="-1"
+    aria-labelledby="ModalCancelarSolicitud{{ $solicitud->Id }}Label"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div
+            class="modal-content"
+            style="border-radius: 16px; border: none; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);"
+        >
+            <div class="p-4 text-center">
+                <!-- Icono -->
+                <div
+                    class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 64px; height: 64px; background: #fef2f2;"
+                >
+                    <i
+                        class="bi bi-exclamation-triangle"
+                        style="font-size: 1.5rem; color: #ef4444;"
+                    ></i>
+                </div>
+
+                <!-- Título -->
+                <h5
+                    class="fw-bold mb-2"
+                    style="color: #0f172a;"
+                >Cancelar Solicitud</h5>
+
+                <!-- Mensaje -->
+                <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">
+                    ¿Está seguro de cancelar la solicitud?
+                </p>
+                <p
+                    class="fw-semibold mb-3"
+                    style="color: #ef4444; font-size: 1rem;"
+                >
+                    Factura #{{ $solicitud->IdSolicitudFactura }}
+                </p>
+                <p style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 24px;">
+                    Esta acción no se puede revertir.
+                </p>
+
+                <!-- Botones -->
+                <div class="d-flex gap-2">
+                    <button
+                        type="button"
+                        class="btn flex-grow-1"
+                        data-bs-dismiss="modal"
+                        style="background: #f1f5f9; color: #475569; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 0.85rem;"
+                    >
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <form
+                        action="/ClientesNuevos/Cancelar/{{ $solicitud->Id }}"
+                        method="POST"
+                        class="flex-grow-1"
+                    >
+                        @csrf
+                        <button
+                            type="submit"
+                            class="btn w-100"
+                            style="background: #ef4444; color: white; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 0.85rem;"
+                        >
+                            <i class="bi bi-trash me-1"></i> Cancelar Solicitud
+                        </button>
+                    </form>
+                </div>
             </div>
-            {{-- <form action="/SolicitudesFactura/Cancelar/{{ $solicitud->Id }}" method="POST"> --}}
-            <form action="/ClientesNuevos/Cancelar/{{ $solicitud->Id }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
-                        ¿Estas seguro de cancelar la solicitud de factura #{{ $solicitud->IdSolicitudFactura }}?
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">Cerrar </button>
-                    <button type="submit" class="btn btn-sm btn-danger">Cancelar Solicitud </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>

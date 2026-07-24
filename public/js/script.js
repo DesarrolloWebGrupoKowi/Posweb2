@@ -144,3 +144,48 @@ document.addEventListener('submit', (e) => {
         pwLockSubmitButton(submitter);
     }
 }, true);
+
+// TOGLE PANEL FILTROS
+function togglePanel(panelId, buttonId) {
+    const panel = document.getElementById(panelId);
+    const btn = document.getElementById(buttonId);
+
+    if (panel.classList.contains('d-none')) {
+        panel.classList.remove('d-none');
+        if (btn) btn.style.background = '#e2e8f0';
+    } else {
+        panel.classList.add('d-none');
+        if (btn) btn.style.background = '#f1f5f9';
+    }
+}
+
+// Prevenir doble envío en botones btn-modern
+function pwLockModernButton(button) {
+    if (!button) return;
+    if (button.disabled || button.hasAttribute('disabled')) return;
+
+    const icon = button.querySelector('i');
+    const iconClass = icon ? icon.className : '';
+    const text = (button.textContent || '').trim() || 'Guardando';
+
+    setTimeout(() => {
+        if (!button || button.disabled || button.hasAttribute('disabled')) return;
+
+        button.disabled = true;
+        button.style.opacity = '0.6';
+        button.style.cursor = 'not-allowed';
+        button.style.transform = 'none';
+        button.style.boxShadow = 'none';
+        button.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>' + text + '...';
+    }, 0);
+}
+
+document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (!form || !form.querySelector) return;
+
+    const submitter = e.submitter;
+    if (submitter && submitter.classList.contains('btn-modern')) {
+        pwLockModernButton(submitter);
+    }
+}, true);

@@ -18,10 +18,11 @@ class MenuPoswebController extends Controller
 {
     public function CatMenuPosWeb(Request $request)
     {
-        $tipoMenus = TipoMenu::where('Status', 0)
-            ->get();
+        $tipoMenus = TipoMenu::where('Status', 0)->get();
 
         $txtFiltro = $request->txtFiltro;
+        $idTipoMenu = $request->IdTipoMenu;
+        $bgColor = $request->bgColor;
 
         $menusPosweb = DB::table('CatMenus as a')
             ->leftJoin('CatTipoMenu as b', 'b.IdTipoMenu', 'a.IdTipoMenu')
@@ -37,14 +38,26 @@ class MenuPoswebController extends Controller
                 'b.NomTipoMenu as ctmNomTipoMenu',
                 'b.Status as ctmStatus'
             )
-            ->where('a.NomMenu', 'like', '%' . $txtFiltro . '%')
-            ->orWhere('b.NomTipoMenu', 'like', '%' . $txtFiltro . '%')
-            ->orWhere('a.Link', 'like', '%' . $txtFiltro . '%')
+            ->where('a.Status', 0)
+            ->when($txtFiltro, function ($query, $txtFiltro) {
+                return $query->where(function ($q) use ($txtFiltro) {
+                    $q->where('a.NomMenu', 'like', '%' . $txtFiltro . '%')
+                        ->orWhere('b.NomTipoMenu', 'like', '%' . $txtFiltro . '%')
+                        ->orWhere('a.Link', 'like', '%' . $txtFiltro . '%')
+                        ->orWhere('a.Icono', 'like', '%' . $txtFiltro . '%');
+                });
+            })
+            ->when($idTipoMenu, function ($query, $idTipoMenu) {
+                return $query->where('a.IdTipoMenu', $idTipoMenu);
+            })
+            ->when($bgColor, function ($query, $bgColor) {
+                return $query->where('a.BgColor', $bgColor);
+            })
             ->orderBy('b.NomTipoMenu')
             ->orderBy('a.NomMenu')
             ->paginate(10)
-            ->withQueryString();
-        //return $menusPosweb;
+            ->appends(request()->query());
+
         return view('Menus.CatMenuPosweb', compact('tipoMenus', 'menusPosweb', 'txtFiltro'));
     }
 

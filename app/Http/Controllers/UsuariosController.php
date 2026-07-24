@@ -22,8 +22,8 @@ class UsuariosController extends Controller
         $usuarios = DB::table('CatUsuarios')
             ->leftJoin('CatTipoUsuarios', 'CatUsuarios.IdTipoUsuario', '=', 'CatTipoUsuarios.IdTipoUsuario')
             ->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', '=', 'CatUsuarios.NumNomina')
-            ->select('IdUsuario', 'NomUsuario', 'CatUsuarios.NumNomina', 'Correo', 'CatTipoUsuarios.NomTipoUsuario', 'CatUsuarios.IdTipoUsuario', 'CatUsuarios.Status', 'CatEmpleados.Nombre', 'CatEmpleados.Apellidos')
-            ->whereNotIn('IdUsuario', [Auth::user()->IdUsuario])
+            ->select('IdUsuario', 'NomUsuario', 'EmployeeName', 'CatUsuarios.NumNomina', 'Correo', 'CatTipoUsuarios.NomTipoUsuario', 'CatUsuarios.IdTipoUsuario', 'CatUsuarios.Status', 'CatEmpleados.Nombre', 'CatEmpleados.Apellidos')
+            // ->whereNotIn('IdUsuario', [Auth::user()->IdUsuario])
             ->where(function ($query) use ($txtFiltro) {
                 $query->where('NomUsuario', 'like', '%' . $txtFiltro . '%')
                     ->orWhere('CatUsuarios.NumNomina', 'like', '%' . $txtFiltro . '%')
@@ -122,12 +122,14 @@ class UsuariosController extends Controller
         $NumNomina = $request->get('NumNomina');
         $Correo = $request->get('Correo');
         $IdTipoUsuario = $request->get('IdTipoUsuario');
+        $EmployeeName = $request->get('EmployeeName');
 
         Usuario::where('IdUsuario', $id)
             ->update([
                 'NumNomina' => $NumNomina,
                 'Correo' => $Correo,
-                'IdTipoUsuario' => $IdTipoUsuario
+                'IdTipoUsuario' => $IdTipoUsuario,
+                'EmployeeName'  => $EmployeeName,
             ]);
 
         return back()->with('msjupdate', 'Usuario ' . $NomUsuario . ' Modificado con Exito! ');

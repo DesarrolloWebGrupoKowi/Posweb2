@@ -1,85 +1,112 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Tipo de Usuarios')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+<x-page-container title="Tipo de Usuarios">
+    <x-card-gradient-header
+        icon="person-gear"
+        title="Tipo de Usuarios"
+        subtitle="Gestión de tipos de usuario del sistema"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Tipo de Usuarios'])
-                <div class="">
-                    <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                        Agregar tipo de usuario @include('components.icons.plus-circle')
-                    </button>
-                </div>
+        <!-- Filtros -->
+        <x-form.form
+            action="/CatTipoUsuarios"
+            id="formTipoUsuarios"
+        >
+            <x-form.group>
+                <x-form.select
+                    name="filtroActivo"
+                    label="Filtrar por estatus"
+                    icon="funnel"
+                    col="col-md-4"
+                    :options="['0' => 'Activos', '1' => 'Inactivos']"
+                    autofocus
+                />
+            </x-form.group>
+            <div class="col-md-2 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                />
+                <x-form.clear />
             </div>
+        </x-form.form>
 
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
-
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/CatTipoUsuarios"
-                id="formTipoUsuarios">
+        <!-- Tabla -->
+        <div class="p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                 <div>
-                    <select class="form-select rounded" style="line-height: 18px" name="filtroActivo" id="filtroActivo">
-                        <option {!! $filtroActivo == 0 ? 'selected' : '' !!} value="0">Activos</option>
-                        <option {!! $filtroActivo == 1 ? 'selected' : '' !!} value="1">Inactivos</option>
-                    </select>
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-table me-2"
+                            style="color: #64748b;"
+                        ></i>Concentrado de Tipos de Usuario
+                    </h5>
+                    <p class="section-content-subtitle">Listado de tipos de usuario registrados en el sistema</p>
                 </div>
-                <div class="col-auto">
-                    <button class="btn btn-dark-outline">
-                        @include('components.icons.search')
-                    </button>
-                </div>
-            </form>
+                <button
+                    type="button"
+                    class="btn-create"
+                    data-bs-toggle="modal"
+                    data-bs-target="#ModalAgregar"
+                >
+                    <i class="bi bi-plus-circle"></i> Agregar tipo de usuario
+                </button>
+            </div>
 
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Id Tipo de Usuario</th>
-                        <th>Tipo de Usuario</th>
-                        <th class="rounded-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (count($tipoUsuarios) == 0)
+            <div class="table-responsive">
+                <table class="table-hover table-custom table">
+                    <thead>
                         <tr>
-                            <td colspan="3">No Hay Tipo de Usuarios</td>
+                            <th><i class="bi bi-hash me-1"></i>Id Tipo de Usuario</th>
+                            <th><i class="bi bi-shield me-1"></i>Tipo de Usuario</th>
+                            <th><i class="bi bi-gear me-1"></i>Acciones</th>
                         </tr>
-                    @else
-                        @foreach ($tipoUsuarios as $tipoUsuario)
+                    </thead>
+                    <tbody>
+                        @forelse ($tipoUsuarios as $tipoUsuario)
                             <tr>
-                                <td>{{ $tipoUsuario->IdTipoUsuario }}</td>
-                                <td style="width: 70%">{{ $tipoUsuario->NomTipoUsuario }}</td>
+                                <td style="font-weight: 600; color: #0f172a;">{{ $tipoUsuario->IdTipoUsuario }}</td>
+                                <td style="font-weight: 500;">{{ $tipoUsuario->NomTipoUsuario }}</td>
                                 <td>
                                     @if ($filtroActivo != 1)
-                                        <button class="btn-table" data-bs-toggle="modal"
-                                            data-bs-target="#ModalEditar{{ $tipoUsuario->IdTipoUsuario }}">
-                                            @include('components.icons.edit')
-                                        </button>
-                                        <button class="btn-table btn-table-delete" data-bs-toggle="modal"
-                                            data-bs-target="#ModalConfirmar{{ $tipoUsuario->IdTipoUsuario }}">
-                                            @include('components.icons.delete')
-                                        </button>
+                                        <div class="d-flex gap-2">
+                                            <x-table.buttons.edit-button
+                                                :id="$tipoUsuario->IdTipoUsuario"
+                                                modal="ModalEditar"
+                                                title="Editar tipo de usuario"
+                                                label="Editar"
+                                            />
+                                            <x-table.buttons.delete-button
+                                                :id="$tipoUsuario->IdTipoUsuario"
+                                                modal="ModalConfirmar"
+                                                title="Desactivar tipo de usuario"
+                                            />
+                                        </div>
                                     @endif
                                 </td>
-                                <!--Modal Editar-->
-                                @include('TipoUsuarios.ModalEditar')
-                                <!--Modal Confirmar-->
-                                @include('TipoUsuarios.ModalConfirmar')
-                        @endforeach
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
+                            </tr>
+                            @include('TipoUsuarios.ModalEditar')
+                            @include('TipoUsuarios.ModalConfirmar')
+                        @empty
+                            <x-table-empty-data
+                                colspan="3"
+                                title="Sin datos disponibles"
+                                message="No se encontraron tipos de usuario registrados"
+                                icon="shield"
+                                :action="true"
+                                actionText="Limpiar filtros"
+                                actionUrl="/CatTipoUsuarios"
+                            />
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @include('components.paginate', ['items' => $tipoUsuarios])
         </div>
-    </div>
+    </x-card-gradient-header>
+</x-page-container>
 
-    <!--Modal Agregar Tipo de Usuario-->
-    @include('TipoUsuarios.ModalAgregar')
-
-
-    <script src="js/scriptTipoUsuarios.js"></script>
-@endsection
+<!-- Modal Agregar Tipo de Usuario -->
+@include('TipoUsuarios.ModalAgregar')

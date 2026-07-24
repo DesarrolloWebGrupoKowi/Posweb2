@@ -13,18 +13,19 @@ use App\Models\Plaza;
 use App\Models\Precio;
 use App\Models\Tienda;
 use App\Services\TiendaService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class DescuentosController extends Controller
 {
-    protected $tiendaService;
-    protected $tiendasIds;
-    protected $tiendas;
-    protected $plazas;
+    protected Collection $tiendas;
+    protected array $tiendasIds;
+    protected Collection $plazas;
 
-    public function __construct(TiendaService $tiendaService)
+    public function __construct(protected TiendaService $tiendaService)
     {
-        $this->tiendaService = $tiendaService;
+        $this->tiendas = new Collection;
+        $this->tiendasIds = [];
 
         $this->middleware(function ($request, $next) {
             $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();
@@ -73,12 +74,6 @@ class DescuentosController extends Controller
             ->where('NomDescuento', 'like', '%' . $nomDescuento . '%')
 
             // Filtro por tienda
-            ->when($activos, function ($query) {
-                $query->where('DatEncDescuentos.Status', 0)
-                    ->whereDate('DatEncDescuentos.FechaFin', '>=', now()->toDateString());
-            })
-
-            // Filtro por tienda
             ->when($idTienda, function ($query) use ($idTienda) {
                 $query->where('DatEncDescuentos.IdTienda', $idTienda);
             })
@@ -86,6 +81,13 @@ class DescuentosController extends Controller
             // Filtro por plaza
             ->when($idPlaza, function ($query) use ($idPlaza) {
                 $query->where('DatEncDescuentos.IdPlaza', $idPlaza);
+            })
+
+            // Filtro por activos
+            ->when($activos, function ($query) {
+                $query->where('DatEncDescuentos.Status', 0)
+                    ->whereDate('DatEncDescuentos.FechaFin', '>=', now()->toDateString())
+                    ->whereHas('ArticulosDescuento');
             })
 
             // ->where('DatEncDescuentos.Status', 0)
@@ -183,7 +185,7 @@ class DescuentosController extends Controller
         $plazas = Plaza::orderBy('NomPlaza')->get();
 
         // Determinar si hay filtros avanzados activos
-        $filtrosAvanzadosActivos = $request->filled('codigo') || $request->filled('detallado');
+        $filtrosAvanzadosActivos = $request->filled('codigo');
 
         // return $descuentosDetallados;
         // Retornar la vista con los datos
@@ -253,6 +255,7 @@ class DescuentosController extends Controller
             }
             DB::beginTransaction();
             // Comprobamos si trae id de descuento, para saber si es actualizacion o insercion
+            $catDescuento = null;
             if ($IdEncDescuento != null) {
                 // DatEncDescuentos::where('IdEncDescuento', $IdEncDescuento)
                 //     ->update([
@@ -342,7 +345,7 @@ class DescuentosController extends Controller
         }
     }
 
-    public function EditarDescuento(Request $request, $IdEncDescuento)
+    public function EditarDescuento(Request $request, int $IdEncDescuento)
     {
         $descuento = DatEncDescuentos::where('IdEncDescuento', $IdEncDescuento)
             // ->where('status', 0)
@@ -353,11 +356,26 @@ class DescuentosController extends Controller
             return back()->with('msjdelete', 'No Existe el Descuento con el Id: ' . $IdEncDescuento);
         }
 
-        $detalle = DatDetDescuentos::select('DatDetDescuentos.*', 'CatArticulos.NomArticulo', 'CatArticulos.CodArticulo')
+        $detalle = DatDetDescuentos::select(
+            'DatDetDescuentos.*',
+            'CatArticulos.NomArticulo',
+            'CatArticulos.CodArticulo',
+            'CatListasPrecio.NomListaPrecio',
+            'DatPrecios.PrecioArticulo'
+        )
             ->leftjoin('CatArticulos', 'CatArticulos.IdArticulo', 'DatDetDescuentos.IdArticulo')
             ->leftjoin('CatListasPrecio', 'CatListasPrecio.IdListaPrecio', 'DatDetDescuentos.IdListaPrecio')
+            ->leftjoin('DatPrecios', function ($join) {
+                $join->on('DatPrecios.CodArticulo', 'CatArticulos.CodArticulo')
+                    ->on('DatPrecios.IdListaPrecio', 'DatDetDescuentos.IdListaPrecio');
+            })
             ->where('IdEncDescuento', $IdEncDescuento)
-            ->get();
+            ->orderBy('Status')
+            ->get()
+            ->map(function ($item) {
+                $item->NomArticulo = $item->NomArticulo . ' - $' . number_format($item->PrecioArticulo, 2);
+                return $item;
+            });
 
         $tiposdescuentos = CatTipoDescuento::where('status', 0)->get();
         $tiendas = Tienda::where('status', 0)->get();
@@ -366,13 +384,17 @@ class DescuentosController extends Controller
 
         $ListaPrecio = ListaPrecio::get();
 
-        $articulos = Precio::select('DatPrecios.CodArticulo', 'ca.NomArticulo')
+        $articulos = Precio::select('DatPrecios.CodArticulo', 'ca.NomArticulo', 'DatPrecios.PrecioArticulo')
             ->leftJoin('CatArticulos as ca', 'DatPrecios.CodArticulo', '=', 'ca.CodArticulo')
             ->where('DatPrecios.IdListaPrecio', 1)
             ->where('DatPrecios.PrecioArticulo', '>', 0)
             ->where('ca.Status', 0)
-            ->groupBy('DatPrecios.CodArticulo', 'ca.NomArticulo')
-            ->get();
+            ->groupBy('DatPrecios.CodArticulo', 'ca.NomArticulo', 'DatPrecios.PrecioArticulo')
+            ->get()
+            ->map(function ($item) {
+                $item->NomArticulo = $item->NomArticulo . ' - $' . number_format($item->PrecioArticulo, 2);
+                return $item;
+            });
 
         return view('Descuentos.EditarDescuento', compact(
             'descuento',
@@ -385,7 +407,7 @@ class DescuentosController extends Controller
         ));
     }
 
-    public function EditarDescuentoExistente(Request $request, $idDescuento)
+    public function EditarDescuentoExistente(Request $request, int $idDescuento)
     {
         $codsArticulo = $request->CodArticulo ?? [];
         $listaPrecios = $request->listaPrecios;
@@ -407,6 +429,7 @@ class DescuentosController extends Controller
             $codigos = collect($codsArticulo);
             $articulosIds = DB::table('CatArticulos')
                 ->whereIn('CodArticulo', $codigos)
+                ->where('Status', 0)
                 ->pluck('IdArticulo', 'CodArticulo')
                 ->toArray();
 
@@ -483,7 +506,7 @@ class DescuentosController extends Controller
         }
     }
 
-    public function EliminarDescuento($IdEncDescuento)
+    public function EliminarDescuento(int $IdEncDescuento)
     {
         try {
             $NomDescuento = DatEncDescuentos::where('IdEncDescuento', $IdEncDescuento)

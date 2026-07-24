@@ -8,14 +8,17 @@ use App\Models\Banco;
 
 class BancosController extends Controller
 {
-    public function CatBancos(Request $request){
+    public function CatBancos(Request $request)
+    {
         $bancos  = Banco::where('Status', 0)
-            ->get();
+            ->paginate(10)
+            ->appends(request()->query());
 
         return view('Bancos.CatBancos', compact('bancos'));
     }
 
-    public function AgregarBanco(Request $request){
+    public function AgregarBanco(Request $request)
+    {
         try {
             DB::beginTransaction();
             $nomBanco = $request->nomBanco;
@@ -26,7 +29,7 @@ class BancosController extends Controller
             ]);
 
             DB::commit();
-            
+
             return back();
         } catch (\Throwable $th) {
             DB::rollBack();

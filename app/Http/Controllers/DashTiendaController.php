@@ -8,6 +8,7 @@ use App\Models\Tienda;
 use App\Services\TiendaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -15,14 +16,11 @@ use Illuminate\Validation\ValidationException;
 
 class DashTiendaController extends Controller
 {
-    protected $tiendaService;
-    protected $tiendasIds;
-    protected $tiendas;
+    protected Collection $tiendas;
+    protected array $tiendasIds;
 
-    public function __construct(TiendaService $tiendaService)
+    public function __construct(protected TiendaService $tiendaService)
     {
-        $this->tiendaService = $tiendaService;
-
         $this->middleware(function ($request, $next) {
             $this->tiendas = $this->tiendaService->obtenerTiendasOpcional();
             $this->tiendasIds = $this->tiendaService->obtenerTiendasIds();
@@ -114,7 +112,7 @@ class DashTiendaController extends Controller
     }
 
     // Métodos de cálculo principales
-    private function calcularKpis($tiendaId, $fecha, $pos)
+    private function calcularKpis(?int $tiendaId, ?string $fecha, string $pos)
     {
         // Si hay POS, retornar KPIs en cero
         if (!empty($pos)) {
@@ -184,7 +182,7 @@ class DashTiendaController extends Controller
         ];
     }
 
-    private function obtenerGraficaVentas($tiendaId, $fecha, $periodo = 'hoy')
+    private function obtenerGraficaVentas(?int $tiendaId, ?string $fecha, $periodo = 'hoy')
     {
         $tiendasIds = $this->tiendaService->obtenerTiendasIds();
 
@@ -299,7 +297,7 @@ class DashTiendaController extends Controller
         ];
     }
 
-    private function obtenerGraficaDistribucionPagos($tiendaId, $fecha)
+    private function obtenerGraficaDistribucionPagos(?int $tiendaId, ?string $fecha)
     {
         $data = [];
         $labels = [];
@@ -324,7 +322,7 @@ class DashTiendaController extends Controller
         ];
     }
 
-    private function obtenerCorteOptimizado($tiendaId, $fecha, $pos)
+    private function obtenerCorteOptimizado(?int $tiendaId, ?string $fecha, string $pos)
     {
         $query =  CorteTienda::from('DatCortesTienda as ct')
             ->leftJoin('DatClientesCloudTienda as cct', function ($join) {
@@ -385,7 +383,7 @@ class DashTiendaController extends Controller
         })->values();
     }
 
-    private function obtenerSolicitudFacturaOptimizado($tiendaId, $fecha, $pos)
+    private function obtenerSolicitudFacturaOptimizado(?int $tiendaId, ?string $fecha, string $pos)
     {
         $query = CorteTienda::from('DatCortesTienda as ct')
             ->leftJoin('SolicitudFactura as sf', 'sf.IdSolicitudFactura', '=', 'ct.IdSolicitudFactura')
@@ -452,8 +450,8 @@ class DashTiendaController extends Controller
             return $item;
         })->values();
     }
-
-    private function obtenerCorte($tiendaId, $fecha, $pos)
+    /*
+    private function obtenerCorte(int $tiendaId, string $fecha, string $pos)
     {
         $query =  CorteTienda::from('DatCortesTienda as ct')
             ->leftjoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXXV', 'XXXV.Source_Transaction_Identifier', 'ct.Source_Transaction_Identifier')
@@ -506,7 +504,7 @@ class DashTiendaController extends Controller
             ->get();
     }
 
-    private function obtenerCorteSolicitudes($tiendaId, $fecha, $pos)
+    private function obtenerCorteSolicitudes(int $tiendaId, string $fecha, string $pos)
     {
         $query =  CorteTienda::from('DatCortesTienda as ct')
             ->leftjoin('SERVER.CLOUD_INTERFACE.dbo.XXKW_HEADERS_IVENTAS as XXXV', 'XXXV.Source_Transaction_Identifier', 'ct.Source_Transaction_Identifier')
@@ -562,9 +560,9 @@ class DashTiendaController extends Controller
             ->orderBy('ct.Source_Transaction_Identifier')
             ->get();
     }
-
+    */
     // Métodos de cálculo auxiliares
-    private function calcularVariacion($tiendas, $tiendaId, $ayer, $ventasHoy)
+    private function calcularVariacion(array $tiendas, ?int $tiendaId, string $ayer, string $ventasHoy)
     {
         $valor2 = DB::table('DatEncabezado')
             ->whereIn('DatEncabezado.IdTienda', $tiendas)
@@ -579,7 +577,7 @@ class DashTiendaController extends Controller
     }
 
     // Metodos para enviar pedidos a Oracle
-    public function enviarPedidoOracle(Request $request, $orden)
+    public function enviarPedidoOracle(Request $request, string $orden)
     {
         try {
             // Validar que la orden tenga el formato correcto

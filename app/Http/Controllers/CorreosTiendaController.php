@@ -9,8 +9,10 @@ use App\Models\Tienda;
 
 class CorreosTiendaController extends Controller
 {
-    public function CorreosTienda(Request $request){
+    public function CorreosTienda(Request $request)
+    {
         $tiendas = Tienda::where('Status', 0)
+            ->orderBy('NomTienda')
             ->get();
 
         $idTienda = $request->idTienda;
@@ -24,7 +26,8 @@ class CorreosTiendaController extends Controller
         return view('CorreosTienda.CorreosTienda', compact('tiendas', 'idTienda', 'correos'));
     }
 
-    public function GuardarCorreosTienda(Request $request, $idTienda){
+    public function GuardarCorreosTienda(Request $request, int $idTienda)
+    {
         $gerenteCorreo = $request->gerenteCorreo;
         $encargadoCorreo = $request->encargadoCorreo;
         $facturistaCorreo = $request->facturistaCorreo;
@@ -47,7 +50,6 @@ class CorreosTiendaController extends Controller
                 'FacturistaCorreo' => $facturistaCorreo,
                 'Status' => 0
             ]);
-
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error' . $th->getMessage());
@@ -57,7 +59,8 @@ class CorreosTiendaController extends Controller
         return back()->with('msjAdd', 'Se Agregaron los Correos Correctamente!');
     }
 
-    public function EditarCorreosTienda(Request $request, $idTienda){
+    public function EditarCorreosTienda(Request $request, int $idTienda)
+    {
         $gerenteCorreo = $request->gerenteCorreo;
         $encargadoCorreo = $request->encargadoCorreo;
         $facturistaCorreo = $request->facturistaCorreo;
@@ -80,7 +83,6 @@ class CorreosTiendaController extends Controller
                     'RecepcionCorreo' => $recepcionCorreo,
                     'FacturistaCorreo' => $facturistaCorreo,
                 ]);
-                
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());

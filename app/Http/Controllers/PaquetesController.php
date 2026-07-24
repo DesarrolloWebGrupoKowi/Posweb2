@@ -7,25 +7,34 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\CatPaquete;
 use App\Models\DatPaquete;
-use App\Models\Articulo;
 use App\Models\DatAsignacionPreparados;
 
 class PaquetesController extends Controller
 {
     public function VerPaquetes(Request $request)
     {
-        $txtFiltro  = $request->txtFiltro;
+        $txtFiltro = $request->txtFiltro;
+        $soloActivos = $request->soloActivos;
 
         $paquetes = CatPaquete::with(['Usuario' => function ($empleado) {
             $empleado->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'CatUsuarios.NumNomina');
         }, 'ArticulosPaquete' => function ($articulos) {
             $articulos->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'DatPaquetes.CodArticulo');
         }])
-            ->where('NomPaquete', 'like', '%' . $txtFiltro  . '%')
-            ->where('Status', 0)
-            ->paginate(10);
+            // ->where('Status', 0)
+            ->whereNull('IdPreparado')
+            ->when($soloActivos, function ($query) {
+                $query->where('Status', 0);
+            })
+            ->when($txtFiltro, function ($query) use ($txtFiltro) {
+                $query->where('NomPaquete', 'like', '%' . $txtFiltro . '%');
+            })
+            ->orderBy('FechaCreacion', 'desc')
+            ->paginate(10)
+            ->appends(request()->query());
 
         $paquetesActivos = CatPaquete::where('Status', 0)
+            ->whereNull('IdPreparado')
             ->count();
 
         return view('Paquetes.VerPaquetes', compact('paquetes', 'txtFiltro', 'paquetesActivos'));
@@ -71,6 +80,7 @@ class PaquetesController extends Controller
             ->select('a.NomArticulo', 'b.PrecioArticulo')
             ->leftJoin('DatPrecios as b', 'b.CodArticulo', 'a.CodArticulo')
             ->where('a.CodArticulo', $codArticulo)
+            ->where('a.Status', 0)
             ->first();
 
         $pArticulo = empty($articulo) ? '' : $articulo->NomArticulo . ' - $' . $articulo->PrecioArticulo;
@@ -111,14 +121,14 @@ class PaquetesController extends Controller
 
             DB::commit();
 
-            return back()->with('msjAdd', 'Se Agrego el Paquete: ' . $catPaquete->NomPaquete);
+            return redirect()->route('VerPaquetes')->with('msjAdd', 'Se Agrego el Paquete: ' . $catPaquete->NomPaquete);
         } catch (\Throwable $th) {
             return back()->with('msjdelete', 'Error : ' . $th->getMessage());
             DB::rollback();
         }
     }
 
-    public function EditarPaquete(Request $request, $idPaquete)
+    public function EditarPaquete(Request $request, int $idPaquete)
     {
         try {
             DB::beginTransaction();
@@ -159,7 +169,7 @@ class PaquetesController extends Controller
         return view('Paquetes.EditarPaquete', compact('paquete', 'nomPaquete', 'importePaquete', 'idPaquete'));
     }
 
-    public function EditarPaqueteExistente(Request $request, $idPaquete)
+    public function EditarPaqueteExistente(Request $request, int $idPaquete)
     {
         $importePaquete = $request->importePaquete;
 
@@ -167,7 +177,7 @@ class PaquetesController extends Controller
         $cantsArticulo = $request->CantArticulo;
         $preciosArticulo = $request->PrecioArticulo;
 
-        try {
+        // try {
             DB::beginTransaction();
             $nomPaquete = CatPaquete::where('IdPaquete', $idPaquete)
                 ->where('Status', 0)
@@ -202,13 +212,13 @@ class PaquetesController extends Controller
 
             DB::commit();
             return redirect('VerPaquetes')->with('msjAdd', 'Se Edito: ' . $nomPaquete);
-        } catch (\Throwable $th) {
+        // } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('msjdelete', 'Error: ' . $th->getMessage());
-        }
+        // }
     }
 
-    public function EliminarPaquete($idPaquete)
+    public function EliminarPaquete(int $idPaquete)
     {
         try {
             $nomPaquete = CatPaquete::where('IdPaquete', $idPaquete)
@@ -230,7 +240,7 @@ class PaquetesController extends Controller
         }
     }
 
-    public function ActivarPaquetesLocal($idPaquete)
+    public function ActivarPaquetesLocal(int $idPaquete)
     {
         try {
             $nomPaquete = CatPaquete::where('IdPaquete', $idPaquete)
@@ -252,7 +262,7 @@ class PaquetesController extends Controller
         }
     }
 
-    public function DesactivarPaquetesLocal($idPaquete)
+    public function DesactivarPaquetesLocal(int $idPaquete)
     {
         try {
             $nomPaquete = CatPaquete::where('IdPaquete', $idPaquete)
@@ -274,7 +284,7 @@ class PaquetesController extends Controller
         }
     }
 
-    public function ActualizarCantidadRecepcion(Request $request, $idPreparado)
+    public function ActualizarCantidadRecepcion(Request $request, int $idPreparado)
     {
         // return $request;
         // return $idPaquete;

@@ -12,34 +12,32 @@ class BloqueoEmpleadosController extends Controller
 {
     public function BloqueoEmpleados(Request $request)
     {
-        $radioFiltro = $request->radioFiltro;
-        $filtroBusqueda = $request->filtroBusqueda;
+        $numNomina = $request->numNomina;
+        $nomEmpleado = $request->nomEmpleado;
 
-        // cuando entras por primera vez
         $bloqueos = BloqueoEmpleado::with('Empleado')
-            ->where('Status', 0)
-            ->paginate(12);
+            ->where('DatBloqueoEmpleado.Status', 0)
+            ->when($numNomina, function ($query) use ($numNomina) {
+                // Validar si es numérico para usar where o like
+                if (is_numeric($numNomina)) {
+                    $query->where('DatBloqueoEmpleado.NumNomina', $numNomina);
+                } else {
+                    // Convertir a string para like
+                    $query->whereRaw('CAST(DatBloqueoEmpleado.NumNomina AS VARCHAR) LIKE ?', ['%' . $numNomina . '%']);
+                }
+            })
+            ->when($nomEmpleado, function ($query) use ($nomEmpleado) {
+                $query->leftJoin('CatEmpleados', 'CatEmpleados.NumNomina', 'DatBloqueoEmpleado.NumNomina')
+                    ->where(function ($q) use ($nomEmpleado) {
+                        $q->where('CatEmpleados.Nombre', 'like', '%' . $nomEmpleado . '%')
+                            ->orWhere('CatEmpleados.Apellidos', 'like', '%' . $nomEmpleado . '%');
+                    });
+            })
+            ->select('DatBloqueoEmpleado.*')
+            ->orderBy('FechaBloqueo', 'desc')
+            ->paginate(10);
 
-        if ($radioFiltro == 'numNomina') {
-            $bloqueos = BloqueoEmpleado::with('Empleado')
-                ->where('Status', 0)
-                ->where('NumNomina', $filtroBusqueda)
-                ->paginate(12);
-        }
-        if ($radioFiltro == 'nomEmpleado') {
-            $bloqueos = BloqueoEmpleado::with('Empleado')
-                ->leftjoin('CatEmpleados', 'CatEmpleados.NumNomina', 'DatBloqueoEmpleado.NumNomina')
-                ->where('DatBloqueoEmpleado.Status', 0)
-                ->where(function ($query) use ($filtroBusqueda) {
-                    $query->where('Nombre', 'like', '%' . $filtroBusqueda . '%');
-                    $query->orWhere('Apellidos', 'like', '%' . $filtroBusqueda . '%');
-                })
-                ->paginate(12);
-        }
-
-        //return $bloqueos;
-
-        return view('BloqueoEmpleados.BloqueoEmpleados', compact('bloqueos', 'radioFiltro', 'filtroBusqueda'));
+        return view('BloqueoEmpleados.BloqueoEmpleados', compact('bloqueos', 'numNomina', 'nomEmpleado'));
     }
 
     public function AgregarBloqueoEmpleado(Request $request)
@@ -79,7 +77,7 @@ class BloqueoEmpleadosController extends Controller
         return back()->with('msjAdd', 'Se bloqueo el empleado: ' . $nomEmpleado);
     }
 
-    public function DesbloquearEmpleado($numNomina)
+    public function DesbloquearEmpleado(int $numNomina)
     {
         try {
             DB::beginTransaction();
@@ -103,7 +101,7 @@ class BloqueoEmpleadosController extends Controller
         return back()->with('msjAdd', 'Se ha desbloqueado al empleado: ' . $nomEmpleado);
     }
 
-    public function BuscarEmpleadoParaBloqueo($numNomina)
+    public function BuscarEmpleadoParaBloqueo(int $numNomina)
     {
         if (!Empleado::where('NumNomina', $numNomina)->where('Status', 0)->exists()) {
             return 'bajaOrNotExists';

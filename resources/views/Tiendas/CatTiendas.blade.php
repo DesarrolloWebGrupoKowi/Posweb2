@@ -1,117 +1,122 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Catálogo de Tiendas')
-@section('dashboardWidth', 'width-95')
-@section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+<x-page-container title="Catálogo de Tiendas">
+    <x-card-gradient-header
+        icon="shop"
+        title="Catálogo de Tiendas"
+        subtitle="Gestión de tiendas del sistema"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-        <div
-            class="card border-0 p-4"
-            style="border-radius: 10px"
-        >
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo de Tiendas'])
+        <!-- Filtros de búsqueda -->
+        <x-form.form action="/CatTiendas">
+            <x-form.group>
+                <x-form.text
+                    name="filtroTienda"
+                    label="Buscar tienda"
+                    icon="search"
+                    placeholder="Buscar tienda..."
+                    col="col-md-4"
+                    :autofocus="true"
+                />
+            </x-form.group>
+            <div class="col-md-2 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                />
+                <x-form.clear />
+            </div>
+        </x-form.form>
+
+        <!-- Tabla -->
+        <div class="p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                 <div>
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-dark"
-                        data-bs-toggle="modal"
-                        data-bs-target="#ModalAgregar"
-                    >
-                        Agregar tienda @include('components.icons.plus-circle')
-                    </button>
+                    <h5 class="section-content-title">
+                        <i
+                            class="fa fa-table me-2"
+                            style="color: #64748b;"
+                        ></i>Concentrado de Tiendas
+                    </h5>
+                    <p class="section-content-subtitle">Listado de tiendas registradas en el sistema</p>
                 </div>
-            </div>
-
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
-
-        <div
-            class="content-table content-table-full card border-0 p-4"
-            style="border-radius: 10px"
-        >
-            <form
-                class="d-flex align-items-center justify-content-end flex-wrap gap-2 pb-2"
-                action="/CatTiendas"
-                method="get"
-            >
-                <div
-                    class="input-group"
-                    style="max-width: 300px"
+                <button
+                    type="button"
+                    class="btn-create"
+                    data-bs-toggle="modal"
+                    data-bs-target="#ModalAgregar"
                 >
-                    <input
-                        type="text"
-                        class="form-control rounded"
-                        style="line-height: 18px"
-                        name="filtroTienda"
-                        id="filtroTienda"
-                        placeholder="Buscar tienda..."
-                        value="{{ request()->get('filtroTienda', '') }}"
-                    >
-                </div>
-                <button class="btn btn-dark-outline">
-                    @include('components.icons.search')
+                    <i class="fa fa-plus-circle"></i> Agregar tienda
                 </button>
-            </form>
+            </div>
 
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Id</th>
-                        <th>Tienda</th>
-                        <th>Telefono</th>
-                        <th>Dirección</th>
-                        <th>Ciudad</th>
-                        <th class="rounded-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (count($tiendas) <= 0)
+            <div class="table-responsive">
+                <table class="table-hover table-custom table">
+                    <thead>
                         <tr>
-                            <td colspan="6">No Hay Tiendas!</td>
+                            <th><i class="fa fa-hashtag me-1"></i>Id</th>
+                            <th><i class="fa fa-font me-1"></i>Tienda</th>
+                            <th><i class="fa fa-phone me-1"></i>Teléfono</th>
+                            <th><i class="fa fa-map-marker me-1"></i>Dirección</th>
+                            <th><i class="fa fa-building me-1"></i>Ciudad</th>
+                            <th><i class="fa fa-circle me-1"></i>Estatus</th>
+                            <th><i class="fa fa-cog me-1"></i>Acciones</th>
                         </tr>
-                    @else
-                        @foreach ($tiendas as $tienda)
+                    </thead>
+                    <tbody>
+                        @forelse ($tiendas as $tienda)
                             <tr>
-                                <td>{{ $tienda->IdTienda }}</td>
-                                <td>{{ $tienda->NomTienda }}</td>
-                                <td>{{ $tienda->Telefono }}</td>
+                                <td style="font-weight: 600; color: #0f172a;">{{ $tienda->IdTienda }}</td>
+                                <td style="font-weight: 500;">{{ $tienda->NomTienda }}</td>
+                                <td style="color: #64748b;">{{ $tienda->Telefono }}</td>
                                 <td>{{ $tienda->Direccion }}</td>
-                                <td>{{ $tienda->ccNomCiudad }}</td>
                                 <td>
-                                    <button
-                                        class="btn-table"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#ModalEditar{{ $tienda->IdTienda }}"
+                                    <span
+                                        style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
                                     >
-                                        @include('components.icons.edit')
-                                    </button>
-                                    <button
-                                        class="btn-table btn-table-delete"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#ModalEliminar{{ $tienda->IdTienda }}"
-                                    >
-                                        @include('components.icons.delete')
-                                    </button>
+                                        {{ $tienda->ccNomCiudad }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <x-status-badge :status="!$tienda->Status" />
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <x-table.buttons.edit-button
+                                            :id="$tienda->IdTienda"
+                                            modal="ModalEditar"
+                                            title="Editar tienda"
+                                            label="Editar"
+                                        />
+                                        <x-table.buttons.delete-button
+                                            :id="$tienda->IdTienda"
+                                            modal="ModalEliminar"
+                                            title="Eliminar tienda"
+                                        />
+                                    </div>
                                 </td>
                             </tr>
-                            <!-- Modal Editar Informacion -->
                             @include('Tiendas.ModalEditar')
-                            <!-- Modal Eliminar -->
                             @include('Tiendas.ModalEliminar')
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
+                        @empty
+                            <x-table-empty-data
+                                colspan="7"
+                                title="Sin datos disponibles"
+                                message="No se encontraron tiendas con los filtros seleccionados"
+                                icon="shop"
+                                :action="true"
+                                actionText="Limpiar filtros"
+                                actionUrl="/CatTiendas"
+                            />
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
             @include('components.paginate', ['items' => $tiendas])
         </div>
-    </div>
-    <!--Modal Agregar Tienda-->
+    </x-card-gradient-header>
+    <!-- Modal Agregar Tienda -->
     @include('Tiendas.ModalAgregar')
-
-@endsection
-
-@section('scripts')
-    <script src="{{ asset('js/tiendasScript.js') }}"></script>
-@endsection
+</x-page-container>

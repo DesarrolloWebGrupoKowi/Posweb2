@@ -1,146 +1,273 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Catálogo de Tablas Actualizables Por Tienda')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+<x-page-container title="Catálogo de Tablas Actualizables">
+    <x-card-gradient-header
+        icon="database-gear"
+        title="Catálogo de Tablas Actualizables"
+        subtitle="Gestione las tablas pendientes por actualizar en cada tienda"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo de Tablas Actualizables'])
-                @if ($idTienda != 0)
-                    <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#AgregarTablaUpdate">
-                        Agregar Tablas @include('components.icons.plus-circle')
-                    </button>
-                @endif
-            </div>
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
+        <x-form.form
+            action="/TablasUpdate"
+            id="formTabla"
+            method="GET"
+        >
+            <x-form.group>
+                <x-form.select
+                    name="idTienda"
+                    label="Tienda"
+                    icon="shop"
+                    col="col-md-4"
+                    placeholder="Seleccione tienda"
+                    :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    :selected="$idTienda ?? '0'"
+                    onchange="document.getElementById('formTabla').submit()"
+                />
+            </x-form.group>
+        </x-form.form>
 
-
-        {{-- @if ($idTienda != 0) --}}
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex flex-wrap align-items-center justify-content-between gap-2 pb-2" id="formTabla"
-                action="/TablasUpdate" method="GET">
-                <div>
-                    @if (!empty($idTienda))
-                        <h6>Tablas pendientes por descargar: ({{ $tablasPorDescargar }})</h6>
+        @if ($idTienda != 0)
+            <div class="p-4">
+                <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-4 gap-3">
+                    <div>
+                        <h5 class="section-content-title">
+                            <i
+                                class="bi bi-table me-2"
+                                style="color: #64748b;"
+                            ></i>
+                            Tablas de {{ $tiendas->where('IdTienda', $idTienda)->first()->NomTienda ?? '' }}
+                        </h5>
+                        <p class="section-content-subtitle">
+                            Configure qué tablas deben descargarse en esta tienda
+                        </p>
+                    </div>
+                    @if ($idTienda != 0)
+                        <button
+                            class="btn-modern btn-agregar"
+                            data-bs-toggle="modal"
+                            data-bs-target="#AgregarTablaUpdate"
+                        >
+                            <i class="bi bi-plus-circle me-2"></i>Agregar Tabla
+                        </button>
                     @endif
                 </div>
-                <div class="input-group" style="max-width: 350px">
-                    <select class="form-select rounded" style="line-height: 18px" name="idTienda" id="idTienda">
-                        <option value="0">Seleccione Tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $tienda->IdTienda == $idTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </form>
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Nombre Tabla</th>
-                        <th>Caja</th>
-                        <th>Descargada</th>
-                        <th class="rounded-end">Descargar Todas
-                            <div class="ps-5 form-switch d-inline-block" style="line-height: 18px">
-                                <input {!! $checkedTodas == 0 ? 'checked' : '' !!} class="form-check-input" type="checkbox" role="switch"
-                                    name="descargarTodas" id="descargarTodas" />
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($tablasActualizables->count() == 0)
-                        @include('components.table-empty', [
-                            'items' => $tablasActualizables,
-                            'colspan' => 4,
-                        ])
-                    @else
-                        <form id="formActualizarTablas" action="/ActualizarTablas/{{ $idTienda }}">
-                            @foreach ($tablasActualizables as $tActualizable)
-                                <tr>
-                                    <td>{{ $tActualizable->NombreTabla }}</td>
-                                    <td>{{ $tActualizable->IdCaja }}</td>
-                                    <td>
-                                        @if ($tActualizable->Descargar == 1)
-                                            <i style="font-size: 20px;" class="fa fa-check"></i>
-                                        @else
-                                            <i style="color: red; font-size: 20px;" class="fa fa-clock-o"></i>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="form-check form-switch">
-                                            <input {!! $tActualizable->Descargar == 0 ? 'checked' : '' !!} class="form-check-input" type="checkbox"
-                                                role="switch" name="descargado[]" id="descargado"
-                                                value="{{ $tActualizable->NombreTabla }}" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </form>
-                    @endif
-                </tbody>
-            </table>
-            @if ($tablasActualizables->count() > 0)
-                <div class="mb-4">
-                    <div class="d-flex justify-content-end">
-                        <div class="col-auto">
-                            <button id="btnActualizarTablas" class="btn btn-warning">
-                                <i class="fa fa-save"></i> Guardar
-                            </button>
+
+                @if ($tablasActualizables->count() == 0)
+                    <div
+                        class="card overflow-hidden border-0 shadow-sm"
+                        style="border-radius: 16px;"
+                    >
+                        <div class="card-body p-0">
+                            <table class="table-hover table-custom mb-0 table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="rounded-start ps-4">Nombre Tabla</th>
+                                        <th>Caja</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="rounded-end text-center">
+                                            Descargar Todas
+                                            <div
+                                                class="form-check form-switch d-inline-block ms-3"
+                                                style="line-height: 18px"
+                                            >
+                                                <input
+                                                    class="form-check-input-modern"
+                                                    type="checkbox"
+                                                    role="switch"
+                                                    id="descargarTodas"
+                                                    {{ $checkedTodas == 0 ? 'checked' : '' }}
+                                                >
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="py-5 text-center">
+                                                <i class="bi bi-database-slash fs-1 text-muted d-block mb-3"></i>
+                                                <h6 class="text-muted">Sin tablas registradas</h6>
+                                                <small class="text-muted">No hay tablas configuradas para esta
+                                                    tienda</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                @else
+                    <form
+                        id="formActualizarTablas"
+                        action="/ActualizarTablas/{{ $idTienda }}"
+                        method="POST"
+                    >
+                        @csrf
+                        <div
+                            class="card overflow-hidden border-0 shadow-sm"
+                            style="border-radius: 16px;"
+                        >
+                            <div class="card-body p-0">
+                                <table class="table-hover table-custom mb-0 table">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="rounded-start ps-4">Nombre Tabla</th>
+                                            <th>Caja</th>
+                                            <th class="text-center">Estado</th>
+                                            <th class="rounded-end text-center">
+                                                Descargar Todas
+                                                <div
+                                                    class="form-check form-switch d-inline-block ms-3"
+                                                    style="line-height: 18px"
+                                                >
+                                                    <input
+                                                        class="form-check-input-modern"
+                                                        type="checkbox"
+                                                        role="switch"
+                                                        id="descargarTodas"
+                                                        {{ $checkedTodas == 0 ? 'checked' : '' }}
+                                                    >
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($tablasActualizables as $tActualizable)
+                                            <tr class="menu-row">
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <i
+                                                            class="bi bi-grid-3x3-gap me-2"
+                                                            style="color: #3b82f6;"
+                                                        ></i>
+                                                        <span class="fw-medium">{{ $tActualizable->NombreTabla }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border">
+                                                        <i class="bi bi-cash-register me-1"></i>
+                                                        Caja {{ $tActualizable->IdCaja }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    @if ($tActualizable->Descargar == 1)
+                                                        <span
+                                                            class="badge bg-success text-success rounded-pill bg-opacity-10 px-3 py-1"
+                                                        >
+                                                            <i class="bi bi-check-circle me-1"></i>Descargada
+                                                        </span>
+                                                    @else
+                                                        <span
+                                                            class="badge bg-danger text-danger rounded-pill bg-opacity-10 px-3 py-1"
+                                                        >
+                                                            <i class="bi bi-clock me-1"></i>Pendiente
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="form-check form-switch d-flex justify-content-center">
+                                                        <input
+                                                            class="form-check-input-modern descargado-switch"
+                                                            type="checkbox"
+                                                            role="switch"
+                                                            name="descargado[]"
+                                                            value="{{ $tActualizable->NombreTabla }}"
+                                                            {{ $tActualizable->Descargar == 0 ? 'checked' : '' }}
+                                                        >
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="card-footer border-top bg-white p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <span id="countSeleccionados">{{ $tablasPorDescargar }}</span> tablas
+                                        seleccionadas
+                                    </small>
+                                    <button
+                                        type="submit"
+                                        id="btnActualizarTablas"
+                                        class="btn-modern btn-warning-modern"
+                                    >
+                                        <i class="bi bi-save me-2"></i>Guardar Cambios
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                @endif
+            </div>
+        @else
+            <div class="p-5 text-center">
+                <div class="mb-4">
+                    <i
+                        class="bi bi-shop display-1"
+                        style="color: #cbd5e1;"
+                    ></i>
                 </div>
-            @endif
-        </div>
-        @include('TablasUpdate.AgregarTablaUpdate')
-        {{-- @endif --}}
-    </div>
+                <h5 style="color: #0f172a;">Seleccione una tienda</h5>
+                <p class="text-muted">Elija una tienda del filtro para gestionar sus tablas actualizables</p>
+            </div>
+        @endif
+    </x-card-gradient-header>
 
+    @include('TablasUpdate.AgregarTablaUpdate')
+</x-page-container>
 
-    <script>
-        const idTienda = document.getElementById('idTienda');
-        const formTabla = document.getElementById('formTabla');
-        idTienda.addEventListener('change', (e) => {
-            formTabla.submit();
-        });
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const descargarTodas = document.getElementById('descargarTodas');
+        const switches = document.querySelectorAll('.descargado-switch');
+        const countSeleccionados = document.getElementById('countSeleccionados');
+        let totalTablas = switches.length;
 
-        const btnActualizarTablas = document.getElementById('btnActualizarTablas');
-        const formActualizarTablas = document.getElementById('formActualizarTablas');
-        btnActualizarTablas.addEventListener('click', (e) => {
-            formActualizarTablas.submit();
-        });
+        function actualizarContador() {
+            const seleccionadas = document.querySelectorAll('.descargado-switch:checked').length;
+            if (countSeleccionados) {
+                countSeleccionados.textContent = seleccionadas;
+                countSeleccionados.style.color = seleccionadas > 0 ? '#f59e0b' : '#64748b';
+                countSeleccionados.style.fontWeight = seleccionadas > 0 ? '700' : '400';
+            }
+            if (descargarTodas) {
+                descargarTodas.checked = (seleccionadas === totalTablas);
+            }
+        }
 
-        const tablas = document.querySelectorAll('#descargado');
-        let totalTablas = tablas.length;
-        let aux = <?php echo $tablasPorDescargar; ?>;
-
-        document.getElementById('descargarTodas').addEventListener('click', (e) => {
-            chkTablas = document.querySelectorAll('#descargado');
-            chkTablas.forEach(element => {
-                if (document.getElementById('descargarTodas').checked) {
-                    element.checked = true;
-                    aux = totalTablas;
-                } else {
-                    element.checked = false;
-                    aux = 0;
-                }
+        if (descargarTodas) {
+            descargarTodas.addEventListener('change', function() {
+                switches.forEach(switchEl => {
+                    switchEl.checked = this.checked;
+                    toggleRowHighlight(switchEl);
+                });
+                actualizarContador();
             });
+        }
+
+        switches.forEach(switchEl => {
+            switchEl.addEventListener('change', function() {
+                toggleRowHighlight(this);
+                actualizarContador();
+            });
+            toggleRowHighlight(switchEl);
         });
 
-        tablas.forEach(element => {
-            element.addEventListener('click', (e) => {
-                element.checked ? aux = aux + 1 : aux = aux - 1;
-                //alert(aux + " " + totalTablas);
-                if (totalTablas == aux) {
-                    document.getElementById('descargarTodas').checked = true;
-                } else {
-                    document.getElementById('descargarTodas').checked = false;
-                }
-            });
-        });
-    </script>
-@endsection
+        function toggleRowHighlight(checkbox) {
+            const row = checkbox.closest('tr');
+            if (checkbox.checked) {
+                row.style.backgroundColor = '#fffbeb';
+                row.style.borderLeft = '3px solid #f59e0b';
+            } else {
+                row.style.backgroundColor = '';
+                row.style.borderLeft = '';
+            }
+        }
+
+        actualizarContador();
+    });
+</script>

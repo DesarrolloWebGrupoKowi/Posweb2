@@ -1,127 +1,203 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Interfaz de Mermas')
-@section('dashboardWidth', 'width-general')
-<style>
-    #modalLote {
-        font-size: 20px;
-        cursor: pointer;
-    }
+<x-page-container title="Interfaz de Mermas">
+    <x-card-gradient-header
+        icon="fire"
+        title="Interfaz de Mermas"
+        subtitle="Gestión de interfaz de mermas al ERP"
+        class="d-flex flex-column"
+        style="height: calc(100vh - 100px); overflow: hidden;"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-    i#modalLote:hover {
-        font-size: 22px;
-        color: rgb(255, 145, 0);
-    }
-</style>
-@section('contenido')
-    <div class="gap-4 pt-4 container-fluid width-general d-flex flex-column">
-
-        <div class="p-4 border-0 card" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Interfaz de Mermas'])
-                <form action="/InterfazMermasExcel" method="GET">
-                    <input type="hidden" name="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}">
-                    <input type="hidden" name="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}">
-                    <input type="hidden" name="idTienda" value="{{ $idTienda }}">
-                    <button class="btn card" type="submit">
-                        @include('components.icons.print')
-                    </button>
-                </form>
+        <!-- Filtros -->
+        <x-form.form
+            action="{{ url('/InterfazMermas') }}"
+            id="formFiltros"
+            method="GET"
+        >
+            <x-form.group>
+                <x-form.select
+                    name="idTienda"
+                    label="Tienda"
+                    icon="shop"
+                    col="col-md-4"
+                    placeholder="Seleccione Tienda"
+                    :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    :value="request('idTienda')"
+                    autofocus
+                />
+                <x-form.date
+                    name="fecha1"
+                    label="Fecha Inicio"
+                    icon="calendar3"
+                    col="col-md-3"
+                    :value="request('fecha1', date('Y-m-d'))"
+                />
+                <x-form.date
+                    name="fecha2"
+                    label="Fecha Fin"
+                    icon="calendar3"
+                    col="col-md-2"
+                    :value="request('fecha2', date('Y-m-d'))"
+                />
+            </x-form.group>
+            <div class="col-md-3 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                    class="flex-grow-1"
+                />
+                <x-form.clear />
             </div>
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
+        </x-form.form>
 
-        <div class="p-4 border-0 content-table content-table-full card" style="border-radius: 10px">
-            <form class="flex-wrap gap-2 pb-2 d-flex align-items-center justify-content-end" action="/InterfazMermas"
-                method="GET">
-                <div class="col-auto">
-                    <select class="rounded form-select" style="line-height: 18px" name="idTienda" id="idTienda" required>
-                        <option value="">Seleccione Tienda</option>
-                        @foreach ($tiendas as $tienda)
-                            <option {!! $idTienda == $tienda->IdTienda ? 'selected' : '' !!} value="{{ $tienda->IdTienda }}">{{ $tienda->NomTienda }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha1"
-                        id="fecha1" value="{{ empty($fecha1) ? date('Y-m-d') : $fecha1 }}" required>
-                </div>
-                <div class="col-auto">
-                    <input class="rounded form-control" style="line-height: 18px" type="date" name="fecha2"
-                        id="fecha2" value="{{ empty($fecha2) ? date('Y-m-d') : $fecha2 }}" required>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-dark-outline">
-                        @include('components.icons.search')
-                    </button>
-                </div>
-            </form>
+        <!-- Alertas -->
+        @include('Alertas.Alertas')
 
-            <div class="content-table content-table-full" style="height: 58vh">
-                <table style="width: 100%;">
-                    <thead class="table-head">
+        <!-- Resultados -->
+        <div
+            class="d-flex flex-column flex-grow-1 rounded p-4 shadow-sm"
+            style="background: white;
+                   border-radius: 12px;
+                   min-height: 0;
+                   overflow: hidden;"
+        >
+            <!-- Contenedor de tabla con scroll interno -->
+            <div class="table-responsive flex-grow-1">
+                <table
+                    class="table-hover table-custom table"
+                    style="height: {{ $mermas->count() > 0 ? 'auto' : '90%' }}"
+                >
+                    <thead style="position: sticky; top: 0; z-index: 2; background: white;">
                         <tr>
-                            <th class="rounded-start">Id</th>
-                            <th>Código</th>
-                            <th>Articulo</th>
-                            <th>Merma</th>
-                            <th>Cantidad</th>
-                            <th>Almacen</th>
-                            <th>Cuenta</th>
-                            <th class="rounded-end">Lotes Disponibles</th>
+                            <th><i class="bi bi-hash me-1"></i>ID</th>
+                            <th><i class="bi bi-upc me-1"></i>Código</th>
+                            <th><i class="bi bi-box me-1"></i>Artículo</th>
+                            <th><i class="bi bi-exclamation-triangle me-1"></i>Merma</th>
+                            <th class="text-end"><i class="bi bi-123 me-1"></i>Cantidad</th>
+                            <th><i class="bi bi-building me-1"></i>Almacén</th>
+                            <th><i class="bi bi-journal-text me-1"></i>Cuenta</th>
+                            <th class="text-center"><i class="bi bi-gear me-1"></i>Lotes</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @include('components.table-empty', ['items' => $mermas, 'colspan' => 8])
-                        @foreach ($mermas as $merma)
+                    <tbody class="position-relative">
+                        @forelse ($mermas as $merma)
                             <tr>
-                                <td>{{ $merma->FolioMerma }}</td>
-                                <td>{{ $merma->CodArticulo }}</td>
-                                <td>{{ $merma->NomArticulo }}</td>
+                                <td>
+                                    <span
+                                        class="fw-semibold"
+                                        style="color: #0f172a;"
+                                    >
+                                        {{ $merma->FolioMerma }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {{ $merma->CodArticulo }}
+                                </td>
+                                <td>
+                                    <span
+                                        class="text-truncate"
+                                        style="max-width: 200px; display: inline-block;"
+                                        title="{{ $merma->NomArticulo }}"
+                                    >
+                                        {{ $merma->NomArticulo }}
+                                    </span>
+                                </td>
                                 <td>{{ $merma->NomTipoMerma }}</td>
-                                <th>{{ number_format($merma->CantArticulo, 2) }}</th>
+                                <td class="fw-bold text-end">
+                                    {{ number_format($merma->CantArticulo, 2) }}
+                                </td>
                                 <td>{{ $merma->Almacen }}</td>
                                 <td>
-                                    {{ empty($merma->Libro) ? '?' : $merma->Libro }}.{{ empty($merma->CentroCosto) ? '?' : $merma->CentroCosto }}.{{ empty($merma->Cuenta) ? '?' : $merma->Cuenta }}.{{ empty($merma->SubCuenta) ? '?' : $merma->SubCuenta }}.{{ empty($merma->InterCosto) ? '?' : $merma->InterCosto }}.{{ empty($merma->IdTipoArticulo) ? '?' : $merma->IdTipoArticulo }}.{{ $merma->Futuro != '0' ? '?' : $merma->Futuro }}
+                                    <span style="font-size: 0.8rem; color: #475569;">
+                                        {{ empty($merma->Libro) ? '?' : $merma->Libro }}.
+                                        {{ empty($merma->CentroCosto) ? '?' : $merma->CentroCosto }}.
+                                        {{ empty($merma->Cuenta) ? '?' : $merma->Cuenta }}.
+                                        {{ empty($merma->SubCuenta) ? '?' : $merma->SubCuenta }}.
+                                        {{ empty($merma->InterCosto) ? '?' : $merma->InterCosto }}.
+                                        {{ empty($merma->IdTipoArticulo) ? '?' : $merma->IdTipoArticulo }}.
+                                        {{ $merma->Futuro != '0' ? '?' : $merma->Futuro }}
+                                    </span>
                                 </td>
                                 <td>
                                     @if ($merma->Lotes->count() == 0)
-                                        <span class="tags-red">Sin lotes</span>
+                                        <span class="tags-red">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>Sin lotes
+                                        </span>
                                     @else
-                                        <button id="modalLote" class="btn-table" data-bs-toggle="modal"
-                                            data-bs-target="#ModalLotes{{ $merma->CodArticulo }}">
-                                            @include('components.icons.database')
-                                        </button>
+                                        <x-table.buttons.edit-button
+                                            :id="$merma->CodArticulo"
+                                            modal="ModalLotes"
+                                            title="Ver lotes"
+                                            label="Lotes"
+                                        />
                                         @include('InterfazMermas.ModalLotes')
                                     @endif
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <!-- Fila vacía que ocupa todo el alto -->
+                            <tr style="height: 100%;">
+                                <td
+                                    colspan="8"
+                                    style="vertical-align: middle; height: 100%;"
+                                >
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                                        <i
+                                            class="bi bi-search"
+                                            style="font-size: 3rem; color: #cbd5e1;"
+                                        ></i>
+                                        <h5
+                                            class="mt-3"
+                                            style="color: #64748b;"
+                                        >Sin datos disponibles</h5>
+                                        <p style="color: #94a3b8;">No se encontraron registros con los filtros
+                                            seleccionados</p>
+                                        <a
+                                            href="/InterfazMermas"
+                                            class="btn btn-sm"
+                                            style="background: #f1f5f9; color: #475569; border-radius: 8px;"
+                                        >
+                                            <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
-            @if (!empty($lotesDisponibles))
-                <div class="mb-1 d-flex justify-content-center">
-                    <div class="col-auto">
-                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalConfirmarInterfaz">
-                            Interfazar Mermas
+            <!-- Footer fijo abajo: Paginación + Botones de interfaz -->
+            <div style="flex-shrink: 0; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                <!-- Botones de interfaz -->
+                <div class="d-flex justify-content-center gap-2">
+                    @if (!empty($lotesDisponibles))
+                        <button
+                            class="btn btn-sm d-flex align-items-center btn-animated gap-2"
+                            style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.85rem;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ModalConfirmarInterfaz"
+                        >
+                            <i class="bi bi-box-arrow-up"></i> Interfazar Mermas
                         </button>
-                    </div>
-                </div>
-            @elseif(empty($lotesDisponibles) && $mermas->count() > 0)
-                <div class="mb-1 d-flex justify-content-center">
-                    <div class="col-auto">
-                        <h5 class="p-1 text-white shadow bg-danger rounded-3">
-                            <i class="fa fa-exclamation-circle"></i> Ninguna Merma Apta para ser Interfazada <i
-                                class="fa fa-exclamation-circle"></i>
+                    @elseif(empty($lotesDisponibles) && $mermas->count() > 0)
+                        <h5
+                            class="rounded-3 p-1 px-3 py-2 text-white shadow"
+                            style="background: #ef4444; font-size: 0.85rem;"
+                        >
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            Ninguna Merma Apta para ser Interfazada
+                            <i class="bi bi-exclamation-circle ms-1"></i>
                         </h5>
-                    </div>
+                    @endif
                 </div>
-            @endif
+            </div>
         </div>
-    </div>
+    </x-card-gradient-header>
+
+    <!-- Modales -->
     @include('InterfazMermas.ModalConfirmarInterfaz')
-@endsection
+</x-page-container>

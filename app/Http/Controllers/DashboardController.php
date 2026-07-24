@@ -51,7 +51,8 @@ class DashboardController extends Controller
 
         //return $menus;
 
-        return view('Dashboard.DashboardMaterial', compact('menus', 'idCaja'));
+        return view('Dashboard.index', compact('menus', 'idCaja'));
+        // return view('Dashboard.DashboardMaterial', compact('menus', 'idCaja'));
     }
 
     public function CalculoPrecios()

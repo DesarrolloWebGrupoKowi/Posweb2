@@ -1,26 +1,74 @@
-<!--MODAL ELIMINAR ARTICULO TIPO DE MERMA-->
-<div class="modal fade" id="ModalEliminarArticuloTipoMerma{{ $tipoMermaArticulo->CodArticulo }}" tabindex="-1"
-    aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content border-0">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Eliminar Artículo Por Tipo de Merma</h5>
-            </div>
-            <form action="/EliminarArticuloTipoMerma/{{ $idTipoMerma }}/{{ $tipoMermaArticulo->CodArticulo }}"
-                method="POST">
-                @csrf
-                <div class="modal-body">
-                    <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
-                        ¿Desea Eliminar El Artículo?
-                    </p>
-                    <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
-                        {{ $tipoMermaArticulo->NomArticulo }}
-                    </p>
+<!-- Modal Eliminar Artículo Tipo de Merma -->
+<div
+    class="modal fade"
+    id="ModalEliminarArticuloTipoMerma{{ $tipoMermaArticulo->CodArticulo }}"
+    tabindex="-1"
+    aria-labelledby="ModalEliminarArticuloTipoMerma{{ $tipoMermaArticulo->CodArticulo }}Label"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div
+            class="modal-content"
+            style="border-radius: 16px; border: none; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);"
+        >
+            <div class="p-4 text-center">
+                <!-- Icono -->
+                <div
+                    class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 64px; height: 64px; background: #fef2f2;"
+                >
+                    <i
+                        class="bi bi-exclamation-triangle"
+                        style="font-size: 1.5rem; color: #ef4444;"
+                    ></i>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-warning" data-bs-dismiss="modal">Cerrar </button>
-                    <button type="submit" class="btn btn-sm btn-danger">Eliminar </button>
-            </form>
+
+                <!-- Título -->
+                <h5
+                    class="fw-bold mb-2"
+                    style="color: #0f172a;"
+                >Eliminar Artículo</h5>
+
+                <!-- Mensaje -->
+                <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">
+                    ¿Desea eliminar el artículo?
+                </p>
+                <p
+                    class="fw-semibold mb-3"
+                    style="color: #ef4444; font-size: 1rem;"
+                >
+                    {{ $tipoMermaArticulo->NomArticulo }}
+                </p>
+                <p style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 24px;">
+                    Esta acción no se puede revertir.
+                </p>
+
+                <!-- Botones -->
+                <div class="d-flex gap-2">
+                    <button
+                        type="button"
+                        class="btn flex-grow-1"
+                        data-bs-dismiss="modal"
+                        style="background: #f1f5f9; color: #475569; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 0.85rem;"
+                    >
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <form
+                        action="/EliminarArticuloTipoMerma/{{ $idTipoMerma }}/{{ $tipoMermaArticulo->CodArticulo }}"
+                        method="POST"
+                        class="flex-grow-1"
+                    >
+                        @csrf
+                        <button
+                            type="submit"
+                            class="btn w-100"
+                            style="background: #ef4444; color: white; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 0.85rem;"
+                        >
+                            <i class="bi bi-trash me-1"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

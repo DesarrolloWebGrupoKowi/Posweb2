@@ -1,57 +1,117 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Catálogo de Ciudades')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+<x-page-container title="Catálogo de Ciudades">
+        <x-card-gradient-header
+            icon="building"
+            title="Catálogo de Ciudades"
+            subtitle="Gestión de ciudades del sistema"
+        >
+            <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
+            </x-slot:buttons>
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo de Ciudades'])
-                <div class="">
-                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                        Agregar ciudad @include('components.icons.plus-circle')
+            <!-- Filtros de búsqueda -->
+            <x-form.form action="/CatCiudades">
+                <x-form.group>
+                    <x-form.text
+                        name="txtFiltro"
+                        label="Buscar ciudad"
+                        icon="search"
+                        placeholder="Nombre de ciudad..."
+                        col="col-md-4"
+                        :autofocus="true"
+                    />
+                    <x-form.select
+                        name="IdEstado"
+                        label="Estado"
+                        icon="geo-alt"
+                        col="col-md-3"
+                        :options="$estados->pluck('NomEstado', 'IdEstado')->toArray()"
+                    />
+                </x-form.group>
+                <div class="col-md-3 d-flex gap-2">
+                    <x-form.submit
+                        text="Filtrar"
+                        icon="funnel"
+                        class="flex-grow-1"
+                    />
+                    <x-form.clear />
+                </div>
+            </x-form.form>
+
+            <!-- Tabla -->
+            <div class="p-4">
+                <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                    <div>
+                        <h5 class="section-content-title">
+                            <i
+                                class="fa fa-table me-2"
+                                style="color: #64748b;"
+                            ></i>Concentrado de Ciudades
+                        </h5>
+                        <p class="section-content-subtitle">Listado de ciudades registradas en el sistema</p>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn-create"
+                        data-bs-toggle="modal"
+                        data-bs-target="#ModalAgregar"
+                    >
+                        <i class="fa fa-plus-circle"></i> Agregar ciudad
                     </button>
                 </div>
-            </div>
 
-            <div>
-                @include('Alertas.Alertas')
+                <div class="table-responsive">
+                    <table class="table-hover table-custom table">
+                        <thead>
+                            <tr>
+                                <th><i class="fa fa-hashtag me-1"></i>Id</th>
+                                <th><i class="fa fa-font me-1"></i>Nombre</th>
+                                <th><i class="fa fa-map-marker me-1"></i>Estado</th>
+                                <th><i class="fa fa-cog me-1"></i>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($ciudades as $ciudad)
+                                <tr>
+                                    <td style="font-weight: 600; color: #0f172a;">{{ $ciudad->IdCiudad }}</td>
+                                    <td style="font-weight: 500;">{{ $ciudad->NomCiudad }}</td>
+                                    <td>
+                                        <span
+                                            style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                        >
+                                            {{ $ciudad->NomEstado }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <x-table.buttons.edit-button
+                                                :id="$ciudad->IdCiudad"
+                                                modal="ModalEditar"
+                                                title="Editar ciudad"
+                                                label="Editar"
+                                            />
+                                        </div>
+                                    </td>
+                                </tr>
+                                @include('Ciudades.ModalEditar')
+                            @empty
+                                <x-table-empty-data
+                                    colspan="4"
+                                    title="Sin datos disponibles"
+                                    message="No se encontraron ciudades con los filtros seleccionados"
+                                    icon="building"
+                                    :action="true"
+                                    actionText="Limpiar filtros"
+                                    actionUrl="/CatCiudades"
+                                />
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @include('components.paginate', ['items' => $ciudades])
             </div>
-        </div>
+        </x-card-gradient-header>
+    </x-page-container>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            @include('components.table-search')
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Id</th>
-                        <th>Nombre</th>
-                        <th>Estado</th>
-                        <th class="rounded-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @include('components.table-empty', ['items' => $ciudades, 'colspan' => 4])
-                    @foreach ($ciudades as $ciudad)
-                        <tr>
-                            <td>{{ $ciudad->IdCiudad }}</td>
-                            <td>{{ $ciudad->NomCiudad }}</td>
-                            <td>{{ $ciudad->NomEstado }}</td>
-                            <td>
-                                <button class="btn-table" data-bs-toggle="modal"
-                                    data-bs-target="#ModalEditar{{ $ciudad->IdCiudad }}">
-                                    @include('components.icons.edit')
-                                </button>
-                            </td>
-                        </tr>
-                        @include('Ciudades.ModalEditar')
-                    @endforeach
-                </tbody>
-            </table>
-            @include('components.paginate', ['items' => $ciudades])
-        </div>
-    </div>
-    <!--Modal Agregar Estado-->
+    <!-- Modal Agregar Ciudad -->
     @include('Ciudades.ModalAgregar')
-@endsection

@@ -5,15 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Articulo;
 use App\Models\CatProdDiez;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\CatTipoDescuento;
-use App\Models\DatDetDescuentos;
-use App\Models\DatEncDescuentos;
 use App\Models\ListaPrecio;
-use App\Models\Plaza;
-use App\Models\Tienda;
 use Illuminate\Support\Facades\Auth;
-use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\Wizard\TextValue;
 
 class CatProdDiezController extends Controller
 {
@@ -26,13 +19,17 @@ class CatProdDiezController extends Controller
             'CatProdDiez.*',
             'CatArticulos.NomArticulo',
             'CatListasPrecio.NomListaPrecio',
-            'CatUsuarios.NomUsuario'
+            'CatUsuarios.NomUsuario',
+            'CatArticulos.Status'
         )
             ->leftJoin('CatArticulos', 'CatArticulos.CodArticulo', 'CatProdDiez.CodArticulo')
             ->leftJoin('CatListasPrecio', 'CatListasPrecio.IdListaPrecio', 'CatProdDiez.IdListaPrecio')
             ->leftJoin('CatUsuarios', 'CatUsuarios.IdUsuario', 'CatProdDiez.IdUsuario')
-            ->where('CatArticulos.NomArticulo', 'like', '%' . $textValue . '%')
-            ->orWhere('CatArticulos.CodArticulo', 'like', '%' . $textValue . '%')
+            ->where('CatArticulos.Status', 0)
+            ->where(function ($query) use ($textValue) {
+                $query->where('CatArticulos.NomArticulo', 'like', '%' . $textValue . '%')
+                    ->orWhere('CatArticulos.CodArticulo', 'like', '%' . $textValue . '%');
+            })
             ->paginate(10);
 
         $listaPrecios = ListaPrecio::get();
@@ -65,14 +62,14 @@ class CatProdDiezController extends Controller
             'Cantidad_Fin' => $request->PesoMaximo,
             'IdListaPrecio' => $request->IdListaPrecio,
             'IdUsuario' => Auth::user()->IdUsuario,
-            'Creacion' => date("Y-m-d H:i:s"),
+            'Creacion' => date('d-m-Y H:i:s'),
             'Status' => 0,
         ]);
 
         return redirect()->route('CatProdDiez.index')->with('msjAdd', 'Producto agregado correctamente.');
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id)
     {
         try {
             CatProdDiez::where('IdCatProdDiez', $id)

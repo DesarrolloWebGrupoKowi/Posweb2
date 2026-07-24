@@ -1,68 +1,129 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Catálogo de Listas de Precio')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+<x-page-container title="Catálogo de Listas de Precio">
+        <x-card-gradient-header
+            icon="tags"
+            title="Catálogo de Listas de Precio"
+            subtitle="Gestión de listas de precio del sistema"
+        >
+            <x-slot:buttons>
+                <x-header.buttons.home-button />
+                <x-header.buttons.refresh-button />
+            </x-slot:buttons>
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo de Listas de Precio'])
-                <div>
-                    <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                        class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                        Agregar lista de precio @include('components.icons.plus-circle')
+            <!-- Filtros de búsqueda -->
+            <x-form.form action="/CatListasPrecio">
+                <x-form.group>
+                    <x-form.text
+                        name="txtFiltro"
+                        label="Buscar lista de precio"
+                        icon="search"
+                        placeholder="Nombre de lista..."
+                        col="col-md-4"
+                        :autofocus="true"
+                    />
+                    <x-form.select
+                        name="Iva"
+                        label="IVA"
+                        icon="percent"
+                        col="col-md-2"
+                        :options="['0' => '0%', '8' => '8%', '16' => '16%']"
+                    />
+                    <x-form.select
+                        name="rangoPeso"
+                        label="Rango de peso"
+                        icon="weight"
+                        col="col-md-2"
+                        :options="['0-10' => '0 - 10 kg', '10-50' => '10 - 50 kg', '50-100' => '50 - 100 kg', '100+' => 'Más de 100 kg']"
+                    />
+                </x-form.group>
+                <div class="col-md-2 d-flex gap-2">
+                    <x-form.submit
+                        text="Filtrar"
+                        icon="funnel"
+                    />
+                    <x-form.clear />
+                </div>
+            </x-form.form>
+
+            <!-- Tabla -->
+            <div class="p-4">
+                <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                    <div>
+                        <h5 class="section-content-title">
+                            <i
+                                class="bi bi-table me-2"
+                                style="color: #64748b;"
+                            ></i>Concentrado de Listas de Precio
+                        </h5>
+                        <p class="section-content-subtitle">Listado de listas de precio registradas en el sistema</p>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn-create"
+                        data-bs-toggle="modal"
+                        data-bs-target="#ModalAgregar"
+                    >
+                        <i class="bi bi-plus-circle"></i> Agregar lista de precio
                     </button>
                 </div>
-            </div>
 
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
-
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            @include('components.table-search')
-            <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Id</th>
-                        <th>Nombre</th>
-                        <th>Peso Minimo</th>
-                        <th>Peso Maximo</th>
-                        <th>Iva</th>
-                        <th class="rounded-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (count($listasPrecio) == 0)
-                        <tr>
-                            <td colspan="5">No Hay Listas de Precio!</td>
-                        </tr>
-                    @else
-                        @foreach ($listasPrecio as $listaPrecio)
+                <div class="table-responsive">
+                    <table class="table-hover table-custom table">
+                        <thead>
                             <tr>
-                                <td>{{ $listaPrecio->IdListaPrecio }}</td>
-                                <td>{{ $listaPrecio->NomListaPrecio }}</td>
-                                <td>{{ $listaPrecio->PesoMinimo }}</td>
-                                <td>{{ $listaPrecio->PesoMaximo }}</td>
-                                <td>{{ $listaPrecio->PorcentajeIva }}</td>
-                                <td>
-                                    <button class="btn-table" data-bs-toggle="modal"
-                                        data-bs-target="#ModalEditar{{ $listaPrecio->IdListaPrecio }}"
-                                        title="Editar lista de precio">
-                                        @include('components.icons.list')
-                                    </button>
-                                </td>
+                                <th><i class="bi bi-hash me-1"></i>Id</th>
+                                <th><i class="bi bi-tag me-1"></i>Nombre</th>
+                                <th><i class="bi bi-weight me-1"></i>Peso Mínimo</th>
+                                <th><i class="bi bi-weight me-1"></i>Peso Máximo</th>
+                                <th><i class="bi bi-percent me-1"></i>IVA</th>
+                                <th><i class="bi bi-gear me-1"></i>Acciones</th>
                             </tr>
-                            <!--Modal Editar-->
-                            @include('ListasPrecio.ModalEditar')
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
-    </div>
+                        </thead>
+                        <tbody>
+                            @forelse ($listasPrecio as $listaPrecio)
+                                <tr>
+                                    <td style="font-weight: 600; color: #0f172a;">{{ $listaPrecio->IdListaPrecio }}</td>
+                                    <td style="font-weight: 500;">{{ $listaPrecio->NomListaPrecio }}</td>
+                                    <td>{{ $listaPrecio->PesoMinimo }} kg</td>
+                                    <td>{{ $listaPrecio->PesoMaximo }} kg</td>
+                                    <td>
+                                        <span
+                                            style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                        >
+                                            {{ $listaPrecio->PorcentajeIva }}%
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <x-table.buttons.edit-button
+                                                :id="$listaPrecio->IdListaPrecio"
+                                                modal="ModalEditar"
+                                                title="Editar lista de precio"
+                                                label="Editar"
+                                            />
+                                        </div>
+                                    </td>
+                                </tr>
+                                @include('ListasPrecio.ModalEditar')
+                            @empty
+                                <x-table-empty-data
+                                    colspan="6"
+                                    title="Sin datos disponibles"
+                                    message="No se encontraron listas de precio con los filtros seleccionados"
+                                    icon="tags"
+                                    :action="true"
+                                    actionText="Limpiar filtros"
+                                    actionUrl="/CatListasPrecio"
+                                />
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @include('components.paginate', ['items' => $listasPrecio])
+            </div>
+        </x-card-gradient-header>
+    </x-page-container>
+
+    <!-- Modal Agregar Lista de Precio -->
     @include('ListasPrecio.ModalAgregar')
 
     <script src="js/ListasPrecioScript.js"></script>
-@endsection

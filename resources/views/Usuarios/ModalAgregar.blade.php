@@ -11,21 +11,21 @@
     >
         <div
             class="modal-content border-0 shadow"
-            style="border-radius: 10px;"
+            style="border-radius: 10px; overflow: hidden;"
         >
             <!-- Modal Header -->
             <div
-                class="modal-header border-bottom-0 pb-0"
-                style="background: linear-gradient(135deg, #1e293b 0%, #1e293b 100%); border-radius: 10px 10px 0 0;"
+                class="modal-header border-bottom-0 px-4 pb-0 pt-3"
+                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
             >
                 <h5
-                    class="text-white"
-                    id="ModalAgregar"
+                    class="mb-0 text-white"
+                    style="font-weight: 600; font-size: 1.1rem;"
                 >
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.2); width: 32px; height: 32px;"
+                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
                         >
                             @include('components.icons.user')
                         </div>
@@ -41,20 +41,20 @@
                     method="POST"
                 >
                     @csrf
+
                     <!-- Nombre de Usuario -->
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label
                             for="NomUsuario"
-                            class="form-label fw-500 mb-2 text-gray-700"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
                         >
-                            <div class="d-flex align-items-center gap-2">
-                                <span>Nombre de Usuario</span>
-                            </div>
+                            Nombre de Usuario
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background-color: rgba(30, 41, 59, 0.1); border-color: #e5e7eb; color: #1e293b"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
                             >
                                 @include('components.icons.user')
                             </span>
@@ -63,7 +63,7 @@
                                 id="NomUsuario"
                                 name="NomUsuario"
                                 class="form-control border-start-0"
-                                style="border-color: #e5e7eb; border-radius: 0 6px 6px 0; line-height: 18px;"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 onkeypress="return (event.charCode != 32)"
                                 tabindex="1"
                                 placeholder="Escribe el nombre de usuario"
@@ -72,26 +72,25 @@
                             >
                         </div>
                         <div
-                            class="form-text text-muted mt-2"
+                            class="form-text mt-1"
                             id="error-NomUsuario"
-                        >
-                        </div>
+                            style="font-size: 0.78rem; color: #ef4444;"
+                        ></div>
                     </div>
 
                     <!-- Número de Nómina -->
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label
                             for="NumNomina"
-                            class="form-label fw-500 mb-2 text-gray-700"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
                         >
-                            <div class="d-flex align-items-center gap-2">
-                                <span>Número de Nómina</span>
-                            </div>
+                            Número de Nómina
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background-color: rgba(30, 41, 59, 0.1); border-color: #e5e7eb; color: #1e293b"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
                             >
                                 @include('components.icons.hash')
                             </span>
@@ -100,32 +99,32 @@
                                 id="NumNomina"
                                 name="NumNomina"
                                 class="form-control border-start-0"
-                                style="border-color: #e5e7eb; border-radius: 0 6px 6px 0; line-height: 18px;"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 placeholder="Escribe el número de nómina"
                                 tabindex="2"
                                 required
                             >
                         </div>
                         <div
-                            class="form-text text-muted mt-2"
+                            class="form-text mt-1"
                             id="error-NumNomina"
+                            style="font-size: 0.78rem; color: #ef4444;"
                         ></div>
                     </div>
 
                     <!-- Contraseña -->
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label
                             for="Password"
-                            class="form-label fw-500 mb-2 text-gray-700"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
                         >
-                            <div class="d-flex align-items-center gap-2">
-                                <span>Contraseña</span>
-                            </div>
+                            Contraseña
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background-color: rgba(30, 41, 59, 0.1); border-color: #e5e7eb; color: #1e293b"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
                             >
                                 @include('components.icons.lock')
                             </span>
@@ -134,7 +133,7 @@
                                 id="Password"
                                 name="Password"
                                 class="form-control border-start-0"
-                                style="border-color: #e5e7eb; border-radius: 0 6px 6px 0; line-height: 18px;"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 placeholder="Escribe la contraseña"
                                 tabindex="3"
                                 autocomplete="new-password"
@@ -142,25 +141,25 @@
                             >
                         </div>
                         <div
-                            class="form-text text-muted mt-2"
+                            class="form-text mt-1"
                             id="error-Password"
+                            style="font-size: 0.78rem; color: #ef4444;"
                         ></div>
                     </div>
 
                     <!-- Correo -->
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label
                             for="Correo"
-                            class="form-label fw-500 mb-2 text-gray-700"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
                         >
-                            <div class="d-flex align-items-center gap-2">
-                                <span>Correo</span>
-                            </div>
+                            Correo
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background-color: rgba(30, 41, 59, 0.1); border-color: #e5e7eb; color: #1e293b"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
                             >
                                 @include('components.icons.mail')
                             </span>
@@ -169,32 +168,32 @@
                                 id="Correo"
                                 name="Correo"
                                 class="form-control border-start-0"
-                                style="border-color: #e5e7eb; border-radius: 0 6px 6px 0; line-height: 18px;"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 tabindex="4"
                                 placeholder="Escribe el correo"
                                 required
                             >
                         </div>
                         <div
-                            class="form-text text-muted mt-2"
+                            class="form-text mt-1"
                             id="error-Correo"
+                            style="font-size: 0.78rem; color: #ef4444;"
                         ></div>
                     </div>
 
                     <!-- Tipo Usuario -->
-                    <div class="mb-2">
+                    <div class="mb-3">
                         <label
                             for="IdTipoUsuario"
-                            class="form-label fw-500 mb-2 text-gray-700"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
                         >
-                            <div class="d-flex align-items-center gap-2">
-                                <span>Tipo Usuario</span>
-                            </div>
+                            Tipo Usuario
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background-color: rgba(30, 41, 59, 0.1); border-color: #e5e7eb; color: #1e293b"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
                             >
                                 @include('components.icons.tag')
                             </span>
@@ -202,48 +201,78 @@
                                 name="IdTipoUsuario"
                                 id="IdTipoUsuario"
                                 class="form-select border-start-0"
-                                style="border-color: #e5e7eb; border-radius: 0 6px 6px 0; line-height: 18px;"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                             >
                                 @foreach ($tipoUsuarios as $tipoUsuario)
                                     <option value="{{ $tipoUsuario->IdTipoUsuario }}">
-                                        {{ $tipoUsuario->NomTipoUsuario }}</option>
+                                        {{ $tipoUsuario->NomTipoUsuario }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
                         <div
-                            class="form-text text-muted mt-2"
+                            class="form-text mt-1"
                             id="error-IdTipoUsuario"
+                            style="font-size: 0.78rem; color: #ef4444;"
                         ></div>
                     </div>
             </div>
 
             <!-- Modal Footer -->
-            <div class="modal-footer border-top-0 pt-0">
+            <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
                 <button
                     type="button"
-                    class="btn btn-outline-secondary"
+                    class="btn d-flex align-items-center gap-1"
                     data-bs-dismiss="modal"
-                    style="border-radius: 6px; padding: 6px 16px;"
+                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
                 >
-                    <span class="d-flex align-items-center gap-1">
-                        @include('components.icons.x')
-                        Cancelar
-                    </span>
+                    @include('components.icons.x')
+                    Cancelar
                 </button>
                 <button
                     type="submit"
-                    class="btn btn-primary"
-                    style="border-radius: 6px; padding: 6px 16px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; transition: all 0.2s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #1e293b 0%, #334155 100%)'"
+                    class="btn d-flex align-items-center gap-1"
+                    style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(30, 41, 59, 0.3)'"
+                    onmouseout="this.style.background='linear-gradient(135deg, #1e293b 0%, #334155 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                 >
-                    <span class="d-flex align-items-center gap-1">
-                        @include('components.icons.send')
-                        Guardar
-                    </span>
+                    @include('components.icons.send')
+                    Guardar
                 </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilos para el modal */
+    .modal-content {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    /* Focus en inputs */
+    .modal-body .form-control:focus,
+    .modal-body .form-select:focus {
+        border-color: #94a3b8 !important;
+        box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1) !important;
+    }
+
+    .modal-body .input-group:focus-within .input-group-text {
+        border-color: #94a3b8 !important;
+        color: #1e293b !important;
+    }
+
+    /* Animación del modal */
+    .modal.fade .modal-dialog {
+        transform: translateY(-10px);
+        transition: transform 0.3s ease-out;
+    }
+
+    .modal.show .modal-dialog {
+        transform: translateY(0);
+    }
+</style>

@@ -1,38 +1,39 @@
 @props([
-    'corteTienda' => null, // Tienda actual
-    'corteTiendaSolicitudes' => null, // Tienda actual
+    'corteTienda' => null,
+    'corteTiendaSolicitudes' => null,
 ])
 
 @if (request()->get('fecha_fin', date('Y-m-d')) != date('Y-m-d') &&
-        // Auth::id() == 11 &&
         !(count($corteTienda) == 0 && count($corteTiendaSolicitudes) == 0))
-    <div class="btn-group">
-        <a href="/procesarclientescontado/{{ request()->get('fecha_fin', date('Y-m-d')) }}/{{ request()->get('tienda_id') }}/-1"
-            type="button"
-            class="btn btn-sm btn-outline-dark"
-            id="rotateButton">
+    <div
+        class="btn-group"
+        style="gap: 0;"
+    >
+        <a
+            href="/procesarclientescontado/{{ request()->get('fecha_fin', date('Y-m-d')) }}/{{ request()->get('tienda_id') }}/-1"
+            class="btn btn-sm d-flex align-items-center gap-1"
+            id="rotateButton"
+            style="background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; border-radius: 8px 0 0 8px; padding: 8px 12px; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease;"
+            onmouseover="this.style.background='#dbeafe'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='#eff6ff'; this.style.transform='translateY(0)'"
+        >
             <span id="buttonIcon">
-                @include('components.icons.cloud-up')
+                <i class="bi bi-cloud-upload"></i>
             </span>
             Procesar contado
         </a>
-        <a href="/procesarclientesfacturas/{{ request()->get('fecha_fin', date('Y-m-d')) }}/{{ request()->get('tienda_id') }}/-1"
-            type="button"
-            class="btn btn-sm btn-outline-dark"
-            id="rotateButtonFac">
+        <a
+            href="/procesarclientesfacturas/{{ request()->get('fecha_fin', date('Y-m-d')) }}/{{ request()->get('tienda_id') }}/-1"
+            class="btn btn-sm d-flex align-items-center gap-1"
+            id="rotateButtonFac"
+            style="background: #f0fdf4; color: #10b981; border: 1px solid #bbf7d0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease;"
+            onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
+            onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+        >
             <span id="buttonIconFac">
-                @include('components.icons.cloud-up')
+                <i class="bi bi-cloud-upload"></i>
             </span>
             Procesar facturas
         </a>
-        {{-- <a href="/procesarclientesfacturas/{{ request()->get('fecha_fin', date('Y-m-d')) }}/{{ request()->get('tienda_id') }}/-1"
-            type="button"
-            class="btn btn-sm btn-outline-dark"
-            id="rotateButtonFac">
-            <span id="buttonIconFac">
-                @include('components.icons.send')
-            </span>
-            Enviar ventas
-        </a> --}}
     </div>
 @endif
