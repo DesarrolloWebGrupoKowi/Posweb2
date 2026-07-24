@@ -1,9 +1,7 @@
-{{-- resources/views/Interfaz/index.blade.php --}}
-
 <x-page-container title="Interfaz Cloud">
     <x-card-gradient-header
         icon="cloud-upload"
-        title="Interfaz Cloud"
+        title="Pedidos Rutas"
         subtitle="Consulta de pedidos por tipo de orden y fecha"
     >
         <x-slot:buttons>
@@ -18,22 +16,21 @@
             method="GET"
         >
             <x-form.group>
-                <x-form.datalist
+                <x-form.select
                     name="order_type"
                     label="Tipo de Orden"
                     icon="tag"
-                    col="col-md-4"
+                    col="col-md-3"
                     :options="$orderTypes->pluck('DESCRIPCION', 'ORDER_TYPE')->toArray()"
                     :value="request('order_type')"
                     placeholder="Buscar tipo de orden..."
                     autofocus
                 />
-
                 <x-form.date
                     name="fecha"
                     label="Fecha"
                     icon="calendar3"
-                    col="col-md-3"
+                    col="col-md-2"
                     :value="request('fecha')"
                 />
 
@@ -45,11 +42,16 @@
                     col="col-md-2"
                     :value="request('pedido')"
                 />
+                <x-form.checkbox-input
+                    name="detallado"
+                    label="Detalle"
+                    :checked="request('detallado') == 'on'"
+                />
             </x-form.group>
             <div class="col-md-3 d-flex gap-2">
                 <x-form.submit
-                    text="Buscar"
-                    icon="search"
+                    text="Filtrar"
+                    icon="funnel"
                     class="flex-grow-1"
                 />
                 <x-form.clear />
@@ -89,25 +91,38 @@
                     <thead>
                         <tr>
                             <th><i class="bi bi-person me-1"></i>Cliente</th>
+                            <th><i class="bi bi-calendar me-1"></i>Fecha</th>
                             <th><i class="bi bi-hash me-1"></i>Pedido</th>
                             <th><i class="bi bi-circle me-1"></i>Estatus</th>
-                            <th><i class="bi bi-chat-dots me-1"></i>Mensaje</th>
-                            <th><i class="bi bi-file-text me-1"></i>Factura</th>
-                            <th><i class="bi bi-upc me-1"></i>UUID</th>
-                            <th><i class="bi bi-calendar me-1"></i>Fecha</th>
+                            <th><i class="bi bi-database me-1"></i>Oracle</th>
+                            <th class="text-center"><i class="bi bi-box me-1"></i>Cantidad</th>
+                            <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Venta</th>
                             <th class="text-center"><i class="bi bi-gear me-1"></i>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $totalCantidad = 0;
+                            $totalVenta = 0;
+                        @endphp
                         @forelse ($pedidos as $pedido)
-                            <tr>
+                            @php
+                                $status = $pedido->STATUS ?? null;
+                                $mensajeError = $pedido->MENSAJE_ERROR ?? null;
+                                $transactionOn = $pedido->Transaction_On ?? null;
+                                $sourceTransactionNumber = $pedido->Source_Transaction_Number ?? null;
+                                $factura = $pedido->FACTURA ?? null;
+                                $totalCantidad += $pedido->cantidad_total ?? 0;
+                                $totalVenta += $pedido->venta_total ?? 0;
+                            @endphp
+                            <tr id="row-{{ $sourceTransactionNumber ?? 'temp-' . $loop->index }}">
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div
                                             class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                                             style="background: #eff6ff; width: 28px; height: 28px;"
                                         >
-                                            @if ($pedido->FACTURA)
+                                            @if ($factura)
                                                 <i
                                                     class="bi bi-person"
                                                     style="color: #3b82f6; font-size: 0.75rem;"
@@ -121,96 +136,107 @@
                                         </div>
                                         <span
                                             class="text-truncate"
-                                            style="max-width: 350px; display: inline-block;"
+                                            style="max-width: 270px; display: inline-block;"
                                             title="{{ $pedido->Buying_Party_Name }}"
-                                        >
-                                            {{ $pedido->ORDER_TYPE }} - {{ $pedido->Buying_Party_Name }}
-                                        </span>
+                                        >{{ $pedido->ORDER_TYPE }} - {{ $pedido->Buying_Party_Name }}</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="fw-semibold tags-blue">
-                                        {{ $pedido->Source_Transaction_Number }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if ($pedido->STATUS == 'PROCESADO')
-                                        <span class="tags-green">
-                                            <i class="bi bi-check-circle me-1"></i>{{ $pedido->STATUS }}
-                                        </span>
-                                    @elseif($pedido->STATUS == 'ERROR')
-                                        <span class="tags-red">
-                                            <i class="bi bi-x-circle me-1"></i>{{ $pedido->STATUS }}
-                                        </span>
-                                    @else
-                                        <span class="tags-yellow">
-                                            <i class="bi bi-exclamation-circle me-1"></i>SIN PROCESAR
-                                        </span>
-                                    @endif
-                                </td>
-                                <td style="position: relative;">
-                                    @if ($pedido->MENSAJE_ERROR)
-                                        <small
-                                            style="color: #475569; cursor: pointer;"
-                                            class="mensaje-tooltip"
-                                            data-mensaje="{{ $pedido->MENSAJE_ERROR }}"
-                                        >
-                                            {{ Str::limit($pedido->MENSAJE_ERROR, 60) }}
-                                        </small>
-                                        <div
-                                            class="tooltip-mensaje"
-                                            style="display: none; position: absolute; z-index: 9999; background: #1e293b; color: white;
-                                                        padding: 12px 16px; border-radius: 10px; font-size: 0.8rem; max-width: 400px;
-                                                        word-wrap: break-word; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-                                                        left: 0; top: 100%; margin-top: 8px; line-height: 1.5;"
-                                        >
-                                            <div
-                                                style="position: absolute; top: -6px; left: 20px; width: 12px; height: 12px;
-                                                            background: #1e293b; transform: rotate(45deg);">
-                                            </div>
-                                            {{ $pedido->MENSAJE_ERROR }}
-                                        </div>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($pedido->FACTURA)
-                                        <span class="text-success">
-                                            <i class="bi bi-check-circle me-1"></i>{{ $pedido->FACTURA }}
-                                        </span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($pedido->UUID)
-                                        <small style="color: #475569;">
-                                            {{ Str::limit($pedido->UUID, 20) }}
-                                        </small>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>
                                     <span style="color: #475569; font-size: 0.85rem;">
-                                        {{ $pedido->Transaction_On ? \Carbon\Carbon::parse($pedido->Transaction_On)->format('d/m/Y H:i') : 'N/A' }}
+                                        {{ $transactionOn ? \Carbon\Carbon::parse($transactionOn)->format('d/m/Y H:i') : 'N/A' }}
                                     </span>
                                 </td>
                                 <td>
-                                    @if ($pedido->STATUS !== 'PROCESADO')
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm btn-enviar d-flex align-items-center btn-animated gap-1"
-                                            style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                            data-pedido="{{ $pedido->Source_Transaction_Number }}"
-                                            data-row-id="row-{{ $pedido->Source_Transaction_Number }}"
-                                        >
-                                            <i class="bi bi-send"></i> ENVIAR
-                                        </button>
-                                    @endif
+                                    <span class="fw-semibold tags-blue">
+                                        {{ $sourceTransactionNumber }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span
+                                        id="status-{{ $sourceTransactionNumber }}"
+                                        class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
+                                    >
+                                        @if ($status === 'PROCESADO')
+                                            <i class="bi bi-check-circle me-1"></i>PROCESADO
+                                        @elseif($status === 'ERROR')
+                                            <i class="bi bi-x-circle me-1"></i>ERROR
+                                        @else
+                                            <i class="bi bi-exclamation-circle me-1"></i>SIN PROCESAR
+                                        @endif
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span
+                                        id="status-oracle-{{ $sourceTransactionNumber }}"
+                                        class="{{ $status === 'PROCESADO' ? 'status-oracle' : '' }} text-muted"
+                                        data-pedido="{{ $sourceTransactionNumber }}"
+                                    >-</span>
+                                </td>
+                                <td class="text-center">
+                                    <span style="font-weight: 500;">
+                                        {{ number_format($pedido->cantidad_total ?? 0) }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span style="font-weight: 500;">
+                                        ${{ number_format($pedido->venta_total ?? 0, 2) }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        {{-- Solo mostrar ENVIAR si no está procesado --}}
+                                        @if ($status !== 'PROCESADO')
+                                            <button
+                                                type="button"
+                                                id="btnEnviarPedido{{ $sourceTransactionNumber }}"
+                                                class="btn btn-sm btn-enviar d-flex align-items-center btn-animated gap-1"
+                                                style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                title="Enviar pedido a Oracle"
+                                                data-pedido="{{ $sourceTransactionNumber }}"
+                                                data-row-id="row-{{ $sourceTransactionNumber }}"
+                                                data-original-status="{{ $status }}"
+                                                data-original-mensaje="{{ $mensajeError ?? '' }}"
+                                            >
+                                                <i class="bi bi-send"></i> ENVIAR
+                                            </button>
+                                        @endif
+
+                                        {{-- Contenedor para botones dinámicos de Oracle --}}
+                                        @if ($status === 'PROCESADO')
+                                            <div
+                                                class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block d-flex gap-2"
+                                                data-pedido="{{ $sourceTransactionNumber }}"
+                                            ></div>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
+                            {{-- Sub-row para mensaje de error --}}
+                            @if (!empty($mensajeError))
+                                <tr
+                                    id="msg-{{ $sourceTransactionNumber }}"
+                                    class="bg-light"
+                                >
+                                    <td
+                                        colspan="8"
+                                        class="py-2 ps-5"
+                                    >
+                                        <small
+                                            id="mensaje-container-{{ $sourceTransactionNumber }}"
+                                            class="{{ $status === 'ERROR' ? 'text-danger' : 'text-success' }}"
+                                        >
+                                            <strong id="mensaje-titulo-{{ $sourceTransactionNumber }}">
+                                                @if ($transactionOn)
+                                                    {{ \Carbon\Carbon::parse($transactionOn)->format('d/m/Y H:i') }} -
+                                                @endif
+                                                {{ $status === 'ERROR' ? 'Error:' : 'Mensaje:' }}
+                                            </strong>
+                                            <span
+                                                id="mensaje-texto-{{ $sourceTransactionNumber }}">{{ $mensajeError }}</span>
+                                        </small>
+                                    </td>
+                                </tr>
+                            @endif
                         @empty
                             <tr>
                                 <td
@@ -246,58 +272,314 @@
                             </tr>
                         @endforelse
                     </tbody>
+                    @if ($pedidos->count() > 0)
+                        <tfoot>
+                            <tr style="background: #f1f5f9; font-weight: 700;">
+                                <td
+                                    colspan="5"
+                                    style="color: #0f172a;"
+                                >Totales:</td>
+                                <td
+                                    class="text-center"
+                                    style="font-weight: 700;"
+                                >{{ number_format($totalCantidad) }}</td>
+                                <td
+                                    class="text-end"
+                                    style="color: #10b981; font-weight: 700;"
+                                >${{ number_format($totalVenta, 2) }}</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    @endif
                 </table>
             </div>
         </div>
     </x-card-gradient-header>
 
     <script>
-        // Tooltips para mensajes
-        document.addEventListener('DOMContentLoaded', function() {
-            const tooltips = document.querySelectorAll('.mensaje-tooltip');
+        // ====================================================================================================
+        // FUNCIONALIDAD ORACLE (STATUS, BOTONES DINÁMICOS, UUID)
+        // ====================================================================================================
+        function fetchStatusOracle(item) {
+            const pedido = item.dataset.pedido;
+            const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
 
-            tooltips.forEach(function(element) {
-                const tooltip = element.nextElementSibling;
-                let timeout;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok && data.dato?.lines) {
+                        const estatusLineas = data.dato.lines.map(line => line.status);
+                        const estatusUnicos = [...new Set(estatusLineas)];
 
-                element.addEventListener('mouseenter', function(e) {
-                    clearTimeout(timeout);
-                    tooltip.style.display = 'block';
+                        if (estatusUnicos.length > 1) {
+                            item.innerHTML = `<span class="tags-green">${estatusUnicos.join(', ')}</span>`;
+                            // Validar si alguno de los estatus únicos es 'Closed'
+                            if (estatusUnicos.includes('Closed')) {
+                                // Buscar UUID de Oracle cuando está Closed
+                                fetchBuscarUUID(pedido, item);
+                            }
+                        }
 
-                    const rect = tooltip.getBoundingClientRect();
-                    if (rect.right > window.innerWidth) {
-                        tooltip.style.left = 'auto';
-                        tooltip.style.right = '0';
+                        if (estatusUnicos.length == 1) {
+                            item.innerHTML = `<span class="tags-green">${estatusUnicos[0]}</span>`;
+                            let estatusPedido = estatusUnicos[0];
+                            const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
+
+                            if (estatusPedido == 'Awaiting Shipping') {
+                                if (contenedor) {
+                                    contenedor.innerHTML = '';
+                                    botonDespachoInventario(contenedor, pedido);
+                                }
+                            }
+
+                            if (estatusPedido == 'Awaiting Billing') {
+                                if (contenedor) {
+                                    contenedor.innerHTML = '';
+                                    botonGenerarFactura(contenedor, pedido);
+                                }
+                            }
+
+                            if (estatusPedido == 'Closed') {
+                                // Buscar UUID de Oracle cuando está Closed
+                                fetchBuscarUUID(pedido, item);
+                            }
+                        }
+                    } else {
+                        item.innerHTML = '<span class="tags-red">Sin datos</span>';
                     }
-                    if (rect.bottom > window.innerHeight) {
-                        tooltip.style.top = 'auto';
-                        tooltip.style.bottom = '100%';
-                        tooltip.style.marginTop = '0';
-                        tooltip.style.marginBottom = '8px';
-                        const arrow = tooltip.querySelector('div');
-                        if (arrow) {
-                            arrow.style.top = 'auto';
-                            arrow.style.bottom = '-6px';
-                            arrow.style.transform = 'rotate(225deg)';
+                })
+                .catch(() => {
+                    item.innerHTML = '<span class="text-muted">-</span>';
+                });
+        }
+
+        function actualizarFilasOracle() {
+            document.querySelectorAll('.status-oracle').forEach(item => fetchStatusOracle(item));
+        }
+
+        function getStatusLoop(pedido, estatusSiguiente) {
+            const item = document.getElementById(`status-oracle-${pedido}`);
+            const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok && data.dato?.lines) {
+                        const estatusLineas = data.dato.lines.map(line => line.status);
+                        const estatusUnicos = [...new Set(estatusLineas)];
+
+                        if (estatusUnicos.length == 1) {
+                            let estatusPedido = estatusUnicos[0];
+                            item.innerHTML = `<span class="tags-green">${estatusPedido}</span>`;
+                            const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
+
+                            if (estatusPedido == 'Awaiting Billing' && estatusSiguiente == 'Awaiting Billing') {
+                                if (contenedor) {
+                                    contenedor.innerHTML = '';
+                                    botonGenerarFactura(contenedor, pedido);
+                                }
+                            } else if (estatusPedido == 'Closed' && estatusSiguiente == 'Closed') {
+                                // Buscar UUID de Oracle cuando llega a Closed
+                                fetchBuscarUUID(pedido, item);
+                            } else {
+                                setTimeout(() => getStatusLoop(pedido, estatusSiguiente), 3000);
+                            }
+                        } else {
+                            setTimeout(() => getStatusLoop(pedido, estatusSiguiente), 3000);
+                        }
+                    } else {
+                        setTimeout(() => getStatusLoop(pedido, estatusSiguiente), 3000);
+                    }
+                })
+                .catch(() => setTimeout(() => getStatusLoop(pedido, estatusSiguiente), 3000));
+        }
+
+        function botonDespachoInventario(contenedor, pedido) {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm d-flex align-items-center gap-1 btn-animated';
+            btn.style.cssText =
+                'background:#fffbeb;color:#f59e0b;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;white-space:nowrap;';
+            btn.innerHTML = '<i class="bi bi-send"></i> DESPACHO';
+
+            btn.addEventListener('click', () => {
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Despachando...';
+                btn.disabled = true;
+
+                fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.ok) {
+                            getStatusLoop(pedido, 'Awaiting Billing');
+                        } else {
+                            btn.innerHTML = '❌ Error';
+                            btn.disabled = false;
+                        }
+                    })
+                    .catch(() => {
+                        btn.innerHTML = '❌ Error';
+                        btn.disabled = false;
+                    });
+            });
+
+            contenedor.appendChild(btn);
+        }
+
+        function botonGenerarFactura(contenedor, pedido) {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm d-flex align-items-center gap-1 btn-animated';
+            btn.style.cssText =
+                'background:#eff6ff;color:#3b82f6;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;white-space:nowrap;';
+            btn.innerHTML = '<i class="bi bi-send"></i> GENERAR FACTURA';
+
+            btn.addEventListener('click', () => {
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generando...';
+                btn.disabled = true;
+
+                fetch(`https://oraclefacturasrest.kowi.com.mx/api/Documentos/Factura?Orden=${pedido}`, {
+                        method: 'POST'
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.ok) {
+                            getStatusLoop(pedido, 'Closed');
+                        } else {
+                            btn.innerHTML = '❌ Error';
+                            btn.disabled = false;
+                        }
+                    })
+                    .catch(() => {
+                        btn.innerHTML = '❌ Error';
+                        btn.disabled = false;
+                    });
+            });
+
+            contenedor.appendChild(btn);
+        }
+
+        function fetchBuscarUUID(pedido, item) {
+            const apiUrl = `https://oraclefacturasrest.kowi.com.mx/api/Documentos/FacturaOracle?Orden=${pedido}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        const uuidApex = data.dato?.uUidApex;
+                        const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
+
+                        // Si tiene UUID Apex, está timbrado
+                        if (uuidApex && uuidApex.trim() !== '') {
+                            // Actualizar status a "Closed & Timbrado"
+                            item.innerHTML = `<span class="tags-green">${item.textContent += ` & Timbrado`}</span>`;
+
+                            // Mostrar botones PDF/XML
+                            if (contenedor) {
+                                contenedor.innerHTML = '';
+                                botonesPDFXML(contenedor, pedido);
+                            }
+
+                            // Mostrar UUID Apex en sub-row
+                            mostrarUUIDApex(pedido, uuidApex);
+                        } else {
+                            // Sin UUID Apex, solo Closed
+                            item.innerHTML = `<span class="tags-green">Closed</span>`;
+
+                            // Mostrar mensaje en sub-row
+                            mostrarSinTimbrar(pedido);
                         }
                     }
+                })
+                .catch(() => {
+                    console.error('Error al buscar UUID en Oracle');
                 });
+        }
 
-                element.addEventListener('mouseleave', function() {
-                    timeout = setTimeout(function() {
-                        tooltip.style.display = 'none';
-                    }, 200);
-                });
+        function mostrarUUIDApex(pedido, uuidApex) {
+            let msgRow = document.getElementById('msg-' + pedido);
+            const mainRow = document.getElementById('row-' + pedido);
 
-                tooltip.addEventListener('mouseenter', function() {
-                    clearTimeout(timeout);
-                });
+            if (!msgRow && mainRow) {
+                msgRow = document.createElement('tr');
+                msgRow.id = 'msg-' + pedido;
+                msgRow.className = 'bg-light';
+                msgRow.innerHTML = `<td colspan="8" class="py-2 ps-5">
+                    <small id="mensaje-container-${pedido}" class="text-success">
+                        <span id="uuid-info-${pedido}"></span>
+                    </small>
+                </td>`;
+                mainRow.after(msgRow);
+            }
 
-                tooltip.addEventListener('mouseleave', function() {
-                    tooltip.style.display = 'none';
-                });
-            });
-        });
+            const uuidInfoSpan = document.getElementById('uuid-info-' + pedido);
+            if (uuidInfoSpan) {
+                uuidInfoSpan.innerHTML = `
+                    <strong>UUID Apex:</strong> <span>${uuidApex}</span>
+                `;
+            }
+
+            // Actualizar clase del mensaje
+            const mensajeContainer = document.getElementById('mensaje-container-' + pedido);
+            if (mensajeContainer) {
+                mensajeContainer.className = 'text-success';
+            }
+        }
+
+        function mostrarSinTimbrar(pedido) {
+            let msgRow = document.getElementById('msg-' + pedido);
+            const mainRow = document.getElementById('row-' + pedido);
+
+            if (!msgRow && mainRow) {
+                msgRow = document.createElement('tr');
+                msgRow.id = 'msg-' + pedido;
+                msgRow.className = 'bg-light';
+                msgRow.innerHTML = `<td colspan="8" class="py-2 ps-5">
+                    <small id="mensaje-container-${pedido}" class="text-success">
+                        <span id="uuid-info-${pedido}"></span>
+                    </small>
+                </td>`;
+                mainRow.after(msgRow);
+            }
+
+            const uuidInfoSpan = document.getElementById('uuid-info-' + pedido);
+            if (uuidInfoSpan) {
+                uuidInfoSpan.innerHTML = `
+                    <i class="bi bi-info-circle me-1"></i>Pedido cerrado, pendiente de timbrado
+                `;
+            }
+
+            // Actualizar clase del mensaje
+            const mensajeContainer = document.getElementById('mensaje-container-' + pedido);
+            if (mensajeContainer) {
+                mensajeContainer.className = 'text-success';
+            }
+        }
+
+        function botonesPDFXML(contenedor, pedido) {
+            // Botón PDF
+            const btnPDF = document.createElement('a');
+            btnPDF.className = 'btn btn-sm d-flex align-items-center btn-animated gap-1';
+            btnPDF.style.cssText =
+                'background:#eff6ff;color:#3b82f6;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;';
+            btnPDF.innerHTML = '<i class="bi bi-download"></i> PDF';
+            btnPDF.href = `https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden=${pedido}`;
+            btnPDF.target = '_blank';
+            btnPDF.title = 'PDF';
+
+            // Botón XML
+            const btnXML = document.createElement('a');
+            btnXML.className = 'btn btn-sm d-flex align-items-center btn-animated gap-1';
+            btnXML.style.cssText =
+                'background:#f1f5f9;color:#475569;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;';
+            btnXML.innerHTML = '<i class="bi bi-download"></i> XML';
+            btnXML.href = `https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden=${pedido}`;
+            btnXML.target = '_blank';
+            btnXML.title = 'XML';
+
+            contenedor.appendChild(btnPDF);
+            contenedor.appendChild(btnXML);
+        }
+
+        // Cargar status de Oracle al iniciar
+        document.addEventListener('DOMContentLoaded', () => actualizarFilasOracle());
 
         // ====================================================================================================
         // ENVÍO DE PEDIDOS (BTN-ENVIAR)
@@ -307,7 +589,10 @@
                 const pedidoId = this.getAttribute('data-pedido');
                 const rowId = this.getAttribute('data-row-id');
                 const btn = this;
-                const row = btn.closest('tr');
+                const originalStatus = this.getAttribute('data-original-status');
+                const originalMensaje = this.getAttribute('data-original-mensaje');
+                const row = document.getElementById(rowId);
+
                 btn.disabled = true;
                 const origHTML = btn.innerHTML;
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
@@ -326,58 +611,98 @@
 
                     // Obtener las celdas de la fila
                     const cells = row.querySelectorAll('td');
-                    const statusCell = cells[2]; // Columna de Estatus (índice 2)
-                    const messageCell = cells[3]; // Columna de Mensaje (índice 3)
+                    const statusCell = cells[3]; // Columna de Estatus (índice 3)
+                    const oracleCell = cells[4]; // Columna de Oracle (índice 4)
+                    const accionesCell = cells[7]; // Columna de Acciones (índice 7)
+                    const msgRow = document.getElementById('msg-' + pedidoId);
 
                     if (result.ok) {
                         // Actualizar estatus a PROCESADO
                         statusCell.innerHTML = `
-                            <span class="tags-green">
+                            <span id="status-${pedidoId}" class="tags-green">
                                 <i class="bi bi-check-circle me-1"></i>PROCESADO
                             </span>
                         `;
 
-                        // Actualizar mensaje si viene en la respuesta
+                        // Inicializar celda de Oracle para consulta
+                        oracleCell.innerHTML = `
+                            <span id="status-oracle-${pedidoId}"
+                                  class="status-oracle text-muted"
+                                  data-pedido="${pedidoId}">
+                                -
+                            </span>
+                        `;
+
+                        // Consultar status de Oracle después de 2 segundos
+                        setTimeout(() => {
+                            const oracleItem = document.getElementById(
+                                `status-oracle-${pedidoId}`);
+                            if (oracleItem) fetchStatusOracle(oracleItem);
+                        }, 2000);
+
+                        // Actualizar o crear fila de mensaje
                         if (result.message) {
-                            messageCell.innerHTML = `
-                                <small style="color: #475569;">
-                                    ${result.message.length > 60 ? result.message.substring(0, 60) + '...' : result.message}
-                                </small>
+                            const mensajeHTML = `
+                                <strong id="mensaje-titulo-${pedidoId}">Mensaje:</strong>
+                                <span id="mensaje-texto-${pedidoId}">${result.message}</span>
                             `;
+
+                            if (msgRow) {
+                                msgRow.querySelector('td small').innerHTML = mensajeHTML;
+                                msgRow.querySelector('td small').className = 'text-success';
+                                msgRow.className = 'bg-light';
+                            } else {
+                                const newMsgRow = document.createElement('tr');
+                                newMsgRow.id = 'msg-' + pedidoId;
+                                newMsgRow.className = 'bg-light';
+                                newMsgRow.innerHTML = `
+                                    <td colspan="8" class="py-2 ps-5">
+                                        <small id="mensaje-container-${pedidoId}" class="text-success">
+                                            ${mensajeHTML}
+                                        </small>
+                                    </td>`;
+                                row.after(newMsgRow);
+                            }
                         }
 
-                        // Eliminar el botón
-                        btn.remove();
+                        // Actualizar columna de acciones: eliminar botón ENVIAR y agregar contenedor Oracle
+                        accionesCell.innerHTML = `
+                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                <div class="acciones-oracle buttons-oracle-${pedidoId} d-inline-block d-flex gap-2"
+                                     data-pedido="${pedidoId}">
+                                </div>
+                            </div>
+                        `;
 
                     } else {
                         // Actualizar estatus a ERROR
                         statusCell.innerHTML = `
-                            <span class="tags-red">
+                            <span id="status-${pedidoId}" class="tags-red">
                                 <i class="bi bi-x-circle me-1"></i>ERROR
                             </span>
                         `;
 
-                        // Actualizar mensaje de error
-                        if (result.message) {
-                            const truncatedMessage = result.message.length > 60 ?
-                                result.message.substring(0, 60) + '...' : result.message;
+                        // Actualizar o crear fila de mensaje de error
+                        const mensajeHTML = `
+                            <strong id="mensaje-titulo-${pedidoId}">Error:</strong>
+                            <span id="mensaje-texto-${pedidoId}">${result.message}</span>
+                        `;
 
-                            messageCell.innerHTML = `
-                                <small style="color: #475569; cursor: pointer;" class="mensaje-tooltip" data-mensaje="${result.message.replace(/"/g, '&quot;')}">
-                                    ${truncatedMessage}
-                                </small>
-                                <div class="tooltip-mensaje" style="display: none; position: absolute; z-index: 9999; background: #1e293b; color: white;
-                                        padding: 12px 16px; border-radius: 10px; font-size: 0.8rem; max-width: 400px;
-                                        word-wrap: break-word; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-                                        left: 0; top: 100%; margin-top: 8px; line-height: 1.5;">
-                                    <div style="position: absolute; top: -6px; left: 20px; width: 12px; height: 12px;
-                                            background: #1e293b; transform: rotate(45deg);"></div>
-                                    ${result.message}
-                                </div>
-                            `;
-
-                            // Agregar eventos de tooltip al nuevo elemento
-                            agregarEventosTooltip(messageCell.querySelector('.mensaje-tooltip'));
+                        if (msgRow) {
+                            msgRow.querySelector('td small').innerHTML = mensajeHTML;
+                            msgRow.querySelector('td small').className = 'text-danger';
+                            msgRow.className = 'bg-light';
+                        } else {
+                            const newMsgRow = document.createElement('tr');
+                            newMsgRow.id = 'msg-' + pedidoId;
+                            newMsgRow.className = 'bg-light';
+                            newMsgRow.innerHTML = `
+                                <td colspan="8" class="py-2 ps-5">
+                                    <small id="mensaje-container-${pedidoId}" class="text-danger">
+                                        ${mensajeHTML}
+                                    </small>
+                                </td>`;
+                            row.after(newMsgRow);
                         }
 
                         // Restaurar el botón
@@ -394,52 +719,5 @@
                 }
             });
         });
-
-        // Función para agregar eventos de tooltip
-        function agregarEventosTooltip(element) {
-            if (!element) return;
-
-            const tooltip = element.nextElementSibling;
-            if (!tooltip) return;
-
-            let timeout;
-
-            element.addEventListener('mouseenter', function(e) {
-                clearTimeout(timeout);
-                tooltip.style.display = 'block';
-
-                const rect = tooltip.getBoundingClientRect();
-                if (rect.right > window.innerWidth) {
-                    tooltip.style.left = 'auto';
-                    tooltip.style.right = '0';
-                }
-                if (rect.bottom > window.innerHeight) {
-                    tooltip.style.top = 'auto';
-                    tooltip.style.bottom = '100%';
-                    tooltip.style.marginTop = '0';
-                    tooltip.style.marginBottom = '8px';
-                    const arrow = tooltip.querySelector('div');
-                    if (arrow) {
-                        arrow.style.top = 'auto';
-                        arrow.style.bottom = '-6px';
-                        arrow.style.transform = 'rotate(225deg)';
-                    }
-                }
-            });
-
-            element.addEventListener('mouseleave', function() {
-                timeout = setTimeout(function() {
-                    tooltip.style.display = 'none';
-                }, 200);
-            });
-
-            tooltip.addEventListener('mouseenter', function() {
-                clearTimeout(timeout);
-            });
-
-            tooltip.addEventListener('mouseleave', function() {
-                tooltip.style.display = 'none';
-            });
-        }
     </script>
 </x-page-container>

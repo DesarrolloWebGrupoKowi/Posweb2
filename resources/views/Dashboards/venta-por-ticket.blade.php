@@ -73,6 +73,13 @@
                     :checked="request('solicitud_fe') == 'on'"
                     col="col-md-2"
                 />
+                <x-form.checkbox-input
+                    name="status_venta"
+                    label="Cancelados"
+                    icon="file-text"
+                    :checked="request('status_venta') == 'on'"
+                    col="col-md-2"
+                />
             </x-form.advanced-panel>
         </x-form.form>
 
@@ -676,7 +683,8 @@
                                     @if ($pagosData && count($pagosData) > 0)
                                         @php
                                             $totalPagos = collect($pagosData)->sum('Pago');
-                                            $totalRestante = count($pagosData) > 0 ? $pagosData[count($pagosData) - 1]->Restante : 0;
+                                            $totalRestante =
+                                                count($pagosData) > 0 ? $pagosData[count($pagosData) - 1]->Restante : 0;
                                         @endphp
                                         <tr style="background: #f0fdf4;">
                                             <td
@@ -894,6 +902,7 @@
                                     <th><i class="bi bi-shop me-1"></i>Tienda</th>
                                     <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
                                     <th class="text-center"><i class="bi bi-box me-1"></i>Artículos</th>
+                                    <th class="text-center"><i class="bi bi-receipt me-1"></i>Factura</th>
                                     <th class="text-center"><i class="bi bi-circle me-1"></i>Estatus</th>
                                     <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Iva</th>
                                     <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Importe</th>
@@ -912,7 +921,8 @@
                                     @endphp
                                     <tr>
                                         <td style="font-weight: 600; color: #0f172a;">
-                                            {{ $ticketInfo->IdTicket ?? $ticketId }}</td>
+                                            {{ $ticketInfo->IdTicket ?? $ticketId }}
+                                        </td>
                                         <td style="font-weight: 500;">{{ $ticketInfo->IdEncabezado }}</td>
                                         <td>{{ $ticketInfo->NomTienda ?? 'N/A' }}</td>
                                         <td style="font-size: 0.85rem;">
@@ -921,20 +931,37 @@
                                         <td
                                             class="text-center"
                                             style="font-weight: 500;"
-                                        >{{ count($ticketData['items']) }}</td>
+                                        >
+                                            {{ count($ticketData['items']) }}
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($tieneFactura)
+                                                <span
+                                                    style="background: #f0fdf4; color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
+                                                >
+                                                    Facturado
+                                                </span>
+                                            @else
+                                                <span
+                                                    style="background: #fefce8; color: #ca8a04; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
+                                                >
+                                                    Sin factura
+                                                </span>
+                                            @endif
+                                        </td>
                                         <td class="text-center">
                                             @if ($esCancelado)
                                                 <span
                                                     style="background: #fef2f2; color: #ef4444; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
-                                                >Cancelado</span>
-                                            @elseif ($tieneFactura)
-                                                <span
-                                                    style="background: #f0fdf4; color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
-                                                >Con Factura</span>
+                                                >
+                                                    Cancelado
+                                                </span>
                                             @else
                                                 <span
                                                     style="background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;"
-                                                >Activo</span>
+                                                >
+                                                    Activo
+                                                </span>
                                             @endif
                                         </td>
                                         <td
@@ -950,14 +977,16 @@
                                         <td
                                             class="text-end"
                                             style="font-weight: 600; color: #10b981;"
-                                        >${{ number_format($ticketData['totales']['importe'], 2) }}</td>
+                                        >
+                                            ${{ number_format($ticketData['totales']['importe'], 2) }}
+                                        </td>
                                     </tr>
                                     @php $totalImporteResumido += $ticketData['totales']['importe']; @endphp
                                     @php $totalIvaResumido += $ticketData['totales']['iva']; @endphp
                                 @empty
                                     <tr>
                                         <td
-                                            colspan="8"
+                                            colspan="9"
                                             class="py-5 text-center"
                                         >
                                             <i
@@ -976,7 +1005,7 @@
                                 <tfoot>
                                     <tr style="background: #f1f5f9; font-weight: 700;">
                                         <td
-                                            colspan="6"
+                                            colspan="7"
                                             style="color: #0f172a;"
                                         >Total:</td>
                                         <td
@@ -992,7 +1021,9 @@
                                         <td
                                             class="text-end"
                                             style="color: #10b981; font-weight: 700;"
-                                        >${{ number_format($totalImporteResumido, 2) }}</td>
+                                        >
+                                            ${{ number_format($totalImporteResumido, 2) }}
+                                        </td>
                                     </tr>
                                 </tfoot>
                             @endif

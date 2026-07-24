@@ -237,7 +237,7 @@
 
             inputs.forEach(input => {
                 const maxValue = parseFloat(input.dataset.max);
-                input.value = maxValue.toFixed(2);
+                input.value = maxValue.toFixed(3);
 
                 // Disparar evento change para actualizar totales
                 const event = new Event('change', {
@@ -334,15 +334,15 @@
 
             $('#devolucion-total-modal').text(
                 '$' + totalImporte.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3
                 })
             );
 
             $('#devolucion-total-kilos').text(
                 totalKilos.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3
                 }) + ' kg'
             );
 
@@ -411,9 +411,9 @@
                     buyingPartyName: datoGlobal.buyingPartyName,
                     transactionTypeCode: datoGlobal.transactionTypeCode,
                     transactionType: datoGlobal.transactionType,
-                    requestedFulfillmentOrganizationId: datoGlobal.requestedFulfillmentOrganizationId,
-                    requestedFulfillmentOrganizationCode: datoGlobal.requestedFulfillmentOrganizationCode,
-                    requestedFulfillmentOrganizationName: datoGlobal.requestedFulfillmentOrganizationName,
+                    requestedFulfillmentOrganizationId: datoGlobal.lines?.[0]?.requestedFulfillmentOrganizationId,
+                    requestedFulfillmentOrganizationCode: datoGlobal.lines?.[0]?.requestedFulfillmentOrganizationCode,
+                    requestedFulfillmentOrganizationName: datoGlobal.lines?.[0]?.requestedFulfillmentOrganizationName,
                     transactionalCurrencyCode: datoGlobal.transactionalCurrencyCode,
                     transactionalCurrencyName: datoGlobal.transactionalCurrencyName,
                     shipToCustomerId: datoGlobal.shipToCustomer?.[0]?.siteId || '',
@@ -865,10 +865,10 @@
                                             font-size: 1.5rem;
                                         "
                                     >
-                                        ${dato.requestedFulfillmentOrganizationCode}
+                                        ${dato.lines[0].requestedFulfillmentOrganizationCode}
                                     </h3>
                                     <span style="color: #94a3b8; font-size: 0.78rem">
-                                        ${dato.requestedFulfillmentOrganizationName}
+                                        ${dato.lines[0].requestedFulfillmentOrganizationName}
                                     </span>
                                 </div>
                             </div>
@@ -935,7 +935,7 @@
                                                 Almacén
                                             </label>
                                             <p class="mb-0" style="color: #334155; font-size: 0.9rem;">
-                                                <span style="font-weight: 500">${dato.requestedFulfillmentOrganizationName}</span>
+                                                <span style="font-weight: 500">${dato.lines[0].requestedFulfillmentOrganizationName}</span>
                                             </p>
                                         </div>
                                         <div class="mb-0">
@@ -998,38 +998,38 @@
                                     <i class="bi bi-truck me-2" style="color: #f59e0b;"></i>Dirección de Envío
                                 </h5>
                                 ${dato.shipToCustomer && dato.shipToCustomer.length > 0 ? `
-                                                                                                                                                                                        <div class="d-flex">
-                                                                                                                                                                                            <div class="me-3 mt-1">
-                                                                                                                                                                                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
-                                                                                                                                                                                                    style="width: 36px; height: 36px; background: #fffbeb;">
-                                                                                                                                                                                                    <i class="bi bi-geo-alt" style="color: #f59e0b; font-size: 1.1rem;"></i>
+                                                                                                                                                                                                <div class="d-flex">
+                                                                                                                                                                                                    <div class="me-3 mt-1">
+                                                                                                                                                                                                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
+                                                                                                                                                                                                            style="width: 36px; height: 36px; background: #fffbeb;">
+                                                                                                                                                                                                            <i class="bi bi-geo-alt" style="color: #f59e0b; font-size: 1.1rem;"></i>
+                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                        <p class="mb-2" style="color: #475569; font-size: 0.9rem;">
+                                                                                                                                                                                                            <span class="fw-semibold" style="color: #0f172a;">${dato.shipToCustomer[0].address1}</span>
+                                                                                                                                                                                                            ${dato.shipToCustomer[0].address2 ? `<span style="color: #64748b;"> · ${dato.shipToCustomer[0].address2}</span>` : ''}
+                                                                                                                                                                                                            <span style="color: #64748b;"> · No. ${dato.shipToCustomer[0].address3}</span>
+                                                                                                                                                                                                            <span style="color: #64748b;"> · ${dato.shipToCustomer[0].city}, ${dato.shipToCustomer[0].state}</span>
+                                                                                                                                                                                                        </p>
+                                                                                                                                                                                                        <p class="mb-0">
+                                                                                                                                                                                                            <span class="badge" style="background: #f8fafc; color: #475569; font-weight: 500; font-size: 0.8rem; padding: 5px 12px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                                                                                                                                                                                                <span style="color: #94a3b8; font-weight: 500;">C.P.</span> ${dato.shipToCustomer[0].postalCode}
+                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                        </p>
+                                                                                                                                                                                                    </div>
                                                                                                                                                                                                 </div>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                            <div>
-                                                                                                                                                                                                <p class="mb-2" style="color: #475569; font-size: 0.9rem;">
-                                                                                                                                                                                                    <span class="fw-semibold" style="color: #0f172a;">${dato.shipToCustomer[0].address1}</span>
-                                                                                                                                                                                                    ${dato.shipToCustomer[0].address2 ? `<span style="color: #64748b;"> · ${dato.shipToCustomer[0].address2}</span>` : ''}
-                                                                                                                                                                                                    <span style="color: #64748b;"> · No. ${dato.shipToCustomer[0].address3}</span>
-                                                                                                                                                                                                    <span style="color: #64748b;"> · ${dato.shipToCustomer[0].city}, ${dato.shipToCustomer[0].state}</span>
-                                                                                                                                                                                                </p>
-                                                                                                                                                                                                <p class="mb-0">
-                                                                                                                                                                                                    <span class="badge" style="background: #f8fafc; color: #475569; font-weight: 500; font-size: 0.8rem; padding: 5px 12px; border: 1px solid #e2e8f0; border-radius: 6px;">
-                                                                                                                                                                                                        <span style="color: #94a3b8; font-weight: 500;">C.P.</span> ${dato.shipToCustomer[0].postalCode}
-                                                                                                                                                                                                    </span>
-                                                                                                                                                                                                </p>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                        </div>
-                                                                                                                                                                                    ` : `
-                                                                                                                                                                                        <div class="text-center py-4">
-                                                                                                                                                                                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                                                                                                                                                                                                style="width: 56px; height: 56px; background: #f8fafc;">
-                                                                                                                                                                                                <i class="bi bi-inbox" style="font-size: 1.5rem; color: #cbd5e1;"></i>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                            <p class="mb-0" style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">
-                                                                                                                                                                                                Sin dirección de envío
-                                                                                                                                                                                            </p>
-                                                                                                                                                                                        </div>
-                                                                                                                                                                                    `}
+                                                                                                                                                                                            ` : `
+                                                                                                                                                                                                <div class="text-center py-4">
+                                                                                                                                                                                                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                                                                                                                                                                                        style="width: 56px; height: 56px; background: #f8fafc;">
+                                                                                                                                                                                                        <i class="bi bi-inbox" style="font-size: 1.5rem; color: #cbd5e1;"></i>
+                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                    <p class="mb-0" style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">
+                                                                                                                                                                                                        Sin dirección de envío
+                                                                                                                                                                                                    </p>
+                                                                                                                                                                                                </div>
+                                                                                                                                                                                            `}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1038,38 +1038,38 @@
                                     <i class="bi bi-receipt me-2" style="color: #10b981;"></i>Dirección de Facturación
                                 </h5>
                                 ${dato.billToCustomer && dato.billToCustomer.length > 0 ? `
-                                                                                                                                                                                        <div class="d-flex">
-                                                                                                                                                                                            <div class="me-3 mt-1">
-                                                                                                                                                                                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
-                                                                                                                                                                                                    style="width: 36px; height: 36px; background: #ecfdf5;">
-                                                                                                                                                                                                    <i class="bi bi-geo-alt" style="color: #10b981; font-size: 1.1rem;"></i>
+                                                                                                                                                                                                <div class="d-flex">
+                                                                                                                                                                                                    <div class="me-3 mt-1">
+                                                                                                                                                                                                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
+                                                                                                                                                                                                            style="width: 36px; height: 36px; background: #ecfdf5;">
+                                                                                                                                                                                                            <i class="bi bi-geo-alt" style="color: #10b981; font-size: 1.1rem;"></i>
+                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                        <p class="mb-2" style="color: #475569; font-size: 0.9rem;">
+                                                                                                                                                                                                            <span class="fw-semibold" style="color: #0f172a;">${dato.billToCustomer[0].address1}</span>
+                                                                                                                                                                                                            ${dato.billToCustomer[0].address2 ? `<span style="color: #64748b;"> · ${dato.billToCustomer[0].address2}</span>` : ''}
+                                                                                                                                                                                                            <span style="color: #64748b;"> · No. ${dato.billToCustomer[0].address3}</span>
+                                                                                                                                                                                                            <span style="color: #64748b;"> · ${dato.billToCustomer[0].city}, ${dato.billToCustomer[0].state}</span>
+                                                                                                                                                                                                        </p>
+                                                                                                                                                                                                        <p class="mb-0">
+                                                                                                                                                                                                            <span class="badge" style="background: #f8fafc; color: #475569; font-weight: 500; font-size: 0.8rem; padding: 5px 12px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                                                                                                                                                                                                <span style="color: #94a3b8; font-weight: 500;">C.P.</span> ${dato.billToCustomer[0].postalCode}
+                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                        </p>
+                                                                                                                                                                                                    </div>
                                                                                                                                                                                                 </div>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                            <div>
-                                                                                                                                                                                                <p class="mb-2" style="color: #475569; font-size: 0.9rem;">
-                                                                                                                                                                                                    <span class="fw-semibold" style="color: #0f172a;">${dato.billToCustomer[0].address1}</span>
-                                                                                                                                                                                                    ${dato.billToCustomer[0].address2 ? `<span style="color: #64748b;"> · ${dato.billToCustomer[0].address2}</span>` : ''}
-                                                                                                                                                                                                    <span style="color: #64748b;"> · No. ${dato.billToCustomer[0].address3}</span>
-                                                                                                                                                                                                    <span style="color: #64748b;"> · ${dato.billToCustomer[0].city}, ${dato.billToCustomer[0].state}</span>
-                                                                                                                                                                                                </p>
-                                                                                                                                                                                                <p class="mb-0">
-                                                                                                                                                                                                    <span class="badge" style="background: #f8fafc; color: #475569; font-weight: 500; font-size: 0.8rem; padding: 5px 12px; border: 1px solid #e2e8f0; border-radius: 6px;">
-                                                                                                                                                                                                        <span style="color: #94a3b8; font-weight: 500;">C.P.</span> ${dato.billToCustomer[0].postalCode}
-                                                                                                                                                                                                    </span>
-                                                                                                                                                                                                </p>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                        </div>
-                                                                                                                                                                                    ` : `
-                                                                                                                                                                                        <div class="text-center py-4">
-                                                                                                                                                                                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                                                                                                                                                                                                style="width: 56px; height: 56px; background: #f8fafc;">
-                                                                                                                                                                                                <i class="bi bi-inbox" style="font-size: 1.5rem; color: #cbd5e1;"></i>
-                                                                                                                                                                                            </div>
-                                                                                                                                                                                            <p class="mb-0" style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">
-                                                                                                                                                                                                Sin dirección de facturación
-                                                                                                                                                                                            </p>
-                                                                                                                                                                                        </div>
-                                                                                                                                                                                    `}
+                                                                                                                                                                                            ` : `
+                                                                                                                                                                                                <div class="text-center py-4">
+                                                                                                                                                                                                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                                                                                                                                                                                        style="width: 56px; height: 56px; background: #f8fafc;">
+                                                                                                                                                                                                        <i class="bi bi-inbox" style="font-size: 1.5rem; color: #cbd5e1;"></i>
+                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                    <p class="mb-0" style="color: #94a3b8; font-size: 0.85rem; font-weight: 500;">
+                                                                                                                                                                                                        Sin dirección de facturación
+                                                                                                                                                                                                    </p>
+                                                                                                                                                                                                </div>
+                                                                                                                                                                                            `}
                             </div>
                         </div>
                     </div>
@@ -1086,26 +1086,26 @@
                             <div class="d-flex align-items-center">
                                 <span style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; margin-right: 8px;">Total</span>
                                 <span class="fw-bold" style="color: #0f172a; font-size: 1.15rem; letter-spacing: -0.2px;">
-                                    $${parseFloat(total).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                    $${parseFloat(total).toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
                                 </span>
                                 ${!esDevolucion ? `
-                                            <button type="button"
-                                                    class="btn btn-sm d-flex align-items-center gap-2 ms-4"
-                                                    style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 0.85rem;"
-                                                    onclick="abrirModalDevolucion()"
-                                                    onmouseover="this.style.background='#fee2e2'; this.style.transform='translateY(-1px)'"
-                                                    onmouseout="this.style.background='#fef2f2'; this.style.transform='translateY(0)'">
-                                                <i class="bi bi-arrow-return-left"></i> Crear Devolución
-                                            </button>
-                                            <button type="button"
-                                                    class="btn btn-sm d-flex align-items-center gap-2 ms-4"
-                                                    style="background: #f0fdf4; color: #059669; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 0.85rem;"
-                                                    onclick="window.open('/Devoluciones?orden=${dato.sourceTransactionNumber}', '_blank')"
-                                                    onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-                                                    onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'">
-                                                <i class="bi bi-list-check"></i> Ver Devoluciones
-                                            </button>
-                                        ` : ''}
+                                                    <button type="button"
+                                                            class="btn btn-sm d-flex align-items-center gap-2 ms-4"
+                                                            style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 0.85rem;"
+                                                            onclick="abrirModalDevolucion()"
+                                                            onmouseover="this.style.background='#fee2e2'; this.style.transform='translateY(-1px)'"
+                                                            onmouseout="this.style.background='#fef2f2'; this.style.transform='translateY(0)'">
+                                                        <i class="bi bi-arrow-return-left"></i> Crear Devolución
+                                                    </button>
+                                                    <button type="button"
+                                                            class="btn btn-sm d-flex align-items-center gap-2 ms-4"
+                                                            style="background: #f0fdf4; color: #059669; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 16px; font-weight: 600; font-size: 0.85rem;"
+                                                            onclick="window.open('/Devoluciones?orden=${dato.sourceTransactionNumber}', '_blank')"
+                                                            onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
+                                                            onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'">
+                                                        <i class="bi bi-list-check"></i> Ver Devoluciones
+                                                    </button>
+                                                ` : ''}
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -1118,9 +1118,9 @@
                                         <th>Producto</th>
                                         <th class="text-end">Cantidad</th>
                                         ${!esDevolucion ? `
-                                                    <th class="text-end">Disp. Devolución</th>
-                                                    <th class="text-end">Devuelto</th>
-                                                ` : ''}
+                                                            <th class="text-end">Disp. Devolución</th>
+                                                            <th class="text-end">Devuelto</th>
+                                                        ` : ''}
                                         <th style="width: 70px;">UOM</th>
                                         <th class="text-end">Precio Unit.</th>
                                         <th class="text-end">Importe</th>
@@ -1135,75 +1135,75 @@
                                         const tieneDiferencia = diferencia > 0;
 
                                         return `
-                                                    <tr>
-                                                        <td>
-                                                            <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 600; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">
-                                                                ${line.lineNumber}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="font-monospace" style="color: #64748b; font-size: 0.78rem; font-weight: 500;">
-                                                                ${line.productId}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="fw-semibold" style="color: #0f172a; font-size: 0.85rem;">
-                                                                ${line.productNumber}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-truncate" style="max-width: 180px;" title="${line.productDescription}">
-                                                            <span style="color: #334155; font-size: 0.85rem; font-weight: 500;">
-                                                                ${line.productDescription}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <span style="color: #475569; font-weight: 500; font-size: 0.85rem;">
-                                                                ${cantidad.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                                            </span>
-                                                        </td>
-                                                        ${!esDevolucion ? `
+                                                            <tr>
+                                                                <td>
+                                                                    <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 600; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">
+                                                                        ${line.lineNumber}
+                                                                    </span>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="font-monospace" style="color: #64748b; font-size: 0.78rem; font-weight: 500;">
+                                                                        ${line.productId}
+                                                                    </span>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="fw-semibold" style="color: #0f172a; font-size: 0.85rem;">
+                                                                        ${line.productNumber}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-truncate" style="max-width: 180px;" title="${line.productDescription}">
+                                                                    <span style="color: #334155; font-size: 0.85rem; font-weight: 500;">
+                                                                        ${line.productDescription}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    <span style="color: #475569; font-weight: 500; font-size: 0.85rem;">
+                                                                        ${cantidad.toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
+                                                                    </span>
+                                                                </td>
+                                                                ${!esDevolucion ? `
                                                     <td class="text-end">
                                                         <span style="color: ${dispDevolucion > 0 ? '#0f172a' : '#94a3b8'};
                                                                     font-weight: ${dispDevolucion > 0 ? 600 : 400};
                                                                     font-size: 0.85rem;">
-                                                            ${dispDevolucion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                                            ${dispDevolucion.toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
                                                         </span>
                                                     </td>
                                                     <td class="text-end">
                                                         <span class="fw-semibold" style="font-size: 0.85rem;
                                                             color: ${tieneDiferencia ? '#ef4444' : '#10b981'};">
-                                                            ${tieneDiferencia ? '-' : ''}${Math.abs(diferencia).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                                            ${tieneDiferencia ? '-' : ''}${Math.abs(diferencia).toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
                                                         </span>
                                                     </td>
                                                 ` : ''}
-                                                        <td>
-                                                            <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 500; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">
-                                                                ${line.orderedUOMCode}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <span style="color: #475569; font-weight: 500; font-size: 0.85rem;">
-                                                                $${parseFloat(line.unitSellingPrice).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <span class="fw-semibold" style="color: #0f172a; font-size: 0.85rem;">
-                                                                $${parseFloat(line.extendedAmount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <span class="badge rounded-pill"
-                                                                style="background: ${line.status === 'Closed' ? '#f1f5f9' : '#f0fdf4'};
-                                                                        color: ${line.status === 'Closed' ? '#64748b' : '#059669'};
-                                                                        font-weight: 500;
-                                                                        font-size: 0.75rem;
-                                                                        padding: 4px 10px;">
-                                                                <i class="bi bi-${line.status === 'Closed' ? 'check-circle' : 'arrow-repeat'} me-1" style="font-size: 0.7rem;"></i>
-                                                                ${line.status}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                `;
+                                                                <td>
+                                                                    <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 500; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">
+                                                                        ${line.orderedUOMCode}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    <span style="color: #475569; font-weight: 500; font-size: 0.85rem;">
+                                                                        $${parseFloat(line.unitSellingPrice).toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    <span class="fw-semibold" style="color: #0f172a; font-size: 0.85rem;">
+                                                                        $${parseFloat(line.extendedAmount).toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <span class="badge rounded-pill"
+                                                                        style="background: ${line.status === 'Closed' ? '#f1f5f9' : '#f0fdf4'};
+                                                                                color: ${line.status === 'Closed' ? '#64748b' : '#059669'};
+                                                                                font-weight: 500;
+                                                                                font-size: 0.75rem;
+                                                                                padding: 4px 10px;">
+                                                                        <i class="bi bi-${line.status === 'Closed' ? 'check-circle' : 'arrow-repeat'} me-1" style="font-size: 0.7rem;"></i>
+                                                                        ${line.status}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        `;
                                     }).join('')}
                                 </tbody>
                             </table>
@@ -1288,64 +1288,64 @@
                                             ${dato.lines
                                                 .filter(line => parseFloat(line.orderedReturn) > 0)
                                                 .map(line => `
-                                                    <tr data-line-id="${line.fulfillLineId}">
-                                                        <td>
-                                                            <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 600; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">
-                                                                ${line.lineNumber}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="fw-semibold" style="color: #0f172a; font-size: 0.85rem;">
-                                                                ${line.productNumber}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-truncate" style="max-width: 200px;" title="${line.productDescription}">
-                                                            <span style="color: #334155; font-size: 0.85rem; font-weight: 500;">
-                                                                ${line.productDescription}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <span style="color: #64748b; font-size: 0.85rem;">
-                                                                ${parseFloat(line.orderedQuantity).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <span class="fw-semibold" style="color: #0f172a; font-size: 0.85rem;">
-                                                                ${parseFloat(line.orderedReturn).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 500; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">
-                                                                ${line.orderedUOMCode}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <span style="color: #475569; font-size: 0.85rem;">
-                                                                $${parseFloat(line.unitSellingPrice).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <input type="number"
-                                                                    class="form-control form-control-sm input-devolucion"
-                                                                    value="0.00"
-                                                                    min="0"
-                                                                    max="${parseFloat(line.orderedReturn).toFixed(2)}"
-                                                                    step="0.01"
-                                                                    data-max="${parseFloat(line.orderedReturn).toFixed(2)}"
-                                                                    data-price="${line.unitSellingPrice}"
-                                                                    data-line="${line.fulfillLineId}"
-                                                                    style="width: 110px; text-align: right; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; padding: 6px 10px; font-weight: 500;">
-                                                                <button type="button"
-                                                                        class="btn btn-sm btn-max-devolucion"
-                                                                        style="background: #f1f5f9; color: #64748b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; white-space: nowrap;"
-                                                                        title="Devolver todo">
-                                                                    Max
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                `).join('')}
+                                                            <tr data-line-id="${line.fulfillLineId}">
+                                                                <td>
+                                                                    <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 600; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">
+                                                                        ${line.lineNumber}
+                                                                    </span>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="fw-semibold" style="color: #0f172a; font-size: 0.85rem;">
+                                                                        ${line.productNumber}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-truncate" style="max-width: 200px;" title="${line.productDescription}">
+                                                                    <span style="color: #334155; font-size: 0.85rem; font-weight: 500;">
+                                                                        ${line.productDescription}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    <span style="color: #64748b; font-size: 0.85rem;">
+                                                                        ${parseFloat(line.orderedQuantity).toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    <span class="fw-semibold" style="color: #0f172a; font-size: 0.85rem;">
+                                                                        ${parseFloat(line.orderedReturn).toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
+                                                                    </span>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 500; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;">
+                                                                        ${line.orderedUOMCode}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    <span style="color: #475569; font-size: 0.85rem;">
+                                                                        $${parseFloat(line.unitSellingPrice).toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}
+                                                                    </span>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <input type="number"
+                                                                            class="form-control form-control-sm input-devolucion"
+                                                                            value="0.000"
+                                                                            min="0"
+                                                                            max="${parseFloat(line.orderedReturn).toFixed(3)}"
+                                                                            step="0.001"
+                                                                            data-max="${parseFloat(line.orderedReturn).toFixed(3)}"
+                                                                            data-price="${line.unitSellingPrice}"
+                                                                            data-line="${line.fulfillLineId}"
+                                                                            style="width: 110px; text-align: right; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; padding: 6px 10px; font-weight: 500;">
+                                                                        <button type="button"
+                                                                                class="btn btn-sm btn-max-devolucion"
+                                                                                style="background: #f1f5f9; color: #64748b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; white-space: nowrap;"
+                                                                                title="Devolver todo">
+                                                                            Max
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        `).join('')}
                                         </tbody>
                                     </table>
                                 </div>

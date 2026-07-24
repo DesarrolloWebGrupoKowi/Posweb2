@@ -1,197 +1,175 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Descuentos y promociones detallado')
-@section('dashboardWidth', 'width-95')
-@section('contenido')
-    <x-layout.page-container>
+<x-page-container title="Descuentos y Promociones Detallado">
+    <x-card-gradient-header
+        icon="tags"
+        title="Descuentos y Promociones Detallado"
+        subtitle="Vista detallada de artículos por descuento"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-        <!-- SECCIÓN 1: TITULO Y FILTROS -->
-        <x-layout.section-card>
-            <!-- Título y botones principales -->
-            <div class="d-flex justify-content-sm-between align-items-end align-items-sm-start flex-column flex-sm-row mb-2">
-                <x-title titulo="Descuentos y promociones detallado" />
-                <div class="d-flex gap-2">
-                    <x-filters.buttons.refresh-button />
-                    <x-filters.buttons.home-button />
+        <x-form.form action="/VerDescuentos">
+            <!-- Fila 1: Filtros principales -->
+            <x-form.group>
+                <x-form.select
+                    name="idPlaza"
+                    label="Plaza"
+                    icon="building"
+                    col="col-md-3"
+                    placeholder="Todas las plazas"
+                    :options="$plazas->pluck('NomPlaza', 'IdPlaza')->toArray()"
+                    :selected="request('idPlaza')"
+                />
+                <x-form.select
+                    name="idTienda"
+                    label="Tienda"
+                    icon="shop"
+                    col="col-md-3"
+                    placeholder="Todas las tiendas"
+                    :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
+                    :selected="request('idTienda')"
+                />
+                <x-form.checkbox-input
+                    name="activos"
+                    label="Solo activos"
+                    icon="check-circle"
+                    :checked="request('activos') == 'on'"
+                    col="col-md-2"
+                />
+                <x-form.checkbox-input
+                    name="detallado"
+                    label="Detallado"
+                    icon="list-ul"
+                    :checked="request('detallado') == 'on'"
+                    col="col-md-2"
+                />
+                <div class="col-md-2">
+                    <x-form.advanced-toggle :active="$filtrosAvanzadosActivos" />
                 </div>
-            </div>
+            </x-form.group>
 
-            <!-- Formulario de filtros -->
-            <x-filters.filter-form>
-                <!-- Filtros Básicos -->
-                <x-filters.filter-group>
-                    <x-filters.inputs.select-input
-                        name="idPlaza"
-                        label="Plaza"
-                        :options="$plazas->pluck('NomPlaza', 'IdPlaza')->toArray()"
-                        :value="request('idPlaza')"
+            <!-- Fila 2: Filtros avanzados (ocultos) -->
+            <x-form.advanced-panel :active="$filtrosAvanzadosActivos">
+                <x-form.group>
+                    <x-form.text
+                        name="codigo"
+                        label="Código"
+                        icon="upc-scan"
+                        placeholder="Código artículo"
+                        col="col-md-3"
+                        :value="request('codigo')"
                     />
-                    <x-filters.inputs.select-input
-                        name="idTienda"
-                        label="Tienda"
-                        :options="$tiendas->pluck('NomTienda', 'IdTienda')->toArray()"
-                        :value="request('idTienda')"
-                    />
-                    <x-filters.inputs.date-input
-                        name="fecha"
-                        label="Fecha Única"
-                        :value="request('fecha')"
-                    />
-                    <x-filters.inputs.checkbox-input
-                        name="activos"
-                        label="Activos"
-                        :checked="request('activos') == 'on'"
-                        helperText="Ver activos"
-                    />
-                </x-filters.filter-group>
-                <!-- Filtros Avanzados -->
-                <x-filters.advanced-collapse
-                    :active="$filtrosAvanzadosActivos"
-                    :showBadge="true"
+                </x-form.group>
+            </x-form.advanced-panel>
+        </x-form.form>
+
+        <div class="p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                <div>
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-table me-2"
+                            style="color: #64748b;"
+                        ></i>Descuentos Detallados
+                    </h5>
+                    <p class="section-content-subtitle">{{ $descuentosDetallados->count() }} registros</p>
+                </div>
+                <a
+                    href="/CatDescuentos"
+                    class="btn-modern btn-agregar"
                 >
-                    <x-filters.filter-group>
-                        <x-filters.inputs.text-input
-                            name="codigo"
-                            label="Código"
-                            placeholder="Código articulo"
-                            compact="true"
-                        />
-                        <x-filters.inputs.checkbox-input
-                            name="detallado"
-                            label="Detallado"
-                            :checked="request('detallado') == 'on'"
-                            helperText="Ver detallado"
-                            compact="true"
-                        />
-                    </x-filters.filter-group>
-                </x-filters.advanced-collapse>
-                <x-slot:buttons>
-                    <x-filters.buttons.clear-button />
-                    <x-filters.buttons.advanced-button
-                        :active="$filtrosAvanzadosActivos"
-                        :hasBadge="true"
-                    />
-                    <x-filters.buttons.submit-button />
-                </x-slot:buttons>
-            </x-filters.filter-form>
-
-            <div>
-                @include('Alertas.Alertas')
+                    <i class="bi bi-plus-circle"></i> Crear descuento
+                </a>
             </div>
-        </x-layout.section-card>
 
-        <!-- SECCIÓN: TABLAS -->
-        <div
-            class="flex-grow-1 d-flex gap-4"
-            style="min-height: 0;"
-        >
             <div
-                class="d-flex flex-column"
-                style="flex: 2; min-width: 0; min-height: 0;"
+                class="table-responsive"
+                style="max-height: 58vh; overflow-y: auto;"
             >
-                <div
-                    class="card d-flex flex-column border-0 p-4"
-                    style="border-radius: 10px; min-height: 0;"
-                >
-                    <div class="d-flex justify-content-end mb-3">
-                        <x-filters.buttons.link-button
-                            href="/CatDescuentos"
-                            text="Crear descuento"
-                            color="primary"
-                        />
-                    </div>
-                    <div class="table-responsive content-table-sm">
-                        <table class="table">
-                            <thead class="table-head">
-                                <tr>
-                                    <th>#</th>
-                                    <th>NomDescuento</th>
-                                    <th>CodArticulo</th>
-                                    <th>NomArticulo</th>
-                                    <th>PrecioDescuento</th>
-                                    <th>FechaInicio</th>
-                                    <th>FechaFin</th>
-                                    <th>FechaCreacion</th>
-                                    <th>FechaDesactivar</th>
-                                    <th>NomTipoDescuento</th>
-                                    <th>NomTienda</th>
-                                    <th>NomPlaza</th>
-                                    <th>Estatus</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($descuentosDetallados as $item)
-                                    <tr
-                                        style="{{ $item->StatusDetalle == 1 ? 'text-decoration: line-through; color: #9ca3af; opacity: 0.6' : '' }}">
-                                        <td>{{ $item->IdEncDescuento }}</td>
-                                        <td>{{ $item->NomDescuento }}</td>
-                                        <td>{{ $item->CodArticulo ?? '-' }}</td>
-                                        <td>{{ $item->NomArticulo ?? '-' }}</td>
-                                        <td>{{ $item->PrecioDescuento !== null ? number_format($item->PrecioDescuento, 2) : '-' }}
-                                        </td>
-                                        <td>{{ $item->FechaInicio ? strftime('%d %B %Y, %H:%M', strtotime($item->FechaInicio)) : '-' }}
-                                        </td>
-                                        <td>{{ $item->FechaFin ? strftime('%d %B %Y, %H:%M', strtotime($item->FechaFin)) : '-' }}
-                                        </td>
-                                        <td>{{ $item->FechaCreacion ? strftime('%d %B %Y, %H:%M', strtotime($item->FechaCreacion)) : '-' }}
-                                        </td>
-                                        <td>
-                                            @if ($item->FechaDesactivar)
-                                                {{ strftime('%d %B %Y, %H:%M', strtotime($item->FechaDesactivar)) }}
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-
-                                        <td>{{ $item->NomTipoDescuento ?? '-' }}</td>
-                                        <td>{{ $item->NomTienda ?? '-' }}</td>
-                                        <td>{{ $item->NomPlaza ?? '-' }}</td>
-                                        <td>
-                                            @php
-                                                $hoy = \Carbon\Carbon::now()->startOfDay();
-                                                $fechaFin = \Carbon\Carbon::parse($item->FechaFin)->startOfDay();
-                                                $itemStatus = $item->StatusDescuento ?? ($item->Status ?? null);
-                                            @endphp
-                                            @if ($item->StatusDescuento == 1 || $item->StatusDetalle == 1)
-                                                <span class="tags-red">Deshabilitado</span>
-                                            @elseif ($fechaFin->lt($hoy))
-                                                <span class="tags-blue">Expirado</span>
-                                            @elseif ($item->StatusDescuento == 0 && $item->StatusDetalle == 0)
-                                                <span class="tags-green">Activo</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-
-                                @empty
-
-                                    <tr>
-                                        <td
-                                            colspan="15"
-                                            class="py-5 text-center"
-                                        >
-                                            <x-table-empty-state
-                                                title="No hay descuentos ni promociones"
-                                                icon="tags"
-                                                :message="'No se encontraron descuentos o promociones para los criterios de búsqueda seleccionados.'"
-                                                :suggestion="'Revisa los filtros de fecha, tienda o producto, o crea nuevas promociones para aumentar las ventas.'"
-                                                action="Ver promociones activas"
-                                                actionUrl="{{ request()->fullUrlWithQuery(['activo' => 1]) }}"
-                                            />
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <table class="table-hover table-custom table">
+                    <thead style="position: sticky; top: 0; z-index: 2; background: #f8fafc;">
+                        <tr>
+                            <th><i class="bi bi-hash me-1"></i></th>
+                            <th><i class="bi bi-tag me-1"></i>Descuento</th>
+                            <th><i class="bi bi-upc me-1"></i>Código</th>
+                            <th><i class="bi bi-box me-1"></i>Artículo</th>
+                            <th class="text-end"><i class="bi bi-currency-dollar me-1"></i>Precio Desc.</th>
+                            <th><i class="bi bi-calendar-check me-1"></i>Inicio</th>
+                            <th><i class="bi bi-calendar-x me-1"></i>Fin</th>
+                            <th><i class="bi bi-calendar-plus me-1"></i>Creado</th>
+                            <th><i class="bi bi-calendar-minus me-1"></i>Desact.</th>
+                            <th><i class="bi bi-gear me-1"></i>Tipo</th>
+                            <th><i class="bi bi-shop me-1"></i>Tienda</th>
+                            <th><i class="bi bi-building me-1"></i>Plaza</th>
+                            <th><i
+                                    class="bi bi-circle-fill me-1"
+                                    style="font-size: 0.5rem;"
+                                ></i>Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($descuentosDetallados as $item)
+                            @php
+                                $hoy = \Carbon\Carbon::now()->startOfDay();
+                                $fechaFin = \Carbon\Carbon::parse($item->FechaFin)->startOfDay();
+                            @endphp
+                            <tr
+                                style="{{ $item->StatusDetalle == 1 ? 'text-decoration: line-through; color: #9ca3af; opacity: 0.6' : '' }}">
+                                <td style="font-weight: 600; color: #0f172a;">{{ $item->IdEncDescuento }}</td>
+                                <td>{{ $item->NomDescuento }}</td>
+                                <td style="font-weight: 500;">{{ $item->CodArticulo ?? '-' }}</td>
+                                <td>{{ $item->NomArticulo ?? '-' }}</td>
+                                <td
+                                    class="text-end"
+                                    style="font-weight: 500;"
+                                >
+                                    {{ $item->PrecioDescuento !== null ? '$' . number_format($item->PrecioDescuento, 2) : '-' }}
+                                </td>
+                                <td style="color: #64748b;">
+                                    {{ $item->FechaInicio ? strftime('%d %b %Y', strtotime($item->FechaInicio)) : '-' }}
+                                </td>
+                                <td style="color: #64748b;">
+                                    {{ $item->FechaFin ? strftime('%d %b %Y', strtotime($item->FechaFin)) : '-' }}</td>
+                                <td style="color: #64748b;">
+                                    {{ $item->FechaCreacion ? strftime('%d %b %Y', strtotime($item->FechaCreacion)) : '-' }}
+                                </td>
+                                <td style="color: #64748b;">
+                                    {{ $item->FechaDesactivar ? strftime('%d %b %Y', strtotime($item->FechaDesactivar)) : '-' }}
+                                </td>
+                                <td>{{ $item->NomTipoDescuento ?? '-' }}</td>
+                                <td style="color: #64748b;">{{ $item->NomTienda ?? '-' }}</td>
+                                <td style="color: #64748b;">{{ $item->NomPlaza ?? '-' }}</td>
+                                <td>
+                                    @if ($item->StatusDescuento == 1 || $item->StatusDetalle == 1)
+                                        <span class="badge-status badge-inactive">Deshabilitado</span>
+                                    @elseif ($fechaFin->lt($hoy))
+                                        <span class="badge-status badge-pending">Expirado</span>
+                                    @else
+                                        <span class="badge-status badge-active">Activo</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="13">
+                                    <div class="py-5 text-center">
+                                        <div class="empty-state-icon mx-auto mb-3">
+                                            <i
+                                                class="bi bi-tags fs-3"
+                                                style="color: #94a3b8;"
+                                            ></i>
+                                        </div>
+                                        <h6 class="text-muted">Sin descuentos ni promociones</h6>
+                                        <small class="text-muted">No se encontraron resultados con los filtros
+                                            seleccionados</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
-    </x-layout.page-container>
-    <style>
-        .table thead th {
-            position: sticky;
-            top: 0;
-            background: rgb(30, 41, 59);
-            z-index: 2;
-        }
-    </style>
-@endsection
+    </x-card-gradient-header>
+</x-page-container>

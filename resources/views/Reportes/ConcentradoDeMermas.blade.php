@@ -5,8 +5,6 @@
         subtitle="Reporte de mermas registradas por tienda"
     >
         <x-slot:buttons>
-            <x-header.buttons.home-button />
-            <x-header.buttons.refresh-button />
             <a
                 href="/ReporteMermasAdminExcel?{{ http_build_query(request()->only(['idTienda', 'fecha1', 'fecha2', 'txtFiltro'])) }}"
                 class="btn-header-ghost"
@@ -17,6 +15,8 @@
             >
                 <i class="bi bi-file-earmark-excel"></i> Exportar
             </a>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
         </x-slot:buttons>
 
         <!-- Filtros -->

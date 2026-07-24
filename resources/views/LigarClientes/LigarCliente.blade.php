@@ -1,445 +1,566 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Ligar cliente')
-@section('dashboardWidth', 'width-general')
-@section('styles')
-    <link rel="stylesheet" href="{{ asset('css/styleSolicitudesFactura.css') }}">
-@endsection
+<x-page-container title="Ligar Cliente">
+    <x-card-gradient-header
+        icon="link-45deg"
+        title="Ligar Solicitud de Factura con Cliente Oracle"
+        subtitle="Relacione la solicitud con un cliente existente en Oracle"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
-        <div class="card border border-5 p-4" style="border-radius: 10px; margin: 0 auto; width: 100%; max-width: 1440px;">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', [
-                    'titulo' => 'Ligar Solicitud de Factura con Cliente Oracle',
-                    'options' => [
-                        [
-                            'name' => 'Ligar clientes por solicitud',
-                            'value' => '/ClientesNuevos',
-                        ],
-                    ],
-                ])
-                <div class="gap-2 d-flex">
+        <div class="p-4">
+            <!-- Encabezado con botón -->
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-4 gap-3">
+                <div>
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-file-earmark-text me-2"
+                            style="color: #64748b;"
+                        ></i>Datos de la Solicitud #{{ $solicitud->IdSolicitudFactura }}
+                    </h5>
+                    <p class="section-content-subtitle">Relacione la solicitud con un cliente de Oracle</p>
+                </div>
+                <div>
                     @if ($solicitud['ConstanciaSituacionFiscal'] != null)
-                        <a href="{{ '/VerConstanciaCliente/' . $solicitud->IdSolicitudFactura }}" type="button"
-                            class="btn btn-sm btn-dark" target="_blank" title="Finalizar solicitud">
-                            <i class="fa fa-book"></i> Ver constancia
+                        <a
+                            href="{{ '/VerConstanciaCliente/' . $solicitud->IdSolicitudFactura }}"
+                            class="btn-modern btn-outline-modern"
+                            target="_blank"
+                        >
+                            <i class="bi bi-file-text me-2"></i>Ver constancia
                         </a>
                     @endif
                     @if ($solicitud->Bill_To != null)
-                        <a href="{{ '/ClientesNuevos/Finalizar/' . $solicitud->Id }}" type="button"
-                            class="btn btn-sm btn-dark" title="Finalizar solicitud">
-                            <i class="fa fa-check" aria-hidden="true"></i> Finalizar solicitud
+                        <a
+                            href="{{ '/ClientesNuevos/Finalizar/' . $solicitud->Id }}"
+                            class="btn-modern btn-agregar"
+                        >
+                            <i class="bi bi-check-lg me-2"></i>Finalizar solicitud
                         </a>
                     @endif
+                    <a
+                        href="/ClientesNuevos"
+                        class="btn-modern btn-outline-modern"
+                    >
+                        <i class="bi bi-arrow-left me-2"></i>Ver solicitudes
+                    </a>
                 </div>
             </div>
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
 
-        <div class="content-table content-table-flex-none card border border-5 p-4" style="border-radius: 10px">
-            <div>
-                <h6 class="d-inline-block col-auto bg-warning p-1 rounded">Datos En Solicitud</h6>
-            </div>
-            {{-- <table>
-                <thead class="table-head">
-                    <tr>
-                        <th class="rounded-start">Id</th>
-                        <th>Tienda</th>
-                        <th></th>
-                        <th>Cliente</th>
-                        <th>Nombre</th>
-                        <th>RFC</th>
-                        <th>Calle</th>
-                        <th>NumExt</th>
-                        <th>NumInt</th>
-                        <th>C.P.</th>
-                        <th>Colonia</th>
-                        <th>Ciudad</th>
-                        <th>Municipio</th>
-                        <th>Estado</th>
-                        <th>Pais</th>
-                        <th>Telefono</th>
-                        <th>Correo Electronico</th>
-                        <th></th>
-                        <th>Metodo de pago</th>
-                        <th>Banco</th>
-                        <th class="rounded-end">Cuenta</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{ $solicitud->IdSolicitudFactura }}</td>
-                        <td>{{ $solicitud->NomTienda }}</td>
-                        <td></td>
-                        <td>{{ $solicitud->TipoPersona }}</td>
-                        <td>{{ $solicitud->NomCliente }}</td>
-                        <td>{{ $solicitud->RFC }}</td>
-                        <td>{{ $solicitud->Calle }}</td>
-                        <td>{{ $solicitud->NumExt }}</td>
-                        <td>{{ $solicitud->NumInt }}</td>
-                        <td>{{ $solicitud->CodigoPostal }}</td>
-                        <td>{{ $solicitud->Colonia }}</td>
-                        <td>{{ $solicitud->Ciudad }}</td>
-                        <td>{{ $solicitud->Municipio }}</td>
-                        <td>{{ $solicitud->Estado }}</td>
-                        <td>{{ $solicitud->Pais }}</td>
-                        <td>{{ $solicitud->Telefono }}</td>
-                        <td>{{ $solicitud->Email }}</td>
-                        <td></td>
-                        <td>{{ $solicitud->NomTipoPago }}</td>
-                        <td>{{ $solicitud->NomBanco }}</td>
-                        <td>{{ $solicitud->NumTarjeta }}</td>
-                    </tr>
-                </tbody>
-            </table> --}}
-
-            <div class="row g-3 grid-inputs">
-                <div class="col-sm-6 col-md-3">
-                    <label>Id:</label>
-                    <div>
-                        <span>{{ $solicitud->IdSolicitudFactura }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>No Ticket:</label>
-                    <div>
-                        <span>{{ $solicitud->IdTicket }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Id Cliente Cloud: </label>
-                    <div>
-                        <span>
-                            {{ $solicitud->IdClienteCloud ? $solicitud->IdClienteCloud : 'Sin dato' }}
-                        </span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Id Usuario Cliente: </label>
-                    <div>
-                        <span>
-                            {{ $solicitud->IdUsuarioCliente ? $solicitud->IdUsuarioCliente : 'Sin dato' }}
-                        </span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Fecha: </label>
-                    <div>
-                        <span>
-                            {{ strftime('%d, %B, %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}
-                        </span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Nombre Cliente: </label>
-                    <div>
-                        <span>{{ $solicitud->NomCliente }}</span>
-                    </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->NomCliente != $solicitud->NomCliente)
-                            <span class="tags-red w-100">Oracle: {{ $cliente->NomCliente }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Teléfono:</label>
-                    <div>
-                        <span> {{ $solicitud->Telefono ? $solicitud->Telefono : 'Sin dato' }}
-                        </span>
-                    </div>
-                    @php
-                        $telefonosOracle = collect($clienteSolicitud)->pluck('Telefono')->unique();
-                    @endphp
-                    @foreach ($telefonosOracle as $telefono)
-                        @if ($telefono != $solicitud->Telefono)
-                            <span class="tags-red w-100">Oracle: {{ $telefono }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Correo:</label>
-                    <div>
-                        <span> {{ $solicitud->Email }} </span>
-                    </div>
-                    @isset($cliente)
+            <!-- Datos de la Solicitud -->
+            <div class="card-modern mb-4">
+                <div class="card-body p-4">
+                    <h5
+                        class="mb-4"
+                        style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                    >
+                        <i
+                            class="bi bi-file-earmark-text me-2"
+                            style="color: #3b82f6;"
+                        ></i>Datos en Solicitud
+                    </h5>
+                    <div class="row g-3">
                         @php
-                            $correos = $cliente->CorreoCliente->pluck('Email')->unique();
+                            $telefonosOracle = collect($clienteSolicitud)->pluck('Telefono')->unique();
+                            $callesUnicas = $clienteSolicitud->pluck('Calle')->unique();
+                            $NumExtUnicas = $clienteSolicitud->pluck('NumExt')->unique();
+                            $NumIntUnicas = $clienteSolicitud->pluck('NumInt')->unique();
+                            $coloniaUnicas = $clienteSolicitud->pluck('Colonia')->unique();
+                            $CodigoPostalUnicas = $clienteSolicitud->pluck('CodigoPostal')->unique();
+                            $MunicipioUnicas = $clienteSolicitud->pluck('Municipio')->unique();
+                            $CiudadUnicas = $clienteSolicitud->pluck('Ciudad')->unique();
+                            $EstadoUnicas = $clienteSolicitud->pluck('Estado')->unique();
+                            $PaisUnicas = $clienteSolicitud->pluck('Pais')->unique();
                         @endphp
-                        @foreach ($correos as $email)
-                            @if ($email != $solicitud->Email)
-                                <span class="tags-red w-100">Oracle: {{ $email }}</span>
-                            @endif
-                        @endforeach
-                        @if (count($cliente->CorreoCliente) == 0)
-                            <span class="tags-red w-100">Oracle: Sin correo</span>
-                        @endif
-                    @endisset
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>RFC:</label>
-                    <div>
-                        <span> {{ $solicitud->RFC }} </span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Tipo Persona:</label>
-                    <div>
-                        <span> {{ $solicitud->TipoPersona }} </span>
-                    </div>
-                    @foreach ($clienteSolicitud as $cliente)
-                        @if ($cliente->TipoPersona != $solicitud->TipoPersona)
-                            <span class="tags-red w-100">Oracle: {{ $cliente->TipoPersona }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Calle:</label>
-                    <div>
-                        <span> {{ $solicitud->Calle }} </span>
-                    </div>
-                    @php
-                        $callesUnicas = $clienteSolicitud->pluck('Calle')->unique();
-                    @endphp
-                    @foreach ($callesUnicas as $calle)
-                        @if (strtolower($calle) != strtolower($solicitud->Calle))
-                            <span class="tags-red w-100">Oracle: {{ $calle }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Número Exterior:</label>
-                    <div>
-                        <span> {{ $solicitud->NumExt }} </span>
-                    </div>
-                    @php
-                        $NumExtUnicas = $clienteSolicitud->pluck('NumExt')->unique();
-                    @endphp
-                    @foreach ($NumExtUnicas as $numExt)
-                        @if ($numExt != $solicitud->NumExt)
-                            <span class="tags-red w-100">Oracle: {{ $numExt }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Número Interior:</label>
-                    <div>
-                        <span> {{ $solicitud->NumInt ? $solicitud->NumInt : 'Sin dato' }} </span>
-                    </div>
-                    @php
-                        $NumIntUnicas = $clienteSolicitud->pluck('NumInt')->unique();
-                    @endphp
-                    @foreach ($NumIntUnicas as $numInt)
-                        @if ($numInt != $solicitud->NumInt)
-                            <span class="tags-red w-100">Oracle: {{ $numInt }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Colonia:</label>
-                    <div>
-                        <span> {{ $solicitud->Colonia }} </span>
-                    </div>
-                    @php
-                        $coloniaUnicas = $clienteSolicitud->pluck('Colonia')->unique();
-                    @endphp
-                    @foreach ($coloniaUnicas as $col)
-                        @if ($col != $solicitud->Colonia)
-                            <span class="tags-red w-100">Oracle: {{ $col }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Codigo Postal:</label>
-                    <div>
-                        <span> {{ $solicitud->CodigoPostal }} </span>
-                    </div>
-                    @php
-                        $CodigoPostalUnicas = $clienteSolicitud->pluck('CodigoPostal')->unique();
-                    @endphp
-                    @foreach ($CodigoPostalUnicas as $CodigoPostal)
-                        @if ($CodigoPostal != $solicitud->CodigoPostal)
-                            <span class="tags-red w-100">Oracle: {{ $CodigoPostal }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Municipio:</label>
-                    <div>
-                        <span> {{ $solicitud->Municipio }} </span>
-                    </div>
-                    @php
-                        $MunicipioUnicas = $clienteSolicitud->pluck('Municipio')->unique();
-                    @endphp
-                    @foreach ($MunicipioUnicas as $Municipio)
-                        @if (strtolower($Municipio) != strtolower($solicitud->Municipio))
-                            <span class="tags-red w-100">Oracle: {{ $Municipio }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Ciudad:</label>
-                    <div>
-                        <span> {{ $solicitud->Ciudad }} </span>
-                    </div>
-                    @php
-                        $CiudadUnicas = $clienteSolicitud->pluck('Ciudad')->unique();
-                    @endphp
-                    @foreach ($CiudadUnicas as $Ciudad)
-                        @if (strtolower($Ciudad) != strtolower($solicitud->Ciudad))
-                            <span class="tags-red w-100"> Oracle: {{ $Ciudad }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Estado:</label>
-                    <div>
-                        <span> {{ $solicitud->Estado }} </span>
-                    </div>
-                    @php
-                        $EstadoUnicas = $clienteSolicitud->pluck('Estado')->unique();
-                    @endphp
-                    @foreach ($EstadoUnicas as $Estado)
-                        @if (strtolower($Estado) != strtolower($solicitud->Estado))
-                            <span class="tags-red w-100">Oracle: {{ $Estado }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>País:</label>
-                    <div>
-                        <span> {{ $solicitud->Pais }} </span>
-                    </div>
-                    @php
-                        $PaisUnicas = $clienteSolicitud->pluck('Pais')->unique();
-                    @endphp
-                    @foreach ($PaisUnicas as $Pais)
-                        @if (strtolower($Pais) != strtolower($solicitud->Pais))
-                            <span class="tags-red w-100">Oracle: {{ $Pais }}</span>
-                        @endif
-                    @endforeach
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Acción:</label>
-                    <div>
-                        <span> {{ $solicitud->Editar ? 'Actualizar' : 'Nuevo' }} </span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="p-4 border border-5 content-table content-table-flex-none content-table-full card"
-            style="border-radius: 10px">
-            <span class="mb-2 text-sm fs-5" style="font-weight: 500; font-family: sans-serif; color: #334155">
-                Detalle de la Solicitud
-            </span>
-            <div class="row g-3 grid-inputs">
-                <div class="col-sm-6 col-md-3">
-                    <label>Tienda:</label>
-                    <div>
-                        <span>{{ $solicitud->NomTienda }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Tipo De Pago:</label>
-                    <div>
-                        <span>{{ $solicitud->NomTipoPago }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Banco:</label>
-                    <div>
-                        <span>{{ $solicitud->NomBanco ? $solicitud->NomBanco : 'Sin dato' }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Numero Tarjeta:</label>
-                    <div>
-                        <span>{{ $solicitud->NumTarjeta ? $solicitud->NumTarjeta : 'Sin dato' }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Bill To:</label>
-                    <div>
-                        <span>{{ $solicitud->Bill_To ? $solicitud->Bill_To : 'Sin dato' }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Uso CFDI:</label>
-                    <div>
-                        <span>{{ $solicitud->UsoCFDI ? $solicitud->UsoCFDI : 'Sin dato' }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Metódo Pago:</label>
-                    <div>
-                        <span>{{ $solicitud->MetodoPago ? $solicitud->MetodoPago : 'Sin dato' }}</span>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                    <label>Regimen Fiscal:</label>
-                    <div>
-                        <span>{{ $solicitud->NomRegimenFiscal ? $solicitud->NomRegimenFiscal : 'Sin dato' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-4 content-table content-table-full card">
-                <table>
-                    <thead class="table-head">
-                        <tr>
-                            <th class="rounded-start">Sitio</th>
-                            <th>NomCliente</th>
-                            <th>IdClienteCloud</th>
-                            <th>RFC</th>
-                            <th>Ship_To</th>
-                            <th>Bill_To</th>
-                            <th>Locacion</th>
-                            <th>Ciudad</th>
-                            <th>Direccion</th>
-                            <th class="rounded-end"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (count($clientes) <= 0)
-                            <td colspan="8">No Hay Coincidencias!</td>
-                        @else
-                            @foreach ($clientes as $cliente)
-                                <tr>
-                                    <td>{{ $cliente->Sitio }}</td>
-                                    <td>{{ $cliente->NomCliente }}</td>
-                                    <td>{{ $cliente->IdClienteCloud }}</td>
-                                    <td>{{ $cliente->RFC }}</td>
-                                    <td>{{ $cliente->Ship_To }}</td>
-                                    <td>{{ $cliente->Bill_To }}</td>
-                                    <td>{{ $cliente->Locacion }}</td>
-                                    <td>{{ $cliente->Ciudad }}</td>
-                                    <td>
-                                        {{ $cliente->Calle }}
-                                        #{{ $cliente->NumExt }}
-                                        Col. {{ $cliente->Colonia }}
-
-                                    </td>
-                                    <td>
-                                        {{-- <a href="{{ '/SolicitudesFactura/Relacionar/' . $solicitud->Id . '/' . $cliente->Bill_To }}"
-                                            class="btn-table">
-                                            Relacionar
-                                        </a> --}}
-                                        <button class="btn-table btn-table-show" data-bs-toggle="modal"
-                                            data-bs-target="#ModalRelacionarCliente{{ $cliente->IdCatCliente }}"
-                                            title="Relacionar">
-                                            Relacionar
-                                            {{-- @include('components.icons.delete') --}}
-                                        </button>
-                                        @include('LigarClientes.ModalRelacionarCliente')
-                                    </td>
-                                </tr>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Id</label>
+                            <p
+                                class="mb-0"
+                                style="font-weight: 600; color: #0f172a;"
+                            >{{ $solicitud->IdSolicitudFactura }}</p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >No Ticket</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->IdTicket }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Id Cliente Cloud</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->IdClienteCloud ?: 'Sin dato' }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Id Usuario Cliente</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->IdUsuarioCliente ?: 'Sin dato' }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Fecha</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            >
+                                <i
+                                    class="bi bi-clock me-1"
+                                    style="color: #94a3b8; font-size: 0.8rem;"
+                                ></i>
+                                <span
+                                    style="font-weight: 500">{{ strftime('%d %B %Y, %H:%M', strtotime($solicitud->FechaSolicitud)) }}</span>
+                            </p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Nombre Cliente</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->NomCliente }}</span></p>
+                            @foreach ($clienteSolicitud as $cliente)
+                                @if ($cliente->NomCliente != $solicitud->NomCliente)
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $cliente->NomCliente }}</span>
+                                @endif
                             @endforeach
-                        @endif
-                    </tbody>
-                </table>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Teléfono</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Telefono ?: 'Sin dato' }}</span></p>
+                            @foreach ($telefonosOracle as $telefono)
+                                @if ($telefono != $solicitud->Telefono)
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $telefono }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Correo</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Email }}</span></p>
+                            @isset($cliente)
+                                @php $correos = $cliente->CorreoCliente->pluck('Email')->unique(); @endphp
+                                @foreach ($correos as $email)
+                                    @if ($email != $solicitud->Email)
+                                        <span
+                                            class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                            style="font-size: 0.7rem;"
+                                        >Oracle: {{ $email }}</span>
+                                    @endif
+                                @endforeach
+                                @if (count($cliente->CorreoCliente) == 0)
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: Sin correo</span>
+                                @endif
+                            @endisset
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >RFC</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->RFC }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Tipo Persona</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->TipoPersona }}</span></p>
+                            @foreach ($clienteSolicitud as $cliente)
+                                @if ($cliente->TipoPersona != $solicitud->TipoPersona)
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $cliente->TipoPersona }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Calle</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Calle }}</span></p>
+                            @foreach ($callesUnicas as $calle)
+                                @if (strtolower($calle) != strtolower($solicitud->Calle))
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $calle }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Número Exterior</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->NumExt }}</span></p>
+                            @foreach ($NumExtUnicas as $numExt)
+                                @if ($numExt != $solicitud->NumExt)
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $numExt }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Número Interior</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->NumInt ?: 'Sin dato' }}</span></p>
+                            @foreach ($NumIntUnicas as $numInt)
+                                @if ($numInt != $solicitud->NumInt)
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $numInt }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Colonia</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Colonia }}</span></p>
+                            @foreach ($coloniaUnicas as $col)
+                                @if ($col != $solicitud->Colonia)
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $col }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Código Postal</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->CodigoPostal }}</span></p>
+                            @foreach ($CodigoPostalUnicas as $CodigoPostal)
+                                @if ($CodigoPostal != $solicitud->CodigoPostal)
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $CodigoPostal }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Municipio</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Municipio }}</span></p>
+                            @foreach ($MunicipioUnicas as $Municipio)
+                                @if (strtolower($Municipio) != strtolower($solicitud->Municipio))
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $Municipio }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Ciudad</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Ciudad }}</span></p>
+                            @foreach ($CiudadUnicas as $Ciudad)
+                                @if (strtolower($Ciudad) != strtolower($solicitud->Ciudad))
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $Ciudad }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Estado</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Estado }}</span></p>
+                            @foreach ($EstadoUnicas as $Estado)
+                                @if (strtolower($Estado) != strtolower($solicitud->Estado))
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $Estado }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >País</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Pais }}</span></p>
+                            @foreach ($PaisUnicas as $Pais)
+                                @if (strtolower($Pais) != strtolower($solicitud->Pais))
+                                    <span
+                                        class="badge bg-danger text-danger rounded-pill d-inline-block mt-1 bg-opacity-10"
+                                        style="font-size: 0.7rem;"
+                                    >Oracle: {{ $Pais }}</span>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Acción</label>
+                            @if ($solicitud->Editar)
+                                <span class="badge-status badge-pending">Actualizar</span>
+                            @else
+                                <span class="badge-status badge-active">Nuevo</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalle de la Solicitud -->
+            <div class="card-modern mb-4">
+                <div class="card-body p-4">
+                    <h5
+                        class="mb-4"
+                        style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                    >
+                        <i
+                            class="bi bi-info-circle me-2"
+                            style="color: #3b82f6;"
+                        ></i>Detalle de la Solicitud
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Tienda</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->NomTienda }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Tipo de Pago</label>
+                            <p class="mb-0"><span
+                                    class="badge bg-light text-dark border"
+                                    style="font-weight: 500; font-size: 0.8rem;"
+                                >{{ $solicitud->NomTipoPago }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Banco</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->NomBanco ?: 'Sin dato' }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Número Tarjeta</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->NumTarjeta ?: 'Sin dato' }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Bill To</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->Bill_To ?: 'Sin dato' }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Uso CFDI</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->UsoCFDI ?: 'Sin dato' }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Método Pago</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->MetodoPago ?: 'Sin dato' }}</span></p>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label
+                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                            >Régimen Fiscal</label>
+                            <p
+                                class="mb-0"
+                                style="color: #475569; font-size: 0.9rem;"
+                            ><span style="font-weight: 500">{{ $solicitud->NomRegimenFiscal ?: 'Sin dato' }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Coincidencias -->
+            <div class="card-modern">
+                <div
+                    class="card-header border-bottom p-3"
+                    style="background: #f8fafc;"
+                >
+                    <div class="d-flex align-items-center gap-2">
+                        <i
+                            class="bi bi-search"
+                            style="color: #64748b;"
+                        ></i>
+                        <h6
+                            class="fw-bold mb-0"
+                            style="color: #0f172a;"
+                        >Clientes Encontrados en Oracle</h6>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table-hover table-custom mb-0 table">
+                            <thead>
+                                <tr>
+                                    <th><i class="bi bi-globe me-1"></i>Sitio</th>
+                                    <th><i class="bi bi-person me-1"></i>Cliente</th>
+                                    <th><i class="bi bi-cloud me-1"></i>Id Cloud</th>
+                                    <th><i class="bi bi-rss me-1"></i>RFC</th>
+                                    <th><i class="bi bi-truck me-1"></i>Ship To</th>
+                                    <th><i class="bi bi-receipt me-1"></i>Bill To</th>
+                                    <th><i class="bi bi-geo me-1"></i>Locación</th>
+                                    <th><i class="bi bi-building me-1"></i>Ciudad</th>
+                                    <th><i class="bi bi-signpost me-1"></i>Dirección</th>
+                                    <th class="text-center"><i class="bi bi-link-45deg me-1"></i>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (count($clientes) <= 0)
+                                    <tr>
+                                        <td colspan="10">
+                                            <div class="py-5 text-center">
+                                                <div class="empty-state-icon mx-auto mb-3">
+                                                    <i
+                                                        class="bi bi-search fs-3"
+                                                        style="color: #94a3b8;"
+                                                    ></i>
+                                                </div>
+                                                <h6 class="text-muted">Sin coincidencias</h6>
+                                                <small class="text-muted">No se encontraron clientes en Oracle</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @else
+                                    @foreach ($clientes as $cliente)
+                                        <tr>
+                                            <td style="font-weight: 500; color: #0f172a;">{{ $cliente->Sitio }}</td>
+                                            <td>{{ $cliente->NomCliente }}</td>
+                                            <td>{{ $cliente->IdClienteCloud }}</td>
+                                            <td style="font-weight: 500;">{{ $cliente->RFC }}</td>
+                                            <td>{{ $cliente->Ship_To }}</td>
+                                            <td>{{ $cliente->Bill_To }}</td>
+                                            <td>{{ $cliente->Locacion }}</td>
+                                            <td>{{ $cliente->Ciudad }}</td>
+                                            <td>
+                                                <span
+                                                    class="text-truncate d-inline-block"
+                                                    style="max-width: 200px;"
+                                                >
+                                                    {{ $cliente->Calle }} #{{ $cliente->NumExt }} Col.
+                                                    {{ $cliente->Colonia }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <button
+                                                    class="btn-table-action btn-table-activate"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ModalRelacionarCliente{{ $cliente->IdCatCliente }}"
+                                                    title="Relacionar"
+                                                >
+                                                    <i class="bi bi-link-45deg"></i> Relacionar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-@endsection
+        @foreach ($clientes as $cliente)
+            @include('LigarClientes.ModalRelacionarCliente', ['solicitud' => $solicitud])
+        @endforeach
+    </x-card-gradient-header>
+</x-page-container>
+

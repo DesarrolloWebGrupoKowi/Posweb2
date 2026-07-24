@@ -1,237 +1,284 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Módulo de Precios')
-@section('dashboardWidth', 'width-95')
-<link rel="stylesheet" href="{{ asset('css/stylePrecios.css') }}">
-@section('contenido')
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+<x-page-container title="Actualizar Precios">
+    <x-card-gradient-header
+        icon="currency-dollar"
+        title="Actualizar Precios"
+        subtitle="Gestione los precios de artículos por lista"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Módulo de Precios'])
-                <div>
-                    <a href="/ExportExcelDetallePrecios" class="input-group-text text-decoration-none btn-excel">
-                        Exportar precios @include('components.icons.excel')
-                    </a>
-                </div>
+        <x-form.form
+            action="/Precios"
+            method="GET"
+            id="formFiltros"
+        >
+            <x-form.group>
+                <x-form.select
+                    name="IdGrupo"
+                    label="Grupo"
+                    icon="collection"
+                    col="col-md-4"
+                    placeholder="Todos los grupos"
+                    :options="$grupos->pluck('NomGrupo', 'IdGrupo')->toArray()"
+                    :selected="$idGrupo ?? ''"
+                    autofocus
+                />
+            </x-form.group>
+            <div class="col-md-2 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                    class="flex-grow-1"
+                />
+                <x-form.clear />
             </div>
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
+        </x-form.form>
 
-        <form id="formPrecios" class="d-flex flex-wrap align-items-center justify-content-end gap-2 pb-2" action="/Precios">
-            <div class="col-auto">
-                <select class="form-select rounded" style="line-height: 18px" name="IdListaPrecio" id="IdListaPrecio">
-                    <option {!! $idListaPrecio != null ? 'disabled' : '' !!} value="">Seleccione Lista de Precios</option>
-                    @foreach ($listaPrecios as $listaPrecio)
-                        <option {!! $listaPrecio->IdListaPrecio == $idListaPrecio ? 'selected' : '' !!} value="{{ $listaPrecio->IdListaPrecio }}">
-                            {{ $listaPrecio->NomListaPrecio }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-auto">
-                <select class="form-select rounded" style="line-height: 18px" name="IdGrupo" id="IdGrupo">
-                    <option value="">TODOS</option>
-                    @foreach ($grupos as $grupo)
-                        <option {!! $idGrupo == $grupo->IdGrupo ? 'selected' : '' !!} value="{{ $grupo->IdGrupo }}">{{ $grupo->NomGrupo }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <button class="btn btn-dark-outline">
-                @include('components.icons.search')
-            </button>
-        </form>
-
-        <form id="formActualizarPrecios" action="/ActualizarPrecios" method="POST">
-            <input type="hidden" name="idListaPrecioHidden" value="{{ $idListaPrecio }}">
-            @csrf
-            <div class="col-6" style="float: left;">
-                <div class="content-table content-table-full card border-0 p-4" style="height: 70%; border-radius: 10px">
+        @if (count($preciosAgrupados) > 0)
+            <div class="p-4">
+                <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
-                        <div class="row mb-2">
-                            @if (!empty($idListaPrecio))
-                                <div class="col-auto d-flex justify-content-end">
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text">
-                                            <input checked class="form-check-input mt-0" type="radio" name="radioFiltro"
-                                                id="codigo">
-                                        </span>
-                                        <span class="input-group-text card">Código</span>
-                                        <span class="input-group-text">
-                                            <input class="form-check-input mt-0" type="radio" name="radioFiltro"
-                                                id="nombre">
-                                        </span>
-                                        <span class="input-group-text card">Nombre</span>
-                                        <input type="text" class="form-control" name="filtro" id="filtro"
-                                            placeholder="Buscar articulo...">
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
+                        <h5 class="section-content-title">
+                            <i
+                                class="bi bi-table me-2"
+                                style="color: #64748b;"
+                            ></i>Precios por Lista
+                        </h5>
+                        <p class="section-content-subtitle">
+                            {{ count($preciosAgrupados) }} artículos ·
+                            <span
+                                id="contadorCambios"
+                                style="color: #f59e0b; font-weight: 600;"
+                            >0</span> cambios detectados
+                        </p>
                     </div>
-                    <table id="tblPrecios">
-                        <thead class="table-head">
-                            <tr>
-                                <th class="rounded-start">Codigo</th>
-                                <th style="width: 45%">Nombre</th>
-                                <th>Precio</th>
-                                <th>Precio Final</th>
-                                @if (empty($idListaPrecio))
-                                    <th class="rounded-end">Todos</th>
-                                @else
-                                    <th class="d-flex align-items-center gap-2 rounded-end">Todos <input
-                                            class="form-check-input" type="checkbox" name="allPrecios" id="allPrecios"
-                                            onclick="seleccionarTodo()">
-                                    </th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (empty($idListaPrecio))
+                </div>
+
+                <form
+                    action="/ActualizarPrecios"
+                    method="POST"
+                    id="formPrecios"
+                >
+                    @csrf
+                    <div id="contenedorPrecios"></div>
+
+                    <div
+                        class="table-responsive"
+                        style="max-height: 53vh; overflow-y: auto; overflow-x: auto;"
+                    >
+                        <table
+                            class="table-hover table-custom table"
+                            id="tablaPrecios"
+                        >
+                            <thead style="position: sticky; top: 0; z-index: 2; background: #f8fafc;">
                                 <tr>
-                                    <td colspan="5">Seleccione Lista de Precios</td>
+                                    <th style="position: sticky; left: 0; background: #f8fafc; z-index: 3;">
+                                        <i class="bi bi-upc me-1"></i>Código
+                                    </th>
+                                    <th style="position: sticky; left: 60px; background: #f8fafc; z-index: 3;">
+                                        <i class="bi bi-box me-1"></i>Artículo
+                                    </th>
+                                    @foreach ($listasPrecioUnicas as $idLista => $nomLista)
+                                        <th
+                                            class="text-end"
+                                            style="min-width: 140px;"
+                                        >
+                                            <span
+                                                style="font-size: 0.75rem; color: #64748b; display: block;">{{ $nomLista }}</span>
+                                        </th>
+                                    @endforeach
                                 </tr>
-                            @else
-                                @if (count($precios) <= 0)
+                            </thead>
+                            <tbody>
+                                @foreach ($preciosAgrupados as $codArticulo => $articulo)
                                     <tr>
-                                        <td colspan="5">No Hay Precios</td>
-                                    </tr>
-                                @endif
-                                <input type="hidden" name="length" id="length" value="{{ count($precios) }}">
-                                @foreach ($precios as $precio)
-                                    <tr>
-                                        <td>{{ $precio->CodArticulo }}</td>
-                                        <td>{{ $precio->NomArticulo }}</td>
-                                        <td><span id="pArticulo">{{ $precio->PrecioArticulo }}</span></td>
-                                        <td>
-                                            <input class="modifcarPrecios" type="text" id="precios"
-                                                name="precios[{{ $precio->CodArticulo }}]"
-                                                value="{{ $precio->PrecioArticulo }}">
+                                        <td
+                                            style="position: sticky; left: 0; background: white; font-weight: 600; color: #0f172a; z-index: 1;">
+                                            {{ $articulo['CodArticulo'] }}
                                         </td>
-                                        <td class="d-flex align-items-center gap-2">
-                                            <input class="form-check-input" type="checkbox" id="codigosCheck"
-                                                value="{{ $precio->CodArticulo }}">
+                                        <td style="position: sticky; left: 60px; background: white; z-index: 1;">
+                                            <span
+                                                class="text-truncate d-inline-block"
+                                                style="max-width: 200px;"
+                                                title="{{ $articulo['NomArticulo'] }}"
+                                            >
+                                                {{ $articulo['NomArticulo'] }}
+                                            </span>
                                         </td>
+                                        @foreach ($idsListas as $idLista)
+                                            @php
+                                                $precioLista = $articulo['precios'][$idLista] ?? null;
+                                                $precioOriginal =
+                                                    $precioLista !== null ? $precioLista['PrecioArticulo'] : '0.00';
+                                                $esNuevo = $precioLista === null;
+                                            @endphp
+                                            <td class="text-end">
+                                                <!-- SIN name, SIN hidden inputs -->
+                                                <input
+                                                    class="form-control form-control-sm-modern input-precio text-end"
+                                                    style="border: 2px solid border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; transition: all 0.3s ease;"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    value="{{ $precioOriginal }}"
+                                                    data-original="{{ $precioOriginal }}"
+                                                    data-cod-articulo="{{ $codArticulo }}"
+                                                    data-id-lista="{{ $idLista }}"
+                                                >
+                                                {{-- @if ($esNuevo)
+                                                    <small
+                                                        style="color: #f59e0b; font-size: 0.65rem; display: block;">Nuevo</small>
+                                                @endif --}}
+                                            </td>
+                                        @endforeach
                                     </tr>
                                 @endforeach
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="col-5" style="float: left; margin-left: 5%;">
-                <div class="input-group mb-3">
-                    <div class="input-group-text">
-                        <input class="form-check-input mt-0" type="checkbox" name="Movimientos" id="TodaLaLista"
-                            onclick="enableMovimientos()">
+                            </tbody>
+                        </table>
                     </div>
-                    <label class="input-group-text" for="">Actualizar Por Porcentaje O Cantidad</label>
-                </div>
-                <div id="divMovimientos" class="content-table content-table-full card p-4"
-                    style="display: none; border-radius: 20px">
-                    <table class="w-100">
-                        <thead class="table-head">
-                            <tr>
-                                <th class="rounded-start rounded-end">Seleccione Movimiento</th>
-                            </tr>
-                        </thead>
-                    </table>
-                    <div class="row p-3">
-                        <div class="col-6">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="radio" id="porcentaje"
-                                    value="porcentaje" onclick="enable()">
-                                <input disabled class="form-range" type="range" name="rangePorcentaje"
-                                    id="rangePorcentaje" min="1" max="100" step="1" value="1">
-                                <!--<p id="porciento" style="text-align: center;"></p>-->
-                            </div>
-                        </div>
-                        <div class="col-2">
-                            <p id="porciento"></p>
-                        </div>
-                        <div class="col-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="radio" id="pesos"
-                                    value="pesos" onclick="enable()">
-                                <button type="button" disabled class="btn btn-warning btn-sm" onclick="cantidad(3,0)"
-                                    id="menos">-</button>
-                                <input disabled style="text-align: center;" class="txtContador" id="3"
-                                    name="txtPeso" type="text" value="1" size="1">
-                                <button type="button" disabled class="btn btn-primary btn-sm" onclick="cantidad(3,1)"
-                                    id="mas">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-warning" onclick="visualizarCambios()">
-                                <i class="fa fa-check-square-o"></i> Aplicar Precios
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="botones">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">
-                        <input class="form-check-input" type="radio" name="radioActualizar" id="radioActualizarPara"
-                            value="FechaPara">
-                    </span>
-                    <span class="input-group-text">Actualizar Para</span>
-                    <input disabled type="date" class="form-control" name="FechaPara" id="Fecha"
-                        min="{{ $tomorrow }}" required>
-                </div>
-                <div class="input-group mb-3">
-                    <span class="input-group-text">
-                        <input class="form-check-input" type="radio" name="radioActualizar" id="radioActualizarAhora"
-                            value="Ahora">
-                    </span>
-                    <span class="input-group-text">
-                        Actualizar Precios Ahora
-                    </span>
-                </div>
-                <div>
-                    <button disabled id="btnActualizar" type="submit" class="btn btn-warning">
-                        <i class="fa fa-refresh"></i> Actualizar
-                    </button>
-                    <button id="btnActualizandoPrecios" hidden class="btn btn-warning" type="button">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Actualizando Precios...
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <script src="{{ asset('js/scriptPrecios.js') }}"></script>
-    <script>
-        document.getElementById('formActualizarPrecios').addEventListener('submit', function() {
-            document.getElementById('btnActualizar').hidden = true;
-            document.getElementById('btnActualizandoPrecios').hidden = false;
-        })
 
-        document.getElementById('filtro').addEventListener('keyup', (e) => {
-            const radioCodigo = document.getElementById('codigo').checked;
+                    <div class="d-flex justify-content-end mt-4">
+                        <button
+                            type="button"
+                            id="btnGuardarPrecios"
+                            class="btn-modern btn-agregar btn-disabled"
+                            disabled
+                            data-bs-toggle="modal"
+                            data-bs-target="#ModalConfirmarActualizarPrecios"
+                        >
+                            <i class="bi bi-floppy me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        @elseif ($idGrupo)
+            <div class="p-4">
+                <div class="card-modern">
+                    <div class="card-body p-4 text-center">
+                        <div class="empty-state-icon mx-auto mb-3">
+                            <i
+                                class="bi bi-search fs-3"
+                                style="color: #94a3b8;"
+                            ></i>
+                        </div>
+                        <h6 class="text-muted">Sin resultados</h6>
+                        <small class="text-muted">No se encontraron precios con los filtros seleccionados</small>
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="p-4">
+                <div class="card-modern">
+                    <div class="card-body p-4 text-center">
+                        <div class="empty-state-icon mx-auto mb-3">
+                            <i
+                                class="bi bi-currency-dollar fs-3"
+                                style="color: #94a3b8;"
+                            ></i>
+                        </div>
+                        <h6 class="text-muted">Seleccione un grupo</h6>
+                        <small class="text-muted">Elija un grupo para ver y editar los precios de sus artículos</small>
+                    </div>
+                </div>
+            </div>
+        @endif
 
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("filtro");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("tblPrecios");
-            tr = table.getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                td = radioCodigo == true ? tr[i].getElementsByTagName("td")[0] : tr[i].getElementsByTagName("td")[
-                    1];
-                //td = tr[i].getElementsByTagName("td")[0];
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
+        @if (count($preciosAgrupados) > 0)
+            @include('Precios.ModalConfirmarActualizarPrecios')
+        @endif
+    </x-card-gradient-header>
+</x-page-container>
+
+<style>
+    .input-cambiado {
+        border-color: #93c5fd !important;
+        background-color: #f8faff !important;
+    }
+
+    .input-nuevo {
+        border-color: #fcd34d !important;
+        background-color: #fffdf5 !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputsPrecio = document.querySelectorAll('.input-precio');
+        const btnGuardar = document.getElementById('btnGuardarPrecios');
+        const contadorCambios = document.getElementById('contadorCambios');
+        const contenedorPrecios = document.getElementById('contenedorPrecios');
+
+        function verificarCambios() {
+            let cambios = 0;
+
+            inputsPrecio.forEach(input => {
+                const valorActual = parseFloat(input.value) || 0;
+                const valorOriginal = parseFloat(input.dataset.original) || 0;
+
+                if (valorActual !== valorOriginal) {
+                    input.classList.add('input-cambiado');
+                    cambios++;
+                } else {
+                    input.classList.remove('input-cambiado');
                 }
+            });
+
+            contadorCambios.textContent = cambios;
+
+            if (cambios > 0) {
+                btnGuardar.disabled = false;
+                btnGuardar.classList.remove('btn-disabled');
+            } else {
+                btnGuardar.disabled = true;
+                btnGuardar.classList.add('btn-disabled');
             }
+        }
+
+        function prepararEnvio() {
+            // Limpiar contenedor
+            contenedorPrecios.innerHTML = '';
+            let index = 0;
+
+            inputsPrecio.forEach(input => {
+                const valorActual = parseFloat(input.value) || 0;
+                const valorOriginal = parseFloat(input.dataset.original) || 0;
+
+                // Solo enviar los que cambiaron
+                if (valorActual !== valorOriginal) {
+                    const codArticulo = input.dataset.codArticulo;
+                    const idLista = input.dataset.idLista;
+
+                    contenedorPrecios.innerHTML += `
+                    <input type="hidden" name="precios[${index}][CodArticulo]" value="${codArticulo}">
+                    <input type="hidden" name="precios[${index}][IdListaPrecio]" value="${idLista}">
+                    <input type="hidden" name="precios[${index}][PrecioArticulo]" value="${valorActual}">
+                `;
+                    index++;
+                }
+            });
+        }
+
+        inputsPrecio.forEach(input => {
+            input.addEventListener('input', verificarCambios);
+            input.addEventListener('change', verificarCambios);
         });
-    </script>
-@endsection
+
+        btnGuardar.addEventListener('click', function(e) {
+            if (btnGuardar.disabled) {
+                e.preventDefault();
+                return false;
+            }
+            prepararEnvio();
+        });
+
+        // Confirmar envío desde el modal
+        const btnConfirmar = document.getElementById('btnConfirmarActualizar');
+        if (btnConfirmar) {
+            btnConfirmar.addEventListener('click', function() {
+                document.getElementById('formPrecios').submit();
+            });
+        }
+    });
+</script>

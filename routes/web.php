@@ -25,6 +25,7 @@ use App\Http\Controllers\CuentasMermaController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\TiposMermaController;
 use App\Http\Controllers\LimiteCreditoEspecialController;
+use App\Http\Controllers\TicketFacturacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -378,7 +379,7 @@ Route::middleware('auth')->group(function () {
 
     // Paquetes
     Route::get('/CatPaquetes', 'App\Http\Controllers\PaquetesController@CatPaquetes');
-    Route::get('/VerPaquetes', 'App\Http\Controllers\PaquetesController@VerPaquetes');
+    Route::get('/VerPaquetes', 'App\Http\Controllers\PaquetesController@VerPaquetes')->name('VerPaquetes');
     Route::get('/BuscarCodArticuloPaquqete', 'App\Http\Controllers\PaquetesController@BuscarCodArticuloPaquqete');
     Route::post('/GuardarPaquete', 'App\Http\Controllers\PaquetesController@GuardarPaquete');
     Route::get('/EditarPaquete/{idPaquete}', 'App\Http\Controllers\PaquetesController@EditarPaquete');
@@ -443,6 +444,9 @@ Route::middleware('auth')->group(function () {
     Route::get('DashCorte', 'App\Http\Controllers\DashCorteController@Index')->name('DashCorte');
     Route::get('DashTiendaAdmin', 'App\Http\Controllers\DashTiendaAdminController@Index')->name('DashTiendaAdmin');
     Route::get('DashVentaPorTicket', 'App\Http\Controllers\DashVentaPorTicketController@index')->name('DashVentaPorTicket');
+    Route::get('DashVentaPorTicket/exports', 'App\Http\Controllers\DashVentaPorTicketController@exports')->name('DashVentaPorTicket.exports');
+    Route::get('DashTicketsCancelados', 'App\Http\Controllers\DashTicketsCanceladosController@index')->name('DashTicketsCancelados');
+    Route::get('DashTicketsCancelados/exports', 'App\Http\Controllers\DashTicketsCanceladosController@exports')->name('DashTicketsCancelados.exports');
 
     // Cortes Tienda
     Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerCortesTienda')->name('VerCortesTienda');
@@ -528,15 +532,24 @@ Route::middleware('auth')->group(function () {
 
     // Interfaz/Envio de pedidos a Oracle
     Route::get('/InterfazPedidos', 'App\Http\Controllers\InterfazController@index')->name('interfaz.index');
+    Route::get('/InterfazPedidos/Detallado', 'App\Http\Controllers\InterfazController@detallado')->name('interfaz.detallado');
 
     // Ordenes Oracle
     Route::get('/OrdenesOracle', 'App\Http\Controllers\OrdenesOracleController@index');
+
+    // Ordenes Oracle
+    Route::get('/EstatusFacturas', 'App\Http\Controllers\EstatusFacturasController@index')->name('facturasdiarias.index');
 
     // Devoluciones
     Route::get('/Devoluciones', 'App\Http\Controllers\DevolucionController@index');
     Route::get('/devoluciones/{folio}/refresh', 'App\Http\Controllers\DevolucionController@refresh')->name('devoluciones.refresh');
     Route::get('/api/devoluciones/{folio}', 'App\Http\Controllers\DevolucionController@show');
     Route::post('/api/devoluciones', 'App\Http\Controllers\DevolucionController@store');
+
+    // Habilitar tickets viejos para facturar
+    Route::get('/TicketFacturacion', [TicketFacturacionController::class, 'index']);
+    Route::post('/TicketFacturacion/Habilitar', [TicketFacturacionController::class, 'habilitar']);
+    Route::post('/TicketFacturacion/Desactivar/{id}', [TicketFacturacionController::class, 'desactivar']);
 }); // Termina Middleware Auth
 
 // GRUPO ROSTICERO

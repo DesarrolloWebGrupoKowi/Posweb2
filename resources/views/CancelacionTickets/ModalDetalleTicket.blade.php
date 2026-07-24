@@ -1,92 +1,67 @@
-<div class="modal fade"
+<!-- Modal Detalle Ticket -->
+<div
+    class="modal fade"
     id="ModalDetalleTicket{{ $solicitud->IdEncabezado }}"
     tabindex="-1"
-    aria-labelledby="modalDetalleTicketLabel-{{ $solicitud->IdEncabezado }}"
-    aria-hidden="true">
-    <div class="modal-dialog modal-xl"
-        style="margin-top: 5vh;">
-        <div class="modal-content border-0 shadow"
-            style="border-radius: 10px;">
-
+    aria-labelledby="ModalDetalleTicket{{ $solicitud->IdEncabezado }}Label"
+    aria-hidden="true"
+>
+    <div
+        class="modal-dialog modal-xl"
+        style="margin-top: 5vh;"
+    >
+        <div
+            class="modal-content border-0 shadow"
+            style="border-radius: 16px; overflow: hidden;"
+        >
             <!-- Modal Header -->
-            <div class="modal-header border-bottom-0 pb-0"
-                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 10px 10px 0 0;">
-                <h5 class="text-white"
-                    id="modalDetalleTicketLabel-{{ $solicitud->IdEncabezado }}">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.2); width: 32px; height: 32px;">
-                            @include('components.icons.list')
-                        </div>
-                        <span>Detalle del Ticket #{{ $solicitud->Encabezado->IdTicket }}</span>
+            <div class="px-4 pt-4 pb-3" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="background-color: rgba(255, 255, 255, 0.15); width: 40px; height: 40px;">
+                        <i class="bi bi-receipt fs-5 text-white"></i>
                     </div>
-                </h5>
+                    <div>
+                        <h5 class="mb-0 text-white" style="font-weight: 600; font-size: 1.1rem;">
+                            Ticket #{{ $solicitud->Encabezado->IdTicket }}
+                        </h5>
+                        <p class="mb-0" style="color: rgba(255,255,255,0.5); font-size: 0.78rem;">
+                            Caja {{ $solicitud->Encabezado->NumCaja }} &middot; Folio {{ $solicitud->Encabezado->IdEncabezado }}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Modal Body -->
-            <div class="modal-body p-4">
-                <!-- Información resumen del ticket -->
-                <div class="d-flex flex-wrap gap-4 mb-4 pb-3 border-bottom"
-                    style="border-color: #e5e7eb !important;">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center p-1"
-                            style="background-color: rgba(30, 41, 59, 0.1); width: 32px; height: 32px;">
-                            <div class="d-flex align-items-center justify-content-center"
-                                style="color: #1e293b; width: 16px; height: 16px;">
-                                @include('components.icons.hash')
-                            </div>
-                        </div>
-                        <div>
-                            <div class="small text-muted">Folio</div>
-                            <div class="fw-600">{{ $solicitud->Encabezado->IdEncabezado }}</div>
+            <div class="p-4">
+                <!-- Resumen -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 2px;">Fecha de Venta</div>
+                        <div style="font-weight: 600; color: #0f172a;">
+                            {{ \Carbon\Carbon::parse($solicitud->Encabezado->FechaVenta)->locale('es')->isoFormat('D MMM YYYY, HH:mm') }}
                         </div>
                     </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center p-1"
-                            style="background-color: rgba(30, 41, 59, 0.1); width: 32px; height: 32px;">
-                            <div class="d-flex align-items-center justify-content-center"
-                                style="color: #1e293b; width: 16px; height: 16px;">
-                                @include('components.icons.calendar')
-                            </div>
-                        </div>
-                        <div>
-                            <div class="small text-muted">Fecha</div>
-                            <div class="fw-600">
-                                {{ \Carbon\Carbon::parse($solicitud->Encabezado->FechaVenta)->locale('es')->isoFormat('D MMM YYYY, HH:mm') }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center p-1"
-                            style="background-color: rgba(30, 41, 59, 0.1); width: 32px; height: 32px;">
-                            <div class="d-flex align-items-center justify-content-center"
-                                style="color: #1e293b; width: 16px; height: 16px;">
-                                @include('components.icons.cash')
-                            </div>
-                        </div>
-                        <div>
-                            <div class="small text-muted">Total</div>
-                            <div class="fw-600">${{ number_format($solicitud->Encabezado->ImporteVenta, 2) }}</div>
+                    <div class="col-sm-6 text-sm-end">
+                        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 2px;">Importe Total</div>
+                        <div style="font-weight: 700; color: #059669; font-size: 1.1rem;">
+                            ${{ number_format($solicitud->Encabezado->ImporteVenta, 2) }}
                         </div>
                     </div>
                 </div>
 
                 <!-- Tabla de artículos -->
-                <div class="table-responsive content-table-sm"
-                    style="max-height: 400px; overflow-y: auto;">
-                    <table class="table">
-                        <thead class="table-head text-white">
+                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table-custom table mb-0">
+                        <thead style="position: sticky; top: 0; z-index: 1; background: #f8fafc;">
                             <tr>
-                                <th class="rounded-start text-start">Código</th>
-                                <th class="text-start">Artículo</th>
+                                <th>Código</th>
+                                <th>Artículo</th>
                                 <th class="text-center">Cantidad</th>
                                 <th class="text-end">Precio</th>
                                 <th class="text-end">IVA</th>
                                 <th class="text-end">Importe</th>
                                 <th>Paquete</th>
-                                <th class="rounded-end">Pedido</th>
+                                <th>Pedido</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,20 +71,15 @@
                                 $totalImporte = 0;
                             @endphp
                             @foreach ($solicitud->Detalle as $detalle)
-                                <tr class="small">
-                                    <td class="text-start py-1"><span class="fw-500 small">{{ $detalle->CodArticulo }}</span></td>
-                                    <td class="text-start py-1">
-                                        <span class="small">
-                                        {{ $detalle->NomArticulo }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center small py-1">{{ number_format($detalle->CantArticulo, 3) }}</td>
-                                    <td class="text-end small py-1">${{ number_format($detalle->PrecioArticulo, 2) }}</td>
-                                    <td class="text-end small py-1">${{ number_format($detalle->IvaArticulo, 2) }}</td>
-                                    <td class="text-end small py-1 fw-500">
-                                        ${{ number_format($detalle->ImporteArticulo, 2) }}</td>
-                                    <td class="small py-1">{{ $detalle->NomPaquete }}</td>
-                                    <td class="small py-1">{{ $detalle->Cliente }}</td>
+                                <tr>
+                                    <td style="font-weight: 500; color: #0f172a;">{{ $detalle->CodArticulo }}</td>
+                                    <td>{{ $detalle->NomArticulo }}</td>
+                                    <td class="text-center">{{ number_format($detalle->CantArticulo, 3) }}</td>
+                                    <td class="text-end">${{ number_format($detalle->PrecioArticulo, 2) }}</td>
+                                    <td class="text-end">${{ number_format($detalle->IvaArticulo, 2) }}</td>
+                                    <td class="text-end" style="font-weight: 500;">${{ number_format($detalle->ImporteArticulo, 2) }}</td>
+                                    <td>{{ $detalle->NomPaquete }}</td>
+                                    <td>{{ $detalle->Cliente }}</td>
                                 </tr>
                                 @php
                                     $totalCantidad += $detalle->CantArticulo;
@@ -117,46 +87,42 @@
                                     $totalImporte += $detalle->ImporteArticulo;
                                 @endphp
                             @endforeach
-
-                            <!-- Fila de totales -->
-                            <tr class="table-light fw-bold">
-                                <td colspan="2"
-                                    class="text-end py-0">TOTALES:</td>
-                                <td class="text-center py-0">{{ number_format($totalCantidad, 3) }}</td>
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: #f8fafc; font-weight: 700; border-top: 2px solid #e2e8f0;">
+                                <td colspan="2" class="text-end">Totales</td>
+                                <td class="text-center">{{ number_format($totalCantidad, 3) }}</td>
                                 <td></td>
-                                <td class="text-end py-0">${{ number_format($totalIva, 2) }}</td>
-                                <td class="text-end py-0">${{ number_format($totalImporte, 2) }}</td>
+                                <td class="text-end">${{ number_format($totalIva, 2) }}</td>
+                                <td class="text-end" style="color: #059669;">${{ number_format($totalImporte, 2) }}</td>
                                 <td colspan="2"></td>
                             </tr>
-                        </tbody>
+                        </tfoot>
                     </table>
                 </div>
 
-                <!-- Información adicional si existe -->
+                <!-- Motivo de cancelación -->
                 @if (isset($solicitud->MotivoCancelacion) && !empty($solicitud->MotivoCancelacion))
-                    <div class="mt-3 p-3"
-                        style="background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
-                        <div class="d-flex align-items-center gap-2">
-                            <div style="color: #856404;">
-                                @include('components.icons.alert-circle')
-                            </div>
-                            <span class="small fw-500">Motivo de cancelación:</span>
-                            <span class="small">{{ $solicitud->MotivoCancelacion }}</span>
+                    <div class="mt-4 p-3" style="background: #fffbeb; border-radius: 8px;">
+                        <div style="font-weight: 600; color: #92400e; font-size: 0.8rem; margin-bottom: 4px;">
+                            <i class="bi bi-exclamation-triangle me-1" style="color: #f59e0b;"></i>Motivo de Cancelación
                         </div>
+                        <p class="mb-0" style="color: #a16207; font-size: 0.85rem; line-height: 1.5;">
+                            {{ $solicitud->MotivoCancelacion }}
+                        </p>
                     </div>
                 @endif
             </div>
 
             <!-- Modal Footer -->
-            <div class="modal-footer border-top-0 pt-0">
-                <button type="button"
-                    class="btn btn-outline-secondary"
+            <div class="px-4 pb-4 d-flex justify-content-end">
+                <button
+                    type="button"
+                    class="btn"
                     data-bs-dismiss="modal"
-                    style="border-radius: 6px; padding: 8px 20px;">
-                    <span class="d-flex align-items-center gap-2">
-                        @include('components.icons.x')
-                        Cerrar
-                    </span>
+                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 20px; font-size: 0.85rem; font-weight: 500;"
+                >
+                    Cerrar
                 </button>
             </div>
         </div>

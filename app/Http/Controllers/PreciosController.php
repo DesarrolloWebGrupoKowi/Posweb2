@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PreciosExport;
-use App\Mail\ActualizacionPreciosMail;
 use App\Models\Grupo;
 use App\Models\HistorialPrecio;
 use App\Models\ListaPrecio;
@@ -20,34 +19,177 @@ class PreciosController extends Controller
 {
     public function Precios(Request $request)
     {
-        $listaPrecios = ListaPrecio::where('Status', 0)
-            ->get();
-
-        $idListaPrecio = $request->IdListaPrecio;
-
-        $grupos = Grupo::where('Status', 0)
-            ->get();
-
+        $grupos = Grupo::where('Status', 0)->get();
         $idGrupo = $request->IdGrupo;
 
-        $fechaActual = date('Y-m-d');
-        $datetime = new DateTime('tomorrow');
-        $tomorrow = $datetime->format('Y-m-d');
+        $preciosAgrupados = [];
+        $listasPrecioUnicas = collect();
+        $idsListas = [];
 
-        $precios = DB::table('CatArticulos as a')
-            ->leftJoin('DatPreciosTmp as b', 'a.CodArticulo', 'b.CodArticulo')
-            ->where('b.IdlistaPrecio', $idListaPrecio)
-            ->where('a.IdGrupo', 'like', '%' . $idGrupo . '%')
-            ->where('a.Status', 0)
-            ->orderBy('a.CodArticulo')
-            ->get();
+        if ($idGrupo) {
+            // Obtener TODAS las listas de precios activas (no solo las que tienen datos)
+            $listaPrecios = ListaPrecio::where('Status', 0)->get();
+            $listasPrecioUnicas = $listaPrecios->pluck('NomListaPrecio', 'IdListaPrecio');
+            $idsListas = $listasPrecioUnicas->keys()->toArray();
 
-        //return $precios;
+            // Obtener artículos del grupo
+            $articulos = DB::table('CatArticulos as a')
+                ->select('a.CodArticulo', 'a.NomArticulo', 'a.IdArticulo')
+                ->where('a.IdGrupo', 'like', '%' . $idGrupo . '%')
+                ->where('a.Status', 0)
+                ->orderBy('a.CodArticulo')
+                ->get();
 
-        return view('Precios.Precios', compact('listaPrecios', 'idListaPrecio', 'precios', 'grupos', 'idGrupo', 'tomorrow'));
+            // Obtener precios existentes
+            $preciosExistentes = DB::table('DatPreciosTmp')
+                ->whereIn('CodArticulo', $articulos->pluck('CodArticulo'))
+                ->whereIn('IdListaPrecio', $idsListas)
+                ->get()
+                ->groupBy('CodArticulo');
+
+            // Construir estructura agrupada
+            foreach ($articulos as $articulo) {
+                $codArticulo = $articulo->CodArticulo;
+
+                $preciosAgrupados[$codArticulo] = [
+                    'CodArticulo' => $articulo->CodArticulo,
+                    'NomArticulo' => $articulo->NomArticulo,
+                    'IdArticulo' => $articulo->IdArticulo,
+                    'precios' => [],
+                ];
+
+                // Inicializar todas las listas con null
+                foreach ($idsListas as $idLista) {
+                    $preciosAgrupados[$codArticulo]['precios'][$idLista] = null;
+                }
+
+                // Llenar con precios existentes
+                if (isset($preciosExistentes[$codArticulo])) {
+                    foreach ($preciosExistentes[$codArticulo] as $precio) {
+                        $preciosAgrupados[$codArticulo]['precios'][$precio->IdListaPrecio] = [
+                            'IdListaPrecio' => $precio->IdListaPrecio,
+                            'NomListaPrecio' => $listasPrecioUnicas[$precio->IdListaPrecio] ?? '',
+                            'PrecioArticulo' => $precio->PrecioArticulo,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return view('Precios.Precios', compact(
+            'preciosAgrupados',
+            'listasPrecioUnicas',
+            'idsListas',
+            'grupos',
+            'idGrupo'
+        ));
     }
 
     public function ActualizarPrecios(Request $request)
+    {
+        $precios = $request->precios;
+
+        if (!$precios || count($precios) === 0) {
+            return back()->with('msjdelete', 'No hay cambios para actualizar.');
+        }
+
+        try {
+            DB::beginTransaction();
+            $preciosActualizados = collect();
+
+            foreach ($precios as $item) {
+                $codArticulo = $item['CodArticulo'];
+                $idListaPrecio = $item['IdListaPrecio'];
+                $nuevoPrecio = $item['PrecioArticulo'];
+
+                // Cerrar historiales activos anteriores
+                if (HistorialPrecio::where('Status', 0)->where('CodArticulo', $codArticulo)->exists()) {
+                    DB::table('HistorialPrecios')
+                        ->where('Status', 0)
+                        ->where('CodArticulo', $codArticulo)
+                        ->where('IdListaPrecio', $idListaPrecio)
+                        ->update([
+                            'VigenciaHasta' => date('d-m-Y'),
+                            'Status' => 1,
+                        ]);
+                }
+
+                // Obtener el precio anterior de DatPrecios
+                $precioAnterior = DB::table('DatPrecios')
+                    ->where('CodArticulo', $codArticulo)
+                    ->where('IdListaPrecio', $idListaPrecio)
+                    ->value('PrecioArticulo');
+
+                // Actualizar DatPreciosTmp
+                DB::table('DatPreciosTmp')
+                    ->updateOrInsert(
+                        [
+                            'CodArticulo' => $codArticulo,
+                            'IdListaPrecio' => $idListaPrecio,
+                        ],
+                        [
+                            'PrecioArticulo' => $nuevoPrecio,
+                            'FechaPara' => date('d-m-Y'),
+                        ]
+                    );
+
+                // Insertar en historial
+                DB::table('HistorialPrecios')->insert([
+                    'IdListaPrecio' => $idListaPrecio,
+                    'CodArticulo' => $codArticulo,
+                    'PrecioArticulo' => $nuevoPrecio,
+                    'VigenciaDe' => date('d-m-Y'),
+                    'VigenciaHasta' => null,
+                    'IdUsuario' => Auth::user()->IdUsuario,
+                    'FechaCaptura' => date('d-m-Y'),
+                    'Status' => 0,
+                    'IdDatPrecios' => null,
+                ]);
+
+                // Actualizar DatPrecios
+                DB::table('DatPrecios')
+                    ->where('CodArticulo', $codArticulo)
+                    ->where('IdListaPrecio', $idListaPrecio)
+                    ->update([
+                        'PrecioArticulo' => $nuevoPrecio,
+                    ]);
+
+                // Obtener nombres para el correo
+                $articulo = DB::table('CatArticulos')
+                    ->where('CodArticulo', $codArticulo)
+                    ->first();
+
+                $listaPrecio = DB::table('CatListasPrecio')
+                    ->where('IdListaPrecio', $idListaPrecio)
+                    ->first();
+
+                $preciosActualizados->push((object) [
+                    'NomListaPrecio' => $listaPrecio->NomListaPrecio ?? 'N/A',
+                    'CodArticulo' => $codArticulo,
+                    'NomArticulo' => $articulo->NomArticulo ?? 'N/A',
+                    'PrecioArticuloViejo' => $precioAnterior ?? 0,
+                    'PrecioArticuloNuevo' => $nuevoPrecio,
+                ]);
+            }
+
+            // Enviar correo de actualización de precios
+            $correos = [
+                'sistemas@kowi.com.mx',
+                'soporte@kowi.com.mx',
+            ];
+
+            // Mail::to($correos)
+            //     ->send(new ActualizacionPreciosMail($preciosActualizados));
+
+            DB::commit();
+            return back()->with('msjAdd', 'Precios Actualizados! (' . count($precios) . ' cambios)');
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('msjdelete', 'Error: ' . $th->getMessage());
+        }
+    }
+
+    public function ActualizarPrecios2(Request $request)
     {
         $precios = $request->precios;
         $idListaPrecioHidden = $request->idListaPrecioHidden;

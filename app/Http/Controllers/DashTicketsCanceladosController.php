@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Exports\MovimientosDeArticulos;
+use App\Exports\TicketsCanceladosExport;
 use App\Services\TiendaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
-class DashVentaPorTicketController extends Controller
+class DashTicketsCanceladosController extends Controller
 {
     protected Collection $tiendas;
     protected array $tiendasIds;
@@ -62,7 +63,6 @@ class DashVentaPorTicketController extends Controller
             $idEncabezado = \Vinkla\Hashids\Facades\Hashids::decode($folio);
         }
 
-        // $idEncabezadoDecoded;
         // Construir la consulta
         $query = DB::connection('server')->table('DatEncabezado as DE')
             ->leftJoin('DatDetalle as DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
@@ -77,25 +77,8 @@ class DashVentaPorTicketController extends Controller
             ->leftJoin('CatEmpleados as CE', 'CE.NumNomina', '=', 'CU.NumNomina')
             ->leftJoin('CatUsuarios as CUC', 'CUC.IdUsuario', '=', 'DE.IdUsuarioCancelacion')
             ->leftJoin('CatEmpleados as CECC', 'CECC.NumNomina', '=', 'CUC.NumNomina')
-
-            // ->leftJoin(DB::raw("(SELECT * FROM DatCortesTienda) AS DC"), function ($join) {
-            //     $join->on('DC.IdEncabezado', '=', 'DE.IdEncabezado')
-            //         ->on('DC.IdArticulo', '=', 'DD.IdArticulo')
-            //         ->on('DC.Linea', '=', 'DD.Linea');
-            // })
-
-            // ->leftJoin(DB::raw("(
-            //     SELECT IdEncabezado, IdArticulo, Linea, Source_Transaction_Identifier, IdSolicitudFactura,
-            //            ROW_NUMBER() OVER (PARTITION BY IdEncabezado, IdArticulo, Linea ORDER BY IdCortesTienda) as rn
-            //     FROM DatCortesTienda
-            // ) as DC"), function ($join) {
-            //     $join->on('DC.IdEncabezado', '=', 'DE.IdEncabezado')
-            //         ->on('DC.IdArticulo', '=', 'DD.IdArticulo')
-            //         ->on('DC.Linea', '=', 'DD.Linea')
-            //         ->where('DC.rn', '=', DB::raw('1'));
-            // })
             ->leftJoin(DB::raw("(
-                    SELECT IdEncabezado, IdArticulo, Linea, Source_Transaction_Identifier, IdSolicitudFactura
+                    SELECT IdEncabezado, IdArticulo, CantArticulo, ImporteArticulo, IdTipoPago, Linea, Source_Transaction_Identifier, IdSolicitudFactura
                     FROM DatCortesTienda dct1
                     WHERE dct1.IdCortesTienda in (
                         SELECT dct2.IdCortesTienda
@@ -110,12 +93,13 @@ class DashVentaPorTicketController extends Controller
                     ->on('DC.Linea', '=', 'DD.Linea');
             })
             ->leftJoin('SolicitudFactura as SF', 'SF.IdSolicitudFactura', '=', 'DC.IdSolicitudFactura')
+            ->leftJoin('CatTipoPago as CPP', 'CPP.IdTipoPago', '=', 'DC.IdTipoPago')
             ->select(
                 'DE.IdTicket',
                 'DE.IdEncabezado',
                 'DD.Linea',
                 'DE.FechaVenta',
-                'DE.FechaSubida',
+                // 'DE.FechaSubida',
                 'DE.SubTotal',
                 'DE.Iva',
                 'DE.ImporteVenta',
@@ -127,6 +111,7 @@ class DashVentaPorTicketController extends Controller
                 'DE.FechaCancelacion',
 
                 'DC.Source_Transaction_Identifier',
+                'CPP.NomTipoPago',
 
                 'DE.SolicitudFE',
                 'SF.IdSolicitudFactura',
@@ -141,10 +126,16 @@ class DashVentaPorTicketController extends Controller
                 'CA.NomArticulo',
                 'CF.NomFamilia',
                 'CG.NomGrupo',
-                'DD.CantArticulo',
+
+                // 'DD.CantArticulo',
+                'DC.CantArticulo',
+
                 'DD.PrecioArticulo',
                 'DD.PrecioLista',
-                'DD.ImporteArticulo',
+
+                // 'DD.ImporteArticulo',
+                'DC.ImporteArticulo',
+
                 'DD.IvaArticulo',
                 'DD.SubTotalArticulo',
                 'DD.IdListaPrecio',
@@ -278,9 +269,9 @@ class DashVentaPorTicketController extends Controller
                 $query->whereRaw('1 = 0');
             })
 
+            ->where('StatusVenta', 1)
             ->whereIn('DE.IdTienda', $tiendasIds)
-            ->orderBy('DE.IdTicket', 'desc')
-            ->orderBy('DD.Linea');
+            ->orderBy('DE.FechaVenta');
 
         if ($exports)
             return $query;
@@ -288,9 +279,137 @@ class DashVentaPorTicketController extends Controller
             return $query->get();
     }
 
+    private function queryDetallado(string $idEncabezado)
+    {
+        $tiendasIds = $this->tiendasIds;
+
+        // Construir la consulta
+        // $query = DB::connection('server')->table('DatEncabezado as DE')
+        $query = DB::table('DatEncabezado as DE')
+            ->leftJoin('DatDetalle as DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
+            ->leftJoin('CatPaquetes as CP', 'CP.IdPaquete', '=', 'DD.IdPaquete')
+            ->leftJoin('DatEncDescuentos as DED', 'DED.IdEncDescuento', '=', 'DD.IdEncDescuento')
+            ->leftJoin('CatArticulos as CA', 'CA.IdArticulo', '=', 'DD.IdArticulo')
+            ->leftJoin('CatFamilias as CF', 'CF.IdFamilia', '=', 'CA.IdFamilia')
+            ->leftJoin('CatGrupos as CG', 'CG.IdGrupo', '=', 'CA.IdGrupo')
+            ->leftJoin('CatEmpleados as CEC', 'CEC.NumNomina', '=', 'DE.NumNomina')
+            ->leftJoin('CatTiendas as CT', 'CT.IdTienda', '=', 'DE.IdTienda')
+            ->leftJoin('CatUsuarios as CU', 'CU.IdUsuario', '=', 'DE.IdUsuario')
+            ->leftJoin('CatEmpleados as CE', 'CE.NumNomina', '=', 'CU.NumNomina')
+            ->leftJoin('CatUsuarios as CUC', 'CUC.IdUsuario', '=', 'DE.IdUsuarioCancelacion')
+            ->leftJoin('CatEmpleados as CECC', 'CECC.NumNomina', '=', 'CUC.NumNomina')
+            ->select(
+                'DE.IdTicket',
+                'DE.IdEncabezado',
+                'DD.Linea',
+                'DE.FechaVenta',
+                // 'DE.FechaSubida',
+                'DE.SubTotal',
+                'DE.Iva',
+                'DE.ImporteVenta',
+                'DE.StatusVenta',
+                'DE.IdUsuarioCancelacion',
+                'CECC.Nombre as NombreUsuarioCancelacion',
+                'CECC.Apellidos as ApellidoUsuarioCancelacion',
+                'DE.MotivoCancel',
+                'DE.FechaCancelacion',
+
+                'DE.SolicitudFE',
+
+                'DE.NumNomina',
+                'CEC.Nombre as NombreEmpleadoComprador',
+                'CEC.Apellidos as ApellidosEmpleadoComprador',
+                'DD.IdArticulo',
+                'CA.CodArticulo',
+                'CA.NomArticulo',
+                'CF.NomFamilia',
+                'CG.NomGrupo',
+                'DD.CantArticulo',
+                'DD.PrecioArticulo',
+                'DD.PrecioLista',
+                'DD.ImporteArticulo',
+                'DD.IvaArticulo',
+                'DD.SubTotalArticulo',
+                'DD.IdListaPrecio',
+                'DD.Recorte',
+                'DD.IdPaquete',
+                'CP.NomPaquete',
+                'DD.IdEncDescuento',
+                'DED.NomDescuento',
+                'DE.IdTienda',
+                'CT.NomTienda',
+                'DE.IdUsuario',
+                'CU.NomUsuario',
+                DB::raw("CONCAT(CE.Nombre, ' ', CE.Apellidos) as NombreEmpleado")
+            )
+            ->when($idEncabezado, function ($query) use ($idEncabezado) {
+                $query->where('DE.IdEncabezado', $idEncabezado);
+            })
+            ->whereIn('DE.IdTienda', $tiendasIds)
+            ->orderBy('DE.IdTicket', 'desc')
+            ->orderBy('DD.Linea');
+
+        $queryPagos = DB::connection('server')
+            ->table('DatTipoPago as dt')
+            ->leftJoin('CatTipoPago as ct', 'ct.IdTipoPago', '=', 'dt.IdTipoPago')
+            ->where('dt.IdEncabezado', $idEncabezado)
+            ->select(
+                'dt.*',
+                'ct.NomTipoPago'
+            );
+
+        $querySolicitud = DB::connection('server')
+            ->table('SolicitudFactura as sf')
+            ->where('sf.IdEncabezado', $idEncabezado)
+            ->select(
+                'sf.*'
+            );
+        return [
+            'detalle' => $query->get(),
+            'pagos' => $queryPagos->get(),
+            'facturas' => $querySolicitud->get(),
+        ];
+    }
+
     public function index(Request $request)
     {
-        // return 'sndfono';
+        // return 'hola';
+        // Solo validar si hay algún filtro activo (se hizo clic en Filtrar)
+        $hasAnyFilter = $request->filled('idTienda') ||
+            $request->filled('fecha_inicio') ||
+            $request->filled('fecha_fin') ||
+            $request->filled('id_ticket') ||
+            $request->filled('id_encabezado') ||
+            $request->filled('folio') ||
+            $request->filled('status_venta') ||
+            $request->filled('solicitud_fe') ||
+            $request->filled('cancelado');
+
+        // if ($hasAnyFilter) {
+        //     if ($request->filled('id_encabezado') || $request->filled('folio')) {
+        //         // Si viene id_encabezado o folio, no requiere más filtros
+        //         $request->validate([
+        //             'id_encabezado' => 'nullable|integer',
+        //             'folio' => 'nullable|string',
+        //         ]);
+        //     } else {
+        //         // Si no, tienda y fecha son obligatorias
+        //         $request->validate([
+        //             'idTienda' => 'required|integer',
+        //             // 'fecha' => 'required|date',
+        //         ], [
+        //             'idTienda.required' => 'Selecciona una tienda o busca por ID Encabezado/Folio.',
+        //             // 'fecha.required' => 'La fecha es obligatoria o busca por ID Encabezado/Folio.',
+        //         ]);
+        //     }
+        // }
+
+        $idEncabezado = $request->id_encabezado;
+        $folio = $request->folio;
+        if ($folio) {
+            $idEncabezado = \Vinkla\Hashids\Facades\Hashids::decode($folio);
+        }
+
         $filtrosAvanzadosActivos =
             $request->filled('folio') ||
             $request->filled('status_venta') ||
@@ -304,13 +423,29 @@ class DashVentaPorTicketController extends Controller
         $tiendas = $this->tiendas;
 
         // return
-        // return
         $data = $this->query($request);
 
-        return view('Dashboards/venta-por-ticket', compact(
+        $dataDetallado = collect();
+        $detalleData = null;
+        $pagosData = null;
+        $facturasData = null;
+        if ($idEncabezado) {
+            $dataDetallado = $this->queryDetallado($idEncabezado);
+
+            $detalleData = $dataDetallado['detalle'] ?? null;
+            $pagosData = $dataDetallado['pagos'] ?? null;
+            $facturasData = $dataDetallado['facturas'] ?? null;
+        }
+
+        return view('Dashboards/venta-ticket-cancelados', compact(
             'data',
+            'dataDetallado',
             'tiendas',
-            'filtrosAvanzadosActivos'
+            'idEncabezado',
+            'filtrosAvanzadosActivos',
+            'detalleData',
+            'pagosData',
+            'facturasData'
         ));
     }
 
@@ -319,6 +454,6 @@ class DashVentaPorTicketController extends Controller
         $query = $this->query($request, true);
 
         $name = 'exports.xlsx';
-        return Excel::download(new MovimientosDeArticulos($query), $name);
+        return Excel::download(new TicketsCanceladosExport($query), $name);
     }
 }

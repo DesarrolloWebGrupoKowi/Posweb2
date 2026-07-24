@@ -15,8 +15,8 @@
             >
                 <i class="bi bi-file-earmark-excel"></i> Exportar
             </a>
-            <x-header.buttons.refresh-button />
             <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
         </x-slot:buttons>
 
         <!-- Filtros -->

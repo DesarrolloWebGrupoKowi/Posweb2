@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\MovimientosDeArticulos;
+use App\Exports\VentasDetalladasExport;
 use App\Services\TiendaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -116,7 +117,7 @@ class DashVentaPorTicketController extends Controller
                 'DE.IdEncabezado',
                 'DD.Linea',
                 'DE.FechaVenta',
-                'DE.FechaSubida',
+                // 'DE.FechaSubida',
                 'DE.SubTotal',
                 'DE.Iva',
                 'DE.ImporteVenta',
@@ -186,8 +187,8 @@ class DashVentaPorTicketController extends Controller
             })
 
             // Filtro de estado de venta
-            ->when($statusVenta !== null && $statusVenta !== '', function ($query) use ($statusVenta) {
-                $query->where('DE.StatusVenta', $statusVenta == 1 ? 0 : ($statusVenta == 2 ? 1 : 0));
+            ->when($statusVenta == 'on', function ($query) {
+                $query->where('DE.StatusVenta', 1);
             })
 
             // Si NO se incluyen cancelados, filtrar StatusVenta = 1
@@ -301,7 +302,8 @@ class DashVentaPorTicketController extends Controller
         $tiendasIds = $this->tiendasIds;
 
         // Construir la consulta
-        $query = DB::connection('server')->table('DatEncabezado as DE')
+        // $query = DB::connection('server')->table('DatEncabezado as DE')
+        $query = DB::table('DatEncabezado as DE')
             ->leftJoin('DatDetalle as DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
             ->leftJoin('CatPaquetes as CP', 'CP.IdPaquete', '=', 'DD.IdPaquete')
             ->leftJoin('DatEncDescuentos as DED', 'DED.IdEncDescuento', '=', 'DD.IdEncDescuento')
@@ -319,7 +321,7 @@ class DashVentaPorTicketController extends Controller
                 'DE.IdEncabezado',
                 'DD.Linea',
                 'DE.FechaVenta',
-                'DE.FechaSubida',
+                // 'DE.FechaSubida',
                 'DE.SubTotal',
                 'DE.Iva',
                 'DE.ImporteVenta',
@@ -421,7 +423,8 @@ class DashVentaPorTicketController extends Controller
         $idEncabezado = $request->id_encabezado;
         $folio = $request->folio;
         if ($folio) {
-            $idEncabezado = \Vinkla\Hashids\Facades\Hashids::decode($folio);
+            $decoded = \Vinkla\Hashids\Facades\Hashids::decode($folio);
+            $idEncabezado = is_array($decoded) && count($decoded) > 0 ? $decoded[0] : null;
         }
 
         $filtrosAvanzadosActivos =
@@ -443,6 +446,7 @@ class DashVentaPorTicketController extends Controller
         $detalleData = null;
         $pagosData = null;
         $facturasData = null;
+        // return $idEncabezado;
         if ($idEncabezado) {
             $dataDetallado = $this->queryDetallado($idEncabezado);
 
@@ -468,6 +472,6 @@ class DashVentaPorTicketController extends Controller
         $query = $this->query($request, true);
 
         $name = 'exports.xlsx';
-        return Excel::download(new MovimientosDeArticulos($query), $name);
+        return Excel::download(new VentasDetalladasExport($query), $name);
     }
 }

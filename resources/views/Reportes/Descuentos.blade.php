@@ -7,8 +7,6 @@
         subtitle="Reporte de descuentos aplicados por artículo"
     >
         <x-slot:buttons>
-            <x-header.buttons.home-button />
-            <x-header.buttons.refresh-button />
             <a
                 href="/ExportsReporteDescuentos?{{ http_build_query(request()->only(['idTienda', 'fecha_inicio', 'fecha_fin', 'cod_articulo', 'id_familia', 'nom_descuento'])) }}"
                 class="btn-header-ghost"
@@ -19,6 +17,8 @@
             >
                 <i class="bi bi-file-earmark-excel"></i> Exportar
             </a>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
         </x-slot:buttons>
 
         <!-- Filtros -->

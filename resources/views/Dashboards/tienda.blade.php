@@ -211,7 +211,7 @@
                                 @endif
                             </div>
                             <div class="d-flex gap-2">
-                                @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes) && $tiendaActual?->procesarcorte == 0)
                                     <x-dashboard-buttons-procesar
                                         :corteTienda="$corteTienda"
                                         :corteTiendaSolicitudes="$corteTiendaSolicitudes"
@@ -749,9 +749,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.ok) {
+                        console.log(data.dato.uUid);
+                        console.log(data.dato.uUidApex);
+
                         const uuidOracle = data.dato?.uUid;
+                        const uuidApex = data.dato?.uUidApex;
                         const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
-                        if ((!uuidOracle || uuidOracle.trim() === '') && type == 'sf') {
+                        if ((!uuidOracle || uuidOracle.trim() === '' || !uuidApex || uuidApex.trim() === '') &&
+                            type == 'sf') {
                             if (contenedor) {
                                 contenedor.innerHTML = '';
                                 botonEnviarUuid(contenedor, pedido, uuidLocal, item);
@@ -760,6 +765,20 @@
                             if (contenedor) contenedor.innerHTML = '';
                             if (type == 'sf') item.innerHTML = `<span class="tags-green">Closed & UUID</span>`;
                             else item.innerHTML = `<span class="tags-green">Closed</span>`;
+                        }
+
+                        if (uuidOracle && uuidLocal != uuidOracle && type == 'sf') {
+                            item.innerHTML = `<span class="tags-red">Closed & !UUID Oracle </span>`;
+                        }
+                        if (uuidApex && uuidLocal != uuidApex && type == 'sf') {
+                            let mensajeError = item?.parentNode?.parentNode?.nextElementSibling?.querySelector('small');
+                            mensajeError.innerHTML += `
+                                <br>
+                                <strong class='text-danger'>UUID Apex:</strong>
+                                <span class='text-danger'>${uuidApex}</span>
+                            `;
+
+                            item.innerHTML = `<span class="tags-red">Closed & !UUID Apex </span>`;
                         }
                     }
                 });
@@ -1053,7 +1072,6 @@
         $(document).ready(function() {
             const ctxV = document.getElementById('ventasChart')?.getContext('2d');
             const ctxP = document.getElementById('pagosChart')?.getContext('2d');
-            console.log(ctxV);
 
             if (ctxV) {
                 ventasChart = new Chart(ctxV, {

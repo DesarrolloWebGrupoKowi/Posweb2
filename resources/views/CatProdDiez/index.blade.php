@@ -1,87 +1,141 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Catálogo Productos Cambio de Lista')
-@section('dashboardWidth', 'width-general')
-@section('contenido')
-    <div class="container-fluid width-general d-flex flex-column gap-4 pt-4">
+<x-page-container title="Catálogo Productos Cambio de Lista">
+    <x-card-gradient-header
+        icon="arrow-left-right"
+        title="Catálogo Productos Cambio de Lista"
+        subtitle="Gestione los productos con cambio de lista de precios"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-        <div class="card border-0 p-4" style="border-radius: 10px">
-            <div class="d-flex justify-content-sm-between align-items-sm-end flex-column flex-sm-row">
-                @include('components.title', ['titulo' => 'Catálogo Productos Cambio de Lista'])
+        <x-form.form
+            action="/CatProdDiez"
+            method="GET"
+        >
+            <x-form.group>
+                <x-form.text
+                    name="textValue"
+                    label="Buscar"
+                    icon="search"
+                    placeholder="Buscar por código o artículo..."
+                    col="col-md-4"
+                    :autofocus="true"
+                    :value="$textValue ?? ''"
+                />
+            </x-form.group>
+            <div class="col-md-2 d-flex gap-2">
+                <x-form.submit
+                    text="Filtrar"
+                    icon="funnel"
+                    class="flex-grow-1"
+                />
+                <x-form.clear />
+            </div>
+        </x-form.form>
+
+        <div class="p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                 <div>
-                    @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
-                        <button type="button" class="btn btn-sm btn-dark" role="tooltip" title="Agregar Usuario"
-                            class="btn btn-default Agregar" data-bs-toggle="modal" data-bs-target="#ModalAgregar">
-                            Agregar Producto @include('components.icons.plus-circle')
-                        </button>
-                    @endif
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-table me-2"
+                            style="color: #64748b;"
+                        ></i>Productos Registrados
+                    </h5>
+                    <p class="section-content-subtitle">{{ $catProducts->total() }} productos</p>
                 </div>
+                @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
+                    <button
+                        class="btn-modern btn-agregar"
+                        data-bs-toggle="modal"
+                        data-bs-target="#ModalAgregar"
+                    >
+                        <i class="bi bi-plus-circle me-2"></i>Agregar Producto
+                    </button>
+                @endif
             </div>
-            <div>
-                @include('Alertas.Alertas')
-            </div>
-        </div>
 
-        <div class="content-table content-table-full card border-0 p-4" style="border-radius: 10px">
-            <form class="d-flex align-items-center justify-content-end gap-2 pb-2" action="/CatProdDiez" method="GET">
-                <div class="d-flex align-items-center gap-2">
-                    <label for="textValue" class="text-secondary" style="font-weight: 500">Buscar:</label>
-                    <input class="form-control rounded" style="line-height: 18px" type="text" name="textValue"
-                        id="textValue" value="{{ $textValue }}" autofocus>
-                </div>
-            </form>
-
-            <table>
-                <thead class="table-head">
+            <table class="table-hover table-custom table">
+                <thead>
                     <tr>
-                        <th class="rounded-start">Código</th>
-                        <th>Articulo</th>
-                        <th>Peso Minimo</th>
-                        <th>Peso Maximo</th>
-                        <th>Lista Precio</th>
-                        <th>Usuario</th>
-                        <th>Fecha Creación</th>
-                        <th class="{{ Auth::user()->tipoUsuario->IdTipoUsuario == 2 ? 'rounded-end' : '' }}">Estatus</th>
+                        <th><i class="bi bi-upc me-1"></i>Código</th>
+                        <th><i class="bi bi-box me-1"></i>Artículo</th>
+                        <th class="text-center"><i class="bi bi-arrow-down me-1"></i>Peso Mínimo</th>
+                        <th class="text-center"><i class="bi bi-arrow-up me-1"></i>Peso Máximo</th>
+                        <th><i class="bi bi-list-ol me-1"></i>Lista Precio</th>
+                        <th><i class="bi bi-person me-1"></i>Usuario</th>
+                        <th><i class="bi bi-calendar me-1"></i>Fecha Creación</th>
+                        <th><i
+                                class="bi bi-circle-fill me-1"
+                                style="font-size: 0.5rem;"
+                            ></i>Estatus</th>
                         @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
-                            <th class="rounded-end">Eliminar</th>
+                            <th class="text-center"><i class="bi bi-trash me-1"></i>Eliminar</th>
                         @endif
                     </tr>
                 </thead>
                 <tbody>
-                    @include('components.table-empty', ['items' => $catProducts, 'colspan' => 10])
-                    @foreach ($catProducts as $item)
-                        <tr style="vertical-align: middle">
-                            <td>{{ $item->CodArticulo }}</td>
+                    @forelse ($catProducts as $item)
+                        <tr>
+                            <td style="font-weight: 600; color: #0f172a;">{{ $item->CodArticulo }}</td>
                             <td>{{ $item->NomArticulo }}</td>
-                            <td>{{ $item->Cantidad_Ini }}</td>
-                            <td>{{ $item->Cantidad_Fin }}</td>
-                            <td>{{ $item->NomListaPrecio }}</td>
+                            <td class="text-center">{{ $item->Cantidad_Ini }}</td>
+                            <td class="text-center">{{ $item->Cantidad_Fin }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ $item->NomListaPrecio }}</span>
+                            </td>
                             <td>{{ $item->NomUsuario }}</td>
-                            <td>{{ strftime('%d %B %Y', strtotime($item->Creacion)) }}</td>
+                            <td style="color: #64748b;">{{ strftime('%d %B %Y', strtotime($item->Creacion)) }}</td>
                             <td>
                                 @if ($item->Status == 0)
-                                    <span class="tags-green">Activo</span>
+                                    <span class="badge-status badge-active">
+                                        <i class="bi bi-check-circle me-1"></i>Activo
+                                    </span>
                                 @else
-                                    <span class="tags-red">Cancelado</span>
+                                    <span class="badge-status badge-inactive">
+                                        <i class="bi bi-x-circle me-1"></i>Cancelado
+                                    </span>
                                 @endif
                             </td>
                             @if (Auth::user()->tipoUsuario->IdTipoUsuario != 2)
-                                <td>
-                                    <button class="btn-table btn-table-delete" data-bs-toggle="modal"
+                                <td class="text-center">
+                                    <button
+                                        class="btn-table-action btn-table-delete"
+                                        data-bs-toggle="modal"
                                         data-bs-target="#ModalEliminarConfirm{{ $item->IdCatProdDiez }}"
-                                        title="Eliminar artículo">
-                                        @include('components.icons.delete')
+                                        title="Eliminar artículo"
+                                    >
+                                        <i class="bi bi-trash"></i>
                                     </button>
-                                    @include('CatProdDiez.ModalEliminarConfirm')
                                 </td>
                             @endif
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="{{ Auth::user()->tipoUsuario->IdTipoUsuario != 2 ? '9' : '8' }}">
+                                <div class="py-5 text-center">
+                                    <div class="empty-state-icon mx-auto mb-3">
+                                        <i
+                                            class="bi bi-box fs-3"
+                                            style="color: #94a3b8;"
+                                        ></i>
+                                    </div>
+                                    <h6 class="text-muted">Sin productos registrados</h6>
+                                    <small class="text-muted">No se encontraron resultados con los filtros
+                                        seleccionados</small>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
             @include('components.paginate', ['items' => $catProducts])
         </div>
-    </div>
+    </x-card-gradient-header>
 
-    <!--Modal Agregar Estado-->
+    @foreach ($catProducts as $item)
+        @include('CatProdDiez.ModalEliminarConfirm')
+    @endforeach
     @include('CatProdDiez.ModalAgregar')
-@endsection
+</x-page-container>

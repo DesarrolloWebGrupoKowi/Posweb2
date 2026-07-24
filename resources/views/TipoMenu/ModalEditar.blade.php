@@ -79,6 +79,74 @@
                         ></div>
                     </div>
 
+                    <!-- Ícono -->
+                    <div class="mb-3">
+                        <label
+                            for="Icono{{ $tipoMenu->IdTipoMenu }}"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
+                        >
+                            Ícono
+                        </label>
+                        <div class="input-group">
+                            <span
+                                class="input-group-text"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                            >
+                                <i class="fa fa-image"></i>
+                            </span>
+                            <input
+                                type="text"
+                                id="Icono{{ $tipoMenu->IdTipoMenu }}"
+                                name="Icono"
+                                class="form-control border-start-0"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                tabindex="2"
+                                value="{{ $tipoMenu->Icono }}"
+                            >
+                        </div>
+                        <div
+                            class="form-text mt-1"
+                            id="error-Icono{{ $tipoMenu->IdTipoMenu }}"
+                            style="font-size: 0.78rem; color: #ef4444;"
+                        ></div>
+                    </div>
+
+                    <!-- Posición -->
+                    <div class="mb-3">
+                        <label
+                            for="Posicion{{ $tipoMenu->IdTipoMenu }}"
+                            class="form-label fw-medium mb-2"
+                            style="color: #475569; font-size: 0.85rem;"
+                        >
+                            Posición <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span
+                                class="input-group-text"
+                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                            >
+                                <i class="fa fa-group"></i>
+                            </span>
+                            <input
+                                type="number"
+                                id="Posicion{{ $tipoMenu->IdTipoMenu }}"
+                                name="Posicion"
+                                class="form-control border-start-0"
+                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                tabindex="3"
+                                min="1"
+                                value="{{ $tipoMenu->Posicion }}"
+                                required
+                            >
+                        </div>
+                        <div
+                            class="form-text mt-1"
+                            id="error-Posicion{{ $tipoMenu->IdTipoMenu }}"
+                            style="font-size: 0.78rem; color: #ef4444;"
+                        ></div>
+                    </div>
+
                     <!-- Estatus -->
                     <div class="mb-3">
                         <label
@@ -93,7 +161,7 @@
                             id="Status{{ $tipoMenu->IdTipoMenu }}"
                             class="form-select"
                             style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
-                            tabindex="2"
+                            tabindex="4"
                         >
                             <option
                                 {{ $tipoMenu->Status == 0 ? 'selected' : '' }}

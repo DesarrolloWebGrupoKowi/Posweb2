@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\CancelacionTicketMail;
 use App\Models\Articulo;
-use App\Models\Caja;
 use App\Models\CorteTienda;
 use App\Models\CreditoEmpleado;
 use App\Models\DatCaja;
@@ -21,7 +19,6 @@ use App\Models\VentaCreditoEmpleado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Mail;
 
 class CancelacionTicketsController extends Controller
 {
@@ -100,6 +97,7 @@ class CancelacionTicketsController extends Controller
             ->whereNull('SolicitudAprobada')
             ->whereNull('FechaAprobacion')
             ->whereNull('IdUsuarioAprobacion')
+            ->orderBy('FechaSolicitud')
             ->paginate(10);
 
         //        return $solicitudesCancelacion;
@@ -107,13 +105,19 @@ class CancelacionTicketsController extends Controller
         return view('CancelacionTickets.CancelacionTickets', compact('solicitudesCancelacion', 'tiendas', 'idTienda'));
     }
 
-    public function CancelarTicket(Request $request, $idEncabezado)
+    public function CancelarTicket(Request $request, string $idEncabezado)
     {
         try {
 
             DB::beginTransaction();
 
             $motivoCancelacion = $request->motivoCancelacion;
+
+            $encabezado = DatEncabezado::where('IdEncabezado', $idEncabezado)->first();
+
+            if ($encabezado->SolicitudFE == '0') {
+                return back()->with('msjdelete', 'El ticket se encuentra facturado.');
+            }
 
             // todo el detail del ticket a cancelar, se usa para el envio del correo
             $solicitudCancelacion = SolicitudCancelacionTicket::with([
@@ -296,7 +300,7 @@ class CancelacionTicketsController extends Controller
         }
     }
 
-    public function CancelarCancelarTicket(Request $request, $idEncabezado)
+    public function CancelarCancelarTicket(Request $request, string $idEncabezado)
     {
         try {
 
@@ -458,7 +462,7 @@ class CancelacionTicketsController extends Controller
         }
     }
 
-    public function SolicitarCancelacion($idEncabezado, Request $request)
+    public function SolicitarCancelacion(string $idEncabezado, Request $request)
     {
         // try {
         //     DB::connection('server')->getPDO(); // revisar conexion al server ?

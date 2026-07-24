@@ -1,30 +1,14 @@
-@extends('PlantillaBase.masterbladeNewStyle')
-@section('title', 'Promoción')
-@section('dashboardWidth', 'width-95')
-@section('contenido')
-    <x-layout.page-container>
-        <!-- SECCIÓN 1: TITULO Y FILTROS -->
-        <x-layout.section-card>
-            <div class="d-flex justify-content-sm-between align-items-sm-start flex-column flex-sm-row mb-2">
-                <x-title
-                    :titulo="'Promoción ' . $descuento->NomDescuento"
-                    :options="[['name' => 'Descuentos y promociones', 'value' => '/VerDescuentos']]"
-                />
-                <div class="d-flex gap-2">
-                    <x-filters.buttons.link-button
-                        href='/VerDescuentos'
-                        text='Regresar'
-                        icon='components.icons.arrow-left'
-                    />
-                    <x-filters.buttons.refresh-button />
-                    <x-filters.buttons.home-button />
-                </div>
-            </div>
+<x-page-container title="Promoción">
+    <x-card-gradient-header
+        icon="tags"
+        title="Promoción"
+        subtitle="Gestione los artículos y configuración de la promoción"
+    >
+        <x-slot:buttons>
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
+        </x-slot:buttons>
 
-            @include('Alertas.Alertas')
-        </x-layout.section-card>
-
-        <!-- Alerta si la promoción está desactivada o expirada -->
         @php
             $fechaFin = \Carbon\Carbon::parse($descuento->FechaFin);
             $hoy = \Carbon\Carbon::today();
@@ -33,499 +17,488 @@
             $estaInactiva = $estaDesactivada || $estaExpirada;
         @endphp
 
-        @if ($estaInactiva)
-            <div
-                class="process-status-card mb-0"
-                style="border-radius: 10px; background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%); border-left: 4px solid #f59e0b; border-top: 1px solid #fde68a; border-right: 1px solid #fde68a; border-bottom: 1px solid #fde68a;"
-            >
-                <div class="p-4">
-                    <div class="d-flex align-items-center justify-content-between">
+        <div class="p-4">
+            <!-- Encabezado con botón -->
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-4 gap-3">
+                <div>
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-pencil-square me-2"
+                            style="color: #64748b;"
+                        ></i>Editar: {{ $descuento->NomDescuento }}
+                    </h5>
+                    <p class="section-content-subtitle">Modifique la configuración y artículos de la promoción</p>
+                </div>
+                <a
+                    href="/VerDescuentos"
+                    class="btn-modern btn-outline-modern"
+                >
+                    <i class="bi bi-boxes me-2"></i>Ver descuentos
+                </a>
+            </div>
+
+            @if ($estaInactiva)
+                <div class="mb-4 px-0 pb-0">
+                    <div
+                        class="rounded-3 mb-0 p-4"
+                        style="background: #fffbeb; border-left: 4px solid #f59e0b;"
+                    >
                         <div class="d-flex align-items-center gap-3">
                             <div
-                                class="status-icon"
-                                style="width: 48px; height: 48px; background-color: rgba(245, 158, 11, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;"
+                                class="rounded-circle d-flex align-items-center justify-content-center"
+                                style="background: #fef3c7; width: 40px; height: 40px;"
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-6 w-6"
-                                    style="width: 24px; height: 24px; color: #d97706;"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z"
-                                    />
-                                </svg>
+                                <i
+                                    class="bi bi-exclamation-triangle"
+                                    style="color: #f59e0b; font-size: 1.2rem;"
+                                ></i>
                             </div>
                             <div>
                                 @if ($estaDesactivada)
-                                    <h5
-                                        class="mb-1"
-                                        style="color: #92400e; font-weight: 600;"
-                                    >
-                                        Promoción desactivada
-                                    </h5>
+                                    <h6
+                                        class="fw-bold mb-1"
+                                        style="color: #92400e;"
+                                    >Promoción desactivada</h6>
                                     <p
                                         class="mb-0"
-                                        style="color: #b45309;"
-                                    >
-                                        <span class="fw-500">Esta promoción se encuentra desactivada.</span>
-                                        No es posible realizar modificaciones en los datos.
-                                    </p>
-                                @elseif ($estaExpirada)
-                                    <h5
-                                        class="mb-1"
-                                        style="color: #92400e; font-weight: 600;"
-                                    >
-                                        Promoción expirada
-                                    </h5>
+                                        style="color: #a16207; font-size: 0.85rem;"
+                                    >No es posible realizar modificaciones en los datos.</p>
+                                @else
+                                    <h6
+                                        class="fw-bold mb-1"
+                                        style="color: #92400e;"
+                                    >Promoción expirada</h6>
                                     <p
                                         class="mb-0"
-                                        style="color: #b45309;"
-                                    >
-                                        <span class="fw-500">Esta promoción ha expirado.</span>
-                                        La fecha de vigencia ha terminado. No es posible realizar modificaciones.
-                                    </p>
+                                        style="color: #a16207; font-size: 0.85rem;"
+                                    >La fecha de vigencia ha terminado. No es posible realizar modificaciones.</p>
                                 @endif
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
 
-        <!-- SECCIÓN 3: EDICIÓN DE PROMOCIÓN Y ARTÍCULOS -->
-        <div
-            class="flex-grow-1 d-flex flex-column flex-xl-row gap-4"
-            {{-- style="min-height: 0;" --}}
-        >
-            <!-- Formulario datos generales -->
-            <div
-                class="col-12 col-xl-4 col-2xl-4 d-flex flex-column"
-                style="min-width: 0; min-height: 0;"
-            >
-                <div
-                    class="card d-flex flex-column border-0 p-4"
-                    style="border-radius: 10px; min-height: 0;"
-                >
-                    <div class="d-flex align-items-center mb-3 gap-2">
+            <div class="row g-4">
+                <!-- Formulario datos generales -->
+                <div class="col-xl-4">
+                    <div class="card-modern">
                         <div
-                            class="rounded-circle p-2"
-                            style="background-color: rgba(56, 70, 94, 0.1);"
+                            class="card-header border-bottom p-3"
+                            style="background: #f8fafc;"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="#38465E"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path d="M12 4v16M8 8V4h8v4" />
-                                <rect
-                                    x="4"
-                                    y="8"
-                                    width="16"
-                                    height="12"
-                                    rx="2"
-                                />
-                            </svg>
-                        </div>
-                        <div class="flex-column">
-                            <h5 class="mb-0 text-gray-800">INFORMACIÓN GENERAL</h5>
-                            <h6
-                                class="fw-semibold text-muted m-0"
-                                style="font-size: 0.9rem;"
-                            >
-                                Configuración básica de la promoción
-                            </h6>
-                        </div>
-                        <button
-                            class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2"
-                            data-bs-toggle="modal"
-                            data-bs-target="#ModalEliminarConfirm{{ $descuento->IdEncDescuento }}"
-                            title="Eliminar descuento"
-                        >
-                            @include('components.icons.arrow-down') Deshabilar
-                        </button>
-
-                        @include('Descuentos.ModalEliminarConfirm')
-                    </div>
-
-                    <form
-                        action="/GuardarDescuento"
-                        method="POST"
-                    >
-                        <input
-                            type="hidden"
-                            name="IdEncDescuento"
-                            value="{{ $descuento->IdEncDescuento }}"
-                        >
-                        @csrf
-
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="text-secondary fw-500 mb-1">Nombre del descuento</label>
-                                <input
-                                    class="form-control rounded"
-                                    type="text"
-                                    name="nomDescuento"
-                                    value="{{ $descuento->NomDescuento }}"
-                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i
+                                        class="bi bi-gear"
+                                        style="color: #64748b;"
+                                    ></i>
+                                    <h6
+                                        class="fw-bold mb-0"
+                                        style="color: #0f172a;"
+                                    >Información General</h6>
+                                </div>
+                                <button
+                                    class="btn-table-action btn-table-delete"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ModalEliminarConfirm{{ $descuento->IdEncDescuento }}"
+                                    title="Deshabilitar"
                                 >
-                                @error('nomDescuento')
-                                    <div class="invalid-feedback d-block mt-1">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                                @if ($estaInactiva)
+                                    <i class="bi bi-arrow-down-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <form
+                                action="/GuardarDescuento"
+                                method="POST"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="IdEncDescuento"
+                                    value="{{ $descuento->IdEncDescuento }}"
+                                >
+                                @csrf
+
+                                <div class="mb-3">
+                                    <label
+                                        class="form-label fw-medium mb-2"
+                                        style="color: #475569; font-size: 0.85rem;"
+                                    >Nombre del descuento</label>
                                     <input
-                                        type="hidden"
+                                        class="form-control"
+                                        type="text"
                                         name="nomDescuento"
                                         value="{{ $descuento->NomDescuento }}"
+                                        style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                        {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                     >
-                                @endif
-                            </div>
-
-                            <div class="col-12">
-                                <label class="text-secondary fw-500 mb-1">Tipo descuento</label>
-                                <select
-                                    class="form-select rounded"
-                                    name="tipoDescuento"
-                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
-                                >
-                                    <option value="">Seleccione tipo descuento</option>
-                                    @foreach ($tiposdescuentos as $td)
-                                        <option
-                                            value="{{ $td->IdTipoDescuento }}"
-                                            {{ old('tipoDescuento', $descuento->TipoDescuento) == $td->IdTipoDescuento ? 'selected' : '' }}
+                                    @if ($estaInactiva)
+                                        <input
+                                            type="hidden"
+                                            name="nomDescuento"
+                                            value="{{ $descuento->NomDescuento }}"
                                         >
-                                            {{ $td->NomTipoDescuento }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                    @endif
+                                </div>
 
-                                @error('tipoDescuento')
-                                    <div class="invalid-feedback d-block mt-1">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                                @if ($estaInactiva)
-                                    <input
-                                        type="hidden"
+                                <div class="mb-3">
+                                    <label
+                                        class="form-label fw-medium mb-2"
+                                        style="color: #475569; font-size: 0.85rem;"
+                                    >Tipo descuento</label>
+                                    <select
+                                        class="form-select"
                                         name="tipoDescuento"
-                                        value="{{ $descuento->TipoDescuento }}"
+                                        style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                        {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                     >
-                                @endif
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label class="text-secondary fw-500 mb-1">Tienda</label>
-                                <select
-                                    class="form-select rounded"
-                                    name="idTienda"
-                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
-                                >
-                                    <option value="">Seleccione una tienda</option>
-                                    @foreach ($tiendas as $tienda)
-                                        <option
-                                            value="{{ $tienda->IdTienda }}"
-                                            {{ $tienda->IdTienda == $descuento->IdTienda ? 'selected' : '' }}
+                                        @foreach ($tiposdescuentos as $td)
+                                            <option
+                                                value="{{ $td->IdTipoDescuento }}"
+                                                {{ $descuento->TipoDescuento == $td->IdTipoDescuento ? 'selected' : '' }}
+                                            >
+                                                {{ $td->NomTipoDescuento }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @if ($estaInactiva)
+                                        <input
+                                            type="hidden"
+                                            name="tipoDescuento"
+                                            value="{{ $descuento->TipoDescuento }}"
                                         >
-                                            {{ $tienda->NomTienda }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('idTienda')
-                                    <div class="invalid-feedback d-block mt-1">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                                @if ($estaInactiva)
-                                    <input
-                                        type="hidden"
-                                        name="idTienda"
-                                        value="{{ $descuento->IdTienda }}"
-                                    >
-                                @endif
-                            </div>
+                                    @endif
+                                </div>
 
-                            <div class="col-12 col-md-6">
-                                <label class="text-secondary fw-500 mb-1">Plaza</label>
-                                <select
-                                    class="form-select rounded"
-                                    name="idPlaza"
-                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
-                                >
-                                    <option value="">Seleccione una plaza</option>
-                                    @foreach ($plazas as $plaza)
-                                        <option
-                                            value="{{ $plaza->IdPlaza }}"
-                                            {{ $plaza->IdPlaza == $descuento->IdPlaza ? 'selected' : '' }}
+                                <div class="row g-3 my-0">
+                                    <div
+                                        class="col-md-6 mb-2 mt-0"
+                                        id="divTienda"
+                                        style="display: {{ $descuento->TipoDescuento == 2 ? 'block' : 'none' }};"
+                                    >
+                                        <label
+                                            class="form-label fw-medium mb-2"
+                                            style="color: #475569; font-size: 0.85rem;"
                                         >
-                                            {{ $plaza->NomPlaza }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('idPlaza')
-                                    <div class="invalid-feedback d-block mt-1">
-                                        {{ $message }}
+                                            Tienda <span style="color: #ef4444;">*</span>
+                                        </label>
+                                        <select
+                                            class="form-select"
+                                            name="idTienda"
+                                            id="idTienda"
+                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                            {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
+                                        >
+                                            <option value="">Seleccione una tienda</option>
+                                            @foreach ($tiendas as $tienda)
+                                                <option
+                                                    value="{{ $tienda->IdTienda }}"
+                                                    {{ $tienda->IdTienda == $descuento->IdTienda ? 'selected' : '' }}
+                                                >
+                                                    {{ $tienda->NomTienda }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                @enderror
-                                @if ($estaInactiva)
-                                    <input
-                                        type="hidden"
-                                        name="idPlaza"
-                                        value="{{ $descuento->IdPlaza }}"
+                                    <div
+                                        class="col-md-6 mb-2 mt-0"
+                                        id="divPlaza"
+                                        style="display: {{ $descuento->TipoDescuento == 3 ? 'block' : 'none' }};"
                                     >
-                                @endif
-                            </div>
+                                        <label
+                                            class="form-label fw-medium mb-2"
+                                            style="color: #475569; font-size: 0.85rem;"
+                                        >
+                                            Plaza <span style="color: #ef4444;">*</span>
+                                        </label>
+                                        <select
+                                            class="form-select"
+                                            name="idPlaza"
+                                            id="idPlaza"
+                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                            {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
+                                        >
+                                            <option value="">Seleccione una plaza</option>
+                                            @foreach ($plazas as $plaza)
+                                                <option
+                                                    value="{{ $plaza->IdPlaza }}"
+                                                    {{ $plaza->IdPlaza == $descuento->IdPlaza ? 'selected' : '' }}
+                                                >
+                                                    {{ $plaza->NomPlaza }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
 
-                            <div class="col-12 col-md-6">
-                                <label class="text-secondary fw-500 mb-1">Fecha inicio</label>
-                                <input
-                                    class="form-control rounded"
-                                    type="date"
-                                    name="fechaInicio"
-                                    value="{{ $descuento->FechaInicio }}"
-                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
-                                >
-                                @error('fechaInicio')
-                                    <div class="invalid-feedback d-block mt-1">
-                                        {{ $message }}
+                                <div class="row g-3 mt-1">
+                                    <div class="col-md-6 mt-0">
+                                        <label
+                                            class="form-label fw-medium mb-2"
+                                            style="color: #475569; font-size: 0.85rem;"
+                                        >Fecha inicio</label>
+                                        <input
+                                            class="form-control"
+                                            type="date"
+                                            name="fechaInicio"
+                                            value="{{ $descuento->FechaInicio }}"
+                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                            {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
+                                        >
                                     </div>
-                                @enderror
-                                @if (count($detalle) != 0 || $estaInactiva)
-                                    <input
-                                        type="hidden"
-                                        name="fechaInicio"
-                                        value="{{ $descuento->FechaInicio }}"
-                                    >
-                                @endif
-                            </div>
+                                    <div class="col-md-6 mt-0">
+                                        <label
+                                            class="form-label fw-medium mb-2"
+                                            style="color: #475569; font-size: 0.85rem;"
+                                        >Fecha fin</label>
+                                        <input
+                                            class="form-control"
+                                            type="date"
+                                            name="fechaFin"
+                                            value="{{ $descuento->FechaFin }}"
+                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                            {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
+                                        >
+                                    </div>
+                                </div>
 
-                            <div class="col-12 col-md-6">
-                                <label class="text-secondary fw-500 mb-1">Fecha fin</label>
-                                <input
-                                    class="form-control rounded"
-                                    type="date"
-                                    name="fechaFin"
-                                    value="{{ $descuento->FechaFin }}"
-                                    {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
-                                >
-                                @error('fechaFin')
-                                    <div class="invalid-feedback d-block mt-1">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
-                                @if (count($detalle) != 0 || $estaInactiva)
-                                    <input
-                                        type="hidden"
-                                        name="fechaFin"
-                                        value="{{ $descuento->FechaFin }}"
+                                <div class="d-flex justify-content-end mt-4">
+                                    <button
+                                        type="submit"
+                                        class="btn-modern btn-agregar"
+                                        {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
                                     >
-                                @endif
-                            </div>
+                                        <i class="bi bi-floppy me-2"></i>Guardar cambios
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-
-                        <div class="d-flex justify-content-end mt-4">
-                            <button
-                                class="btn btn-warning px-4"
-                                {{ count($detalle) != 0 || $estaInactiva ? 'disabled' : '' }}
-                            >
-                                <i class="fa fa-save me-2"></i> Guardar cambios
-                            </button>
-                        </div>
-                    </form>
+                    </div>
+                    @include('Descuentos.ModalEliminarConfirm')
                 </div>
-            </div>
 
-            <!-- Tabla de artículos -->
-            <div
-                class="col-12 col-xl-8 col-2xl-8"
-                style="min-width: 0;"
-            >
-                <div
-                    class="card border-0 p-4"
-                    style="border-radius: 10px;"
-                >
-                    <div class="d-flex justify-content-between align-items-center mb-0">
-                        <h6 class="fw-semibold mb-3">📦 ARTÍCULOS EN PROMOCIÓN</h6>
-                    </div>
-
-                    <div class="mb-3">
-                        <form
-                            id="formPaquete"
-                            action="/EditarDescuentoExistente/{{ $descuento->IdEncDescuento }}"
-                            method="POST"
+                <!-- Tabla de artículos -->
+                <div class="col-xl-8">
+                    <div class="card-modern">
+                        <div
+                            class="card-header border-bottom p-3"
+                            style="background: #f8fafc;"
                         >
-                            @csrf
-                            <div
-                                id="contenedorPaquete"
-                                class="container"
-                            ></div>
-                        </form>
-
-                        <div class="row align-items-end g-2">
-                            <div class="flex-grow-1 col-auto">
-                                <label class="text-secondary fw-500 mb-1">Código de artículo</label>
-                                <input
-                                    class="form-control rounded"
-                                    list="articulos"
-                                    name="codArticulo"
-                                    id="codArticulo"
-                                    placeholder="Buscar articulo"
-                                    autocomplete="off"
-                                    required
-                                    autofocus
-                                >
-                                <datalist id="articulos">
-                                    @foreach ($articulos as $articulo)
-                                        <option
-                                            class="prom{{ $articulo->CodArticulo }}"
-                                            value="{{ $articulo->CodArticulo }}""
-                                        >
-                                            {{ $articulo->NomArticulo }}
-                                        </option>
-                                    @endforeach
-                                </datalist>
-                            </div>
-                            <div class="col-auto">
-                                <h5 class="nomArticulo text-muted mb-0"></h5>
-                                <h5
-                                    hidden
-                                    class="nomArticuloValid"
-                                ></h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <i
+                                    class="bi bi-box"
+                                    style="color: #64748b;"
+                                ></i>
+                                <h6
+                                    class="fw-bold mb-0"
+                                    style="color: #0f172a;"
+                                >Artículos en Promoción</h6>
                             </div>
                         </div>
-                    </div>
-
-                    <div
-                        class="table-responsive"
-                        style="max-height: 400px; overflow-y: auto;"
-                    >
-                        <table
-                            id="tblArticulos"
-                            class="table-sm table"
-                        >
-                            <thead
-                                class="table-head"
-                                style="position: sticky; top: 0; z-index: 10;"
+                        <div class="card-body p-4">
+                            <form
+                                id="formPaquete"
+                                action="/EditarDescuentoExistente/{{ $descuento->IdEncDescuento }}"
+                                method="POST"
                             >
-                                <tr>
-                                    <th class="rounded-start">Código</th>
-                                    <th>Artículo</th>
-                                    <th>Lista precio</th>
-                                    <th>Precio promoción</th>
-                                    <th class="rounded-end">Eliminar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($detalle as $item)
-                                    <tr
-                                        class="articulo-row"
-                                        style="{{ $item->Status == 1 ? 'text-decoration: line-through; color: #9ca3af;' : '' }}"
+                                @csrf
+                                <div id="contenedorPaquete"></div>
+                            </form>
+                            <div class="row g-2 align-items-end mb-3">
+                                <div class="col-md-12">
+                                    <label
+                                        class="form-label fw-medium mb-1"
+                                        style="color: #475569; font-size: 0.8rem;"
                                     >
-                                        <td class="fw-500">{{ $item->CodArticulo }}</td>
-                                        <td
-                                            class="text-truncate"
-                                            style="max-width: 200px;"
-                                        >{{ $item->NomArticulo }}</td>
-                                        <td>
-                                            <select
-                                                class="form-select form-select-sm"
-                                                style="{{ $item->Status == 1 ? 'opacity: 0.6' : '' }}"
-                                                name="listaPrecios[]"
-                                                {{ $estaInactiva || $item->Status == 1 ? 'disabled' : '' }}
-                                            >
-                                                @foreach ($ListaPrecio as $lista)
-                                                    <option
-                                                        value="{{ $lista->IdListaPrecio }}"
-                                                        {{ $lista->IdListaPrecio == $item->IdListaPrecio ? 'selected' : '' }}
-                                                    >
-                                                        {{ $lista->NomListaPrecio }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            {{-- @if ($estaInactiva)
-                                                <input
-                                                    type="hidden"
-                                                    name="listaPrecios[]"
-                                                    value="{{ $item->IdListaPrecio }}"
-                                                >
-                                            @endif --}}
-                                        </td>
-                                        <td>
-                                            <input
-                                                class="form-control form-control-sm"
-                                                type="number"
-                                                step="0.01"
-                                                name="precioArticulo[]"
-                                                style="{{ $item->Status == 1 ? 'opacity: 0.6' : '' }}"
-                                                value="{{ number_format($item->PrecioDescuento, 2) }}"
-                                                {{ $estaInactiva || $item->Status == 1 ? 'disabled' : '' }}
-                                            >
-                                            {{-- @if ($estaInactiva)
-                                                <input
-                                                    type="hidden"
-                                                    name="precioArticulo[]"
-                                                    value="{{ $item->PrecioDescuento }}"
-                                                >
-                                            @endif --}}
-                                        </td>
-                                        <td class="text-center">
-                                            @if ($item->Status == 0)
-                                                <button
-                                                    class="btn btn-sm btn-outline-danger btnEliminarArticulo"
-                                                    title="Eliminar artículo"
-                                                    {{ $estaInactiva ? 'disabled' : '' }}
-                                                >
-                                                    @include('components.icons.delete')
-                                                </button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr class="empty-row">
-                                        <td
-                                            colspan="5"
-                                            class="py-5 text-center"
+                                        <i class="bi bi-upc me-1"></i>Agregar artículo
+                                    </label>
+                                    <div class="input-group">
+                                        <span
+                                            class="input-group-text"
+                                            style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
                                         >
-                                            <x-table-empty-state
-                                                title="No hay artículos en promoción"
-                                                icon="box"
-                                                message="No se encontraron artículos registrados a esta promoción."
-                                                suggestion="Agrega artículos utilizando el campo de búsqueda de código de artículo."
-                                            />
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                            <i class="bi bi-upc-scan"></i>
+                                        </span>
+                                        <input
+                                            class="form-control border-start-0"
+                                            list="articulos"
+                                            name="codArticulo"
+                                            id="codArticulo"
+                                            style="border: 1px solid #e2e8f0; border-left: none; padding: 8px 12px; font-size: 0.85rem;"
+                                            placeholder="Buscar artículo"
+                                            autocomplete="off"
+                                            {{ $estaInactiva ? 'disabled' : '' }}
+                                        >
+                                        <datalist id="articulos">
+                                            @foreach ($articulos as $articulo)
+                                                <option value="{{ $articulo->CodArticulo }}">
+                                                    {{ $articulo->NomArticulo }}</option>
+                                            @endforeach
+                                        </datalist>
+                                        <button
+                                            class="btn btn-modern btn-agregar"
+                                            type="button"
+                                            id="btnAgregarArticulo"
+                                            style="border-radius: 0 8px 8px 0; padding: 8px 16px;"
+                                            {{ $estaInactiva ? 'disabled' : '' }}
+                                        >
+                                            <i class="bi bi-plus-circle me-1"></i> Agregar
+                                        </button>
+                                    </div>
+                                    <div class="mt-1">
+                                        <span
+                                            class="nomArticulo fw-medium"
+                                            style="color: #3b82f6; font-size: 0.85rem;"
+                                        ></span>
+                                        <span
+                                            hidden
+                                            class="nomArticuloValid"
+                                        ></span>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <div class="d-flex justify-content-end mt-4">
-                        <button
-                            id="btnConfirmar"
-                            class="btn btn-warning px-4"
-                            data-bs-toggle="modal"
-                            data-bs-target="#ModalConfirmarGuardar"
-                            {{ $estaInactiva ? 'disabled' : '' }}
-                        >
-                            <i class="fa fa-save me-2"></i> Guardar artículos
-                        </button>
+                            <div
+                                class="table-responsive"
+                                style="max-height: 400px; overflow-y: auto;"
+                            >
+                                <table
+                                    class="table-hover table-custom mb-0 table"
+                                    id="tblArticulos"
+                                >
+                                    <thead style="position: sticky; top: 0; z-index: 2; background: #f8fafc;">
+                                        <tr>
+                                            <th><i class="bi bi-upc me-1"></i>Código</th>
+                                            <th><i class="bi bi-box me-1"></i>Artículo</th>
+                                            <th><i class="bi bi-list-ol me-1"></i>Lista Precio</th>
+                                            <th><i class="bi bi-currency-dollar me-1"></i>Precio Prom.</th>
+                                            <th class="text-center"><i class="bi bi-trash me-1"></i>Eliminar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($detalle as $item)
+                                            <tr
+                                                class="articulo-row {{ $item->Status == 1 ? 'opacity-50' : '' }}"
+                                                style="{{ $item->Status == 1 ? 'background: #f8fafc;' : '' }}"
+                                            >
+                                                <td style="font-weight: 500; color: #0f172a;">
+                                                    <span
+                                                        style="{{ $item->Status == 1 ? 'text-decoration: line-through;' : '' }}"
+                                                    >
+                                                        {{ $item->CodArticulo }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        style="{{ $item->Status == 1 ? 'text-decoration: line-through;' : '' }}"
+                                                    >
+                                                        {{ $item->NomArticulo }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if ($item->Status == 1)
+                                                        <span class="badge bg-light text-dark border">
+                                                            {{ $item->NomListaPrecio ?? ($ListaPrecio->where('IdListaPrecio', $item->IdListaPrecio)->first()->NomListaPrecio ?? '-') }}
+                                                        </span>
+                                                    @else
+                                                        <select
+                                                            class="form-select form-select-sm-modern"
+                                                            name="listaPrecios[]"
+                                                            style="width: 150px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s ease;"
+                                                            {{ $estaInactiva ? 'disabled' : '' }}
+                                                            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'; this.style.outline='none';"
+                                                            onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                                        >
+                                                            @foreach ($ListaPrecio as $lista)
+                                                                <option
+                                                                    value="{{ $lista->IdListaPrecio }}"
+                                                                    {{ $lista->IdListaPrecio == $item->IdListaPrecio ? 'selected' : '' }}
+                                                                >
+                                                                    {{ $lista->NomListaPrecio }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if ($item->Status == 1)
+                                                        <span
+                                                            class="fw-medium"
+                                                            style="color: #9ca3af;"
+                                                        >
+                                                            ${{ number_format($item->PrecioDescuento, 2) }}
+                                                        </span>
+                                                    @else
+                                                        <input
+                                                            class="form-control form-control-sm-modern"
+                                                            type="number"
+                                                            step="0.01"
+                                                            name="precioArticulo[]"
+                                                            style="width: 120px; text-align: center; border: 2px solid #e2e8f0; border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; transition: all 0.2s ease;"
+                                                            value="{{ number_format($item->PrecioDescuento, 2) }}"
+                                                            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'; this.style.outline='none';"
+                                                            onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                                            {{ $estaInactiva ? 'disabled' : '' }}
+                                                        >
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    @if ($item->Status == 1)
+                                                        <span class="badge-status badge-inactive">
+                                                            <i class="bi bi-archive me-1"></i>Desactivado
+                                                        </span>
+                                                    @else
+                                                        <button
+                                                            type="button"
+                                                            class="btn-table-action btn-table-delete btnEliminarArticulo"
+                                                            title="Eliminar artículo"
+                                                            {{ $estaInactiva ? 'disabled' : '' }}
+                                                        >
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr class="empty-row">
+                                                <td colspan="5">
+                                                    <div class="py-5 text-center">
+                                                        <div class="empty-state-icon mx-auto mb-3">
+                                                            <i
+                                                                class="bi bi-box fs-3"
+                                                                style="color: #94a3b8;"
+                                                            ></i>
+                                                        </div>
+                                                        <h6 class="text-muted">Sin artículos en promoción</h6>
+                                                        <small class="text-muted">Agregue artículos usando el campo de
+                                                            búsqueda</small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button
+                                    type="button"
+                                    id="btnConfirmar"
+                                    class="btn-modern btn-agregar"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ModalConfirmarGuardar"
+                                    disabled
+                                >
+                                    <i class="bi bi-floppy me-2"></i>Guardar artículos
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </x-layout.page-container>
+    </x-card-gradient-header>
 
     <div
         id="ulListaPrecios"
@@ -534,6 +507,7 @@
         <select
             class="form-select form-select-sm"
             name="listaPrecios[]"
+            style="width: 150px;"
         >
             @foreach ($ListaPrecio as $lista)
                 <option value="{{ $lista->IdListaPrecio }}">{{ $lista->NomListaPrecio }}</option>
@@ -544,507 +518,500 @@
     @include('Descuentos.ModalArticuloRepetido')
     @include('Descuentos.ModalConfirmarGuardar')
     @include('Descuentos.ModalCantidadPrecioCero')
+    @include('Descuentos.ModalEliminarArticulo')
+    @include('Descuentos.ModalReactivarArticulo')
+</x-page-container>
 
-    <style>
-        .table thead th {
-            position: sticky;
-            top: 0;
-            background: rgb(30, 41, 59);
-            color: white;
-            z-index: 10;
-        }
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoDescuento = document.querySelector('select[name="tipoDescuento"]');
+        const divTienda = document.getElementById('divTienda');
+        const divPlaza = document.getElementById('divPlaza');
+        const selectTienda = document.querySelector('select[name="idTienda"]');
+        const selectPlaza = document.querySelector('select[name="idPlaza"]');
 
-        .table-head th {
-            background-color: #1e293b !important;
-            color: white !important;
-            font-weight: 500;
-            font-size: 0.875rem;
-            padding: 0.75rem;
-        }
+        function toggleCamposPorTipo() {
+            const tipo = parseInt(tipoDescuento.value);
 
-        .tags-red {
-            background-color: rgba(190, 24, 93, 0.1);
-            color: #be185d;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+            // Resetear ambos campos
+            divTienda.style.display = 'none';
+            divPlaza.style.display = 'none';
 
-        .tags-green {
-            background-color: rgba(3, 84, 63, 0.1);
-            color: #03543f;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+            if (selectTienda) {
+                selectTienda.required = false;
+                selectTienda.value = '';
+            }
 
-        .tags-blue {
-            background-color: rgba(30, 66, 159, 0.1);
-            color: #1e429f;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-    </style>
+            if (selectPlaza) {
+                selectPlaza.required = false;
+                selectPlaza.value = '';
+            }
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        const estaInactiva = {{ $estaInactiva ? 'true' : 'false' }};
-        const tbody = document.querySelector('#tblArticulos tbody');
+            // Mostrar solo el campo correspondiente
+            switch (tipo) {
+                case 1: // Producto - Ambos ocultos
+                    console.log('Tipo Producto: Ambos campos ocultos');
+                    break;
 
-        if (estaInactiva) {
-            document.getElementById('codArticulo').disabled = true;
-        }
+                case 2: // Tienda - Solo mostrar tienda
+                    if (divTienda && selectTienda) {
+                        divTienda.style.display = 'block';
+                        selectTienda.required = true;
+                        console.log('Tipo Tienda: Mostrando solo campo Tienda');
+                    }
+                    break;
 
-        // Función para verificar si hay filas en la tabla y mostrar/ocultar empty state
-        function verificarEmptyState() {
-            const filas = tbody.querySelectorAll('tr:not(.empty-row)');
-            const emptyRow = tbody.querySelector('.empty-row');
+                case 3: // Plaza - Solo mostrar plaza
+                    if (divPlaza && selectPlaza) {
+                        divPlaza.style.display = 'block';
+                        selectPlaza.required = true;
+                        console.log('Tipo Plaza: Mostrando solo campo Plaza');
+                    }
+                    break;
 
-            if (filas.length === 0) {
-                if (!emptyRow) {
-                    // Agregar fila de empty state
-                    const emptyStateRow = `
-                    <tr class="empty-row">
-                        <td colspan="5" class="py-5 text-center">
-                            <x-table-empty-state
-                                title="No hay artículos en promoción"
-                                icon="box"
-                                message="No se encontraron artículos registrados a esta promoción."
-                                suggestion="Agrega artículos utilizando el campo de búsqueda de código de artículo."
-                            />
-                        </td>
-                    </tr>
-                `;
-                    tbody.insertAdjacentHTML('beforeend', emptyStateRow);
-                }
-            } else {
-                if (emptyRow) {
-                    emptyRow.remove();
-                }
+                default:
+                    console.log('Tipo no reconocido');
+                    break;
             }
         }
 
-        // Función para agregar artículo a la tabla
-        function agregarArticuloATabla(codigo, nombre, selectHtml) {
-            // Eliminar empty state si existe
-            const emptyRow = tbody.querySelector('.empty-row');
-            if (emptyRow) {
-                emptyRow.remove();
-            }
+        // Configurar el evento change
+        if (tipoDescuento) {
+            // Ejecutar al cargar la página
+            // toggleCamposPorTipo();
 
-            // Verificar si el artículo ya existe (solo en filas con clase articulo-row)
-            let existe = false;
-            tbody.querySelectorAll('tr.articulo-row').forEach(row => {
-                const codigoExistente = row.querySelector('td:first-child')?.textContent;
-                if (codigoExistente === codigo) {
-                    existe = true;
+            // Ejecutar cuando cambie el select
+            tipoDescuento.addEventListener('change', toggleCamposPorTipo);
+        }
+
+        // Validación adicional antes de enviar el formulario
+        const formulario = document.querySelector('form[action="/GuardarDescuento"]');
+        if (formulario) {
+            formulario.addEventListener('submit', function(e) {
+                const tipo = parseInt(tipoDescuento.value);
+
+                if (tipo === 2 && (!selectTienda || !selectTienda.value)) {
+                    e.preventDefault();
+                    alert('Debe seleccionar una tienda para el tipo de descuento seleccionado');
+                    return false;
+                }
+
+                if (tipo === 3 && (!selectPlaza || !selectPlaza.value)) {
+                    e.preventDefault();
+                    alert('Debe seleccionar una plaza para el tipo de descuento seleccionado');
+                    return false;
                 }
             });
+        }
+    });
 
-            if (existe) {
-                $('#ModalArticuloRpetido').modal('show');
+    const estaInactiva = {{ $estaInactiva ? 'true' : 'false' }};
+    const tbody = document.querySelector('#tblArticulos tbody');
+
+    if (estaInactiva) {
+        document.getElementById('codArticulo').disabled = true;
+    }
+
+    function verificarEmptyState() {
+        const filas = tbody.querySelectorAll('tr:not(.empty-row)');
+        const emptyRow = tbody.querySelector('.empty-row');
+        if (filas.length === 0 && !emptyRow) {
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr class="empty-row">
+                    <td colspan="5">
+                        <div class="py-5 text-center">
+                            <div class="empty-state-icon mx-auto mb-3">
+                                <i class="bi bi-box fs-3" style="color: #94a3b8;"></i>
+                            </div>
+                            <h6 class="text-muted">Sin artículos en promoción</h6>
+                            <small class="text-muted">Agregue artículos usando el campo de búsqueda</small>
+                        </div>
+                    </td>
+                </tr>`);
+        } else if (filas.length > 0 && emptyRow) {
+            emptyRow.remove();
+        }
+    }
+    // Evento para el botón Agregar
+    document.getElementById('btnAgregarArticulo').addEventListener('click', function() {
+        if (estaInactiva) return;
+
+        const codArticulo = document.getElementById('codArticulo');
+        const nomArticulo = document.querySelector('.nomArticulo');
+        const nomArticuloValid = document.querySelector('.nomArticuloValid');
+
+        if (codArticulo.value != '' && nomArticulo.textContent != '' && nomArticuloValid.textContent != '') {
+            const agregado = agregarArticuloATabla(
+                codArticulo.value,
+                nomArticulo.textContent,
+                document.querySelector('#ulListaPrecios').innerHTML
+            );
+            if (agregado) {
+                codArticulo.value = '';
+                nomArticulo.textContent = '';
+                nomArticuloValid.textContent = '';
+                verificarBotonGuardar();
+            }
+        }
+    });
+
+    function agregarArticuloATabla(codigo, nombre, selectHtml) {
+        const emptyRow = tbody.querySelector('.empty-row');
+        if (emptyRow) emptyRow.remove();
+
+        // Verificar duplicados
+        let existe = false;
+        tbody.querySelectorAll('tr.articulo-row').forEach(row => {
+            const codigoExistente = row.querySelector('td:first-child')?.textContent.trim();
+            if (codigoExistente === codigo.trim()) {
+                existe = true;
+            }
+        });
+
+        if (existe) {
+            const filaExistente = Array.from(tbody.querySelectorAll('tr.articulo-row')).find(row => {
+                return row.querySelector('td:first-child')?.textContent.trim() === codigo.trim();
+            });
+
+            if (filaExistente && filaExistente.classList.contains('opacity-50')) {
+                // Guardar referencia para reactivar
+                $('#ModalReactivarArticulo').data('fila', filaExistente);
+                $('#ModalReactivarArticulo').data('codigo', codigo);
+                $('#ModalReactivarArticulo').data('selectHtml', selectHtml);
+                $('#ModalReactivarArticulo').modal('show');
                 return false;
             }
 
-            // Agregar nueva fila con la clase 'articulo-row'
-            const nuevaFila = `
-                <tr class="articulo-row" data-existe="false">
-                    <td class="fw-500">${codigo}</td>
-                    <td class="text-truncate" style="max-width: 200px;">${nombre}</td>
-                    <td>${selectHtml}</td>
-                    <td><input class="form-control form-control-sm" type="number" step="0.01" name="precioArticulo[]" placeholder="Precio" required></td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-outline-danger btnEliminarArticulo" title="Eliminar artículo">
-                            @php echo view('components.icons.delete')->render(); @endphp
-                        </button>
-                    </td>
-                </tr>
-            `;
-            tbody.insertAdjacentHTML('beforeend', nuevaFila);
-
-            return true;
+            // Duplicado activo
+            $('#ModalArticuloRpetido').modal('show');
+            return false;
         }
 
-        document.getElementById('codArticulo').addEventListener('input', function(e) {
-            if (estaInactiva) return;
+        // Agregar nueva fila
+        const selectEstilizado = selectHtml.replace('<select',
+            '<select style="width: 150px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s ease;" onfocus="this.style.borderColor=\'#3b82f6\'; this.style.boxShadow=\'0 0 0 3px rgba(59, 130, 246, 0.1)\'; this.style.outline=\'none\'" onblur="this.style.borderColor=\'#e2e8f0\'; this.style.boxShadow=\'none\'"'
+        );
 
-            fetch('/BuscarCodArticuloPaquqete?codArticulo=' + e.target.value)
-                .then(res => res.text())
-                .then(respuesta => {
-                    if (respuesta != '') {
-                        document.querySelector('.nomArticulo').innerHTML = respuesta;
-                        document.querySelector('.nomArticuloValid').innerHTML = respuesta;
-                    } else {
-                        if (document.getElementById('codArticulo').value == '') {
-                            document.querySelector('.nomArticulo').innerHTML = '';
-                        } else {
-                            document.querySelector('.nomArticulo').innerHTML =
-                                'Buscando Artículo... <i class="fa fa-clock-o"></i>';
-                            document.querySelector('.nomArticuloValid').innerHTML = '';
-                        }
-                    }
-                });
+        tbody.insertAdjacentHTML('beforeend', `
+        <tr class="articulo-row">
+            <td style="font-weight: 500; color: #0f172a;">${codigo.trim()}</td>
+            <td>${nombre.trim()}</td>
+            <td>${selectEstilizado}</td>
+            <td><input class="form-control form-control-sm-modern" style="width: 120px; text-align: center; border: 2px solid #e2e8f0; border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; transition: all 0.2s ease;" type="number" step="0.01" name="precioArticulo[]" placeholder="Precio" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'; this.style.outline='none'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"></td>
+            <td class="text-center">
+                <button type="button" class="btn-table-action btn-table-delete btnEliminarArticulo" title="Eliminar artículo">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>`);
+        return true;
+    }
+
+    // Evento para reactivar artículo desde el modal
+    $(document).off('click', '#btnReactivarArticulo').on('click', '#btnReactivarArticulo', function() {
+        const filaExistente = $('#ModalReactivarArticulo').data('fila');
+        const selectHtml = $('#ModalReactivarArticulo').data('selectHtml');
+
+        $('#ModalReactivarArticulo').modal('hide');
+
+        if (!filaExistente) return;
+
+        // Quitar estilos de desactivado
+        filaExistente.classList.remove('opacity-50');
+        filaExistente.style.background = '';
+        filaExistente.style.textDecoration = '';
+        filaExistente.style.color = '';
+
+        // Quitar tachado
+        filaExistente.querySelectorAll('td:first-child span, td:nth-child(2) span').forEach(span => {
+            span.style.textDecoration = '';
         });
 
-        document.getElementById('codArticulo').addEventListener('keypress', (e) => {
-            if (estaInactiva) return;
+        // Reconstruir celda de lista de precio
+        const tdLista = filaExistente.querySelector('td:nth-child(3)');
+        tdLista.innerHTML = selectHtml;
+        const newSelect = tdLista.querySelector('select');
+        if (newSelect) {
+            newSelect.style.cssText =
+                'width: 150px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; text-align: center; cursor: pointer; transition: all 0.2s ease;';
+            newSelect.addEventListener('focus', function() {
+                this.style.borderColor = '#3b82f6';
+                this.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                this.style.outline = 'none';
+            });
+            newSelect.addEventListener('blur', function() {
+                this.style.borderColor = '#e2e8f0';
+                this.style.boxShadow = 'none';
+            });
+        }
 
+        // Reconstruir celda de precio
+        const tdPrecio = filaExistente.querySelector('td:nth-child(4)');
+        tdPrecio.innerHTML =
+            `<input class="form-control form-control-sm-modern" style="width: 120px; text-align: center; border: 2px solid #e2e8f0; border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; transition: all 0.2s ease;" type="number" step="0.01" name="precioArticulo[]" placeholder="Precio" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'; this.style.outline='none'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">`;
+
+        // Reconstruir celda de acciones
+        const tdAcciones = filaExistente.querySelector('td:nth-child(5)');
+        tdAcciones.innerHTML = `
+        <button type="button" class="btn-table-action btn-table-delete btnEliminarArticulo" title="Eliminar artículo">
+            <i class="bi bi-trash"></i>
+        </button>`;
+
+        verificarBotonGuardar();
+    });
+
+    document.getElementById('codArticulo').addEventListener('input', function(e) {
+        if (estaInactiva) return;
+        fetch('/BuscarCodArticuloPaquqete?codArticulo=' + e.target.value)
+            .then(res => res.text())
+            .then(respuesta => {
+                if (respuesta != '') {
+                    document.querySelector('.nomArticulo').innerHTML = respuesta;
+                    document.querySelector('.nomArticuloValid').innerHTML = respuesta;
+                } else {
+                    document.querySelector('.nomArticulo').innerHTML = document.getElementById(
+                            'codArticulo').value == '' ? '' :
+                        'Buscando Artículo... <i class="bi bi-hourglass-split"></i>';
+                    document.querySelector('.nomArticuloValid').innerHTML = '';
+                }
+            });
+    });
+
+    document.getElementById('codArticulo').addEventListener('keydown', function(e) {
+        if (estaInactiva) return;
+        if (e.key === 'Enter') {
+            e.preventDefault();
             const codArticulo = document.getElementById('codArticulo');
             const nomArticulo = document.querySelector('.nomArticulo');
             const nomArticuloValid = document.querySelector('.nomArticuloValid');
-
-            if (e.key == 'Enter') {
-                if (codArticulo.value != '' && nomArticulo.textContent != '' && nomArticuloValid.textContent !=
-                    '') {
-                    let selectHtml = document.querySelector('#ulListaPrecios').innerHTML;
-
-                    const agregado = agregarArticuloATabla(
-                        codArticulo.value,
-                        nomArticulo.textContent,
-                        selectHtml
-                    );
-
-                    if (agregado) {
-                        codArticulo.value = '';
-                        nomArticulo.textContent = '';
-                        nomArticuloValid.textContent = '';
-                    }
+            if (codArticulo.value != '' && nomArticulo.textContent != '' && nomArticuloValid.textContent !=
+                '') {
+                const agregado = agregarArticuloATabla(codArticulo.value, nomArticulo.textContent, document
+                    .querySelector('#ulListaPrecios').innerHTML);
+                if (agregado) {
+                    codArticulo.value = '';
+                    nomArticulo.textContent = '';
+                    nomArticuloValid.textContent = '';
                 }
-                e.preventDefault();
             }
-        });
-
-        // $(document).on('click', '.btnEliminarArticulo', function() {
-        //     if (estaInactiva) return;
-        //     $(this).closest('tr').remove();
-        //     verificarEmptyState();
-        // });
-        // Cambiar el evento de eliminar por desactivar
-        // Cambiar el evento de eliminar por desactivar
-        $(document).on('click', '.btnEliminarArticulo', function() {
-            if (estaInactiva) return;
-
-            const $fila = $(this).closest('tr');
-            const codigoArticulo = $fila.find('td:first-child').text().trim();
-
-            // Verificar si el artículo ya existe en la BD (tiene data-status o podemos verificar por otros medios)
-            // Una forma es ver si el select o input tienen algún atributo o si la fila tiene un ID
-            const existeEnBD = $fila.data('existe') === true ||
-                $fila.find('select option[selected]').length > 0 ||
-                $fila.data('id') !== undefined;
-
-            if (!existeEnBD) {
-                // Si es un artículo nuevo (solo en frontend), simplemente eliminamos la fila
-                Swal.fire({
-                    title: '¿Eliminar artículo?',
-                    text: `¿Deseas eliminar el artículo ${codigoArticulo} de la lista?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#38465E',
-                    confirmButtonText: 'Sí, eliminar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $fila.remove();
-                        verificarEmptyState();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Artículo eliminado',
-                            text: 'El artículo ha sido eliminado de la lista',
-                            confirmButtonColor: '#38465E'
-                        });
-                    }
-                });
-                return;
-            }
-
-            // Si existe en BD, hacer la desactivación por AJAX
-            Swal.fire({
-                title: '¿Desactivar artículo?',
-                text: `¿Deseas desactivar el artículo ${codigoArticulo} de esta promoción?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#38465E',
-                confirmButtonText: 'Sí, desactivar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/DesactivarArticuloPromocion',
-                        method: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            IdEncDescuento: '{{ $descuento->IdEncDescuento }}',
-                            CodArticulo: codigoArticulo
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Aplicar estilo de desactivado a la fila
-                                $fila.css({
-                                    'text-decoration': 'line-through',
-                                    'color': '#9ca3af'
-                                });
-                                $fila.find('select, input[type="number"]').prop('disabled',
-                                    true);
-                                $fila.find('.btnEliminarArticulo').prop('disabled', true);
-                                $fila.find('select, input[type="number"]').css('opacity',
-                                    '0.6');
-                                $fila.find('.btnEliminarArticulo').hide();
-
-                                // Marcar la fila como desactivada
-                                $fila.data('status', 1);
-
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Artículo desactivado',
-                                    text: 'El artículo ha sido desactivado de la promoción',
-                                    confirmButtonColor: '#38465E'
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: response.message ||
-                                        'Error al desactivar el artículo',
-                                    confirmButtonColor: '#38465E'
-                                });
-                            }
-                        },
-                        error: function(xhr) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Ocurrió un error al desactivar el artículo',
-                                confirmButtonColor: '#38465E'
-                            });
-                        }
-                    });
-                }
-            });
-        });
-        // $(document).on('click', '.btnEliminarArticulo', function() {
-        //     if (estaInactiva) return;
-
-        //     const $fila = $(this).closest('tr');
-        //     const codigoArticulo = $fila.find('td:first-child').text().trim();
-
-        //     // Confirmar desactivación
-        //     Swal.fire({
-        //         title: '¿Desactivar artículo?',
-        //         text: `¿Deseas desactivar el artículo ${codigoArticulo} de esta promoción?`,
-        //         icon: 'warning',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#d33',
-        //         cancelButtonColor: '#38465E',
-        //         confirmButtonText: 'Sí, desactivar',
-        //         cancelButtonText: 'Cancelar'
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             // Enviar solicitud AJAX para desactivar
-        //             $.ajax({
-        //                 url: '/DesactivarArticuloPromocion',
-        //                 method: 'POST',
-        //                 data: {
-        //                     _token: '{{ csrf_token() }}',
-        //                     IdEncDescuento: '{{ $descuento->IdEncDescuento }}',
-        //                     CodArticulo: codigoArticulo
-        //                 },
-        //                 success: function(response) {
-        //                     if (response.success) {
-        //                         // Aplicar estilo de desactivado a la fila
-        //                         $fila.css({
-        //                             'text-decoration': 'line-through',
-        //                             'color': '#9ca3af'
-        //                         });
-        //                         $fila.find('select, input[type="number"]').prop('disabled',
-        //                             true);
-        //                         $fila.find('.btnEliminarArticulo').prop('disabled', true);
-        //                         $fila.find('select, input[type="number"]').css('opacity',
-        //                             '0.6');
-
-        //                         // Ocultar el botón de eliminar
-        //                         $fila.find('.btnEliminarArticulo').hide();
-
-        //                         Swal.fire({
-        //                             icon: 'success',
-        //                             title: 'Artículo desactivado',
-        //                             text: 'El artículo ha sido desactivado de la promoción',
-        //                             confirmButtonColor: '#38465E'
-        //                         });
-        //                     } else {
-        //                         Swal.fire({
-        //                             icon: 'error',
-        //                             title: 'Error',
-        //                             text: response.message ||
-        //                                 'Error al desactivar el artículo',
-        //                             confirmButtonColor: '#38465E'
-        //                         });
-        //                     }
-        //                 },
-        //                 error: function(xhr) {
-        //                     Swal.fire({
-        //                         icon: 'error',
-        //                         title: 'Error',
-        //                         text: 'Ocurrió un error al desactivar el artículo',
-        //                         confirmButtonColor: '#38465E'
-        //                     });
-        //                 }
-        //             });
-        //         }
-        //     });
-        // });
-
-        // Función para guardar (editar paquete)
-        // Función para guardar (editar paquete) - Versión más simple
-        function guardarPaquete() {
-            let enviar = 0;
-            const contenedorPaquete = document.getElementById('contenedorPaquete');
-
-            // Limpiar TODO el contenido del contenedor
-            contenedorPaquete.innerHTML = '';
-
-            // Recorrer SOLO las filas que tienen el botón de eliminar visible (artículos activos)
-            $('#tblArticulos tbody tr.articulo-row').each(function() {
-                const $fila = $(this);
-
-                // Verificar si tiene botón de eliminar (los desactivados lo tienen oculto)
-                const tieneBotonEliminar = $fila.find('.btnEliminarArticulo').length > 0 &&
-                    $fila.find('.btnEliminarArticulo').is(':visible');
-
-                // Solo procesar si tiene botón de eliminar visible (está activo)
-                if (!tieneBotonEliminar) {
-                    console.log('Fila desactivada omitida');
-                    return;
-                }
-
-                const $td = $fila.find('td');
-                const codigo = $td.eq(0).text().trim();
-                const listaPrecio = $td.eq(2).find('select').val();
-                const precio = $td.eq(3).find('input[type="number"]').val();
-
-                if (!codigo || codigo === '' || codigo.includes('No hay artículos')) {
-                    return;
-                }
-
-                console.log(`Enviando artículo activo: ${codigo}`);
-
-                if (precio == 0 || precio == '' || precio === undefined) {
-                    enviar++;
-                }
-
-                $(contenedorPaquete).append(`
-            <input type="hidden" name="CodArticulo[]" value="${codigo}">
-            <input type="hidden" name="listaPrecios[]" value="${listaPrecio}">
-            <input type="hidden" name="PrecioArticulo[]" value="${precio}">
-            <input type="hidden" name="Status[]" value="0">
-        `);
-            });
-
-            const inputsCodigo = $(contenedorPaquete).find('input[name="CodArticulo[]"]');
-            if (inputsCodigo.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Sin artículos activos',
-                    text: 'Debe tener al menos un artículo activo en la promoción',
-                    confirmButtonColor: '#38465E'
-                });
-                return false;
-            }
-
-            if (enviar > 0) {
-                $('#ModalCantidadPrecioCero').modal('show');
-                return false;
-            }
-
-            $('#formPaquete').submit();
         }
-        // function guardarPaquete() {
-        //     let enviar = 0;
-        //     const contenedorPaquete = document.getElementById('contenedorPaquete');
+    });
 
-        //     // Limpiar TODO el contenido del contenedor
-        //     contenedorPaquete.innerHTML = '';
+    $(document).on('click', '.btnEliminarArticulo', function() {
+        if (estaInactiva) return;
+        const $fila = $(this).closest('tr');
+        const codigoArticulo = $fila.find('td:first-child').text().trim();
+        const existeEnBD = $fila.find('select option[selected]').length > 0;
 
-        //     // Recorrer SOLO las filas que tienen la clase 'articulo-row' (datos reales)
-        //     $('#tblArticulos tbody tr.articulo-row').each(function() {
-        //         const $td = $('td', this);
-        //         const codigo = $td.eq(0).text().trim();
-        //         const listaPrecio = $td.eq(2).find('select').val();
-        //         const precio = $td.eq(3).find('input[type="number"]').val();
-        //         const status = $td.eq(4).find('input[type="hidden"]').val();
+        // Guardar referencia en el modal
+        $('#ModalEliminarArticulo').data('fila', $fila);
+        $('#ModalEliminarArticulo').data('codigo', codigoArticulo);
+        $('#ModalEliminarArticulo').data('existeEnBD', existeEnBD);
 
-        //         // Validar que el código sea válido (número o alfanumérico, no texto del empty state)
-        //         if (!codigo || codigo === '' || codigo.length > 20 || codigo.includes('No hay artículos')) {
-        //             console.log('Fila ignorada: código inválido', codigo);
-        //             return;
-        //         }
+        if (!existeEnBD) {
+            // Artículo nuevo - mostrar modal de eliminar
+            $('#ModalEliminarArticuloLabel').text('Eliminar Artículo');
+            $('#ModalEliminarArticuloMensaje').html(
+                `¿Desea eliminar el artículo <strong>${codigoArticulo}</strong> de la lista?`);
+            $('#ModalEliminarArticuloSubmensaje').text('El artículo se quitará de la lista.');
+            $('#btnConfirmarEliminar').text('Eliminar').css('background', '#ef4444');
+        } else {
+            // Artículo existente en BD - mostrar modal de desactivar
+            $('#ModalEliminarArticuloLabel').text('Desactivar Artículo');
+            $('#ModalEliminarArticuloMensaje').html(
+                `¿Desea desactivar el artículo <strong>${codigoArticulo}</strong> de esta promoción?`);
+            $('#ModalEliminarArticuloSubmensaje').text(
+                'El artículo permanecerá registrado pero no estará activo.');
+            $('#btnConfirmarEliminar').text('Desactivar').css('background', '#f59e0b');
+        }
 
-        //         console.log(`Agregando artículo: ${codigo}, Lista: ${listaPrecio}, Precio: ${precio}`);
+        $('#ModalEliminarArticulo').modal('show');
+    });
 
-        //         // Validar precio
-        //         if (precio == 0 || precio == '' || precio === undefined) {
-        //             enviar++;
-        //         }
+    // Evento para el botón de confirmación del modal
+    $(document).off('click', '#btnConfirmarEliminar').on('click', '#btnConfirmarEliminar', function() {
+        const $fila = $('#ModalEliminarArticulo').data('fila');
+        const codigoArticulo = $('#ModalEliminarArticulo').data('codigo');
+        const existeEnBD = $('#ModalEliminarArticulo').data('existeEnBD');
 
-        //         // Agregar inputs ocultos
-        //         $(contenedorPaquete).append(`
-    //             <input type="hidden" name="CodArticulo[]" value="${codigo}">
-    //             <input type="hidden" name="listaPrecios[]" value="${listaPrecio}">
-    //             <input type="hidden" name="PrecioArticulo[]" value="${precio}">
-    //         `);
+        $('#ModalEliminarArticulo').modal('hide');
 
-        //         if (!listaPrecio || !precio || precio == 0) enviar++;
-        //     });
+        if (!existeEnBD) {
+            // Eliminar fila
+            $fila.remove();
+            verificarEmptyState();
+            verificarBotonGuardar();
+        } else {
+            // Desactivar artículo por AJAX
+            $.ajax({
+                url: '/DesactivarArticuloPromocion',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    IdEncDescuento: '{{ $descuento->IdEncDescuento }}',
+                    CodArticulo: codigoArticulo
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Aplicar estilos visuales
+                        // Aplicar estilos visuales
+                        $fila.addClass('opacity-50');
+                        $fila.css('background', '#f8fafc');
 
-        //     // Verificar que haya al menos un artículo
-        //     const inputsCodigo = $(contenedorPaquete).find('input[name="CodArticulo[]"]');
-        //     if (inputsCodigo.length === 0) {
-        //         Swal.fire({
-        //             icon: 'warning',
-        //             title: 'Sin artículos',
-        //             text: 'Debe agregar al menos un artículo a la promoción',
-        //             confirmButtonColor: '#38465E'
-        //         });
-        //         return false;
-        //     }
+                        // Tachar código y nombre
+                        $fila.find('td:eq(0) span').css('text-decoration', 'line-through');
+                        $fila.find('td:eq(1) span').css('text-decoration', 'line-through');
 
-        //     if (enviar > 0) {
-        //         $('#ModalCantidadPrecioCero').modal('show');
-        //         return false;
-        //     }
+                        // Reemplazar select por badge
+                        const listaPrecio = $fila.find('td:eq(2) select option:selected').text();
+                        $fila.find('td:eq(2)').html(`
+                        <span class="badge bg-light text-dark border">${listaPrecio}</span>
+                    `);
 
-        //     // Enviar el formulario
-        //     $('#formPaquete').submit();
-        // }
+                        // Reemplazar input por texto
+                        const precio = $fila.find('td:eq(3) input').val();
+                        $fila.find('td:eq(3)').html(`
+                        <span class="fw-medium" style="color: #9ca3af;">$${parseFloat(precio).toFixed(2)}</span>
+                    `);
 
-        // Evento para el botón Guardar del modal
-        $(document).on('click', '#btnEditarPaquete', function(e) {
-            e.preventDefault();
-            guardarPaquete();
+                        // Reemplazar botón por badge
+                        $fila.find('td:eq(4)').html(`
+                        <span class="badge-status badge-inactive">
+                            <i class="bi bi-archive me-1"></i>Desactivado
+                        </span>
+                    `);
+
+                        verificarBotonGuardar();
+                    }
+                }
+            });
+        }
+    });
+
+    function guardarPaquete() {
+        const contenedorPaquete = document.getElementById('contenedorPaquete');
+        contenedorPaquete.innerHTML = '';
+        let enviar = 0;
+
+        $('#tblArticulos tbody tr.articulo-row').each(function() {
+            const $fila = $(this);
+            if (!$fila.find('.btnEliminarArticulo').is(':visible')) return;
+            const $td = $fila.find('td');
+            const codigo = $td.eq(0).text().trim();
+            const listaPrecio = $td.eq(2).find('select').val();
+            const precio = $td.eq(3).find('input').val();
+            if (!codigo || codigo.includes('No hay')) return;
+            if (!precio || precio == '0') enviar++;
+            $(contenedorPaquete).append(`
+                <input type="hidden" name="CodArticulo[]" value="${codigo}">
+                <input type="hidden" name="listaPrecios[]" value="${listaPrecio}">
+                <input type="hidden" name="PrecioArticulo[]" value="${precio}">
+                <input type="hidden" name="Status[]" value="0">`);
         });
 
-        // Evento para el botón principal que abre el modal
-        $(document).on('click', '#btnConfirmar', function(e) {
-            e.preventDefault();
+        if ($(contenedorPaquete).find('input[name="CodArticulo[]"]').length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin artículos activos',
+                text: 'Debe tener al menos un artículo activo',
+                confirmButtonColor: '#475569'
+            });
+            return false;
+        }
+        if (enviar > 0) {
+            $('#ModalCantidadPrecioCero').modal('show');
+            return false;
+        }
+        $('#formPaquete').submit();
+    }
 
-            // Validar que haya artículos
-            const filas = $('#tblArticulos tbody tr:not(.empty-row)').length;
-            if (filas === 0) {
-                alert('Debe agregar al menos un artículo a la promoción');
-                return false;
+    $(document).on('click', '#btnEditarPaquete', function(e) {
+        e.preventDefault();
+        guardarPaquete();
+    });
+    $(document).on('click', '#btnConfirmar', function(e) {
+        e.preventDefault();
+        if ($('#tblArticulos tbody tr:not(.empty-row)').length === 0) {
+            alert('Debe agregar al menos un artículo');
+            return false;
+        }
+        $('#ModalConfirmarGuardar').modal('show');
+    });
+
+    function verificarBotonGuardar() {
+        const btnGuardar = document.getElementById('btnConfirmar');
+        if (!btnGuardar) return;
+
+        // Si está inactiva, no hacer nada (ya está disabled)
+        if (estaInactiva) return;
+
+        let filas = Array.from(document.querySelectorAll('#tblArticulos tbody tr.articulo-row'));
+        // Eliminar las que tienen la clase opacity-50 (desactivadas)
+        filas = filas.filter(row => !row.classList.contains('opacity-50'));
+
+        // Si no hay filas activas, deshabilitar
+        if (filas.length === 0) {
+            btnGuardar.disabled = true;
+            btnGuardar.classList.add('btn-disabled');
+            return;
+        }
+
+        let habilitar = false;
+
+        filas.forEach(row => {
+            const precioInput = row.querySelector('input[name="precioArticulo[]"]');
+            const selectLista = row.querySelector('select[name="listaPrecios[]"]');
+
+            // Verificar si es un artículo nuevo (sin option selected)
+            const esNuevo = selectLista && !selectLista.querySelector('option[selected]');
+
+            if (esNuevo) {
+                // Es nuevo, verificar que tenga precio
+                const precio = precioInput ? parseFloat(precioInput.value) : 0;
+                if (precio && precio > 0) {
+                    habilitar = true;
+                }
+            } else if (selectLista && precioInput) {
+                // Ya existe en BD, verificar si hubo cambios
+                const precioActual = parseFloat(precioInput.value) || 0;
+                const precioOriginal = parseFloat(precioInput.defaultValue) || 0;
+                const listaActual = selectLista.value;
+                const listaOriginal = selectLista.querySelector('option[selected]')?.value;
+
+                if (precioActual > 0 && (precioActual !== precioOriginal || listaActual !== listaOriginal)) {
+                    habilitar = true;
+                }
             }
-
-            // Mostrar modal
-            $('#ModalConfirmarGuardar').modal('show');
         });
 
-        // Inicializar empty state al cargar
-        verificarEmptyState();
-    </script>
-@endsection
+        btnGuardar.disabled = !habilitar;
+
+        if (habilitar) {
+            btnGuardar.classList.remove('btn-disabled');
+        } else {
+            btnGuardar.classList.add('btn-disabled');
+        }
+    }
+
+    // Escuchar cambios en los inputs de precio
+    $(document).on('input', 'input[name="precioArticulo[]"]', function() {
+        verificarBotonGuardar();
+    });
+
+    // Escuchar cuando se agrega un nuevo artículo
+    $(document).on('keydown', '#codArticulo', function(e) {
+        if (e.key === 'Enter') {
+            setTimeout(verificarBotonGuardar, 200);
+        }
+    });
+
+    // Escuchar cuando se elimina un artículo
+    $(document).on('click', '.btnEliminarArticulo', function() {
+        setTimeout(verificarBotonGuardar, 300);
+    });
+
+    // Verificar al cargar la página
+    setTimeout(verificarBotonGuardar, 500);
+
+    verificarEmptyState();
+</script>

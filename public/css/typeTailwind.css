@@ -1094,6 +1094,7 @@ table > tbody > tr > td {
     background: white;
     color: #3b82f6;
     border: 2px solid #3b82f6;
+    padding: calc(0.5rem - 2px) calc(1.25rem - 2px);
 }
 
 .btn-outline-modern:hover {

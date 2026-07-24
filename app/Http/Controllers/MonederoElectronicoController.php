@@ -14,10 +14,13 @@ use App\Models\DatMonederoAcumulado;
 class MonederoElectronicoController extends Controller
 {
     public function CatMonederoElectronico(Request $request){
-        $monederoElectronico = MonederoElectronico::where('Status', 0)
+        $monederoElectronico = MonederoElectronico::where('CatMonederoElectronico.Status', 0)
+            ->leftJoin('CatGrupos', 'CatMonederoElectronico.IdGrupo', '=', 'CatGrupos.IdGrupo')
+            ->select('CatMonederoElectronico.*', 'CatGrupos.NomGrupo')
             ->get();
 
         $grupos = Grupo::all();
+
 
         return view('MonederoElectronico.CatMonederoElectronico', compact('monederoElectronico', 'grupos'));
     }

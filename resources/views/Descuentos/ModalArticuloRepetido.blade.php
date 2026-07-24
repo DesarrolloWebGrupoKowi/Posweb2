@@ -1,18 +1,48 @@
-<!-- Modal Articulo Repetido-->
-<div class="modal fade" id="ModalArticuloRpetido" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content border-0">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-exclamation-circle"></i> Artículo Repetido
-                </h5>
-            </div>
-            <div class="modal-body">
-                <p class="fs-6 text-center fw-normal text-secondary m-0" style="line-height: 24px">
-                    No Puede Agregar un Articulo Repetido
+<!-- Modal Artículo Repetido -->
+<div
+    class="modal fade"
+    id="ModalArticuloRpetido"
+    tabindex="-1"
+    aria-labelledby="ModalArticuloRpetidoLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div
+            class="modal-content"
+            style="border-radius: 16px; border: none; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);"
+        >
+            <div class="p-4 text-center">
+                <!-- Icono -->
+                <div
+                    class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style="width: 64px; height: 64px; background: #fef2f2;"
+                >
+                    <i
+                        class="bi bi-exclamation-triangle"
+                        style="font-size: 1.5rem; color: #ef4444;"
+                    ></i>
+                </div>
+
+                <!-- Título -->
+                <h5
+                    class="fw-bold mb-2"
+                    style="color: #0f172a;"
+                >Artículo Repetido</h5>
+
+                <!-- Mensaje -->
+                <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 24px;">
+                    No puede agregar un artículo que ya está en la lista.
                 </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">Cerrar </button>
+
+                <!-- Botón -->
+                <button
+                    type="button"
+                    class="btn"
+                    data-bs-dismiss="modal"
+                    style="background: #f1f5f9; color: #475569; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 0.85rem;"
+                >
+                    <i class="bi bi-x-circle me-1"></i> Cerrar
+                </button>
             </div>
         </div>
     </div>
