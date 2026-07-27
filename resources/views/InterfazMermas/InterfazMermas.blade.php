@@ -158,7 +158,7 @@
                     @if (!empty($lotesDisponibles))
                         <button
                             class="btn btn-sm d-flex align-items-center btn-animated gap-2"
-                            style="background: var(--btn-amber-bg); color: var(--btn-amber-text); border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.85rem;"
+                            style="background: var(--btn-amber-bg); color: var(--btn-amber-text); border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.85rem; font-weight: 500;"
                             data-bs-toggle="modal"
                             data-bs-target="#ModalConfirmarInterfaz"
                         >
