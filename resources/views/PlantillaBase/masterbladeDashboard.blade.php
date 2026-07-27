@@ -133,7 +133,7 @@
                                     style="width: 36px; height: 36px; border: 2px solid rgba(255,255,255,0.4);"
                                 >
                                     <img
-                                        src="{{ asset('img/logocaricatura.webp') }}"
+                                        src="{{ asset('img/logocaricatura.jpg') }}"
                                         style="width: 100%; height: 100%; object-fit: cover;"
                                         alt="Logo"
                                     >
