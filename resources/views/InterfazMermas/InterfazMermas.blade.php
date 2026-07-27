@@ -58,19 +58,15 @@
 
         <!-- Resultados -->
         <div
-            class="d-flex flex-column flex-grow-1 rounded p-4 shadow-sm"
-            style="background: white;
-                   border-radius: 12px;
-                   min-height: 0;
-                   overflow: hidden;"
+            class="d-flex flex-column flex-grow-1 card-chart rounded p-4 shadow-sm"
+            style="min-height: 0; overflow: hidden;"
         >
-            <!-- Contenedor de tabla con scroll interno -->
             <div class="table-responsive flex-grow-1">
                 <table
                     class="table-hover table-custom table"
                     style="height: {{ $mermas->count() > 0 ? 'auto' : '90%' }}"
                 >
-                    <thead style="position: sticky; top: 0; z-index: 2; background: white;">
+                    <thead style="position: sticky; top: 0; z-index: 2; background: var(--card-bg);">
                         <tr>
                             <th><i class="bi bi-hash me-1"></i>ID</th>
                             <th><i class="bi bi-upc me-1"></i>Código</th>
@@ -85,33 +81,21 @@
                     <tbody class="position-relative">
                         @forelse ($mermas as $merma)
                             <tr>
-                                <td>
-                                    <span
+                                <td><span
                                         class="fw-semibold"
-                                        style="color: #0f172a;"
-                                    >
-                                        {{ $merma->FolioMerma }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {{ $merma->CodArticulo }}
-                                </td>
-                                <td>
-                                    <span
+                                        style="color: var(--text-primary);"
+                                    >{{ $merma->FolioMerma }}</span></td>
+                                <td>{{ $merma->CodArticulo }}</td>
+                                <td><span
                                         class="text-truncate"
                                         style="max-width: 200px; display: inline-block;"
                                         title="{{ $merma->NomArticulo }}"
-                                    >
-                                        {{ $merma->NomArticulo }}
-                                    </span>
-                                </td>
+                                    >{{ $merma->NomArticulo }}</span></td>
                                 <td>{{ $merma->NomTipoMerma }}</td>
-                                <td class="fw-bold text-end">
-                                    {{ number_format($merma->CantArticulo, 2) }}
-                                </td>
+                                <td class="fw-bold text-end">{{ number_format($merma->CantArticulo, 2) }}</td>
                                 <td>{{ $merma->Almacen }}</td>
                                 <td>
-                                    <span style="font-size: 0.8rem; color: #475569;">
+                                    <span style="font-size: 0.8rem; color: var(--text-subtle);">
                                         {{ empty($merma->Libro) ? '?' : $merma->Libro }}.
                                         {{ empty($merma->CentroCosto) ? '?' : $merma->CentroCosto }}.
                                         {{ empty($merma->Cuenta) ? '?' : $merma->Cuenta }}.
@@ -123,9 +107,8 @@
                                 </td>
                                 <td>
                                     @if ($merma->Lotes->count() == 0)
-                                        <span class="tags-red">
-                                            <i class="bi bi-exclamation-triangle me-1"></i>Sin lotes
-                                        </span>
+                                        <span class="tags-red"><i class="bi bi-exclamation-triangle me-1"></i>Sin
+                                            lotes</span>
                                     @else
                                         <x-table.buttons.edit-button
                                             :id="$merma->CodArticulo"
@@ -138,7 +121,6 @@
                                 </td>
                             </tr>
                         @empty
-                            <!-- Fila vacía que ocupa todo el alto -->
                             <tr style="height: 100%;">
                                 <td
                                     colspan="8"
@@ -147,18 +129,18 @@
                                     <div class="d-flex flex-column align-items-center justify-content-center py-5">
                                         <i
                                             class="bi bi-search"
-                                            style="font-size: 3rem; color: #cbd5e1;"
+                                            style="font-size: 3rem; color: var(--border-medium);"
                                         ></i>
                                         <h5
                                             class="mt-3"
-                                            style="color: #64748b;"
+                                            style="color: var(--text-secondary);"
                                         >Sin datos disponibles</h5>
-                                        <p style="color: #94a3b8;">No se encontraron registros con los filtros
+                                        <p style="color: var(--text-muted);">No se encontraron registros con los filtros
                                             seleccionados</p>
                                         <a
                                             href="/InterfazMermas"
                                             class="btn btn-sm"
-                                            style="background: #f1f5f9; color: #475569; border-radius: 8px;"
+                                            style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border-radius: 8px;"
                                         >
                                             <i class="bi bi-x-circle me-1"></i> Limpiar filtros
                                         </a>
@@ -170,14 +152,13 @@
                 </table>
             </div>
 
-            <!-- Footer fijo abajo: Paginación + Botones de interfaz -->
-            <div style="flex-shrink: 0; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-                <!-- Botones de interfaz -->
+            <!-- Footer fijo -->
+            <div style="flex-shrink: 0; border-top: 1px solid var(--border-light); padding-top: 12px;">
                 <div class="d-flex justify-content-center gap-2">
                     @if (!empty($lotesDisponibles))
                         <button
                             class="btn btn-sm d-flex align-items-center btn-animated gap-2"
-                            style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.85rem;"
+                            style="background: var(--btn-amber-bg); color: var(--btn-amber-text); border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.85rem;"
                             data-bs-toggle="modal"
                             data-bs-target="#ModalConfirmarInterfaz"
                         >
@@ -186,7 +167,7 @@
                     @elseif(empty($lotesDisponibles) && $mermas->count() > 0)
                         <h5
                             class="rounded-3 p-1 px-3 py-2 text-white shadow"
-                            style="background: #ef4444; font-size: 0.85rem;"
+                            style="background: var(--danger-color); font-size: 0.85rem;"
                         >
                             <i class="bi bi-exclamation-circle me-1"></i>
                             Ninguna Merma Apta para ser Interfazada
@@ -198,6 +179,5 @@
         </div>
     </x-card-gradient-header>
 
-    <!-- Modales -->
     @include('InterfazMermas.ModalConfirmarInterfaz')
 </x-page-container>

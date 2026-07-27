@@ -44,14 +44,14 @@
                 <div class="col-md-3">
                     <label
                         class="form-label fw-medium"
-                        style="font-size: 0.8rem; color: #64748b;"
+                        style="font-size: 0.8rem; color: var(--text-secondary);"
                     >
                         <i class="bi bi-check-square me-1"></i>Buscar por Nómina
                     </label>
                     <div class="input-group">
                         <span
                             class="input-group-text"
-                            style="background: #f8fafc; border-right: none;"
+                            style="background: var(--bg-light); border-right: none;"
                         >
                             <input
                                 class="form-check-input mt-0"
@@ -71,7 +71,6 @@
                             {{ empty($chkNomina) ? 'disabled' : '' }}
                             style="border-left: none;"
                         >
-
                     </div>
                 </div>
             </x-form.group>
@@ -92,8 +91,7 @@
                     <span
                         class="spinner-border spinner-border-sm me-1"
                         role="status"
-                    ></span>
-                    Buscando...
+                    ></span> Buscando...
                 </button>
                 <x-form.clear />
             </div>
@@ -101,34 +99,28 @@
 
         <!-- Resultados -->
         <div
-            class="d-flex flex-column flex-grow-1 rounded p-4 shadow-sm"
-            style="background: white;
-                   border-radius: 12px;
-                   min-height: 0;
-                   overflow: hidden;"
+            class="d-flex flex-column flex-grow-1 card-chart rounded p-4 shadow-sm"
+            style="min-height: 0; overflow: hidden;"
         >
-            <!-- Info de resultados -->
             <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0 flex-wrap">
                 <p
                     class="text-uppercase mb-0"
-                    style="font-weight: 500; font-size: 0.85rem; color: #0f172a;"
+                    style="font-weight: 500; font-size: 0.85rem; color: var(--text-primary);"
                 >
                     <i class="bi bi-person-badge me-1"></i>
                     Créditos Empleado — {{ empty($chkNomina) ? $nomTipoNomina : $empleado }}
                 </p>
-                <span style="font-size: 0.8rem; color: #64748b;">
-                    <i class="bi bi-list-ul me-1"></i>
-                    Se encontraron ({{ count($creditos) }}) registros
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">
+                    <i class="bi bi-list-ul me-1"></i> Se encontraron ({{ count($creditos) }}) registros
                 </span>
             </div>
 
-            <!-- Contenedor de tabla con scroll interno -->
             <div class="table-responsive flex-grow-1">
                 <table
                     class="table-hover table-custom table"
                     style="height: {{ count($creditos) > 0 ? 'auto' : '90%' }}"
                 >
-                    <thead style="position: sticky; top: 0; z-index: 2; background: white;">
+                    <thead style="position: sticky; top: 0; z-index: 2; background: var(--card-bg);">
                         <tr>
                             <th><i class="bi bi-geo-alt me-1"></i>Ciudad</th>
                             <th><i class="bi bi-shop me-1"></i>Tienda</th>
@@ -141,39 +133,28 @@
                     <tbody class="position-relative">
                         @forelse ($creditos as $credito)
                             <tr>
-                                <td>
-                                    <span style="color: #475569;">{{ $credito->NomCiudad }}</span>
-                                </td>
+                                <td><span style="color: var(--text-subtle);">{{ $credito->NomCiudad }}</span></td>
                                 <td>{{ $credito->NomTienda }}</td>
-                                <td>
-                                    <span
+                                <td><span
                                         class="fw-semibold"
-                                        style="color: #0f172a;"
-                                    >
-                                        {{ $credito->NumNomina }}
-                                    </span>
-                                </td>
+                                        style="color: var(--text-primary);"
+                                    >{{ $credito->NumNomina }}</span></td>
                                 <td>{{ $credito->Nombre }} {{ $credito->Apellidos }}</td>
                                 <td
                                     class="text-end"
                                     style="font-weight: 700;"
-                                >
-                                    $ {{ number_format($credito->ImporteCredito, 2) }}
-                                </td>
+                                >$ {{ number_format($credito->ImporteCredito, 2) }}</td>
                                 <td class="text-center">
                                     @if ($credito->isSistemaNuevo == 1)
-                                        <span style="color: #166534; font-size: 0.8rem;">
-                                            <i class="bi bi-browser-chrome me-1"></i> Sistema nuevo
-                                        </span>
+                                        <span class="tags-green"><i class="bi bi-browser-chrome me-1"></i> Sistema
+                                            nuevo</span>
                                     @else
-                                        <span style="color: #ef4444; font-size: 0.8rem;">
-                                            <i class="bi bi-browser-edge me-1"></i> Sistema viejo
-                                        </span>
+                                        <span class="tags-red"><i class="bi bi-browser-edge me-1"></i> Sistema
+                                            viejo</span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
-                            <!-- Fila vacía que ocupa todo el alto -->
                             <tr style="height: 100%;">
                                 <td
                                     colspan="6"
@@ -182,18 +163,18 @@
                                     <div class="d-flex flex-column align-items-center justify-content-center py-5">
                                         <i
                                             class="bi bi-search"
-                                            style="font-size: 3rem; color: #cbd5e1;"
+                                            style="font-size: 3rem; color: var(--border-medium);"
                                         ></i>
                                         <h5
                                             class="mt-3"
-                                            style="color: #64748b;"
+                                            style="color: var(--text-secondary);"
                                         >Sin datos disponibles</h5>
-                                        <p style="color: #94a3b8;">No se encontraron registros con los filtros
+                                        <p style="color: var(--text-muted);">No se encontraron registros con los filtros
                                             seleccionados</p>
                                         <a
                                             href="/InterfazCreditos"
                                             class="btn btn-sm"
-                                            style="background: #f1f5f9; color: #475569; border-radius: 8px;"
+                                            style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border-radius: 8px;"
                                         >
                                             <i class="bi bi-x-circle me-1"></i> Limpiar filtros
                                         </a>
@@ -204,19 +185,22 @@
                     </tbody>
                     @if (count($creditos) > 0)
                         <tfoot>
-                            <tr style="background: #f8fafc; border-top: 2px solid #e2e8f0;">
+                            <tr
+                                class="bg-table-totals"
+                                style="border-top: 2px solid var(--border-light);"
+                            >
                                 <td></td>
                                 <td></td>
                                 <td></td>
                                 <td
                                     class="fw-bold py-2 text-end"
-                                    style="color: #0f172a; font-size: 0.9rem;"
+                                    style="color: var(--text-primary); font-size: 0.9rem;"
                                 >
                                     <i class="bi bi-calculator me-1"></i>Total:
                                 </td>
                                 <td
                                     class="fw-bold py-2 text-end"
-                                    style="color: #0f172a; font-size: 0.9rem;"
+                                    style="color: var(--text-primary); font-size: 0.9rem;"
                                 >
                                     ${{ number_format($totalAdeudo, 2) }}
                                 </td>
@@ -227,14 +211,12 @@
                 </table>
             </div>
 
-            <!-- Footer fijo abajo: Paginación + Botones de interfaz -->
-            <div style="flex-shrink: 0; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-                <!-- Botones de interfaz -->
+            <div style="flex-shrink: 0; border-top: 1px solid var(--border-light); padding-top: 12px;">
                 @if (!empty($creditos) && count($creditos) > 0)
                     <div class="d-flex justify-content-center gap-2">
                         <button
                             class="btn btn-sm d-flex align-items-center btn-animated gap-2"
-                            style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.85rem;"
+                            style="background: var(--btn-amber-bg); color: var(--btn-amber-text); border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.85rem; font-weight: 500;"
                             data-bs-toggle="modal"
                             data-bs-target="#ModalConfirmarInterfazCreditos"
                         >
@@ -245,7 +227,7 @@
             </div>
         </div>
 
-        <!-- Modal de Éxito - Créditos Interfazados -->
+        <!-- Modal de Éxito -->
         <div
             class="modal fade"
             id="modalExitoCreditos"
@@ -257,59 +239,47 @@
                     style="border-radius: 16px; border: none; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);"
                 >
                     <div class="p-4 text-center">
-                        <!-- Icono éxito -->
                         <div
                             class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                            style="width: 64px; height: 64px; background: #f0fdf4;"
+                            style="width: 64px; height: 64px; background: var(--badge-active-bg);"
                         >
                             <i
                                 class="bi bi-check-circle"
-                                style="font-size: 2rem; color: #10b981;"
+                                style="font-size: 2rem; color: var(--badge-active-text);"
                             ></i>
                         </div>
-
-                        <!-- Título -->
                         <h5
                             class="fw-bold mb-2"
-                            style="color: #0f172a;"
+                            style="color: var(--text-primary);"
                         >¡Créditos Interfazados!</h5>
-
-                        <!-- Mensaje -->
-                        <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 16px;">
-                            Los créditos se han interfazado correctamente
-                        </p>
-
-                        <!-- Identificador SPARH -->
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">Los créditos
+                            se han interfazado correctamente</p>
                         <div class="d-flex align-items-center justify-content-center mb-4 gap-2">
                             <span
-                                style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;"
-                            >
-                                Identificador SPARH
-                            </span>
+                                style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;"
+                            >Identificador SPARH</span>
                             <input
                                 type="text"
                                 id="identificador-sparh"
                                 value=""
                                 readonly
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-weight: 700; color: #0f172a; font-size: 1rem; text-align: center; width: 180px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-weight: 700; color: var(--text-primary); font-size: 1rem; text-align: center; width: 180px;"
                                 onclick="this.select()"
                             >
                             <button
                                 type="button"
                                 onclick="copiarIdentificador()"
                                 class="btn btn-sm d-flex align-items-center gap-1"
-                                style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 8px; padding: 6px 12px; font-weight: 500; font-size: 0.8rem;"
+                                style="background: var(--btn-blue-bg); color: var(--btn-blue-text); border: 1px solid var(--btn-blue-hover); border-radius: 8px; padding: 6px 12px; font-weight: 500; font-size: 0.8rem;"
                             >
                                 <i class="bi bi-clipboard"></i> Copiar
                             </button>
                         </div>
-
-                        <!-- Botón Aceptar -->
                         <button
                             type="button"
                             class="btn w-100"
                             data-bs-dismiss="modal"
-                            style="background: #0f172a; color: white; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 0.85rem;"
+                            style="background: var(--gradient-start); color: white; border-radius: 8px; padding: 10px 24px; font-weight: 600; font-size: 0.85rem; font-weight: 500;"
                         >
                             Aceptar
                         </button>
@@ -319,7 +289,6 @@
         </div>
     </x-card-gradient-header>
 
-    <!-- Modal de confirmación -->
     @include('InterfazCreditos.ModalConfirmacion')
     <script>
         const chkNomina = document.getElementById('chkNomina');
@@ -342,13 +311,10 @@
             document.getElementById('btnBuscandoCreditos').hidden = false;
         });
 
-        // Función para copiar el identificador
         function copiarIdentificador() {
             const input = document.getElementById('identificador-sparh');
             input.select();
             document.execCommand('copy');
-
-            // Feedback visual
             const btn = event.target.closest('button');
             const icon = btn.querySelector('i');
             icon.className = 'bi bi-check-lg';
@@ -357,16 +323,12 @@
             }, 2000);
         }
 
-        // Detectar si existe el mensaje de éxito en la sesión
         document.addEventListener('DOMContentLoaded', function() {
             @if (session()->has('IdentificadorSparh'))
                 const identificador = "{{ session('IdentificadorSparh') }}";
-                // Extraer solo el número si viene con texto
                 const match = identificador.match(/[\d]+$/);
                 const valor = match ? match[0] : identificador;
-
                 document.getElementById('identificador-sparh').value = valor;
-
                 const modal = new bootstrap.Modal(document.getElementById('modalExitoCreditos'));
                 modal.show();
             @endif

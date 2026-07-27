@@ -3,13 +3,11 @@
 @section('dashboardWidth', 'width-95')
 
 @section('contenido')
-    <!-- Navbar Full Width - Pegado arriba y de lado a lado -->
+    <!-- Navbar Full Width -->
     <div
-        style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;">
-        <!-- Nav integrado -->
+        style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;">
         <div class="px-md-4 px-3 py-2">
             <div class="d-flex align-items-center justify-content-between gap-3">
-                <!-- Imagen y texto centrados -->
                 <div class="d-flex align-items-center gap-md-4 gap-3">
                     <div
                         class="rounded-circle flex-shrink-0 overflow-hidden shadow-lg"
@@ -45,13 +43,20 @@
                     </div>
                 </div>
 
-                <!-- Usuario y Fecha -->
                 <div class="d-flex flex-column align-items-end gap-md-4 flex-shrink-0 gap-2">
-                    <!-- Usuario -->
+                    <!-- Botón de cambio de tema -->
                     <div
                         id="ddUsuario"
-                        class="dropdown"
+                        class="dropdown d-flex gap-2"
                     >
+                        <button
+                            id="btnThemeToggle"
+                            class="btn btn-sm"
+                            style="background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 8px; padding: 6px 10px; line-height: 1;"
+                            title="Cambiar tema"
+                        >
+                            <i class="bi bi-palette"></i>
+                        </button>
                         <a
                             href="#"
                             class="d-flex align-items-center text-decoration-none gap-2 text-white"
@@ -84,22 +89,14 @@
                             style="min-width: 200px;"
                         >
                             @if (Auth::user()->tipoUsuario->IdTipoUsuario == 2)
-                                <li>
-                                    <a
+                                <li><a
                                         href="/ActualizacionPrecios"
                                         class="dropdown-item"
-                                    >
-                                        @include('components.icons.tools') Admin Scale
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
+                                    >@include('components.icons.tools') Admin Scale</a></li>
+                                <li><a
                                         href="/Update"
                                         class="dropdown-item"
-                                    >
-                                        @include('components.icons.sync') Sincronizar datos
-                                    </a>
-                                </li>
+                                    >@include('components.icons.sync') Sincronizar datos</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -117,14 +114,11 @@
                                     action="/Logout"
                                     method="POST"
                                     class="d-none"
-                                >
-                                    @csrf
-                                </form>
+                                >@csrf</form>
                             </li>
                         </ul>
                     </div>
 
-                    <!-- Fecha -->
                     <div class="text-end">
                         <p class="text-white-50 small d-none d-md-block mb-0">Fecha actual</p>
                         <p
@@ -173,47 +167,44 @@
         }
     </style>
 
-    <!-- Contenido del Dashboard con ancho normal -->
+    <!-- Contenido del Dashboard -->
     <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
-        <!-- Tarjeta Principal del Dashboard -->
         <div
             class="card border-0 shadow"
             style="border-radius: 10px; overflow: hidden;"
         >
-            <!-- Alertas -->
             <div class="px-4 pt-4">
                 @include('Alertas.Alertas')
             </div>
 
-            <!-- Resto del dashboard (menús, etc.) -->
             @if ($menus->count() == 0)
                 <div class="p-5 text-center">
                     <div
                         class="d-flex align-items-center justify-content-center mx-auto mb-3"
-                        style="width: 80px; height: 80px; background-color: rgba(220, 38, 38, 0.1); border-radius: 50%;"
+                        style="width: 80px; height: 80px; background-color: var(--badge-inactive-bg); border-radius: 50%;"
                     >
                         <i
                             class="fas fa-exclamation-triangle"
-                            style="font-size: 36px; color: #dc2626;"
+                            style="font-size: 36px; color: var(--badge-inactive-text);"
                         ></i>
                     </div>
-                    <h4 class="mb-2 text-gray-800">Menú no encontrado</h4>
-                    <p class="text-muted mb-0">
-                        Este usuario no cuenta con menús asignados. Favor de hablar con el administrador.
-                    </p>
+                    <h4
+                        class="mb-2"
+                        style="color: var(--text-primary);"
+                    >Menú no encontrado</h4>
+                    <p class="text-muted mb-0">Este usuario no cuenta con menús asignados. Favor de hablar con el
+                        administrador.</p>
                 </div>
             @else
-                <!-- Menú Horizontal - Pestañas con línea inferior -->
                 <div class="px-4 pt-2">
-                    <!-- Título de la sección -->
                     <div class="mb-3">
                         <h5
                             class="fw-bold mb-1"
-                            style="color: #0f172a; font-size: 1.1rem;"
+                            style="color: var(--text-primary); font-size: 1.1rem;"
                         >
                             <i
                                 class="bi bi-grid-fill me-2"
-                                style="color: #64748b; font-size: 1rem;"
+                                style="color: var(--text-secondary); font-size: 1rem;"
                             ></i>Menú de Acceso Rápido
                         </h5>
                         <p
@@ -222,10 +213,9 @@
                         >Selecciona una categoría para ver las opciones disponibles</p>
                     </div>
 
-                    <!-- Línea contenedora del menú -->
                     <div
                         class="border-bottom"
-                        style="border-color: #e5e7eb !important;"
+                        style="border-color: var(--border-light) !important;"
                     >
                         <ul
                             class="nav nav-tabs mb-0 gap-2 border-0"
@@ -255,7 +245,6 @@
                         </ul>
                     </div>
 
-                    <!-- Contenido de las pestañas -->
                     <div class="tab-content mt-4 pb-4">
                         @foreach ($menus as $index => $headerMenu)
                             <div
@@ -263,11 +252,10 @@
                                 id="tab{{ $loop->index }}"
                                 role="tabpanel"
                             >
-                                <!-- Subtítulo de la categoría -->
                                 <div class="mb-3">
                                     <h6
                                         class="fw-semibold mb-1"
-                                        style="color: #334155; font-size: 0.95rem;"
+                                        style="color: var(--text-subtle); font-size: 0.95rem;"
                                     >
                                         @if ($headerMenu->Icono)
                                             <i
@@ -334,7 +322,7 @@
                                                 >
                                                     <div
                                                         class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
-                                                        style="width: 72px; height: 72px; background: white; box-shadow: 0 8px 24px {{ $iconColor }}20; transition: all 0.25s ease;"
+                                                        style="width: 72px; height: 72px; background: var(--card-bg); box-shadow: 0 8px 24px {{ $iconColor }}20; transition: all 0.25s ease;"
                                                         onmouseover="this.style.boxShadow='0 12px 32px {{ $iconColor }}40'"
                                                         onmouseout="this.style.boxShadow='0 8px 24px {{ $iconColor }}20'"
                                                     >
@@ -345,7 +333,7 @@
                                                     </div>
                                                     <h6
                                                         class="fw-semibold mb-0"
-                                                        style="color: #475569; font-size: 0.8rem;"
+                                                        style="color: var(--text-subtle); font-size: 0.8rem;"
                                                     >
                                                         {{ ucfirst(mb_strtolower($detalleMenu->PivotMenu->NomMenu, 'UTF-8')) }}
                                                     </h6>
@@ -363,7 +351,6 @@
     </div>
 
     <style>
-        /* Estilos para las pestañas - Mejor distinción del seleccionado */
         .nav-tabs {
             border-bottom: none !important;
         }
@@ -376,26 +363,23 @@
             margin-bottom: -1px;
         }
 
-        /* Estilo para pestaña inactiva */
         .nav-tabs .nav-link:not(.active) {
-            background: #f3f4f6;
-            color: #4b5563;
+            background: var(--bg-subtle);
+            color: var(--text-subtle);
         }
 
         .nav-tabs .nav-link:not(.active):hover {
-            background: #e5e7eb;
-            color: #1f2937;
+            background: var(--btn-gray-hover);
+            color: var(--text-primary);
             transform: translateY(-2px);
         }
 
-        /* Estilo para pestaña activa - MUY DISTINTIVA */
         .nav-tabs .nav-link.active {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
             color: white !important;
             font-weight: 600;
         }
 
-        /* Línea indicadora debajo de la pestaña activa */
         .nav-tabs .nav-link.active::after {
             content: '';
             position: absolute;
@@ -407,27 +391,22 @@
             border-radius: 3px 3px 0 0;
         }
 
-        /* Sombra en la pestaña activa */
         .nav-tabs .nav-link.active {
             box-shadow: 0 -2px 8px rgba(30, 41, 59, 0.15);
         }
 
-        /* Línea base del menú */
         .border-bottom {
             border-bottom-width: 2px !important;
         }
 
-        /* Efecto hover en los items del menú */
         .menu-item {
             transition: all 0.2s ease;
         }
 
-        /* Scroll suave */
         html {
             scroll-behavior: smooth;
         }
 
-        /* Animación de fade para las pestañas */
         .tab-pane {
             animation: fadeIn 0.3s ease;
         }
@@ -444,12 +423,10 @@
             }
         }
 
-        /* Eliminar overflow horizontal */
         body {
             overflow-x: hidden;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .nav-tabs {
                 flex-wrap: nowrap;
@@ -467,19 +444,18 @@
             }
 
             .nav-tabs::-webkit-scrollbar-track {
-                background: #e2e8f0;
+                background: var(--border-light);
                 border-radius: 10px;
             }
 
             .nav-tabs::-webkit-scrollbar-thumb {
-                background: #94a3b8;
+                background: var(--text-muted);
                 border-radius: 10px;
             }
         }
     </style>
 
     <script>
-        // Guardar la pestaña activa en localStorage
         document.addEventListener('DOMContentLoaded', function() {
             const activeTab = localStorage.getItem('activeMenuTab');
             if (activeTab) {
@@ -489,12 +465,9 @@
                     tab.show();
                 }
             }
-
-            const tabButtons = document.querySelectorAll('.nav-link');
-            tabButtons.forEach(button => {
+            document.querySelectorAll('.nav-link').forEach(button => {
                 button.addEventListener('shown.bs.tab', function() {
-                    const target = this.getAttribute('data-bs-target');
-                    localStorage.setItem('activeMenuTab', target);
+                    localStorage.setItem('activeMenuTab', this.getAttribute('data-bs-target'));
                 });
             });
         });
