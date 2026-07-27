@@ -52,7 +52,7 @@
                         <h5 class="section-content-title">
                             <i
                                 class="fa fa-table me-2"
-                                style="color: #64748b;"
+                                style="color: var(--text-muted);"
                             ></i>Concentrado de Menús
                         </h5>
                         <p class="section-content-subtitle">Listado de menús registrados en el sistema</p>
@@ -83,20 +83,20 @@
                         <tbody>
                             @forelse ($menusPosweb as $menuPosweb)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $menuPosweb->cmpIdMenu }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $menuPosweb->cmpIdMenu }}</td>
                                     <td style="font-weight: 500;">{{ $menuPosweb->cmpNomMenu }}</td>
                                     <td>
                                         <span
-                                            style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                            style="background: var(--tag-blue-bg); color: var(--tag-blue-text); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
                                         >
                                             {{ $menuPosweb->ctmNomTipoMenu }}
                                         </span>
                                     </td>
-                                    <td style="color: #64748b; font-size: 0.85rem;">{{ $menuPosweb->cmpLink }}</td>
+                                    <td style="color: var(--text-secondary); font-size: 0.85rem;">{{ $menuPosweb->cmpLink }}</td>
                                     <td>
                                         <span
                                             class="px-2"
-                                            style="background: #f8fafc; color: #64748b; border-radius: 6px; font-size: 1.1rem; border: 1px solid #e2e8f0; display: inline-block;"
+                                            style="background: var(--bg-light); color: var(--text-muted); border-radius: 6px; font-size: 1.1rem; border: 1px solid var(--border-input); display: inline-block;"
                                         >
                                             <i class="fa {{ $menuPosweb->cmpIcono }}"></i>
                                         </span>
@@ -120,7 +120,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @include('Menus.ModalEditar')
                             @empty
                                 <x-table-empty-data
                                     colspan="7"
@@ -141,6 +140,10 @@
     </x-page-container>
 
     @include('Menus.ModalAgregar')
+
+    @foreach ($menusPosweb as $menuPosweb)
+        @include('Menus.ModalEditar')
+    @endforeach
 
     <style>
         /* Colores de fondo pastel personalizados */

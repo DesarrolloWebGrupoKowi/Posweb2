@@ -35,10 +35,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-table me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Familias
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Familias
                         </h5>
                         <p class="section-content-subtitle">Listado de familias registradas en el sistema</p>
                     </div>
@@ -64,7 +64,7 @@
                         <tbody>
                             @forelse ($familias as $familia)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $familia->IdFamilia }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $familia->IdFamilia }}</td>
                                     <td style="font-weight: 500;">{{ $familia->NomFamilia }}</td>
                                     {{-- <td>
                                         <div class="d-flex gap-2">
@@ -77,7 +77,6 @@
                                         </div>
                                     </td> --}}
                                 </tr>
-                                @include('Familias.ModalEditar')
                             @empty
                                 <x-table-empty-data
                                     colspan="3"
@@ -98,3 +97,7 @@
     </x-page-container>
 
     @include('Familias.ModalAgregar')
+
+    @foreach ($familias as $familia)
+        @include('Familias.ModalEditar')
+    @endforeach

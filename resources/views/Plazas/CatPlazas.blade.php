@@ -38,10 +38,10 @@
             <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                 <div>
                     <h5 class="section-content-title">
-                        <i
-                            class="fa fa-table me-2"
-                            style="color: #64748b;"
-                        ></i>Concentrado de Plazas
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Plazas
                     </h5>
                     <p class="section-content-subtitle">Listado de plazas registradas en el sistema</p>
                 </div>
@@ -70,15 +70,11 @@
                     <tbody>
                         @forelse ($plazas as $plaza)
                             <tr>
-                                <td style="font-weight: 600; color: #0f172a;">{{ $plaza->IdPlaza }}</td>
-                                <td style="font-weight: 500;">{{ $plaza->NomPlaza }}</td>
-                                <td>{{ $plaza->ccNomCiudad }}</td>
-                                <td>
-                                    <span
-                                        style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                    >
-                                        {{ $plaza->ceNomEstado }}
-                                    </span>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $plaza->IdPlaza }}</td>
+                                    <td style="font-weight: 500;">{{ $plaza->NomPlaza }}</td>
+                                    <td>{{ $plaza->ccNomCiudad }}</td>
+                                    <td>
+                                        <span class="tags-blue">{{ $plaza->ceNomEstado }}</span>
                                 </td>
                                 <td>
                                     <x-status-badge :status="!$plaza->Status" />
@@ -93,9 +89,8 @@
                                         />
                                     </div>
                                 </td>
-                            </tr>
-                            @include('Plazas.ModalEditar')
-                        @empty
+                                </tr>
+                            @empty
                             <x-table-empty-data
                                 colspan="6"
                                 title="Sin datos disponibles"
@@ -114,4 +109,8 @@
 </x-page-container>
 
 <!-- Modal Agregar Plaza -->
+@foreach ($plazas as $plaza)
+    @include('Plazas.ModalEditar')
+@endforeach
+
 @include('Plazas.ModalAgregar')

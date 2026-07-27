@@ -14,10 +14,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-table me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Clientes Cloud
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Clientes Cloud
                         </h5>
                         <p class="section-content-subtitle">Listado de clientes cloud registrados en el sistema</p>
                     </div>
@@ -45,19 +45,15 @@
                         <tbody>
                             @forelse ($clientesCloud as $clienteCloud)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $clienteCloud->IdClienteCloud }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $clienteCloud->IdClienteCloud }}</td>
                                     <td style="font-weight: 500;">{{ $clienteCloud->NomClienteCloud }}</td>
                                     <td>
-                                        <span
-                                            style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            {{ $clienteCloud->TipoCliente }}
-                                        </span>
+                                        <span class="tags-blue">{{ $clienteCloud->TipoCliente }}</span>
                                     </td>
-                                    <td style="color: #64748b; font-size: 0.85rem;">{{ $clienteCloud->UsoCfdi }}</td>
+                                    <td style="color: var(--text-secondary); font-size: 0.85rem;">{{ $clienteCloud->UsoCfdi }}</td>
                                     <td>
                                         <span
-                                            style="background: #f8fafc; color: #64748b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500; border: 1px solid #e2e8f0;"
+                                            style="background: var(--btn-gray-bg); color: var(--btn-gray-text); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500; border: 1px solid var(--border-light);"
                                         >
                                             {{ $clienteCloud->MetodoPago }}
                                         </span>

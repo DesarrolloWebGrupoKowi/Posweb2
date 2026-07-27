@@ -17,7 +17,7 @@
             <!-- Modal Header -->
             <div
                 class="modal-header border-bottom-0 px-4 pb-0 pt-3"
-                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
+                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);"
             >
                 <h5
                     class="mb-0 text-white"
@@ -27,7 +27,7 @@
                     <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
+                            style="background-color: var(--card-header-icon-bg); width: 32px; height: 32px;"
                         >
                             <i class="bi bi-person-gear"></i>
                         </div>
@@ -53,23 +53,23 @@
                     <!-- Información del empleado -->
                     <div
                         class="d-flex align-items-center mb-4 gap-3 pb-3"
-                        style="border-bottom: 1px solid #e2e8f0;"
+                        style="border-bottom: 1px solid var(--border-light);"
                     >
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                            style="background: #f1f5f9; width: 40px; height: 40px;"
+                            style="background: var(--bg-subtle); width: 40px; height: 40px;"
                         >
                             <i
                                 class="bi bi-person"
-                                style="color: #64748b; font-size: 1.2rem;"
+                                style="color: var(--text-secondary); font-size: 1.2rem;"
                             ></i>
                         </div>
                         <div>
-                            <span style="font-weight: 600; color: #0f172a; font-size: 0.95rem;">
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">
                                 {{ $lCredito->Nombre }} {{ $lCredito->Apellidos }}
                             </span>
                             <br>
-                            <span style="color: #64748b; font-size: 0.8rem;">
+                            <span style="color: var(--text-secondary); font-size: 0.8rem;">
                                 Nómina: {{ $lCredito->NumNomina }}
                             </span>
                         </div>
@@ -80,21 +80,21 @@
                         <label
                             for="Limite{{ $lCredito->IdCatLimiteCreditoEspecial }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            Límite Crédito <span style="color: #ef4444;">*</span>
+                            Límite Crédito <span style="color: var(--danger-color);">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                             >
                                 <i class="bi bi-currency-dollar"></i>
                             </span>
                             <input
                                 type="number"
                                 class="form-control border-start-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 name="Limite"
                                 id="Limite{{ $lCredito->IdCatLimiteCreditoEspecial }}"
                                 placeholder="Límite de crédito"
@@ -106,7 +106,7 @@
                         <div
                             class="form-text mt-1"
                             id="error-Limite{{ $lCredito->IdCatLimiteCreditoEspecial }}"
-                            style="font-size: 0.78rem; color: #ef4444;"
+                            style="font-size: 0.78rem; color: var(--danger-color);"
                         ></div>
                     </div>
 
@@ -115,21 +115,21 @@
                         <label
                             for="TotalVentaDiaria{{ $lCredito->IdCatLimiteCreditoEspecial }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            Ventas Diarias <span style="color: #ef4444;">*</span>
+                            Ventas Diarias <span style="color: var(--danger-color);">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                             >
                                 <i class="bi bi-graph-up"></i>
                             </span>
                             <input
                                 type="number"
                                 class="form-control border-start-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 name="TotalVentaDiaria"
                                 id="TotalVentaDiaria{{ $lCredito->IdCatLimiteCreditoEspecial }}"
                                 placeholder="Ventas diarias"
@@ -141,7 +141,7 @@
                         <div
                             class="form-text mt-1"
                             id="error-TotalVentaDiaria{{ $lCredito->IdCatLimiteCreditoEspecial }}"
-                            style="font-size: 0.78rem; color: #ef4444;"
+                            style="font-size: 0.78rem; color: var(--danger-color);"
                         ></div>
                     </div>
             </div>
@@ -152,9 +152,7 @@
                     type="button"
                     class="btn d-flex align-items-center gap-1"
                     data-bs-dismiss="modal"
-                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                    style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
                 >
                     <i class="bi bi-x"></i>
                     Cerrar
@@ -162,9 +160,7 @@
                 <button
                     type="submit"
                     class="btn d-flex align-items-center gap-1"
-                    style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                    style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
                 >
                     <i class="bi bi-pencil"></i>
                     Guardar Cambios

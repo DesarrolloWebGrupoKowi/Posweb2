@@ -9,11 +9,8 @@
                 <x-header.buttons.refresh-button />
                 <a
                     href="/CatArticulos"
-                    class="btn-header-ghost"
+                    class="btn-header-ghost btn-gray"
                     title="Catálogo de artículos"
-                    style="background: #f1f5f9; color: #475569;"
-                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
                 >
                     <i class="fa fa-list"></i> Catálogo de Artículos
                 </a>
@@ -37,14 +34,14 @@
                                 <div class="col-md-9">
                                     <label
                                         class="form-label fw-medium mb-2"
-                                        style="color: #475569; font-size: 0.85rem;"
+                                        style="color: var(--text-secondary); font-size: 0.85rem;"
                                     >
                                         <i class="fa fa-search me-1"></i>Buscar artículo
                                     </label>
                                     <input
                                         type="text"
                                         class="form-control"
-                                        style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                                        style="border-radius: 8px; border: 1px solid var(--border-input); padding: 8px 12px; font-size: 0.85rem;"
                                         name="txtFiltro"
                                         id="txtFiltro"
                                         value="{{ $txtFiltro }}"
@@ -56,7 +53,7 @@
                                     <button
                                         type="submit"
                                         class="btn btn-sm d-flex align-items-center w-100 gap-2"
-                                        style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px;"
+                                        style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px;"
                                     >
                                         <i class="fa fa-search"></i> Buscar
                                     </button>
@@ -77,7 +74,7 @@
                                 <tbody>
                                     @forelse ($articulos as $item)
                                         <tr>
-                                            <td style="font-weight: 600; color: #0f172a;">{{ $item->ITEM_NUMBER }}</td>
+                                            <td style="font-weight: 600; color: var(--text-primary);">{{ $item->ITEM_NUMBER }}</td>
                                             <td>{{ $item->DESCRIPTION }}</td>
                                             <td class="text-center">
                                                 <form
@@ -92,11 +89,8 @@
                                                         value="{{ $item->ITEM_NUMBER }}"
                                                     >
                                                     <button
-                                                        class="btn btn-sm d-flex align-items-center mx-auto gap-1"
+                                                        class="btn btn-sm btn-amber d-flex align-items-center mx-auto gap-1"
                                                         title="Descargar artículo"
-                                                        style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; transition: all 0.3s ease;"
-                                                        onmouseover="this.style.background='#fef3c7'; this.style.transform='translateY(-1px)'"
-                                                        onmouseout="this.style.background='#fffbeb'; this.style.transform='translateY(0)'"
                                                     >
                                                         <i class="fa fa-cloud-download"></i> Descargar
                                                     </button>
@@ -129,7 +123,7 @@
                             <h5 class="section-content-title mb-3">
                                 <i
                                     class="fa fa-edit me-2"
-                                    style="color: #64748b;"
+                                    style="color: var(--text-secondary);"
                                 ></i>Datos del Artículo
                             </h5>
 
@@ -143,9 +137,9 @@
                                 {{-- Nombre y Código --}}
                                 <div
                                     class="mb-4 rounded p-3"
-                                    style="background: #f8fafc; border: 1px solid #e2e8f0; text-align: center;"
+                                    style="background: var(--bg-light); border: 1px solid var(--border-input); text-align: center;"
                                 >
-                                    <span style="font-weight: 600; color: #0f172a; font-size: 0.95rem;">
+                                    <span style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem;">
                                         {{ $articulo->ITEM_NUMBER }} - {{ $articulo->DESCRIPTION }}
                                     </span>
                                 </div>
@@ -166,9 +160,9 @@
                                     <label
                                         for="txtCodAmece"
                                         class="form-label fw-medium mb-2"
-                                        style="color: #475569; font-size: 0.85rem;"
+                                        style="color: var(--text-secondary); font-size: 0.85rem;"
                                     >
-                                        Amece <span style="color: #ef4444;">*</span>
+                                        Amece <span style="color: var(--danger-color);">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -176,7 +170,7 @@
                                         name="txtCodAmece"
                                         maxlength="13"
                                         class="form-control"
-                                        style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                        style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
                                         placeholder="Amece"
                                         required
                                     >
@@ -188,7 +182,7 @@
                                         <label
                                             for="txtUOM"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
                                             Unidad de Medida
                                         </label>
@@ -196,7 +190,7 @@
                                             class="form-select"
                                             name="txtUOM"
                                             id="txtUOM"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                         >
                                             <option value="KG">Kilogramo</option>
                                             <option value="LT">Litro</option>
@@ -207,16 +201,16 @@
                                         <label
                                             for="txtPeso"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
-                                            Peso <span style="color: #ef4444;">*</span>
+                                            Peso <span style="color: var(--danger-color);">*</span>
                                         </label>
                                         <input
                                             type="text"
                                             id="txtPeso"
                                             name="txtPeso"
                                             class="form-control"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
                                             placeholder="Peso"
                                             required
                                         >
@@ -225,7 +219,7 @@
                                         <label
                                             for="idTipoArticulo"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
                                             Tipo Artículo
                                         </label>
@@ -233,7 +227,7 @@
                                             class="form-select"
                                             name="idTipoArticulo"
                                             id="idTipoArticulo"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                         >
                                             @foreach ($tiposArticulo as $tipoArticulo)
                                                 <option value="{{ $tipoArticulo->IdTipoArticulo }}">
@@ -249,16 +243,16 @@
                                         <label
                                             for="txtPrecioRecorte"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
-                                            Precio Recorte <span style="color: #ef4444;">*</span>
+                                            Precio Recorte <span style="color: var(--danger-color);">*</span>
                                         </label>
                                         <input
                                             type="number"
                                             id="txtPrecioRecorte"
                                             name="txtPrecioRecorte"
                                             class="form-control"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
                                             placeholder="Precio Recorte"
                                             required
                                         >
@@ -267,16 +261,16 @@
                                         <label
                                             for="txtFactor"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
-                                            Factor <span style="color: #ef4444;">*</span>
+                                            Factor <span style="color: var(--danger-color);">*</span>
                                         </label>
                                         <input
                                             type="number"
                                             id="txtFactor"
                                             name="txtFactor"
                                             class="form-control"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
                                             placeholder="Factor"
                                             required
                                         >
@@ -285,7 +279,7 @@
                                         <label
                                             for="txtIdFamilia"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
                                             Familia
                                         </label>
@@ -293,7 +287,7 @@
                                             name="txtIdFamilia"
                                             id="txtIdFamilia"
                                             class="form-select"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                         >
                                             @foreach ($familias as $familia)
                                                 <option value="{{ $familia->IdFamilia }}">{{ $familia->NomFamilia }}
@@ -309,7 +303,7 @@
                                         <label
                                             for="txtTercero"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
                                             Tercero
                                         </label>
@@ -317,7 +311,7 @@
                                             name="txtTercero"
                                             id="txtTercero"
                                             class="form-select"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                         >
                                             <option value="0">Sí</option>
                                             <option
@@ -330,7 +324,7 @@
                                         <label
                                             for="txtIdGrupo"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
                                             Grupo
                                         </label>
@@ -338,7 +332,7 @@
                                             name="txtIdGrupo"
                                             id="txtIdGrupo"
                                             class="form-select"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                         >
                                             @foreach ($grupos as $grupo)
                                                 <option value="{{ $grupo->IdGrupo }}">{{ $grupo->NomGrupo }}</option>
@@ -349,7 +343,7 @@
                                         <label
                                             for="txtIva"
                                             class="form-label fw-medium mb-2"
-                                            style="color: #475569; font-size: 0.85rem;"
+                                            style="color: var(--text-secondary); font-size: 0.85rem;"
                                         >
                                             IVA
                                         </label>
@@ -357,7 +351,7 @@
                                             name="txtIva"
                                             id="txtIva"
                                             class="form-select"
-                                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                         >
                                             <option value="0">Sí</option>
                                             <option
@@ -372,20 +366,14 @@
                                 <div class="d-flex justify-content-end gap-2">
                                     <button
                                         type="button"
-                                        class="btn d-flex align-items-center gap-1"
+                                        class="btn btn-gray d-flex align-items-center gap-1"
                                         onclick="ejecutarFormulario()"
-                                        style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                                        onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                                        onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
                                     >
                                         <i class="fa fa-times"></i> Cancelar
                                     </button>
                                     <button
                                         type="submit"
-                                        class="btn d-flex align-items-center gap-1"
-                                        style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                                        onmouseover="this.style.background='linear-gradient(135deg, #d97706 0%, #b45309 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.3)'"
-                                        onmouseout="this.style.background='linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                                        class="btn btn-amber d-flex align-items-center gap-1"
                                     >
                                         <i class="fa fa-cloud-download"></i> Descargar
                                     </button>
@@ -401,11 +389,11 @@
                                 <div class="mb-3">
                                     <i
                                         class="fa fa-cloud-download"
-                                        style="font-size: 4rem; color: #94a3b8;"
+                                        style="font-size: 4rem; color: var(--text-secondary);"
                                     ></i>
                                 </div>
-                                <h5 style="color: #64748b; font-weight: 600;">Sin artículo</h5>
-                                <p style="color: #94a3b8; font-size: 0.85rem;">
+                                <h5 style="color: var(--text-secondary); font-weight: 600;">Sin artículo</h5>
+                                <p style="color: var(--text-secondary); font-size: 0.85rem;">
                                     No se ha seleccionado ningún artículo para descargar
                                 </p>
                             </div>

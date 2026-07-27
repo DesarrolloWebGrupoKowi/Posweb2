@@ -14,10 +14,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-list me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Tipos de Artículo
+                                <i
+                                    class="fa fa-list me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Tipos de Artículo
                         </h5>
                         <p class="section-content-subtitle">Listado de tipos de artículo registrados en el sistema</p>
                     </div>
@@ -43,7 +43,7 @@
                         <tbody>
                             @forelse ($tiposArticulo as $tipoArticulo)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $tipoArticulo->IdTipoArticulo }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $tipoArticulo->IdTipoArticulo }}</td>
                                     <td style="font-weight: 500;">{{ $tipoArticulo->NomTipoArticulo }}</td>
                                     <td>
                                         <div class="d-flex gap-2">
@@ -55,7 +55,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @include('TipoArticulos.ModalEliminarTipoArticulo')
                             @empty
                                 <x-table-empty-data
                                     colspan="3"
@@ -71,5 +70,9 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
+
+    @foreach ($tiposArticulo as $tipoArticulo)
+        @include('TipoArticulos.ModalEliminarTipoArticulo')
+    @endforeach
 
     @include('TipoArticulos.ModalAgregarTipoArticulo')

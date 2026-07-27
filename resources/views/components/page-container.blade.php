@@ -1,6 +1,7 @@
 @extends('PlantillaBase.masterbladeDashboard')
 @section('title', $title ?? '')
 @section('dashboardWidth', 'width-95')
+@section('bodyTheme', $theme ?? '')
 
 {{-- @section('contenido')
     <div {{ $attributes->merge(['class' => 'container-fluid d-flex flex-column gap-4 pb-4 p-0']) }}>

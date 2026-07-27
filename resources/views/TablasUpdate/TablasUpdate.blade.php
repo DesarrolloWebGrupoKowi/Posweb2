@@ -35,7 +35,7 @@
                         <h5 class="section-content-title">
                             <i
                                 class="bi bi-table me-2"
-                                style="color: #64748b;"
+                                style="color: var(--text-muted);"
                             ></i>
                             Tablas de {{ $tiendas->where('IdTienda', $idTienda)->first()->NomTienda ?? '' }}
                         </h5>
@@ -140,7 +140,7 @@
                                                     <div class="d-flex align-items-center">
                                                         <i
                                                             class="bi bi-grid-3x3-gap me-2"
-                                                            style="color: #3b82f6;"
+                                                            style="color: var(--tag-blue-text);"
                                                         ></i>
                                                         <span class="fw-medium">{{ $tActualizable->NombreTabla }}</span>
                                                     </div>
@@ -208,10 +208,10 @@
                 <div class="mb-4">
                     <i
                         class="bi bi-shop display-1"
-                        style="color: #cbd5e1;"
+                        style="color: var(--border-light);"
                     ></i>
                 </div>
-                <h5 style="color: #0f172a;">Seleccione una tienda</h5>
+                <h5 style="color: var(--text-primary);">Seleccione una tienda</h5>
                 <p class="text-muted">Elija una tienda del filtro para gestionar sus tablas actualizables</p>
             </div>
         @endif
@@ -231,7 +231,7 @@
             const seleccionadas = document.querySelectorAll('.descargado-switch:checked').length;
             if (countSeleccionados) {
                 countSeleccionados.textContent = seleccionadas;
-                countSeleccionados.style.color = seleccionadas > 0 ? '#f59e0b' : '#64748b';
+                countSeleccionados.style.color = seleccionadas > 0 ? '#f59e0b' : 'var(--text-muted)';
                 countSeleccionados.style.fontWeight = seleccionadas > 0 ? '700' : '400';
             }
             if (descargarTodas) {
@@ -260,7 +260,7 @@
         function toggleRowHighlight(checkbox) {
             const row = checkbox.closest('tr');
             if (checkbox.checked) {
-                row.style.backgroundColor = '#fffbeb';
+                row.style.backgroundColor = 'var(--tag-amber-bg, #fffbeb)';
                 row.style.borderLeft = '3px solid #f59e0b';
             } else {
                 row.style.backgroundColor = '';

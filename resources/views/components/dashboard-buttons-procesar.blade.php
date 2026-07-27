@@ -11,11 +11,8 @@
     >
         <a
             href="/procesarclientescontado/{{ request()->get('fecha_fin', date('Y-m-d')) }}/{{ request()->get('tienda_id') }}/-1"
-            class="btn btn-sm d-flex align-items-center gap-1"
+            class="btn btn-sm d-flex align-items-center btn-process-left gap-1"
             id="rotateButton"
-            style="background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; border-radius: 8px 0 0 8px; padding: 8px 12px; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease;"
-            onmouseover="this.style.background='#dbeafe'; this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.background='#eff6ff'; this.style.transform='translateY(0)'"
         >
             <span id="buttonIcon">
                 <i class="bi bi-cloud-upload"></i>
@@ -24,11 +21,8 @@
         </a>
         <a
             href="/procesarclientesfacturas/{{ request()->get('fecha_fin', date('Y-m-d')) }}/{{ request()->get('tienda_id') }}/-1"
-            class="btn btn-sm d-flex align-items-center gap-1"
+            class="btn btn-sm d-flex align-items-center btn-process-right gap-1"
             id="rotateButtonFac"
-            style="background: #f0fdf4; color: #10b981; border: 1px solid #bbf7d0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.8rem; font-weight: 500; transition: all 0.3s ease;"
-            onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-            onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
         >
             <span id="buttonIconFac">
                 <i class="bi bi-cloud-upload"></i>
@@ -37,3 +31,43 @@
         </a>
     </div>
 @endif
+
+<style>
+    /* ============================================================
+   BOTONES PROCESAR (CONTADO / FACTURAS)
+   ============================================================ */
+    .btn-process-left {
+        background: var(--btn-blue-bg);
+        color: var(--btn-blue-text);
+        border: 1px solid var(--btn-blue-hover);
+        border-radius: 8px 0 0 8px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-process-left:hover {
+        background: var(--btn-blue-hover);
+        color: var(--btn-blue-text);
+        transform: translateY(-1px);
+    }
+
+    .btn-process-right {
+        background: var(--btn-green-bg);
+        color: var(--btn-green-text);
+        border: 1px solid var(--btn-green-hover);
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-process-right:hover {
+        background: var(--btn-green-hover);
+        color: var(--btn-green-text);
+        transform: translateY(-1px);
+    }
+</style>

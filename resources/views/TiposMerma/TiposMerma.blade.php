@@ -14,10 +14,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-table me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Tipos de Merma
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Tipos de Merma
                         </h5>
                         <p class="section-content-subtitle">Listado de tipos de merma registrados en el sistema</p>
                     </div>
@@ -43,7 +43,7 @@
                         <tbody>
                             @forelse ($tiposMerma as $tipoMerma)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $tipoMerma->IdTipoMerma }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $tipoMerma->IdTipoMerma }}</td>
                                     <td style="font-weight: 500;">{{ $tipoMerma->NomTipoMerma }}</td>
                                     <td>
                                         <div class="d-flex gap-2">
@@ -55,7 +55,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @include('TiposMerma.ModalEliminarTipoMerma')
                             @empty
                                 <x-table-empty-data
                                     colspan="3"
@@ -76,3 +75,7 @@
     </x-page-container>
 
     @include('TiposMerma.ModalAgregarTipoMerma')
+
+    @foreach ($tiposMerma as $tipoMerma)
+        @include('TiposMerma.ModalEliminarTipoMerma')
+    @endforeach

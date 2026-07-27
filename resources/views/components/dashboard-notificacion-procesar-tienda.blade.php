@@ -1,5 +1,5 @@
 @props([
-    'tiendaActual' => null, // Tienda actual
+    'tiendaActual' => null,
 ])
 
 {{-- Notificación de procesar tienda --}}
@@ -22,13 +22,13 @@
                 <div class="flex-grow-1">
                     <h5
                         class="mb-1"
-                        style="color: #92400e; font-weight: 600; font-size: 0.95rem;"
+                        style="color: var(--kpi-orange-text); font-weight: 600; font-size: 0.95rem;"
                     >
                         Generación de pedido pendiente
                     </h5>
                     <p
                         class="mb-2"
-                        style="color: #b45309; font-size: 0.82rem;"
+                        style="color: var(--text-secondary); font-size: 0.82rem;"
                     >
                         <strong>Proceso detenido:</strong> Las ventas de este corte no fueron procesadas debido a que el
                         proceso se encuentra detenido.
@@ -42,10 +42,10 @@
                         <div class="d-flex align-items-center gap-1">
                             <i
                                 class="bi bi-calendar3"
-                                style="color: #92400e; font-size: 0.85rem;"
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
                             ></i>
-                            <span style="color: #92400e; font-weight: 500;">Fecha:</span>
-                            <span style="color: #b45309;">
+                            <span style="color: var(--text-primary); font-weight: 500;">Fecha:</span>
+                            <span style="color: var(--text-secondary);">
                                 @if (isset($tiendaActual->fechaprocesarcorte))
                                     {{ \Carbon\Carbon::parse($tiendaActual->fechaprocesarcorte)->locale('es')->isoFormat('D [de] MMMM [de] YYYY, h:mm a') }}
                                 @else
@@ -57,10 +57,10 @@
                         <div class="d-flex align-items-center gap-1">
                             <i
                                 class="bi bi-person"
-                                style="color: #92400e; font-size: 0.85rem;"
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
                             ></i>
-                            <span style="color: #92400e; font-weight: 500;">Detenido por:</span>
-                            <span style="color: #b45309;">
+                            <span style="color: var(--text-primary); font-weight: 500;">Detenido por:</span>
+                            <span style="color: var(--text-secondary);">
                                 @if (isset($tiendaActual->EmpleadoProcesarcorte))
                                     {{ $tiendaActual->EmpleadoProcesarcorte->Nombre }}
                                     {{ $tiendaActual->EmpleadoProcesarcorte->Apellidos }}

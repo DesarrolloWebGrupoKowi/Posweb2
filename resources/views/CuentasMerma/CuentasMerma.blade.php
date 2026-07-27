@@ -14,10 +14,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-table me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Cuentas Merma
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Cuentas Merma
                         </h5>
                         <p class="section-content-subtitle">Listado de cuentas de merma registradas en el sistema</p>
                     </div>
@@ -49,13 +49,9 @@
                             @forelse ($cuentasMerma as $cuentaMerma)
                                 <tr>
                                     <td style="font-weight: 500;">
-                                        <span
-                                            style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            {{ $cuentaMerma->NomTipoMerma }}
-                                        </span>
+                                        <span class="tags-blue">{{ $cuentaMerma->NomTipoMerma }}</span>
                                     </td>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $cuentaMerma->Libro }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $cuentaMerma->Libro }}</td>
                                     <td>{{ $cuentaMerma->Cuenta }}</td>
                                     <td>{{ $cuentaMerma->SubCuenta }}</td>
                                     <td>{{ $cuentaMerma->InterCosto }}</td>
@@ -71,7 +67,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @include('CuentasMerma.ModalEditarCuentaMerma')
                             @empty
                                 <x-table-empty-data
                                     colspan="7"
@@ -91,6 +86,10 @@
     </x-page-container>
 
     @include('CuentasMerma.ModalAgregarCuentaMerma')
+
+    @foreach ($cuentasMerma as $cuentaMerma)
+        @include('CuentasMerma.ModalEditarCuentaMerma')
+    @endforeach
 
     <script>
         document.getElementById('idTipoMerma').addEventListener('change', (e) => {

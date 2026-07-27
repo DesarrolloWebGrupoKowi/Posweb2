@@ -1,4 +1,4 @@
-<x-page-container title="Catálogo de Articulos">
+﻿<x-page-container title="Catálogo de Articulos">
     <x-card-gradient-header
         icon="box-seam"
         title="Catálogo de Artículos"
@@ -52,7 +52,7 @@
                     <h5 class="section-content-title">
                         <i
                             class="bi bi-table me-2"
-                            style="color: #64748b;"
+                            style="color: var(--text-secondary);"
                         ></i>Concentrado de Artículos
                     </h5>
                     <p class="section-content-subtitle">Listado de artículos registrados en el sistema</p>
@@ -62,9 +62,7 @@
                         href="/BuscarArticulo"
                         class="btn-header-ghost"
                         title="Agregar artículo"
-                        style="background: #10b981; color: white;"
-                        onmouseover="this.style.background='#059669'; this.style.transform='translateY(-1px)'"
-                        onmouseout="this.style.background='#10b981'; this.style.transform='translateY(0)'"
+                        style="background: var(--btn-green-bg); color: var(--btn-green-text);"
                     >
                         <i class="bi bi-plus-circle"></i> Descargar artículo
                     </a>
@@ -72,9 +70,7 @@
                         href="/ExportExcelCatArticulos"
                         class="btn-header-ghost"
                         title="Exportar precios"
-                        style="background: #f1f5f9; color: #475569;"
-                        onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                        onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                        style="background: var(--btn-gray-bg); color: var(--btn-gray-text);"
                     >
                         <i class="bi bi-file-earmark-excel"></i> Exportar precios
                     </a>
@@ -105,10 +101,11 @@
                     <tbody>
                         @forelse ($articulos as $articulo)
                             <tr>
-                                <td style="font-weight: 600; color: #0f172a;">{{ $articulo->IdArticulo }}</td>
+                                <td style="font-weight: 600; color: var(--text-primary);">{{ $articulo->IdArticulo }}
+                                </td>
                                 <td style="font-weight: 500;">{{ $articulo->CodArticulo }}</td>
                                 <td>{{ $articulo->NomArticulo }}</td>
-                                <td style="color: #64748b;">{{ $articulo->Amece }}</td>
+                                <td style="color: var(--text-secondary);">{{ $articulo->Amece }}</td>
                                 <td>{{ $articulo->UOM }}</td>
                                 <td>{{ $articulo->UOM2 }}</td>
                                 <td>{{ $articulo->Peso }}</td>
@@ -119,19 +116,11 @@
                                 <td>{{ $articulo->NomFamilia }}</td>
                                 <td>{{ $articulo->NomGrupo }}</td>
                                 <td>
-                                    @if ($articulo->Iva == 0)
-                                        <span
-                                            style="background: #f0fdf4; color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            <i class="bi bi-check-circle me-1"></i>Si
-                                        </span>
-                                    @else
-                                        <span
-                                            style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            <i class="bi bi-x-circle me-1"></i>No
-                                        </span>
-                                    @endif
+                                    <x-status-badge
+                                        :status="!$articulo->Iva"
+                                        activeText="Si"
+                                        inactiveText="No"
+                                    />
                                 </td>
                                 <td>
                                     <div class="d-flex gap-2">
@@ -144,7 +133,6 @@
                                     </div>
                                 </td>
                             </tr>
-                            @include('Articulos.ModalEditar')
                         @empty
                             <x-table-empty-data
                                 colspan="15"
@@ -158,6 +146,9 @@
                         @endforelse
                     </tbody>
                 </table>
+                @foreach ($articulos as $articulo)
+                    @include('Articulos.ModalEditar')
+                @endforeach
             </div>
             @include('components.paginate', ['items' => $articulos])
         </div>

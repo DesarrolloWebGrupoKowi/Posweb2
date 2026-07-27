@@ -208,7 +208,7 @@
                                 <td
                                     class="text-end"
                                     style="font-weight: 600; color: #10b981;"
-                                >${{ number_format($tConcentrado->importe, 2) }}</td>
+                                >{{ number_format($tConcentrado->importe, 2) }}</td>
                             </tr>
                         @empty
                             <tr>

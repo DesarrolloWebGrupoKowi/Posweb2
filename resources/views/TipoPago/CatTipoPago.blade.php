@@ -14,10 +14,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-table me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Tipos de Pago
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Tipos de Pago
                         </h5>
                         <p class="section-content-subtitle">Listado de tipos de pago registrados en el sistema</p>
                     </div>
@@ -43,11 +43,11 @@
                         <tbody>
                             @forelse ($tiposPago as $tipoPago)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $tipoPago->IdTipoPago }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $tipoPago->IdTipoPago }}</td>
                                     <td style="font-weight: 500;">{{ $tipoPago->NomTipoPago }}</td>
                                     <td>
                                         <span
-                                            style="background: #f8fafc; color: #64748b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500; border: 1px solid #e2e8f0;"
+                                            style="background: var(--btn-gray-bg); color: var(--btn-gray-text); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500; border: 1px solid var(--border-light);"
                                         >
                                             {{ $tipoPago->ClaveSat }}
                                         </span>

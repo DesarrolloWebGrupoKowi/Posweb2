@@ -43,10 +43,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-table me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Ciudades
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Ciudades
                         </h5>
                         <p class="section-content-subtitle">Listado de ciudades registradas en el sistema</p>
                     </div>
@@ -73,14 +73,10 @@
                         <tbody>
                             @forelse ($ciudades as $ciudad)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $ciudad->IdCiudad }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $ciudad->IdCiudad }}</td>
                                     <td style="font-weight: 500;">{{ $ciudad->NomCiudad }}</td>
                                     <td>
-                                        <span
-                                            style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            {{ $ciudad->NomEstado }}
-                                        </span>
+                                        <span class="tags-blue">{{ $ciudad->NomEstado }}</span>
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2">
@@ -93,7 +89,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @include('Ciudades.ModalEditar')
                             @empty
                                 <x-table-empty-data
                                     colspan="4"
@@ -114,4 +109,8 @@
     </x-page-container>
 
     <!-- Modal Agregar Ciudad -->
+    @foreach ($ciudades as $ciudad)
+        @include('Ciudades.ModalEditar')
+    @endforeach
+
     @include('Ciudades.ModalAgregar')

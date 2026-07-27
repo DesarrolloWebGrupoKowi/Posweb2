@@ -6,18 +6,15 @@
     aria-labelledby="AgregarTablaUpdateLabel"
     aria-hidden="true"
 >
-    <div
-        class="modal-dialog {{ $tablas->count() == 0 ? '' : 'modal-xl' }}"
-        style="margin-top: 10vh;"
-    >
+    <div class="modal-dialog {{ $tablas->count() == 0 ? '' : 'modal-xl' }}" style="margin-top: 10vh;">
         <div
-            class="modal-content border-0 shadow"
-            style="border-radius: 10px; overflow: hidden;"
+            class="modal-content border-0"
+            style="border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);"
         >
             <!-- Modal Header -->
             <div
                 class="modal-header border-bottom-0 px-4 pb-0 pt-3"
-                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
+                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);"
             >
                 <h5
                     class="mb-0 text-white"
@@ -27,7 +24,7 @@
                     <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
+                            style="background-color: var(--card-header-icon-bg); width: 32px; height: 32px;"
                         >
                             <i class="fa fa-database"></i>
                         </div>
@@ -47,7 +44,7 @@
                         <div class="py-5 text-center">
                             <i
                                 class="bi bi-inbox fs-1 d-block mb-3"
-                                style="color: #cbd5e1;"
+                                style="color: var(--border-light);"
                             ></i>
                             <p
                                 class="fs-6 fw-normal text-secondary m-0"
@@ -67,7 +64,7 @@
                                 <label
                                     class="form-check-label fw-bold"
                                     for="seleccionarTodos"
-                                    style="color: #0f172a; font-size: 0.9rem;"
+                                    style="color: var(--text-primary); font-size: 0.9rem;"
                                 >
                                     Seleccionar todos
                                 </label>
@@ -106,9 +103,7 @@
                         type="button"
                         class="btn d-flex align-items-center gap-1"
                         data-bs-dismiss="modal"
-                        style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                        onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                        onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                        style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
                     >
                         <i class="fa fa-times"></i>
                         Cerrar
@@ -117,9 +112,7 @@
                         <button
                             type="submit"
                             class="btn d-flex align-items-center gap-1"
-                            style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                            onmouseover="this.style.background='linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(30, 41, 59, 0.3)'"
-                            onmouseout="this.style.background='linear-gradient(135deg, #1e293b 0%, #334155 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                            style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
                         >
                             <i class="fa fa-save"></i>
                             Agregar
@@ -168,7 +161,7 @@
             const row = checkbox.closest('.form-check');
             if (row) {
                 if (checkbox.checked) {
-                    row.style.backgroundColor = '#eff6ff';
+                    row.style.backgroundColor = 'var(--tag-blue-bg)';
                     row.style.borderRadius = '6px';
                     row.style.padding = '4px 8px';
                     row.style.transition = 'all 0.2s ease';

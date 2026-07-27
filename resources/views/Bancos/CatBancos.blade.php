@@ -14,10 +14,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-list me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Bancos
+                                <i
+                                    class="fa fa-list me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Bancos
                         </h5>
                         <p class="section-content-subtitle">Listado de bancos registrados en el sistema</p>
                     </div>
@@ -42,7 +42,7 @@
                         <tbody>
                             @forelse ($bancos as $banco)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $banco->IdBanco }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $banco->IdBanco }}</td>
                                     <td style="font-weight: 500;">{{ $banco->NomBanco }}</td>
                                 </tr>
                             @empty

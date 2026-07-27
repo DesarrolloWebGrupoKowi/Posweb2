@@ -40,7 +40,7 @@
                     <h5 class="section-content-title">
                         <i
                             class="bi bi-table me-2"
-                            style="color: #64748b;"
+                                style="color: var(--text-muted);"
                         ></i>Concentrado de Tipos de Usuario
                     </h5>
                     <p class="section-content-subtitle">Listado de tipos de usuario registrados en el sistema</p>
@@ -67,29 +67,27 @@
                     <tbody>
                         @forelse ($tipoUsuarios as $tipoUsuario)
                             <tr>
-                                <td style="font-weight: 600; color: #0f172a;">{{ $tipoUsuario->IdTipoUsuario }}</td>
-                                <td style="font-weight: 500;">{{ $tipoUsuario->NomTipoUsuario }}</td>
-                                <td>
-                                    @if ($filtroActivo != 1)
-                                        <div class="d-flex gap-2">
-                                            <x-table.buttons.edit-button
-                                                :id="$tipoUsuario->IdTipoUsuario"
-                                                modal="ModalEditar"
-                                                title="Editar tipo de usuario"
-                                                label="Editar"
-                                            />
-                                            <x-table.buttons.delete-button
-                                                :id="$tipoUsuario->IdTipoUsuario"
-                                                modal="ModalConfirmar"
-                                                title="Desactivar tipo de usuario"
-                                            />
-                                        </div>
-                                    @endif
-                                </td>
-                            </tr>
-                            @include('TipoUsuarios.ModalEditar')
-                            @include('TipoUsuarios.ModalConfirmar')
-                        @empty
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $tipoUsuario->IdTipoUsuario }}</td>
+                                    <td style="font-weight: 500;">{{ $tipoUsuario->NomTipoUsuario }}</td>
+                                    <td>
+                                        @if ($filtroActivo != 1)
+                                            <div class="d-flex gap-2">
+                                                <x-table.buttons.edit-button
+                                                    :id="$tipoUsuario->IdTipoUsuario"
+                                                    modal="ModalEditar"
+                                                    title="Editar tipo de usuario"
+                                                    label="Editar"
+                                                />
+                                                <x-table.buttons.delete-button
+                                                    :id="$tipoUsuario->IdTipoUsuario"
+                                                    modal="ModalConfirmar"
+                                                    title="Desactivar tipo de usuario"
+                                                />
+                                            </div>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
                             <x-table-empty-data
                                 colspan="3"
                                 title="Sin datos disponibles"
@@ -110,3 +108,8 @@
 
 <!-- Modal Agregar Tipo de Usuario -->
 @include('TipoUsuarios.ModalAgregar')
+
+@foreach ($tipoUsuarios as $tipoUsuario)
+    @include('TipoUsuarios.ModalEditar')
+    @include('TipoUsuarios.ModalConfirmar')
+@endforeach

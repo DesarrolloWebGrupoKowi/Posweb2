@@ -17,7 +17,7 @@
             <!-- Modal Header -->
             <div
                 class="modal-header border-bottom-0 px-4 pb-0 pt-3"
-                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
+                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);"
             >
                 <h5
                     class="mb-0 text-white"
@@ -27,7 +27,7 @@
                     <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
+                            style="background-color: var(--card-header-icon-bg); width: 32px; height: 32px;"
                         >
                             <i class="fa fa-cloud"></i>
                         </div>
@@ -45,7 +45,7 @@
                             <div class="input-group">
                                 <span
                                     class="input-group-text"
-                                    style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                    style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                                 >
                                     <i class="fa fa-search"></i>
                                 </span>
@@ -53,7 +53,7 @@
                                     type="text"
                                     id="txtBuscarCustomer"
                                     class="form-control border-start-0"
-                                    style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                    style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                     placeholder="Buscar cliente por nombre..."
                                     tabindex="1"
                                 >
@@ -64,7 +64,7 @@
                                 type="button"
                                 id="btnBuscarCustomer"
                                 class="btn d-flex align-items-center w-100 gap-2"
-                                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500;"
+                                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500;"
                             >
                                 <i class="fa fa-search"></i> Buscar
                             </button>
@@ -80,10 +80,10 @@
                 >
                     <div
                         class="rounded"
-                        style="border: 1px solid #e2e8f0; max-height: 400px; overflow-y: auto;"
+                        style="border: 1px solid var(--border-input); max-height: 400px; overflow-y: auto;"
                     >
                         <table class="table-hover table-custom mb-0 table table">
-                            <thead style="position: sticky; top: 0; z-index: 1; background: #f8fafc;">
+                            <thead style="position: sticky; top: 0; z-index: 1; background: var(--table-head-bg);">
                                 <tr>
                                     <th style="width: 20%;"><i class="fa fa-hashtag me-1"></i>Id Cliente</th>
                                     <th style="width: 65%;"><i class="fa fa-font me-1"></i>Nombre</th>
@@ -101,7 +101,7 @@
                                     >
                                         <i
                                             class="fa fa-search"
-                                            style="font-size: 2rem; color: #94a3b8;"
+                                            style="font-size: 2rem; color: var(--text-muted);"
                                         ></i>
                                         <p class="mb-0 mt-2">Realiza una búsqueda para encontrar clientes</p>
                                     </td>
@@ -118,9 +118,7 @@
                     type="button"
                     class="btn d-flex align-items-center gap-1"
                     data-bs-dismiss="modal"
-                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                    style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
                 >
                     <i class="fa fa-times"></i>
                     Cerrar
@@ -129,9 +127,7 @@
                     type="button"
                     id="btnGuardarCustomers"
                     class="btn d-flex align-items-center gap-1"
-                    style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #1e293b 0%, #334155 100%)'; this.style.transform='translateY(0)'"
+                    style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
                 >
                     <i class="fa fa-save"></i>
                     Guardar

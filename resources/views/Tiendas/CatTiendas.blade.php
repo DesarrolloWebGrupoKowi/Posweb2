@@ -37,7 +37,7 @@
                     <h5 class="section-content-title">
                         <i
                             class="fa fa-table me-2"
-                            style="color: #64748b;"
+                            style="color: var(--text-secondary);"
                         ></i>Concentrado de Tiendas
                     </h5>
                     <p class="section-content-subtitle">Listado de tiendas registradas en el sistema</p>
@@ -68,16 +68,12 @@
                     <tbody>
                         @forelse ($tiendas as $tienda)
                             <tr>
-                                <td style="font-weight: 600; color: #0f172a;">{{ $tienda->IdTienda }}</td>
+                                <td style="font-weight: 600; color: var(--text-primary);">{{ $tienda->IdTienda }}</td>
                                 <td style="font-weight: 500;">{{ $tienda->NomTienda }}</td>
-                                <td style="color: #64748b;">{{ $tienda->Telefono }}</td>
+                                <td style="color: var(--text-secondary);">{{ $tienda->Telefono }}</td>
                                 <td>{{ $tienda->Direccion }}</td>
                                 <td>
-                                    <span
-                                        style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                    >
-                                        {{ $tienda->ccNomCiudad }}
-                                    </span>
+                                    <span class="tags-blue">{{ $tienda->ccNomCiudad }}</span>
                                 </td>
                                 <td>
                                     <x-status-badge :status="!$tienda->Status" />
@@ -98,8 +94,6 @@
                                     </div>
                                 </td>
                             </tr>
-                            @include('Tiendas.ModalEditar')
-                            @include('Tiendas.ModalEliminar')
                         @empty
                             <x-table-empty-data
                                 colspan="7"
@@ -117,6 +111,11 @@
             @include('components.paginate', ['items' => $tiendas])
         </div>
     </x-card-gradient-header>
+
+    @foreach ($tiendas as $tienda)
+        @include('Tiendas.ModalEditar')
+        @include('Tiendas.ModalEliminar')
+    @endforeach
     <!-- Modal Agregar Tienda -->
     @include('Tiendas.ModalAgregar')
 </x-page-container>

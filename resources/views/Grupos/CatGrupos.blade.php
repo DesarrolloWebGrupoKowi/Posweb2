@@ -14,10 +14,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-table me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Grupos
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Grupos
                         </h5>
                         <p class="section-content-subtitle">Listado de grupos registrados en el sistema</p>
                     </div>
@@ -43,7 +43,7 @@
                         <tbody>
                             @forelse ($grupos as $grupo)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $grupo->IdGrupo }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $grupo->IdGrupo }}</td>
                                     <td style="font-weight: 500;">{{ $grupo->NomGrupo }}</td>
                                     <td>
                                         <x-status-badge :status="!$grupo->Status" />

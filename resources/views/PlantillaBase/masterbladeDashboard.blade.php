@@ -47,12 +47,12 @@
     <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
 </head>
 
-<body>
+<body class="@yield('bodyTheme')">
     {{-- <body style="background-color: #f8fafc;"> --}}
     @guest
         <nav
             class="navbar navbar-expand navbar-dark"
-            style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); width: 100%; z-index: 999;"
+            style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); width: 100%; z-index: 999;"
         >
             <!-- Nav para usuarios no autenticados -->
             <div class="container-fluid @yield('dashboardWidth')">
@@ -88,7 +88,7 @@
         @else
             <!-- En otras páginas: Nav sticky full-width -->
             <div
-                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
                         width: 100%;
                         position: sticky;
                         top: 0;
@@ -108,6 +108,14 @@
                                     alt="Logo"
                                 >
                             </a>
+                            <button
+                                id="btnThemeToggle"
+                                class="btn btn-sm"
+                                style="background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 8px; padding: 6px 10px; line-height: 1;"
+                                title="Cambiar tema"
+                            >
+                                <i class="bi bi-palette"></i>
+                            </button>
                         </div>
                         <div
                             id="ddUsuario"
@@ -208,6 +216,33 @@
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/chart.js') }}"></script>
     <script src="{{ asset('js/pagination.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var themes = ['', 'theme-highcontrast'];
+            var icons = ['bi-palette', 'bi-brush'];
+            var hasServerTheme = document.body.classList.contains('theme-highcontrast');
+            var saved = localStorage.getItem('theme') || '';
+            if (saved && !hasServerTheme) document.body.classList.add(saved);
+
+            var btn = document.getElementById('btnThemeToggle');
+            if (btn) {
+                var idx = themes.indexOf(saved);
+                if (idx === -1) idx = 0;
+                btn.querySelector('i').className = 'bi ' + icons[idx];
+
+                btn.addEventListener('click', function() {
+                    themes.forEach(function(t) {
+                        if (t) document.body.classList.remove(t);
+                    });
+                    idx = (idx + 1) % themes.length;
+                    var next = themes[idx];
+                    if (next) document.body.classList.add(next);
+                    localStorage.setItem('theme', next);
+                    btn.querySelector('i').className = 'bi ' + icons[idx];
+                });
+            }
+        });
+    </script>
     @yield('scripts')
 </body>
 

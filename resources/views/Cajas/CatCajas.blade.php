@@ -16,7 +16,7 @@
                         <h5 class="section-content-title">
                             <i
                                 class="fa fa-list me-2"
-                                style="color: #64748b;"
+                                style="color: var(--text-muted);"
                             ></i>Concentrado de Cajas
                         </h5>
                         <p class="section-content-subtitle">Listado de cajas registradas en el sistema</p>
@@ -42,7 +42,7 @@
                         <tbody>
                             @forelse ($cajas as $caja)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $caja->IdCaja }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $caja->IdCaja }}</td>
                                     <td style="font-weight: 500;">{{ $caja->NumCaja }}</td>
                                 </tr>
                             @empty

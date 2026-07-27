@@ -37,7 +37,7 @@
                             <h5 class="section-content-title">
                                 <i
                                     class="bi bi-list-ol me-2"
-                                    style="color: #64748b;"
+                                    style="color: var(--text-muted);"
                                 ></i>
                                 Configuración de orden para {{ $tipoUsuarioFind->NomTipoUsuario ?? '' }}
                             </h5>
@@ -123,21 +123,21 @@
                                                         <tr class="menu-row">
                                                             <td class="ps-4">
                                                                 <i
-                                                                    class="bi bi-dot me-2"
-                                                                    style="color: #3b82f6;"
-                                                                ></i>
+                        class="bi bi-dot me-2"
+                        style="color: var(--tag-blue-text);"
+                    ></i>
                                                                 {{ $nMenu->PivotMenu->NomMenu }}
                                                             </td>
                                                             <td class="text-center">
                                                                 <input
-                                                                    style="width: 65px; height: 28px; padding: 2px 4px; text-align: center; font-size: 0.8rem; border: 1px solid #e2e8f0; border-radius: 20px; transition: all 0.2s ease;"
+                                                                    style="width: 65px; height: 28px; padding: 2px 4px; text-align: center; font-size: 0.8rem; border: 1px solid var(--border-input); border-radius: 20px; transition: all 0.2s ease;"
                                                                     class="mx-auto"
                                                                     type="number"
                                                                     min="1"
                                                                     name="posicion[{{ $nMenu->PivotMenu->IdMenu }}]"
                                                                     value="{{ $nMenu->Posicion }}"
-                                                                    onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'; this.style.outline='none';"
-                                                                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                                                     onfocus="this.style.borderColor='var(--tag-blue-text)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'; this.style.outline='none';"
+                                                                     onblur="this.style.borderColor='var(--border-input)'; this.style.boxShadow='none';"
                                                                 >
                                                             </td>
                                                         </tr>
@@ -165,10 +165,10 @@
                 <div class="p-5 text-center">
                     <i
                         class="bi bi-inbox display-1"
-                        style="color: #cbd5e1;"
+                        style="color: var(--border-light);"
                     ></i>
                     <h5
-                        style="color: #0f172a;"
+                        style="color: var(--text-primary);"
                         class="mt-3"
                     >Sin menús asignados</h5>
                     <p class="text-muted mb-4">Este tipo de usuario no cuenta con menús configurados</p>
@@ -185,10 +185,10 @@
             <div class="p-5 text-center">
                 <i
                     class="bi bi-person-badge display-1"
-                    style="color: #cbd5e1;"
+                    style="color: var(--border-light);"
                 ></i>
                 <h5
-                    style="color: #0f172a;"
+                    style="color: var(--text-primary);"
                     class="mt-3"
                 >Seleccione un tipo de usuario</h5>
                 <p class="text-muted">Elija un tipo de usuario del filtro para configurar el orden de sus menús</p>

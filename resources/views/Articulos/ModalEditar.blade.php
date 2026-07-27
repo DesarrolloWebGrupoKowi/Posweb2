@@ -14,10 +14,11 @@
             class="modal-content border-0 shadow"
             style="border-radius: 10px; overflow: hidden;"
         >
+
             <!-- Modal Header -->
             <div
                 class="modal-header border-bottom-0 px-4 pb-0 pt-3"
-                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
+                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);"
             >
                 <h5
                     class="mb-0 text-white"
@@ -27,7 +28,7 @@
                     <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
+                            style="background-color: var(--card-header-icon-bg); width: 32px; height: 32px;"
                         >
                             <i class="bi bi-box-seam"></i>
                         </div>
@@ -49,14 +50,14 @@
                         <label
                             for="NomArticulo{{ $articulo->CodArticulo }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            Nombre <span style="color: #ef4444;">*</span>
+                            Nombre <span style="color: var(--danger-color);">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                             >
                                 <i class="bi bi-fonts"></i>
                             </span>
@@ -65,7 +66,7 @@
                                 id="NomArticulo{{ $articulo->CodArticulo }}"
                                 name="NomArticulo"
                                 class="form-control border-start-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 value="{{ $articulo->NomArticulo }}"
                                 tabindex="1"
                                 required
@@ -77,13 +78,11 @@
                     <div class="mb-3">
                         <label
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
-                        >
-                            Código
-                        </label>
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
+                        >Código</label>
                         <div
                             class="rounded p-3"
-                            style="background: #f8fafc; border: 1px solid #e2e8f0; font-weight: 600; color: #0f172a; font-size: 0.9rem;"
+                            style="background: var(--bg-light); border: 1px solid var(--border-input); font-weight: 600; color: var(--text-primary); font-size: 0.9rem;"
                         >
                             {{ $articulo->CodArticulo }}
                         </div>
@@ -94,14 +93,12 @@
                         <label
                             for="txtCodAmece{{ $articulo->CodArticulo }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
-                        >
-                            Amece
-                        </label>
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
+                        >Amece</label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                             >
                                 <i class="bi bi-qr-code"></i>
                             </span>
@@ -110,7 +107,7 @@
                                 id="txtCodAmece{{ $articulo->CodArticulo }}"
                                 name="txtCodAmece"
                                 class="form-control border-start-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 placeholder="Amece"
                                 value="{{ $articulo->Amece }}"
                                 maxlength="13"
@@ -125,15 +122,13 @@
                             <label
                                 for="txtUOM{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Unidad de Medida
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >Unidad de Medida</label>
                             <select
                                 name="txtUOM"
                                 id="txtUOM{{ $articulo->CodArticulo }}"
                                 class="form-select"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                 tabindex="3"
                             >
                                 <option
@@ -154,16 +149,14 @@
                             <label
                                 for="txtPeso{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Peso
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >Peso</label>
                             <input
                                 type="text"
                                 id="txtPeso{{ $articulo->CodArticulo }}"
                                 name="txtPeso"
                                 class="form-control"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
                                 placeholder="Peso"
                                 value="{{ $articulo->Peso }}"
                                 tabindex="4"
@@ -173,15 +166,13 @@
                             <label
                                 for="txtTercero{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Tercero
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >Tercero</label>
                             <select
                                 name="txtTercero"
                                 id="txtTercero{{ $articulo->CodArticulo }}"
                                 class="form-select"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                 tabindex="5"
                             >
                                 <option
@@ -202,14 +193,12 @@
                             <label
                                 for="txtPrecioRecorte{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Precio Recorte
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >Precio Recorte</label>
                             <div class="input-group">
                                 <span
                                     class="input-group-text"
-                                    style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                    style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                                 >
                                     <i class="bi bi-currency-dollar"></i>
                                 </span>
@@ -218,7 +207,7 @@
                                     id="txtPrecioRecorte{{ $articulo->CodArticulo }}"
                                     name="txtPrecioRecorte"
                                     class="form-control border-start-0"
-                                    style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                    style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                     placeholder="Precio Recorte"
                                     value="{{ $articulo->PrecioRecorte }}"
                                     tabindex="6"
@@ -229,16 +218,14 @@
                             <label
                                 for="txtFactor{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Factor
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >Factor</label>
                             <input
                                 type="number"
                                 id="txtFactor{{ $articulo->CodArticulo }}"
                                 name="txtFactor"
                                 class="form-control"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;"
                                 step="any"
                                 placeholder="Factor"
                                 value="{{ $articulo->Factor }}"
@@ -249,15 +236,13 @@
                             <label
                                 for="idTipoArticulo{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Tipo
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >Tipo</label>
                             <select
                                 name="idTipoArticulo"
                                 id="idTipoArticulo{{ $articulo->CodArticulo }}"
                                 class="form-select"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                 tabindex="8"
                             >
                                 <option
@@ -282,15 +267,13 @@
                             <label
                                 for="txtIdFamilia{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Familia
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >Familia</label>
                             <select
                                 name="txtIdFamilia"
                                 id="txtIdFamilia{{ $articulo->CodArticulo }}"
                                 class="form-select"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                 tabindex="9"
                             >
                                 @foreach ($familias as $familia)
@@ -307,15 +290,13 @@
                             <label
                                 for="txtIdGrupo{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                Grupo
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >Grupo</label>
                             <select
                                 name="txtIdGrupo"
                                 id="txtIdGrupo{{ $articulo->CodArticulo }}"
                                 class="form-select"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                 tabindex="10"
                             >
                                 @foreach ($grupos as $grupo)
@@ -332,15 +313,13 @@
                             <label
                                 for="txtIva{{ $articulo->CodArticulo }}"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
-                            >
-                                IVA
-                            </label>
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
+                            >IVA</label>
                             <select
                                 name="txtIva"
                                 id="txtIva{{ $articulo->CodArticulo }}"
                                 class="form-select"
-                                style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                                style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                                 tabindex="11"
                             >
                                 <option
@@ -362,9 +341,9 @@
                     type="button"
                     class="btn d-flex align-items-center gap-1"
                     data-bs-dismiss="modal"
-                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                    style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='var(--btn-gray-hover)'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.background='var(--btn-gray-bg)'; this.style.transform='translateY(0)'"
                 >
                     <i class="bi bi-x"></i>
                     Cerrar
@@ -372,9 +351,9 @@
                 <button
                     type="submit"
                     class="btn d-flex align-items-center gap-1"
-                    style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                    style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='linear-gradient(135deg, var(--gradient-end) 0%, var(--gradient-start) 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px var(--btn-gradient-shadow)'"
+                    onmouseout="this.style.background='linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                 >
                     <i class="bi bi-pencil"></i>
                     Guardar Cambios

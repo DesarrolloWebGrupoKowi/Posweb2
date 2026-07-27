@@ -14,10 +14,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="bi bi-table me-2"
-                                style="color: #64748b;"
-                            ></i>Concentrado de Límites de Crédito
+                                <i
+                                    class="bi bi-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Límites de Crédito
                         </h5>
                         <p class="section-content-subtitle">Listado de límites de crédito registrados en el sistema</p>
                     </div>
@@ -37,14 +37,10 @@
                         <tbody>
                             @forelse ($limitesCredito as $lCredito)
                                 <tr>
-                                    <td style="font-weight: 600; color: #0f172a;">{{ $lCredito->TipoNomina }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $lCredito->TipoNomina }}</td>
                                     <td style="font-weight: 500;">{{ $lCredito->NomTipoNomina }}</td>
                                     <td style="font-weight: 600;">
-                                        <span
-                                            style="background: #f0fdf4; color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            ${{ number_format($lCredito->Limite, 2) }}
-                                        </span>
+                                        <span class="tags-green">${{ number_format($lCredito->Limite, 2) }}</span>
                                     </td>
                                     <td>{{ $lCredito->TotalVentaDiaria }}</td>
                                     <td>
@@ -58,7 +54,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @include('LimiteCredito.ModalEditar')
                             @empty
                                 <x-table-empty-data
                                     colspan="5"
@@ -76,3 +71,7 @@
             </div>
         </x-card-gradient-header>
     </x-page-container>
+
+@foreach ($limitesCredito as $lCredito)
+    @include('LimiteCredito.ModalEditar')
+@endforeach

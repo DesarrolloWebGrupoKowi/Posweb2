@@ -57,10 +57,10 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
                         <h5 class="section-content-title">
-                            <i
-                                class="fa fa-table me-2"
-                                style="color: #64748b;"
-                            ></i>Sub Tipos de Merma
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Sub Tipos de Merma
                         </h5>
                         <p class="section-content-subtitle">Listado de sub tipos de merma registrados</p>
                     </div>
@@ -87,11 +87,7 @@
                             @forelse ($subTiposMerma as $subTipoMerma)
                                 <tr>
                                     <td>
-                                        <span
-                                            style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            {{ $subTipoMerma->NomTipoMerma }}
-                                        </span>
+                                        <span class="tags-blue">{{ $subTipoMerma->NomTipoMerma }}</span>
                                     </td>
                                     <td style="font-weight: 500;">{{ $subTipoMerma->NomSubTipoMerma }}</td>
                                     <td>
@@ -104,7 +100,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @include('TiposMerma.ModalEliminarSubTipoMerma')
                             @empty
                                 <x-table-empty-data
                                     colspan="3"
@@ -123,3 +118,7 @@
 </x-page-container>
 
 @include('TiposMerma.ModalAgregarSubTipoMerma')
+
+@foreach ($subTiposMerma as $subTipoMerma)
+    @include('TiposMerma.ModalEliminarSubTipoMerma')
+@endforeach

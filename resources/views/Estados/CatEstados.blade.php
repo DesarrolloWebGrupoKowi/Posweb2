@@ -38,10 +38,10 @@
             <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                 <div>
                     <h5 class="section-content-title">
-                        <i
-                            class="fa fa-table me-2"
-                            style="color: #64748b;"
-                        ></i>Concentrado de Estados
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-secondary);"
+                                ></i>Concentrado de Estados
                     </h5>
                     <p class="section-content-subtitle">Listado de estados registrados en el sistema</p>
                 </div>
@@ -68,7 +68,7 @@
                     <tbody>
                         @forelse ($estados as $estado)
                             <tr>
-                                <td style="font-weight: 600; color: #0f172a;">{{ $estado->IdEstado }}</td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $estado->IdEstado }}</td>
                                 <td style="font-weight: 500;">{{ $estado->NomEstado }}</td>
                                 <td>
                                     <x-status-badge :status="!$estado->Status" />
@@ -83,9 +83,8 @@
                                         />
                                     </div>
                                 </td>
-                            </tr>
-                            @include('Estados.ModalEditar')
-                        @empty
+                                </tr>
+                            @empty
                             <x-table-empty-data
                                 colspan="4"
                                 title="Sin datos disponibles"
@@ -105,4 +104,8 @@
 </x-page-container>
 
 <!-- Modal Agregar Estado -->
+@foreach ($estados as $estado)
+    @include('Estados.ModalEditar')
+@endforeach
+
 @include('Estados.ModalAgregar')

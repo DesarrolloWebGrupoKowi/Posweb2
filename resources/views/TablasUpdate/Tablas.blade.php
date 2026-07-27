@@ -37,7 +37,7 @@
                         <h5 class="section-content-title">
                             <i
                                 class="fa fa-list me-2"
-                                style="color: #64748b;"
+                                style="color: var(--text-muted);"
                             ></i>Concentrado de Tablas
                         </h5>
                         <p class="section-content-subtitle">Listado de tablas registradas en el sistema</p>

@@ -39,10 +39,10 @@
             <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                 <div>
                     <h5 class="section-content-title">
-                        <i
-                            class="fa fa-table me-2"
-                            style="color: #64748b;"
-                        ></i>Concentrado de Tipos de Menú
+                                <i
+                                    class="fa fa-table me-2"
+                                    style="color: var(--text-muted);"
+                                ></i>Concentrado de Tipos de Menú
                     </h5>
                     <p class="section-content-subtitle">Listado de tipos de menú registrados en el sistema</p>
                 </div>
@@ -68,10 +68,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($tipoMenus as $tipoMenu)
-                            <tr>
-                                <td style="font-weight: 600; color: #0f172a;">{{ $tipoMenu->IdTipoMenu }}</td>
-                                <td style="font-weight: 500;">{{ $tipoMenu->NomTipoMenu }}</td>
+                            @forelse ($tipoMenus as $tipoMenu)
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--text-primary);">{{ $tipoMenu->IdTipoMenu }}</td>
+                                    <td style="font-weight: 500;">{{ $tipoMenu->NomTipoMenu }}</td>
                                 <td style="font-weight: 500;">
                                     @if (!empty($tipoMenu->Icono))
                                         {{-- Suponemos que almacenas 'fa fa-user', 'bi bi-house', etc --}}
@@ -92,9 +92,8 @@
                                         />
                                     </div>
                                 </td>
-                            </tr>
-                            @include('TipoMenu.ModalEditar')
-                        @empty
+                                </tr>
+                            @empty
                             <x-table-empty-data
                                 colspan="3"
                                 title="Sin datos disponibles"
@@ -114,3 +113,7 @@
 
 <!-- Modal Agregar Tipo de Menú -->
 @include('TipoMenu.ModalAgregar')
+
+@foreach ($tipoMenus as $tipoMenu)
+    @include('TipoMenu.ModalEditar')
+@endforeach

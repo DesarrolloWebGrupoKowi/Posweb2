@@ -163,7 +163,7 @@
                         <tr>
                             <th><i class="bi bi-building me-1"></i>Ciudad</th>
                             <th><i class="bi bi-folder me-1"></i>Familia</th>
-                            <th class="text-center"><i class="bi bi-box me-1"></i>Kilos</th>
+                            <th class="text-end"><i class="bi bi-box me-1"></i>Kilos</th>
                             <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Importe</th>
                         </tr>
                     </thead>
@@ -179,9 +179,9 @@
                                     </span>
                                 </td>
                                 <td
-                                    class="text-center"
+                                    class="text-end"
                                     style="font-weight: 500;"
-                                >{{ number_format($tConcentrado->kilos, 2) }} kg</td>
+                                >{{ number_format($tConcentrado->kilos, 2) }}</td>
                                 <td
                                     class="text-end"
                                     style="font-weight: 600; color: #10b981;"

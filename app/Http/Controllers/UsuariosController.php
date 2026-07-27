@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Usuario;
-use App\Models\TipoUsuario;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Mail;
 use Illuminate\Support\Facades\Hash;
-
 use Illuminate\Http\Request;
 
 class UsuariosController extends Controller
@@ -49,6 +46,49 @@ class UsuariosController extends Controller
             ->get();
 
         return view('Usuarios/CatUsuarios', compact('usuarios', 'tipoUsuarios', 'idTipoUsuario', 'estatus', 'txtFiltro'));
+    }
+
+    public function BuscarEmpleado(int $nomina)
+    {
+        $empleado = DB::table('CatEmpleados')
+            ->where('NumNomina', $nomina)
+            ->first();
+
+        if (!$empleado) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'No se encontró ningún empleado con el número de nómina ' . $nomina
+            ]);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'empleado' => [
+                'Nombre' => $empleado->Nombre,
+                'Apellidos' => $empleado->Apellidos,
+                'Correo' => $empleado->Correo ?? '',
+            ]
+        ]);
+    }
+
+    public function VerificarUsuario(Request $request)
+    {
+        $usuario = $request->get('usuario', '');
+
+        if (empty($usuario)) {
+            return response()->json([
+                'ok' => false,
+                'existe' => false,
+                'message' => 'Usuario no especificado'
+            ]);
+        }
+
+        $existe = Usuario::where('NomUsuario', $usuario)->exists();
+
+        return response()->json([
+            'ok' => true,
+            'existe' => $existe
+        ]);
     }
 
     public function CrearUsuario(Request $request)
@@ -165,7 +205,7 @@ class UsuariosController extends Controller
     {
         $PassUsuario = $request->get('passAdmin');
 
-        if (!Hash::check($PassUsuario, auth()->user()->password)) {
+        if (!Hash::check($PassUsuario, Auth::user()->password)) {
             return back()->with('msjdelete', 'Contraseña Incorrecta!');
         }
 

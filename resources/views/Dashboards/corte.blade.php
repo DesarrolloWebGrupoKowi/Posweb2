@@ -12,9 +12,9 @@
                 class="btn-header-ghost"
                 target="_blank"
                 title="Descargar corte"
-                style="background: #f0fdf4; color: #10b981;"
-                onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-                onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+                style="background: var(--btn-green-bg); color: var(--btn-green-text);"
+                onmouseover="this.style.background='var(--btn-green-hover)'; this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='var(--btn-green-bg)'; this.style.transform='translateY(0)'"
             >
                 <i class="bi bi-file-text"></i> Descargar corte
             </a>
@@ -81,130 +81,130 @@
                         $totalMonederoImporte;
                 @endphp
 
-                <!-- Dinero Electrónico -->
+                {{-- Dinero Electrónico --}}
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-purple-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-purple-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Dinero Electrónico</span>
                                 <i
                                     class="bi bi-credit-card"
-                                    style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-purple); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($totalMonederoImporte, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">{{ $totalMonederoClientes }}
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">{{ $totalMonederoClientes }}
                                 cliente(s)</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Crédito -->
+                {{-- Crédito --}}
                 <div class="col-xl-2 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-green-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(20, 184, 166, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-green-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #0d9488; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-green-text-icon); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Crédito</span>
                                 <i
                                     class="bi bi-calendar3"
-                                    style="color: #14b8a6; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-green); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($totalCredito, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.75rem;">Sem:
+                            <span style="color: var(--kpi-sub-color); font-size: 0.75rem;">Sem:
                                 ${{ number_format($creditoSemanal, 2) }} | Quinc:
                                 ${{ number_format($creditoQuincenal, 2) }}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tarjeta -->
+                {{-- Tarjeta --}}
                 <div class="col-xl-2 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-indigo-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(99, 102, 241, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-indigo-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #4f46e5; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-indigo-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Tarjeta</span>
                                 <i
                                     class="bi bi-credit-card-2-front"
-                                    style="color: #6366f1; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-indigo); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($totalTarjeta, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.75rem;">Déb:
+                            <span style="color: var(--kpi-sub-color); font-size: 0.75rem;">Déb:
                                 ${{ number_format($totalTarjetaDebito, 2) }} | Créd:
                                 ${{ number_format($totalTarjetaCredito, 2) }}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Transferencia/Efectivo -->
+                {{-- Transferencia/Efectivo --}}
                 <div class="col-xl-2 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-orange-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(249, 115, 22, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-orange-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #ea580c; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-orange-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Transf/Efectivo</span>
                                 <i
                                     class="bi bi-cash-stack"
-                                    style="color: #f97316; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-orange); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($totalTransferenciaEfectivo, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.75rem;">Transf:
+                            <span style="color: var(--kpi-sub-color); font-size: 0.75rem;">Transf:
                                 ${{ number_format($totalTransferencia, 2) }} | Efect:
                                 ${{ number_format($totalEfectivo, 2) }}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Total General -->
+                {{-- Total General --}}
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);"
                     >
                         <div
                             style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(59, 130, 246, 0.08); border-radius: 50%;">
@@ -221,9 +221,10 @@
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($totalGeneral, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Resumen completo del día</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Resumen completo del
+                                día</span>
                         </div>
                     </div>
                 </div>
@@ -232,20 +233,17 @@
 
         {{-- SECCIÓN 3: TABLA DE CORTE --}}
         <div class="px-4 pb-4">
-            <div
-                class="rounded p-4 shadow-sm"
-                style="background: white; border-radius: 12px;"
-            >
+            <div class="card-chart rounded p-4 shadow-sm">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
                         <h5
                             class="mb-1"
-                            style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                            style="font-weight: 600; color: var(--text-primary); font-size: 1rem;"
                         >
                             CORTE TIENDA {{ $tiendaActual->NomTienda ?? '' }}
                         </h5>
                         @if ($fechaActual)
-                            <small style="color: #64748b; font-size: 0.85rem;">
+                            <small style="color: var(--text-secondary); font-size: 0.85rem;">
                                 {{ \Carbon\Carbon::parse($fechaActual)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}
                             </small>
                         @endif
@@ -259,22 +257,22 @@
                             {{-- Encabezado del cliente --}}
                             <div
                                 class="d-flex align-items-center mb-2 gap-3 rounded p-3"
-                                style="background: #f8fafc;"
+                                style="background: var(--bg-light);"
                             >
                                 <div
                                     class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                    style="background: #eff6ff; width: 36px; height: 36px;"
+                                    style="background: var(--icon-circle-blue-bg); width: 36px; height: 36px;"
                                 >
                                     <i
                                         class="bi bi-box"
-                                        style="color: #3b82f6; font-size: 0.9rem;"
+                                        style="color: var(--btn-blue-text); font-size: 0.9rem;"
                                     ></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="d-flex align-items-center flex-wrap gap-2">
                                         <h6
                                             class="fw-semibold mb-0"
-                                            style="color: #0f172a; font-size: 0.9rem;"
+                                            style="color: var(--text-primary); font-size: 0.9rem;"
                                         >
                                             {{ $corteTienda->Customer->NomClienteCloud ?? 'Cliente' }}
                                         </h6>
@@ -375,7 +373,6 @@
                                                 @php
                                                     $oracleInfo = $corteTienda->OracleData[$sourceId] ?? null;
                                                     $status = $oracleInfo->STATUS ?? null;
-                                                    $mensajeError = $oracleInfo->MENSAJE_ERROR ?? null;
                                                     $solicitudCancelacion = $detalleCorte->SolicitudCancelacion ?? null;
 
                                                     if (!empty($solicitudCancelacion)) {
@@ -399,17 +396,6 @@
                                                     }
                                                 @endphp
                                                 <span class="{{ $statusClass }}">{{ $statusText }}</span>
-                                                {{-- @if (!empty($mensajeError) && $status == 'ERROR')
-                                                        <button
-                                                            class="btn btn-sm d-flex align-items-center mx-auto mt-1 gap-1"
-                                                            style="background: #fef2f2; color: #ef4444; border: none; border-radius: 6px; padding: 2px 8px; font-size: 0.7rem;"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#mensajeError{{ $detalleCorte->IdCortesTienda }}"
-                                                        >
-                                                            <i class="bi bi-info-circle"></i> Ver error
-                                                        </button>
-                                                        @include('CortesTienda.ModalMensajeErrorOracle')
-                                                    @endif --}}
                                             </td>
                                         </tr>
                                         @php
@@ -421,16 +407,16 @@
                                     {{-- Monedero Electrónico --}}
                                     @foreach ($totalMonedero as $monedero)
                                         @if ($corteTienda->Bill_To == $monedero->Bill_To)
-                                            <tr style="background: #f8fafc;">
+                                            <tr style="background: var(--bg-subtle);">
                                                 <td
                                                     colspan="2"
                                                     class="fw-bold text-end"
-                                                    style="color: #ef4444;"
+                                                    style="color: var(--danger-color);"
                                                 >Dinero Electrónico:</td>
                                                 <td colspan="3"></td>
                                                 <td
                                                     class="fw-bold text-end"
-                                                    style="color: #ef4444;"
+                                                    style="color: var(--danger-color);"
                                                 >${{ number_format($monedero->importe, 2) }}</td>
                                                 <td colspan="2"></td>
                                             </tr>
@@ -438,14 +424,21 @@
                                     @endforeach
 
                                     {{-- Subtotales --}}
-                                    <tr style="background: #f1f5f9;">
+                                    <tr class="bg-table-totals">
                                         <td
                                             colspan="2"
                                             class="fw-bold text-end"
+                                            style="color: var(--text-primary);"
                                         >SubTotales:</td>
-                                        <td class="fw-bold text-end">{{ number_format($sumCantArticulo, 3) }}</td>
+                                        <td
+                                            class="fw-bold text-end"
+                                            style="color: var(--text-primary);"
+                                        >{{ number_format($sumCantArticulo, 3) }}</td>
                                         <td colspan="2"></td>
-                                        <td class="fw-bold text-end">${{ number_format($sumImporte, 2) }}</td>
+                                        <td
+                                            class="fw-bold text-end"
+                                            style="color: var(--text-primary);"
+                                        >${{ number_format($sumImporte, 2) }}</td>
                                         <td colspan="2"></td>
                                     </tr>
                                 </tbody>
@@ -458,22 +451,22 @@
                         <div class="mb-4">
                             <div
                                 class="d-flex align-items-center mb-2 gap-3 rounded p-3"
-                                style="background: #f8fafc;"
+                                style="background: var(--bg-light);"
                             >
                                 <div
                                     class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                    style="background: #fef2f2; width: 36px; height: 36px;"
+                                    style="background: var(--tag-red-bg); width: 36px; height: 36px;"
                                 >
                                     <i
                                         class="bi bi-person"
-                                        style="color: #ef4444; font-size: 0.9rem;"
+                                        style="color: var(--tag-red-text); font-size: 0.9rem;"
                                     ></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="d-flex align-items-center flex-wrap gap-2">
                                         <h6
                                             class="fw-semibold {{ !is_null($corteTienda->Customer->Editar) ? 'text-danger' : '' }} mb-0"
-                                            style="color: #0f172a; font-size: 0.9rem;"
+                                            style="color: var(--text-primary); font-size: 0.9rem;"
                                         >
                                             {{ $corteTienda->Customer->NomCliente ?? ($corteTienda->Customer->NomClienteCloud ?? 'Cliente') }}
                                         </h6>
@@ -608,14 +601,21 @@
                                             $sumImporte += $detalleCorte->ImporteArticulo;
                                         @endphp
                                     @endforeach
-                                    <tr style="background: #f1f5f9;">
+                                    <tr class="bg-table-totals">
                                         <td
                                             colspan="2"
                                             class="fw-bold text-end"
+                                            style="color: var(--text-primary);"
                                         >SubTotales:</td>
-                                        <td class="fw-bold text-end">{{ number_format($sumCantArticulo, 3) }}</td>
+                                        <td
+                                            class="fw-bold text-end"
+                                            style="color: var(--text-primary);"
+                                        >{{ number_format($sumCantArticulo, 3) }}</td>
                                         <td colspan="2"></td>
-                                        <td class="fw-bold text-end">${{ number_format($sumImporte, 2) }}</td>
+                                        <td
+                                            class="fw-bold text-end"
+                                            style="color: var(--text-primary);"
+                                        >${{ number_format($sumImporte, 2) }}</td>
                                         <td colspan="2"></td>
                                     </tr>
                                 </tbody>
@@ -630,14 +630,14 @@
                         <div class="py-5 text-center">
                             <i
                                 class="bi bi-inbox"
-                                style="font-size: 2.5rem; color: #94a3b8;"
+                                style="font-size: 2.5rem; color: var(--text-muted);"
                             ></i>
                             <p
                                 class="mt-2"
-                                style="color: #64748b; font-size: 0.85rem;"
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
                             >No hay ventas para mostrar</p>
-                            <p style="color: #94a3b8; font-size: 0.8rem;">Prueba cambiando las fechas o los filtros de
-                                búsqueda</p>
+                            <p style="color: var(--text-muted); font-size: 0.8rem;">Prueba cambiando las fechas o los
+                                filtros de búsqueda</p>
                         </div>
                     @endif
                 </div>

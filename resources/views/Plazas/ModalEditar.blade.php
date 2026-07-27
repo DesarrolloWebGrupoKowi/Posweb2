@@ -17,7 +17,7 @@
             <!-- Modal Header -->
             <div
                 class="modal-header border-bottom-0 px-4 pb-0 pt-3"
-                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
+                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);"
             >
                 <h5
                     class="mb-0 text-white"
@@ -27,7 +27,7 @@
                     <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
+                            style="background-color: var(--card-header-icon-bg); width: 32px; height: 32px;"
                         >
                             <i class="fa fa-building"></i>
                         </div>
@@ -49,14 +49,14 @@
                         <label
                             for="NomPlaza{{ $plaza->IdPlaza }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            Nombre de la Plaza <span style="color: #ef4444;">*</span>
+                            Nombre de la Plaza <span style="color: var(--danger-color);">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                             >
                                 <i class="fa fa-font"></i>
                             </span>
@@ -65,7 +65,7 @@
                                 id="NomPlaza{{ $plaza->IdPlaza }}"
                                 name="NomPlaza"
                                 class="form-control border-start-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 tabindex="1"
                                 value="{{ $plaza->NomPlaza }}"
                                 onkeyup="mayusculas(this)"
@@ -75,7 +75,7 @@
                         <div
                             class="form-text mt-1"
                             id="error-NomPlaza{{ $plaza->IdPlaza }}"
-                            style="font-size: 0.78rem; color: #ef4444;"
+                            style="font-size: 0.78rem; color: var(--danger-color);"
                         ></div>
                     </div>
 
@@ -84,15 +84,15 @@
                         <label
                             for="IdCiudad{{ $plaza->IdPlaza }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            Ciudad <span style="color: #ef4444;">*</span>
+                            Ciudad <span style="color: var(--danger-color);">*</span>
                         </label>
                         <select
                             name="IdCiudad"
                             id="IdCiudad{{ $plaza->IdPlaza }}"
                             class="form-select"
-                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                             tabindex="2"
                         >
                             @foreach ($ciudades as $ciudad)
@@ -111,7 +111,7 @@
                         <label
                             for="Status{{ $plaza->IdPlaza }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
                             Estatus
                         </label>
@@ -119,7 +119,7 @@
                             name="Status"
                             id="Status{{ $plaza->IdPlaza }}"
                             class="form-select"
-                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                             tabindex="3"
                         >
                             <option
@@ -140,9 +140,7 @@
                     type="button"
                     class="btn d-flex align-items-center gap-1"
                     data-bs-dismiss="modal"
-                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                    style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
                 >
                     <i class="fa fa-times"></i>
                     Cerrar
@@ -150,9 +148,7 @@
                 <button
                     type="submit"
                     class="btn d-flex align-items-center gap-1"
-                    style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                    style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
                 >
                     <i class="fa fa-pencil"></i>
                     Guardar Cambios

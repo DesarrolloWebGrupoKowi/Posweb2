@@ -52,7 +52,7 @@
                     <h5 class="section-content-title">
                         <i
                             class="bi bi-table me-2"
-                            style="color: #64748b;"
+                                style="color: var(--text-muted);"
                         ></i>Concentrado de Usuarios
                     </h5>
                     <p class="section-content-subtitle">Listado de usuarios registrados en el sistema</p>
@@ -86,10 +86,10 @@
                     </thead>
                     <tbody>
                         @forelse ($usuarios as $usuario)
-                            <tr @if ($usuario->IdUsuario == Auth::user()->IdUsuario) style="background-color: #fffbeb !important;" @endif>
-                                <td style="font-weight: 600; color: #0f172a;">{{ $usuario->NumNomina }}</td>
+                            <tr @if ($usuario->IdUsuario == Auth::user()->IdUsuario) style="background-color: var(--tag-amber-bg, #fffbeb) !important;" @endif>
+                                <td style="font-weight: 600; color: var(--text-primary);">{{ $usuario->NumNomina }}</td>
                                 <td>{{ $usuario->Nombre }} {{ $usuario->Apellidos }}</td>
-                                <td style="color: #64748b;">{{ $usuario->Correo }}</td>
+                                <td style="color: var(--text-secondary);">{{ $usuario->Correo }}</td>
                                 <td style="font-weight: 600;">{{ $usuario->NomUsuario }}</td>
                                 <td>{{ $usuario->NomTipoUsuario }}</td>
                                 <td>{{ $usuario->EmployeeName }}</td>
@@ -125,11 +125,6 @@
                                     </div>
                                 </td>
                             </tr>
-
-                            @include('Usuarios.ModalActivarUsuario')
-                            @include('Usuarios.ModalEditar')
-                            @include('Usuarios.modalEliminar')
-                            @include('Usuarios.ModalCambiarPassword')
                         @empty
                             <x-table-empty-data
                                 colspan="7"
@@ -149,4 +144,11 @@
     </x-card-gradient-header>
     <!--Modal Agregar Usuario-->
     @include('Usuarios.ModalAgregar')
+
+    @foreach ($usuarios as $usuario)
+        @include('Usuarios.ModalActivarUsuario')
+        @include('Usuarios.ModalEditar')
+        @include('Usuarios.ModalEliminar')
+        @include('Usuarios.ModalCambiarPassword')
+    @endforeach
 </x-page-container>

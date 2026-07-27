@@ -14,10 +14,11 @@
             class="modal-content border-0 shadow"
             style="border-radius: 10px; overflow: hidden;"
         >
+
             <!-- Modal Header -->
             <div
                 class="modal-header border-bottom-0 px-4 pb-0 pt-3"
-                style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);"
+                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);"
             >
                 <h5
                     class="mb-0 text-white"
@@ -27,7 +28,7 @@
                     <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
+                            style="background-color: var(--card-header-icon-bg); width: 32px; height: 32px;"
                         >
                             <i class="bi bi-tags"></i>
                         </div>
@@ -49,14 +50,14 @@
                         <label
                             for="NomListaPrecio"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            Lista de Precio <span style="color: #ef4444;">*</span>
+                            Lista de Precio <span style="color: var(--danger-color);">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                             >
                                 <i class="bi bi-tag"></i>
                             </span>
@@ -65,7 +66,7 @@
                                 id="NomListaPrecio"
                                 name="NomListaPrecio"
                                 class="form-control border-start-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 onkeyup="mayusculas(this)"
                                 placeholder="Nombre de la lista de precio"
                                 tabindex="1"
@@ -75,7 +76,7 @@
                         <div
                             class="form-text mt-1"
                             id="error-NomListaPrecio"
-                            style="font-size: 0.78rem; color: #ef4444;"
+                            style="font-size: 0.78rem; color: var(--danger-color);"
                         ></div>
                     </div>
 
@@ -85,20 +86,20 @@
                             <label
                                 for="PesoMinimo"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
                             >
-                                Peso Mínimo (kg) <span style="color: #ef4444;">*</span>
+                                Peso Mínimo (kg) <span style="color: var(--danger-color);">*</span>
                             </label>
                             <div class="input-group">
                                 <span
                                     class="input-group-text"
-                                    style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                    style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                                 >
                                     <i class="bi bi-weight"></i>
                                 </span>
                                 <input
                                     class="form-control border-start-0"
-                                    style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                    style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                     type="number"
                                     name="PesoMinimo"
                                     id="PesoMinimo"
@@ -113,20 +114,20 @@
                             <label
                                 for="PesoMaximo"
                                 class="form-label fw-medium mb-2"
-                                style="color: #475569; font-size: 0.85rem;"
+                                style="color: var(--text-secondary); font-size: 0.85rem;"
                             >
-                                Peso Máximo (kg) <span style="color: #ef4444;">*</span>
+                                Peso Máximo (kg) <span style="color: var(--danger-color);">*</span>
                             </label>
                             <div class="input-group">
                                 <span
                                     class="input-group-text"
-                                    style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                    style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                                 >
                                     <i class="bi bi-weight"></i>
                                 </span>
                                 <input
                                     class="form-control border-start-0"
-                                    style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                    style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                     type="number"
                                     name="PesoMaximo"
                                     id="PesoMaximo"
@@ -144,20 +145,20 @@
                         <label
                             for="PorcentajeIva"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            IVA (%) <span style="color: #ef4444;">*</span>
+                            IVA (%) <span style="color: var(--danger-color);">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-secondary); border-radius: 8px 0 0 8px;"
                             >
                                 <i class="bi bi-percent"></i>
                             </span>
                             <input
                                 class="form-control border-start-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 0.85rem;"
                                 type="number"
                                 name="PorcentajeIva"
                                 id="PorcentajeIva"
@@ -170,26 +171,26 @@
                     </div>
 
                     <!-- Línea divisoria -->
-                    <hr style="border-color: #e2e8f0; margin: 1.25rem 0;">
+                    <hr style="border-color: var(--border-light); margin: 1.25rem 0;">
 
                     <!-- Checkbox: Crear a partir de existente -->
                     <div class="mb-3">
                         <div
                             class="form-check rounded p-3"
-                            style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;"
+                            style="background: var(--bg-light); border: 1px solid var(--border-input); border-radius: 8px;"
                         >
                             <input
                                 class="form-check-input"
                                 type="checkbox"
                                 name="checkExistente"
                                 id="checkExistente"
-                                style="cursor: pointer; border-color: #94a3b8;"
+                                style="cursor: pointer; border-color: var(--border-medium);"
                                 tabindex="5"
                             >
                             <label
                                 class="form-check-label"
                                 for="checkExistente"
-                                style="color: #475569; font-size: 0.85rem; font-weight: 500; cursor: pointer;"
+                                style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; cursor: pointer;"
                             >
                                 <i class="bi bi-files me-1"></i>Crear a partir de una lista de precios existente
                             </label>
@@ -205,7 +206,7 @@
                         <label
                             for="selectListaPrecio"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
                             Seleccionar Lista de Precio Base
                         </label>
@@ -213,7 +214,7 @@
                             class="form-select"
                             name="selectListaPrecio"
                             id="selectListaPrecio"
-                            style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
                             tabindex="6"
                         >
                             <option value="">-- Selecciona una lista --</option>
@@ -232,22 +233,20 @@
                     type="button"
                     class="btn d-flex align-items-center gap-1"
                     data-bs-dismiss="modal"
-                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                    style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='var(--btn-gray-hover)'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.background='var(--btn-gray-bg)'; this.style.transform='translateY(0)'"
                 >
-                    <i class="bi bi-x"></i>
-                    Cerrar
+                    <i class="bi bi-x"></i> Cerrar
                 </button>
                 <button
                     type="submit"
                     class="btn d-flex align-items-center gap-1"
-                    style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(30, 41, 59, 0.3)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #1e293b 0%, #334155 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                    style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='linear-gradient(135deg, var(--gradient-end) 0%, var(--gradient-start) 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px var(--btn-gradient-shadow)'"
+                    onmouseout="this.style.background='linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                 >
-                    <i class="bi bi-check-lg"></i>
-                    Crear
+                    <i class="bi bi-check-lg"></i> Crear
                 </button>
                 </form>
             </div>
@@ -256,13 +255,17 @@
 </div>
 
 <script>
-    // Mostrar/ocultar select de lista existente
-    document.getElementById('checkExistente').addEventListener('change', function() {
-        const divSelect = document.getElementById('divSelectListaPrecio');
-        if (this.checked) {
-            divSelect.style.display = 'block';
-        } else {
-            divSelect.style.display = 'none';
-        }
-    });
+    document.getElementById('checkExistente').addEventListener('change',
+        function() {
+            const
+                divSelect =
+                document.getElementById('divSelectListaPrecio');
+            if (this.checked) {
+                divSelect.style.display =
+                    'block';
+            } else {
+                divSelect.style.display =
+                    'none';
+            }
+        });
 </script>

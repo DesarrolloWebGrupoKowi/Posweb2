@@ -1,4 +1,4 @@
-<!--Modal Cambiar Password-->
+<!-- Modal Cambiar Password -->
 <div
     class="modal fade"
     id="modalCambiarPassword{{ $usuario->IdUsuario }}"
@@ -11,13 +11,14 @@
         style="margin-top: 10vh;"
     >
         <div
-            class="modal-content border-0 shadow"
-            style="border-radius: 10px; overflow: hidden;"
+            class="modal-content border-0"
+            style="border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);"
         >
+
             <!-- Modal Header -->
             <div
                 class="modal-header border-bottom-0 px-4 pb-0 pt-3"
-                style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"
+                style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);"
             >
                 <h5
                     class="mb-0 text-white"
@@ -26,7 +27,7 @@
                     <div class="d-flex align-items-center gap-3 pb-2">
                         <div
                             class="rounded-circle d-flex align-items-center justify-content-center"
-                            style="background-color: rgba(255, 255, 255, 0.15); width: 32px; height: 32px;"
+                            style="background-color: var(--card-header-icon-bg); width: 32px; height: 32px;"
                         >
                             @include('components.icons.lock')
                         </div>
@@ -49,39 +50,41 @@
                     <div class="mb-4 text-center">
                         <div
                             class="d-flex align-items-center justify-content-center mx-auto mb-3"
-                            style="width: 48px; height: 48px; background-color: #fffbeb; border-radius: 50%;"
+                            style="width: 48px; height: 48px; background: var(--bg-subtle); border-radius: 50%;"
                         >
                             @include('components.icons.user')
                         </div>
-                        <h5 style="font-weight: 600; color: #0f172a; margin-bottom: 0.25rem; font-size: 0.95rem;">
-                            {{ $usuario->NomUsuario }}</h5>
-                        <small style="color: #94a3b8; font-size: 0.78rem;">Completa los campos para cambiar tu
+                        <h5
+                            style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; font-size: 0.95rem;">
+                            {{ $usuario->NomUsuario }}
+                        </h5>
+                        <small style="color: var(--text-muted); font-size: 0.78rem;">Completa los campos para cambiar tu
                             contraseña</small>
                     </div>
 
                     <!-- Línea divisoria -->
-                    <hr style="border-color: #e2e8f0; margin: 1rem 0;">
+                    <hr style="border-color: var(--border-light); margin: 1rem 0;">
 
                     <!-- Nueva Contraseña -->
                     <div class="mb-3">
                         <label
                             for="Password1{{ $usuario->IdUsuario }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            Nueva Contraseña <span style="color: #ef4444;">*</span>
+                            Nueva Contraseña <span style="color: var(--danger-color);">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-muted); border-radius: 8px 0 0 8px;"
                             >
                                 @include('components.icons.lock')
                             </span>
                             <input
                                 type="password"
                                 class="form-control border-start-0 border-end-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-right: none; padding: 8px 12px; font-size: 0.85rem;"
                                 id="Password1{{ $usuario->IdUsuario }}"
                                 name="Password1"
                                 placeholder="Ingresa la nueva contraseña"
@@ -93,9 +96,7 @@
                                 class="btn btn-outline-secondary"
                                 type="button"
                                 onclick="mostrarPass1({{ $usuario->IdUsuario }})"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; color: #64748b; padding: 8px 10px; transition: all 0.2s ease;"
-                                onmouseover="this.style.background='#e2e8f0'"
-                                onmouseout="this.style.background='#f8fafc'"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; color: var(--text-muted); padding: 8px 10px; transition: all 0.2s ease;"
                             >
                                 @include('components.icons.eye')
                             </button>
@@ -108,17 +109,17 @@
                             <span
                                 id="reqLongitud{{ $usuario->IdUsuario }}"
                                 class="d-block"
-                                style="color: #dc2626;"
+                                style="color: var(--danger-color);"
                             >✗ Mínimo 6 caracteres</span>
                             <span
                                 id="reqMayuscula{{ $usuario->IdUsuario }}"
                                 class="d-block"
-                                style="color: #dc2626;"
+                                style="color: var(--danger-color);"
                             >✗ Al menos una mayúscula</span>
                             <span
                                 id="reqNumero{{ $usuario->IdUsuario }}"
                                 class="d-block"
-                                style="color: #dc2626;"
+                                style="color: var(--danger-color);"
                             >✗ Al menos un número</span>
                         </div>
                     </div>
@@ -128,21 +129,21 @@
                         <label
                             for="Password2{{ $usuario->IdUsuario }}"
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            Confirmar Contraseña <span style="color: #ef4444;">*</span>
+                            Confirmar Contraseña <span style="color: var(--danger-color);">*</span>
                         </label>
                         <div class="input-group">
                             <span
                                 class="input-group-text"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px 0 0 8px;"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); color: var(--text-muted); border-radius: 8px 0 0 8px;"
                             >
                                 @include('components.icons.lock')
                             </span>
                             <input
                                 type="password"
                                 class="form-control border-start-0 border-end-0"
-                                style="border: 1px solid #e2e8f0; border-left: none; border-right: none; padding: 8px 12px; font-size: 0.85rem;"
+                                style="border: 1px solid var(--border-input); border-left: none; border-right: none; padding: 8px 12px; font-size: 0.85rem;"
                                 id="Password2{{ $usuario->IdUsuario }}"
                                 name="Password2"
                                 placeholder="Confirma la nueva contraseña"
@@ -154,9 +155,7 @@
                                 class="btn btn-outline-secondary"
                                 type="button"
                                 onclick="mostrarPass2({{ $usuario->IdUsuario }})"
-                                style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; color: #64748b; padding: 8px 10px; transition: all 0.2s ease;"
-                                onmouseover="this.style.background='#e2e8f0'"
-                                onmouseout="this.style.background='#f8fafc'"
+                                style="background: var(--bg-light); border: 1px solid var(--border-input); border-left: none; border-radius: 0 8px 8px 0; color: var(--text-muted); padding: 8px 10px; transition: all 0.2s ease;"
                             >
                                 @include('components.icons.eye')
                             </button>
@@ -164,7 +163,7 @@
                         <div
                             class="form-text mt-1"
                             id="errorConfirmacion{{ $usuario->IdUsuario }}"
-                            style="font-size: 0.78rem; color: #dc2626;"
+                            style="font-size: 0.78rem; color: var(--danger-color);"
                         >
                             ✗ Las contraseñas no coinciden
                         </div>
@@ -177,9 +176,9 @@
                     type="button"
                     class="btn d-flex align-items-center gap-1"
                     data-bs-dismiss="modal"
-                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='#e2e8f0'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f1f5f9'; this.style.transform='translateY(0)'"
+                    style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='var(--btn-gray-hover)'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.background='var(--btn-gray-bg)'; this.style.transform='translateY(0)'"
                 >
                     @include('components.icons.x')
                     Cancelar
@@ -188,9 +187,9 @@
                     type="submit"
                     class="btn d-flex align-items-center gap-1"
                     id="btnSubmit{{ $usuario->IdUsuario }}"
-                    style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #d97706 0%, #b45309 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.3)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                    style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='linear-gradient(135deg, var(--gradient-end) 0%, var(--gradient-start) 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px var(--btn-gradient-shadow)'"
+                    onmouseout="this.style.background='linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                 >
                     @include('components.icons.send')
                     Cambiar Contraseña
@@ -202,7 +201,6 @@
 </div>
 
 <script>
-    // Función para mostrar/ocultar contraseña
     function mostrarPass1(id) {
         const input = document.getElementById('Password1' + id);
         const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -215,7 +213,6 @@
         input.setAttribute('type', type);
     }
 
-    // Validar requisitos de la contraseña
     function validarPassword(id) {
         const password = document.getElementById('Password1' + id).value;
         const reqLongitud = document.getElementById('reqLongitud' + id);
@@ -225,28 +222,28 @@
 
         if (password.length >= 6) {
             reqLongitud.innerHTML = '✓ Mínimo 6 caracteres';
-            reqLongitud.style.color = '#10b981';
+            reqLongitud.style.color = 'var(--success-color)';
         } else {
             reqLongitud.innerHTML = '✗ Mínimo 6 caracteres';
-            reqLongitud.style.color = '#ef4444';
+            reqLongitud.style.color = 'var(--danger-color)';
             valida = false;
         }
 
         if (/[A-Z]/.test(password)) {
             reqMayuscula.innerHTML = '✓ Al menos una mayúscula';
-            reqMayuscula.style.color = '#10b981';
+            reqMayuscula.style.color = 'var(--success-color)';
         } else {
             reqMayuscula.innerHTML = '✗ Al menos una mayúscula';
-            reqMayuscula.style.color = '#ef4444';
+            reqMayuscula.style.color = 'var(--danger-color)';
             valida = false;
         }
 
         if (/[0-9]/.test(password)) {
             reqNumero.innerHTML = '✓ Al menos un número';
-            reqNumero.style.color = '#10b981';
+            reqNumero.style.color = 'var(--success-color)';
         } else {
             reqNumero.innerHTML = '✗ Al menos un número';
-            reqNumero.style.color = '#ef4444';
+            reqNumero.style.color = 'var(--danger-color)';
             valida = false;
         }
 
@@ -255,7 +252,6 @@
         return valida;
     }
 
-    // Validar que las contraseñas coincidan
     function validarConfirmacion(id) {
         const password = document.getElementById('Password1' + id).value;
         const confirmacion = document.getElementById('Password2' + id).value;
@@ -265,23 +261,22 @@
 
         if (password === confirmacion && confirmacion !== '') {
             errorDiv.innerHTML = '✓ Las contraseñas coinciden';
-            errorDiv.style.color = '#10b981';
+            errorDiv.style.color = 'var(--success-color)';
             btnSubmit.disabled = !passwordValida;
             return true;
         } else if (confirmacion !== '') {
             errorDiv.innerHTML = '✗ Las contraseñas no coinciden';
-            errorDiv.style.color = '#ef4444';
+            errorDiv.style.color = 'var(--danger-color)';
             btnSubmit.disabled = true;
             return false;
         } else {
             errorDiv.innerHTML = '✗ Las contraseñas no coinciden';
-            errorDiv.style.color = '#ef4444';
+            errorDiv.style.color = 'var(--danger-color)';
             btnSubmit.disabled = !passwordValida;
             return false;
         }
     }
 
-    // Validar formulario completo antes de enviar
     function validarFormulario(id) {
         const password = document.getElementById('Password1' + id).value;
         const confirmacion = document.getElementById('Password2' + id).value;
@@ -302,7 +297,6 @@
         return true;
     }
 
-    // Autofocus al abrir el modal
     document.getElementById('modalCambiarPassword{{ $usuario->IdUsuario }}').addEventListener('shown.bs.modal',
         function() {
             document.getElementById('Password1{{ $usuario->IdUsuario }}').focus();

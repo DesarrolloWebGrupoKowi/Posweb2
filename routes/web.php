@@ -58,6 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::post('ActivarUsuario/{id}', [UsuariosController::class, 'ActivarUsuario'])->name('usuarios.activate');
     Route::post('CambiarContraseña/{id}', [UsuariosController::class, 'CambiarContraseña'])->name('usuarios.password');
 
+    Route::get('/api/buscar-empleado/{nomina}', [UsuariosController::class, 'BuscarEmpleado']);
+    Route::get('/api/verificar-usuario', [UsuariosController::class, 'VerificarUsuario']);
+
     // Tipo de Usuarios
     Route::get('CatTipoUsuarios', [TipoUsuariosController::class, 'CatTipoUsuarios'])->name('tipos-usuario.index');
     Route::post('CrearTipoUsuario', [TipoUsuariosController::class, 'CrearTipoUsuario'])->name('tipos-usuario.store');

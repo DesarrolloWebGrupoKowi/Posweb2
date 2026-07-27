@@ -35,7 +35,7 @@
                         <h5 class="section-content-title">
                             <i
                                 class="bi bi-cash-stack me-2"
-                                style="color: #64748b;"
+                                style="color: var(--text-muted);"
                             ></i>
                             Cajas de {{ $tiendas->where('IdTienda', $idTienda)->first()->NomTienda ?? '' }}
                         </h5>
@@ -85,7 +85,7 @@
                                                 <div class="d-flex align-items-center">
                                                     <i
                                                         class="bi bi-shop me-2"
-                                                        style="color: #3b82f6;"
+                                                        style="color: var(--tag-blue-text);"
                                                     ></i>
                                                     <span class="fw-medium">{{ $cajaTienda->NomTienda }}</span>
                                                 </div>
@@ -109,10 +109,10 @@
                 <div class="mb-4">
                     <i
                         class="bi bi-shop display-1"
-                        style="color: #cbd5e1;"
+                        style="color: var(--border-light);"
                     ></i>
                 </div>
-                <h5 style="color: #0f172a;">Seleccione una tienda</h5>
+                <h5 style="color: var(--text-primary);">Seleccione una tienda</h5>
                 <p class="text-muted">Elija una tienda del filtro para ver sus cajas asignadas</p>
             </div>
         @endif

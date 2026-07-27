@@ -7,12 +7,9 @@
         <x-slot:buttons>
             <a
                 href="/GenerarCorteOraclePDF/{{ request('fecha_fin') }}/{{ request('tienda_id') }}/0"
-                class="btn-header-ghost"
+                class="btn-green"
                 target="_blank"
                 title="Descargar corte"
-                style="background: #f0fdf4; color: #10b981;"
-                onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-                onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
             >
                 <i class="bi bi-file-text"></i> Descargar corte
             </a>
@@ -64,27 +61,28 @@
         {{-- SECCIÓN 2: KPIs --}}
         <div class="p-4">
             <div class="row g-3">
+                {{-- KPI 1: Solic. Facturas --}}
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-purple-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-purple-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Solic. Facturas</span>
                                 <i
                                     class="bi bi-file-text"
-                                    style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-purple); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >{{ $kpis['solicitudes_factura'] ?? 0 }}</h3>
                             <span
                                 style="color: {{ ($kpis['facturas_pendientes'] ?? 0) > 0 ? '#ef4444' : '#10b981' }}; font-size: 0.78rem;"
@@ -92,82 +90,88 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- KPI 2: Tickets --}}
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-green-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(20, 184, 166, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-green-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #0d9488; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-green-text-icon); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Tickets</span>
                                 <i
                                     class="bi bi-receipt"
-                                    style="color: #14b8a6; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-green); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >{{ $kpis['tickets'] ?? 0 }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Prom:
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Prom:
                                 ${{ number_format($kpis['promedio_ticket'] ?? 0, 2) }}</span>
                         </div>
                     </div>
                 </div>
+
+                {{-- KPI 3: Kilos --}}
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-orange-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(249, 115, 22, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-orange-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #ea580c; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-orange-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Kilos</span>
                                 <i
                                     class="bi bi-box"
-                                    style="color: #f97316; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-orange); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >{{ number_format($kpis['kilos_hoy'] ?? 0, 1) }} kg</h3>
                             <span
-                                style="color: #94a3b8; font-size: 0.78rem;">{{ number_format(($kpis['kilos_promedio'] ?? 0) / max($kpis['tickets'] ?? 1, 1), 2) }}
+                                style="color: var(--kpi-sub-color); font-size: 0.78rem;">{{ number_format(($kpis['kilos_promedio'] ?? 0) / max($kpis['tickets'] ?? 1, 1), 2) }}
                                 kg/ticket</span>
                         </div>
                     </div>
                 </div>
+
+                {{-- KPI 4: Ventas Hoy --}}
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-indigo-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(99, 102, 241, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-indigo-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #4f46e5; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-indigo-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Ventas Hoy</span>
                                 <i
                                     class="bi bi-cash-stack"
-                                    style="color: #6366f1; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-indigo); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($kpis['ventas_hoy'] ?? 0, 2) }}</h3>
                             <div class="d-flex align-items-center gap-1">
                                 <span
@@ -177,7 +181,7 @@
                                         class="bi bi-arrow-{{ ($kpis['ventas_vs_ayer'] ?? 0) >= 0 ? 'up' : 'down' }}"></i>
                                     {{ abs($kpis['ventas_vs_ayer'] ?? 0) }}%
                                 </span>
-                                <span style="color: #94a3b8; font-size: 0.75rem;">vs ayer</span>
+                                <span style="color: var(--kpi-sub-color); font-size: 0.75rem;">vs ayer</span>
                             </div>
                         </div>
                     </div>
@@ -191,23 +195,20 @@
         {{-- SECCIÓN 3: TABLA Y GRÁFICAS --}}
         <div class="px-4 pb-4">
             <div class="row g-4">
-                {{-- TABLA: Corte Tienda (FUNCIONALIDAD COMPLETA) --}}
+                {{-- TABLA: Corte Tienda --}}
                 <div class="col-xxl-8">
-                    <div
-                        class="rounded p-4 shadow-sm"
-                        style="background: white; border-radius: 12px;"
-                    >
+                    <div class="card-chart rounded p-4 shadow-sm">
                         @php $allowedUserTypes = [1, 4, 9, 11]; @endphp
                         <div
                             class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                             <div>
                                 <h5
                                     class="mb-1"
-                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                    style="font-weight: 600; color: var(--text-primary); font-size: 1rem;"
                                 >CORTE TIENDA {{ $tiendaActual->NomTienda ?? '' }}</h5>
                                 @if ($fechaActual)
                                     <small
-                                        style="color: #64748b; font-size: 0.85rem;">{{ \Carbon\Carbon::parse($fechaActual)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</small>
+                                        style="color: var(--text-secondary); font-size: 0.85rem;">{{ \Carbon\Carbon::parse($fechaActual)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</small>
                                 @endif
                             </div>
                             <div class="d-flex gap-2">
@@ -218,10 +219,9 @@
                                     />
                                 @endif
                                 <button
-                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                    class="btn btn-sm d-flex align-items-center btn-animated btn-expand gap-1"
                                     onclick="toggleExpandirTabla()"
                                     id="btnExpandir"
-                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem;"
                                 >
                                     <i class="bi bi-arrows-fullscreen"></i>
                                     <span id="btnExpandirTexto">Expandir</span>
@@ -269,12 +269,10 @@
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
                                                     <div
-                                                        class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                                        style="background: #eff6ff; width: 28px; height: 28px;"
-                                                    >
+                                                        class="rounded-circle d-flex align-items-center justify-content-center icon-circle-blue flex-shrink-0">
                                                         <i
                                                             class="bi bi-box"
-                                                            style="color: #3b82f6; font-size: 0.75rem;"
+                                                            style="color: var(--btn-blue-text); font-size: 0.75rem;"
                                                         ></i>
                                                     </div>
                                                     <span
@@ -293,6 +291,7 @@
                                                 <span
                                                     id="status-{{ $sourceIdentifier }}"
                                                     class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
+                                                    style="text-wrap: nowrap"
                                                 >
                                                     {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
                                                 </span>
@@ -317,13 +316,12 @@
                                                 <td class="text-center">
                                                     <div
                                                         class="d-flex align-items-center justify-content-center gap-1">
-                                                        @if ($status === 'PROCESADO' && $sourceIdentifier)
+                                                        {{-- @if ($status === 'PROCESADO' && $sourceIdentifier)
                                                             @php $POS = substr($sourceIdentifier, 0, 3) . '_' . substr($sourceIdentifier, 3); @endphp
                                                             <a
                                                                 href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
                                                                 target="_blank"
-                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                class="btn-blue"
                                                                 title="PDF"
                                                             >
                                                                 <i class="bi bi-download"></i> PDF
@@ -331,18 +329,17 @@
                                                             <a
                                                                 href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
                                                                 target="_blank"
-                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                class="btn-gray"
                                                                 title="XML"
                                                             >
                                                                 <i class="bi bi-download"></i> XML
                                                             </a>
-                                                        @elseif ($sourceIdentifier && $status !== 'PROCESADO')
+                                                        @else --}}
+                                                        @if ($sourceIdentifier && $status !== 'PROCESADO')
                                                             <button
                                                                 type="button"
                                                                 id="btnEnviarPedido{{ $sourceIdentifier }}"
-                                                                class="btn btn-sm btn-enviar d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                class="btn-amber btn-enviar"
                                                                 title="Enviar pedido a Oracle"
                                                                 data-pedido="{{ $sourceIdentifier }}"
                                                                 data-row-id="row-{{ $sourceIdentifier }}"
@@ -351,15 +348,15 @@
                                                             >
                                                                 <i class="bi bi-send"></i> ENVIAR
                                                             </button>
-                                                        @else
-                                                            <span class="text-muted">-</span>
                                                         @endif
                                                         @if ($status === 'PROCESADO')
                                                             <div
                                                                 class="acciones-oracle buttons-oracle-{{ $sourceTransactionNumber }} d-inline-block"
                                                                 data-pedido="{{ $sourceTransactionNumber }}"
                                                                 data-uuid-local="{{ $item->UUID ?? '' }}"
-                                                            ></div>
+                                                            >
+                                                                <span class="text-muted">-</span>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 </td>
@@ -408,12 +405,10 @@
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
                                                     <div
-                                                        class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                                        style="background: #eff6ff; width: 28px; height: 28px;"
-                                                    >
+                                                        class="rounded-circle d-flex align-items-center justify-content-center icon-circle-blue flex-shrink-0">
                                                         <i
                                                             class="bi bi-person"
-                                                            style="color: #3b82f6; font-size: 0.75rem;"
+                                                            style="color: var(--btn-blue-text); font-size: 0.75rem;"
                                                         ></i>
                                                     </div>
                                                     <div class="d-flex flex-column">
@@ -443,6 +438,7 @@
                                                 <span
                                                     id="status-{{ $sourceIdentifier }}"
                                                     class="{{ $status === 'PROCESADO' ? 'tags-green' : ($status === 'ERROR' ? 'tags-red' : 'tags-yellow') }}"
+                                                    style="text-wrap: nowrap"
                                                 >
                                                     {{ $status && $status !== 'NULL' ? $status : 'SIN PROCESAR' }}
                                                 </span>
@@ -473,37 +469,30 @@
                                                             <a
                                                                 href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden={{ $POS }}"
                                                                 target="_blank"
-                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                class="btn-blue"
                                                             >PDF</a>
                                                             <a
                                                                 href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden={{ $POS }}"
                                                                 target="_blank"
-                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                class="btn-gray"
                                                             >XML</a>
                                                         @endif
                                                         @if ($item->UUID ?? false)
                                                             <a
                                                                 href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadPdfCte?Uuid={{ $item->UUID }}"
                                                                 target="_blank"
-                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #eff6ff; color: #3b82f6; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                            > <i class="bi bi-download"></i> PDF
-                                                            </a>
+                                                                class="btn-blue"
+                                                            > <i class="bi bi-download"></i> PDF</a>
                                                             <a
                                                                 href="https://timbradokowirest.kowi.com.mx/api/Timbrar/DownloadXmlCte?Uuid={{ $item->UUID }}"
                                                                 target="_blank"
-                                                                class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
-                                                            ><i class="bi bi-download"></i> XML
-                                                            </a>
+                                                                class="btn-gray"
+                                                            ><i class="bi bi-download"></i> XML</a>
                                                         @endif
                                                         @if ($sourceIdentifier && $status != 'PROCESADO')
                                                             <button
                                                                 type="button"
-                                                                class="btn btn-sm btn-enviar d-flex align-items-center btn-animated gap-1"
-                                                                style="background: #fffbeb; color: #f59e0b; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                                class="btn-amber btn-enviar"
                                                                 data-pedido="{{ $sourceIdentifier }}"
                                                                 data-row-id="row-{{ $sourceIdentifier }}"
                                                                 data-original-status="{{ $status }}"
@@ -515,8 +504,7 @@
                                                         <a
                                                             href="/SolicitudesFactura/{{ $item->IdSolicitudFactura }}"
                                                             target="_blank"
-                                                            class="btn btn-sm d-flex align-items-center btn-animated gap-1"
-                                                            style="background: #f1f5f9; color: #475569; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;"
+                                                            class="btn-gray"
                                                         >
                                                             <i class="bi bi-box-arrow-up-right"></i>
                                                         </a>
@@ -565,13 +553,20 @@
 
                                     {{-- Totales --}}
                                     @if (count($corteTienda) > 0 || count($corteTiendaSolicitudes) > 0)
-                                        <tr style="background: #f8fafc;">
+                                        <tr class="bg-table-totals">
                                             <td
                                                 colspan="{{ in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes) ? 4 : 3 }}"
                                                 class="fw-bold text-end"
+                                                style="color: var(--text-primary);"
                                             >TOTALES:</td>
-                                            <td class="fw-bold text-end">{{ number_format($totalKilos, 2) }} kg</td>
-                                            <td class="fw-bold text-end">${{ number_format($totalVentas, 2) }}</td>
+                                            <td
+                                                class="fw-bold text-end"
+                                                style="color: var(--text-primary);"
+                                            >{{ number_format($totalKilos, 2) }} kg</td>
+                                            <td
+                                                class="fw-bold text-end"
+                                                style="color: var(--text-primary);"
+                                            >${{ number_format($totalVentas, 2) }}</td>
                                             @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
                                                 <td></td>
                                             @endif
@@ -586,11 +581,11 @@
                                             >
                                                 <i
                                                     class="bi bi-inbox"
-                                                    style="font-size: 2.5rem; color: #94a3b8;"
+                                                    style="font-size: 2.5rem; color: var(--text-muted);"
                                                 ></i>
                                                 <p
                                                     class="mt-2"
-                                                    style="color: #64748b; font-size: 0.85rem;"
+                                                    style="color: var(--text-secondary); font-size: 0.85rem;"
                                                 >No hay registros de corte diario</p>
                                             </td>
                                         </tr>
@@ -604,35 +599,30 @@
                 {{-- GRÁFICAS --}}
                 <div class="col-xxl-4">
                     <div class="row g-4">
+                        {{-- Ventas por Hora --}}
                         <div class="col-12">
-                            <div
-                                class="rounded p-4 shadow-sm"
-                                style="background: white; border-radius: 12px;"
-                            >
+                            <div class="card-chart rounded p-4 shadow-sm">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h5
                                         class="mb-0"
-                                        style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                        style="font-weight: 600; color: var(--text-primary); font-size: 1rem;"
                                     >Ventas por Hora</h5>
                                     @if (!empty($graficaVentas['data']) && array_sum($graficaVentas['data']) != 0)
                                         <div class="btn-group">
                                             <button
                                                 type="button"
-                                                class="btn btn-sm periodo-btn active"
+                                                class="periodo-btn active"
                                                 data-periodo="hoy"
-                                                style="background: #1e293b; color: white; border: none; border-radius: 6px 0 0 6px; padding: 4px 10px; font-size: 0.75rem;"
                                             >Hoy</button>
                                             <button
                                                 type="button"
-                                                class="btn btn-sm periodo-btn"
+                                                class="periodo-btn"
                                                 data-periodo="7d"
-                                                style="background: #f1f5f9; color: #475569; border: none; padding: 4px 10px; font-size: 0.75rem;"
                                             >7d</button>
                                             <button
                                                 type="button"
-                                                class="btn btn-sm periodo-btn"
+                                                class="periodo-btn"
                                                 data-periodo="30d"
-                                                style="background: #f1f5f9; color: #475569; border: none; border-radius: 0 6px 6px 0; padding: 4px 10px; font-size: 0.75rem;"
                                             >30d</button>
                                         </div>
                                     @endif
@@ -643,13 +633,14 @@
                                 >
                                     @if (empty($graficaVentas['data']) || array_sum($graficaVentas['data']) == 0)
                                         <div class="d-flex justify-content-center align-items-center h-100">
-                                            <div class="text-center"><i
+                                            <div class="text-center">
+                                                <i
                                                     class="bi bi-bar-chart"
-                                                    style="font-size: 2.5rem; color: #94a3b8;"
+                                                    style="font-size: 2.5rem; color: var(--text-muted);"
                                                 ></i>
                                                 <p
                                                     class="mt-2"
-                                                    style="color: #64748b;"
+                                                    style="color: var(--text-secondary);"
                                                 >Sin datos</p>
                                             </div>
                                         </div>
@@ -659,14 +650,13 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Distribución de Pagos --}}
                         <div class="col-12">
-                            <div
-                                class="rounded p-4 shadow-sm"
-                                style="background: white; border-radius: 12px;"
-                            >
+                            <div class="card-chart rounded p-4 shadow-sm">
                                 <h5
                                     class="mb-3"
-                                    style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                    style="font-weight: 600; color: var(--text-primary); font-size: 1rem;"
                                 >Distribución de Pagos</h5>
                                 <div
                                     class="position-relative"
@@ -674,13 +664,14 @@
                                 >
                                     @if (empty($graficaDistribucionPagos['data']) || array_sum($graficaDistribucionPagos['data']) == 0)
                                         <div class="d-flex justify-content-center align-items-center h-100">
-                                            <div class="text-center"><i
+                                            <div class="text-center">
+                                                <i
                                                     class="bi bi-pie-chart"
-                                                    style="font-size: 2.5rem; color: #94a3b8;"
+                                                    style="font-size: 2.5rem; color: var(--text-muted);"
                                                 ></i>
                                                 <p
                                                     class="mt-2"
-                                                    style="color: #64748b;"
+                                                    style="color: var(--text-secondary);"
                                                 >Sin datos</p>
                                             </div>
                                         </div>
@@ -695,6 +686,7 @@
             </div>
         </div>
     </x-card-gradient-header>
+
     <script>
         // ====================================================================================================
         // FUNCIONALIDAD COMPLETA DE ORACLE (STATUS, BOTONES, ENVÍO DE PEDIDOS)
@@ -714,23 +706,24 @@
                         if (estatusUnicos.length >= 1) item.innerHTML =
                             `<span class="tags-green">${estatusUnicos.join(', ')}</span>`;
                         if (estatusUnicos.length == 1) {
-                            item.innerHTML = `<span class="tags-green">${estatusUnicos[0]}</span>`;
+                            item.innerHTML =
+                                `<span class="tags-green" style="text-wrap:nowrap">${estatusUnicos[0]}</span>`;
                             let estatusPedido = estatusUnicos[0];
                             const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
                             if (estatusPedido == 'Awaiting Shipping') {
                                 if (contenedor) {
                                     contenedor.innerHTML = '';
-                                    botonDespachoInventario(contenedor, pedido, uuidLocal);
+                                    botonDespachoInventario(contenedor, pedido, uuidLocal, type);
                                 }
                             }
                             if (estatusPedido == 'Awaiting Billing') {
                                 if (contenedor) {
                                     contenedor.innerHTML = '';
-                                    botonGenerarFactura(contenedor, pedido, uuidLocal);
+                                    botonGenerarFactura(contenedor, pedido, uuidLocal, type);
                                 }
                             }
-                            if (estatusPedido == 'Closed' && type == 'sf') {
-                                fetchBuscarUUID(pedido, uuidLocal, item, 'sf');
+                            if (estatusPedido == 'Closed') {
+                                fetchBuscarUUID(pedido, uuidLocal, item, type);
                             }
                         }
                     } else {
@@ -749,22 +742,47 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.ok) {
-                        console.log(data.dato.uUid);
-                        console.log(data.dato.uUidApex);
-
                         const uuidOracle = data.dato?.uUid;
                         const uuidApex = data.dato?.uUidApex;
                         const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
-                        if ((!uuidOracle || uuidOracle.trim() === '' || !uuidApex || uuidApex.trim() === '') &&
-                            type == 'sf') {
-                            if (contenedor) {
-                                contenedor.innerHTML = '';
-                                botonEnviarUuid(contenedor, pedido, uuidLocal, item);
+                        contenedor.innerHTML = ''; //Limpiamos el contenedor de botones
+
+                        // Verificando que este timbrada la factura de contado yponemos los botones para descargar los archivos
+                        if (!type && uuidApex) {
+                            var innerSpan = item.querySelector('span');
+                            if (innerSpan) {
+                                innerSpan.textContent = innerSpan.textContent + ' & Timbrado';
                             }
+                            if (contenedor) {
+                                contenedor.innerHTML = `
+                                    <a
+                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden=${pedido}"
+                                        target="_blank"
+                                        class="btn-blue"
+                                        title="PDF"
+                                    >
+                                        <i class="bi bi-download"></i> PDF
+                                    </a>
+                                    <a
+                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden=${pedido}"
+                                        target="_blank"
+                                        class="btn-gray"
+                                        title="XML"
+                                    >
+                                        <i class="bi bi-download"></i> XML
+                                    </a>
+                                `;
+                            }
+                        }
+
+                        // Verificaciones para las que son con solicitudes de factura
+                        if (uuidLocal != uuidOracle || uuidLocal != uuidApex) {
+                            if (type == 'sf')
+                                botonEnviarUuid(contenedor, pedido, uuidLocal, item);
                         } else {
-                            if (contenedor) contenedor.innerHTML = '';
-                            if (type == 'sf') item.innerHTML = `<span class="tags-green">Closed & UUID</span>`;
-                            else item.innerHTML = `<span class="tags-green">Closed</span>`;
+                            if (type == 'sf') {
+                                item.innerHTML = `<span class="tags-green">Closed & UUID</span>`;
+                            }
                         }
 
                         if (uuidOracle && uuidLocal != uuidOracle && type == 'sf') {
@@ -777,7 +795,6 @@
                                 <strong class='text-danger'>UUID Apex:</strong>
                                 <span class='text-danger'>${uuidApex}</span>
                             `;
-
                             item.innerHTML = `<span class="tags-red">Closed & !UUID Apex </span>`;
                         }
                     }
@@ -809,23 +826,22 @@
                             } else if (estatusPedido == 'Closed' && estatusSiguiente == 'Closed') {
                                 fetchBuscarUUID(pedido, uuidLocal, item, type);
                             } else {
-                                setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente), 3000);
+                                setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente, type), 3000);
                             }
                         } else {
-                            setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente), 3000);
+                            setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente, type), 3000);
                         }
                     } else {
-                        setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente), 3000);
+                        setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente, type), 3000);
                     }
                 })
-                .catch(() => setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente), 3000));
+                .catch(() => setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente, type), 3000));
         }
 
         function botonDespachoInventario(contenedor, pedido, uuidLocal) {
             const btn = document.createElement('button');
-            btn.className = 'btn btn-sm d-flex align-items-center gap-1 btn-animated';
-            btn.style.cssText =
-                'background:#fffbeb;color:#f59e0b;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;white-space:nowrap;';
+            btn.className = 'btn-amber';
+            btn.style.whiteSpace = 'nowrap';
             btn.innerHTML = '<i class="bi bi-send"></i> DESPACHO';
             btn.addEventListener('click', () => {
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Despachando...';
@@ -842,9 +858,8 @@
 
         function botonGenerarFactura(contenedor, pedido, uuidLocal, type) {
             const btn = document.createElement('button');
-            btn.className = 'btn btn-sm d-flex align-items-center gap-1 btn-animated';
-            btn.style.cssText =
-                'background:#eff6ff;color:#3b82f6;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;white-space:nowrap;';
+            btn.className = 'btn-blue';
+            btn.style.whiteSpace = 'nowrap';
             btn.innerHTML = '<i class="bi bi-send"></i> GENERAR FACTURA';
             btn.addEventListener('click', () => {
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generando...';
@@ -863,9 +878,8 @@
 
         function botonEnviarUuid(contenedor, pedido, uuidLocal, item) {
             const btn = document.createElement('button');
-            btn.className = 'btn btn-sm d-flex align-items-center gap-1 btn-animated';
-            btn.style.cssText =
-                'background:#f0fdf4;color:#10b981;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;white-space:nowrap;';
+            btn.className = 'btn-green';
+            btn.style.whiteSpace = 'nowrap';
             btn.innerHTML = '<i class="bi bi-send"></i> ENVIAR UUID';
             btn.addEventListener('click', () => {
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
@@ -955,9 +969,8 @@
             }
             if (esExito && resultado.dato?.sourceTransactionNumber) {
                 button.parentNode.innerHTML =
-                    `
-                            <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden=${resultado.dato.sourceTransactionNumber}" target="_blank" class="btn btn-sm d-flex align-items-center gap-1" style="background:#eff6ff;color:#3b82f6;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;">PDF</a>
-                            <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden=${resultado.dato.sourceTransactionNumber}" target="_blank" class="btn btn-sm d-flex align-items-center gap-1" style="background:#f1f5f9;color:#475569;border:none;border-radius:6px;padding:4px 8px;font-size:0.75rem;">ZIP</a>`;
+                    `<a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden=${resultado.dato.sourceTransactionNumber}" target="_blank" class="btn-blue">PDF</a>
+                     <a href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Zip?Orden=${resultado.dato.sourceTransactionNumber}" target="_blank" class="btn-gray">ZIP</a>`;
             } else {
                 button.disabled = false;
                 button.innerHTML = '<i class="bi bi-send"></i> ENVIAR';
@@ -979,7 +992,6 @@
             const icono = btnExpandir.querySelector('i');
 
             if (!tablaExpandida) {
-                // GUARDAR estado original
                 tablaOriginalParent = contenedorCard.parentNode;
                 tablaOriginalNextSibling = contenedorCard.nextSibling;
                 tablaOriginalStyles = {
@@ -998,9 +1010,8 @@
                     transition: contenedorCard.style.transition
                 };
 
-                // EXPANDIR a full screen
                 contenedorCard.style.position = 'fixed';
-                contenedorCard.style.top = '52px'; // Debajo del nav
+                contenedorCard.style.top = '52px';
                 contenedorCard.style.left = '0';
                 contenedorCard.style.width = '100vw';
                 contenedorCard.style.height = 'calc(100vh - 52px)';
@@ -1009,25 +1020,19 @@
                 contenedorCard.style.borderRadius = '0';
                 contenedorCard.style.maxWidth = '100vw';
                 contenedorCard.style.overflow = 'auto';
-                contenedorCard.style.background = '#f8fafc';
+                contenedorCard.style.background = 'var(--card-bg)';
                 contenedorCard.style.padding = '24px';
                 contenedorCard.style.transition = 'all 0.3s ease';
 
-                // Mover al body para evitar problemas de z-index con el layout
                 document.body.appendChild(contenedorCard);
 
-                // Actualizar botón
                 btnTexto.textContent = 'Contraer';
-                btnExpandir.style.background = '#1e293b';
-                btnExpandir.style.color = 'white';
+                btnExpandir.classList.add('expanded');
                 icono.className = 'bi bi-arrows-collapse';
 
                 tablaExpandida = true;
-
-                // Cerrar con ESC
                 document.addEventListener('keydown', cerrarConEsc);
             } else {
-                // CONTRAER a estado original
                 contenedorCard.style.position = tablaOriginalStyles.position || '';
                 contenedorCard.style.top = tablaOriginalStyles.top || '';
                 contenedorCard.style.left = tablaOriginalStyles.left || '';
@@ -1041,22 +1046,17 @@
                 contenedorCard.style.background = tablaOriginalStyles.background || '';
                 contenedorCard.style.padding = tablaOriginalStyles.padding || '';
 
-                // Devolver a su posición original
                 if (tablaOriginalParent && tablaOriginalNextSibling) {
                     tablaOriginalParent.insertBefore(contenedorCard, tablaOriginalNextSibling);
                 } else if (tablaOriginalParent) {
                     tablaOriginalParent.appendChild(contenedorCard);
                 }
 
-                // Restaurar botón
                 btnTexto.textContent = 'Expandir';
-                btnExpandir.style.background = '#f1f5f9';
-                btnExpandir.style.color = '#475569';
+                btnExpandir.classList.remove('expanded');
                 icono.className = 'bi bi-arrows-fullscreen';
 
                 tablaExpandida = false;
-
-                // Remover evento ESC
                 document.removeEventListener('keydown', cerrarConEsc);
             }
         }
@@ -1073,6 +1073,11 @@
             const ctxV = document.getElementById('ventasChart')?.getContext('2d');
             const ctxP = document.getElementById('pagosChart')?.getContext('2d');
 
+            var gradientStart = getComputedStyle(document.documentElement).getPropertyValue('--gradient-start')
+                .trim() || '#1e293b';
+            var chartFill = getComputedStyle(document.documentElement).getPropertyValue('--chart-fill').trim() ||
+                'rgba(30,41,59,0.1)';
+
             if (ctxV) {
                 ventasChart = new Chart(ctxV, {
                     type: 'line',
@@ -1081,8 +1086,8 @@
                         datasets: [{
                             label: 'Ventas',
                             data: {!! json_encode($graficaVentas['data'] ?? []) !!},
-                            borderColor: '#1e293b',
-                            backgroundColor: 'rgba(30,41,59,0.1)',
+                            borderColor: gradientStart,
+                            backgroundColor: chartFill,
                             borderWidth: 2,
                             fill: true,
                             tension: 0.4
@@ -1115,16 +1120,8 @@
                         datasets: [{
                             data: {!! json_encode($graficaDistribucionPagos['data'] ?? []) !!},
                             backgroundColor: [
-                                '#64748b', // Slate
-                                '#84a98c', // Sage Green
-                                '#7b9acc', // Soft Blue
-                                '#9d8ac7', // Soft Purple
-                                '#6fa8a3', // Muted Teal
-                                '#8b93d6', // Soft Indigo
-                                '#8fc4d7', // Soft Cyan
-                                '#c9a0b8', // Dusty Pink
-                                '#a3b8cc', // Blue Gray
-                                '#a8c3a0', // Light Olive
+                                '#64748b', '#84a98c', '#7b9acc', '#9d8ac7', '#6fa8a3',
+                                '#8b93d6', '#8fc4d7', '#c9a0b8', '#a3b8cc', '#a8c3a0'
                             ]
                         }]
                     },
@@ -1145,14 +1142,8 @@
                 });
             }
             $('.periodo-btn').click(function() {
-                $('.periodo-btn').css({
-                    background: '#f1f5f9',
-                    color: '#475569'
-                });
-                $(this).css({
-                    background: '#1e293b',
-                    color: 'white'
-                });
+                $('.periodo-btn').removeClass('active');
+                $(this).addClass('active');
                 $.ajax({
                     url: '{{ route('DashTienda.grafica') }}',
                     data: {
