@@ -211,7 +211,7 @@
                                 <td
                                     class="text-center"
                                     style="font-weight: 500;"
-                                >{{ number_format($tConcentrado->kilos, 2) }} kg</td>
+                                >{{ number_format($tConcentrado->kilos, 2) }}</td>
                                 <td
                                     class="text-end"
                                     style="font-weight: 600; color: var(--success-color);"
