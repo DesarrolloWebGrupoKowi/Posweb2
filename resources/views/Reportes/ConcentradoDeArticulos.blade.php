@@ -9,9 +9,9 @@
                 href="/ExportReporteConcentradoDeArticulos?{{ http_build_query(request()->only(['idTienda', 'fecha1', 'fecha2', 'txtFiltro', 'optionsOnline', 'agrupado', 'agrupadoArticulo', 'codigoInterfaz', 'soloAdeudos'])) }}"
                 class="btn-header-ghost"
                 title="Exportar a Excel"
-                style="background: #f0fdf4; color: #10b981;"
-                onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-                onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+                style="background: var(--btn-green-bg); color: var(--btn-green-text);"
+                onmouseover="this.style.background='var(--btn-green-hover)'; this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='var(--btn-green-bg)'; this.style.transform='translateY(0)'"
             >
                 <i class="bi bi-file-earmark-excel"></i> Exportar
             </a>
@@ -25,20 +25,18 @@
                 method="GET"
                 action="/ReporteConcentradoDeArticulos"
             >
-                {{-- Fila 1: Filtros principales + Botones --}}
                 <div class="row g-3 align-items-end">
-                    <!-- Tienda -->
                     <div class="col-md-3">
                         <label
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
                             <i class="bi bi-shop me-1"></i>Tienda
                         </label>
                         <select
                             name="idTienda"
                             class="form-select"
-                            style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            style="border-radius: 8px; border: 1px solid var(--border-input); padding: 8px 12px; font-size: 0.85rem;"
                         >
                             <option value="">Todas las tiendas</option>
                             @foreach ($tiendas as $tienda)
@@ -51,12 +49,10 @@
                             @endforeach
                         </select>
                     </div>
-
-                    <!-- Fecha Inicio -->
                     <div class="col-md-2">
                         <label
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
                             <i class="bi bi-calendar3 me-1"></i>Fecha Inicio
                         </label>
@@ -64,17 +60,15 @@
                             type="date"
                             name="fecha1"
                             class="form-control"
-                            style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            style="border-radius: 8px; border: 1px solid var(--border-input); padding: 8px 12px; font-size: 0.85rem;"
                             value="{{ request('fecha1') }}"
                             autofocus
                         >
                     </div>
-
-                    <!-- Fecha Fin -->
                     <div class="col-md-2">
                         <label
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
                             <i class="bi bi-calendar3 me-1"></i>Fecha Fin
                         </label>
@@ -82,16 +76,14 @@
                             type="date"
                             name="fecha2"
                             class="form-control"
-                            style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            style="border-radius: 8px; border: 1px solid var(--border-input); padding: 8px 12px; font-size: 0.85rem;"
                             value="{{ request('fecha2') }}"
                         >
                     </div>
-
-                    <!-- Articulo -->
                     <div class="col-md-2">
                         <label
                             class="form-label fw-medium mb-2"
-                            style="color: #475569; font-size: 0.85rem;"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
                             <i class="bi bi-search me-1"></i>Artículo
                         </label>
@@ -99,19 +91,15 @@
                             type="text"
                             name="txtFiltro"
                             class="form-control"
-                            style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.85rem;"
+                            style="border-radius: 8px; border: 1px solid var(--border-input); padding: 8px 12px; font-size: 0.85rem;"
                             placeholder="Código o nombre"
                             value="{{ request('txtFiltro') }}"
                         >
                     </div>
-
-                    <!-- Articulo -->
                     <div class="col-md-3">
                         <x-form.advanced-toggle :active="$filtrosAvanzadosActivos" />
                     </div>
                 </div>
-
-                {{-- Fila 2: Filtros avanzados --}}
                 <x-form.advanced-panel :active="$filtrosAvanzadosActivos">
                     <x-form.checkbox-filter
                         name="agrupado"
@@ -134,22 +122,7 @@
             </form>
         </div>
 
-        <script>
-            function toggleFiltrosAvanzados() {
-                const fila = document.getElementById('filaFiltrosAvanzados');
-                const btn = document.getElementById('btnFiltrosAvanzados');
-
-                if (fila.classList.contains('d-none')) {
-                    fila.classList.remove('d-none');
-                    btn.style.background = '#e2e8f0';
-                } else {
-                    fila.classList.add('d-none');
-                    btn.style.background = '#f1f5f9';
-                }
-            }
-        </script>
-
-        {{-- SECCIÓN 2: KPIs --}}
+        <!-- KPIs -->
         <div class="p-4">
             <div class="row g-3">
                 @php
@@ -162,7 +135,7 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);"
                     >
                         <div
                             style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(59, 130, 246, 0.08); border-radius: 50%;">
@@ -179,9 +152,9 @@
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >{{ number_format($totalPeso, 2) }} kg</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Kilogramos totales</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Kilogramos totales</span>
                         </div>
                     </div>
                 </div>
@@ -189,26 +162,26 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-green-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-green-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #059669; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-green-text-icon); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Artículos</span>
                                 <i
                                     class="bi bi-tags"
-                                    style="color: #10b981; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-green); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >{{ $articulosUnicos }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Códigos diferentes</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Códigos diferentes</span>
                         </div>
                     </div>
                 </div>
@@ -216,26 +189,26 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-orange-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(245, 158, 11, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-orange-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #d97706; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-orange-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Precio Prom.</span>
                                 <i
                                     class="bi bi-graph-up"
-                                    style="color: #f59e0b; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-orange); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($precioPromedio, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Por kilogramo</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Por kilogramo</span>
                         </div>
                     </div>
                 </div>
@@ -243,41 +216,37 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-purple-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-purple-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Venta Total</span>
                                 <i
                                     class="bi bi-cash-stack"
-                                    style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-purple); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($totalImporte, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Monto facturado</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Monto facturado</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- SECCIÓN 3: TABLA Y GRÁFICAS --}}
+        <!-- TABLA Y GRÁFICAS -->
         <div class="px-4 pb-4">
             <div class="row g-4">
-                {{-- TABLA --}}
                 <div class="col-xxl-8">
-                    <div
-                        class="rounded p-4 shadow-sm"
-                        style="background: white; border-radius: 12px;"
-                    >
+                    <div class="card-chart rounded p-4 shadow-sm">
                         <div class="table-responsive">
                             <table class="table-hover table-custom table">
                                 <thead style="position: sticky; top: 0; z-index: 2;">
@@ -319,7 +288,7 @@
                                             @if (!$agrupadoArticulo)
                                                 <td>{{ $tConcentrado->NomListaPrecio }}</td>
                                             @endif
-                                            <td style="font-weight: 600; color: #0f172a;">
+                                            <td style="font-weight: 600; color: var(--text-primary);">
                                                 {{ $tConcentrado->CodArticulo }}</td>
                                             <td
                                                 class="text-truncate"
@@ -358,11 +327,11 @@
                                             >
                                                 <i
                                                     class="bi bi-inbox"
-                                                    style="font-size: 2.5rem; color: #94a3b8;"
+                                                    style="font-size: 2.5rem; color: var(--text-muted);"
                                                 ></i>
                                                 <p
                                                     class="mt-2"
-                                                    style="color: #64748b; font-size: 0.85rem;"
+                                                    style="color: var(--text-secondary); font-size: 0.85rem;"
                                                 >Sin datos disponibles</p>
                                             </td>
                                         </tr>
@@ -370,20 +339,30 @@
                                 </tbody>
                                 @if (count($concentrado) > 0)
                                     <tfoot>
-                                        <tr style="background: #f8fafc; font-weight: 700;">
+                                        <tr class="bg-table-totals">
                                             <td
                                                 colspan="{{ $agrupado ? ($agrupadoArticulo ? 5 : 6) : ($agrupadoArticulo ? 5 : 6) }}"
                                                 class="text-end"
+                                                style="color: var(--text-primary);"
                                             >TOTALES:</td>
                                             @if ($agrupado)
                                                 <td></td>
                                             @endif
-                                            <td class="text-end">{{ number_format($totalPeso, 3) }}</td>
+                                            <td
+                                                class="text-end"
+                                                style="color: var(--text-primary);"
+                                            >{{ number_format($totalPeso, 3) }}</td>
                                             @if (!$agrupadoArticulo)
                                                 <td></td>
                                             @endif
-                                            <td class="text-end">${{ number_format($totalIva, 2) }}</td>
-                                            <td class="text-end">${{ number_format($totalImporte, 2) }}</td>
+                                            <td
+                                                class="text-end"
+                                                style="color: var(--text-primary);"
+                                            >${{ number_format($totalIva, 2) }}</td>
+                                            <td
+                                                class="text-end"
+                                                style="color: var(--text-primary);"
+                                            >${{ number_format($totalImporte, 2) }}</td>
                                         </tr>
                                     </tfoot>
                                 @endif
@@ -392,17 +371,16 @@
                     </div>
                 </div>
 
-                {{-- GRÁFICAS --}}
+                <!-- GRÁFICAS -->
                 <div class="col-xxl-4">
                     <div class="d-flex flex-column h-100 gap-4">
-                        {{-- Top 10 Productos --}}
                         <div
-                            class="rounded p-4 shadow-sm"
-                            style="background: white; border-radius: 12px; max-height: 380px;"
+                            class="card-chart rounded p-4 shadow-sm"
+                            style="max-height: 380px;"
                         >
                             <h5
                                 class="mb-3"
-                                style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                style="font-weight: 600; color: var(--text-primary); font-size: 1rem;"
                             >
                                 <i
                                     class="bi bi-trophy me-2"
@@ -410,9 +388,7 @@
                                 ></i>Top 10 Productos por Peso
                             </h5>
                             @if (count($topProductosLabels) > 0)
-                                <div style="height: 280px;">
-                                    <canvas id="topProductosChart"></canvas>
-                                </div>
+                                <div style="height: 280px;"><canvas id="topProductosChart"></canvas></div>
                             @else
                                 <div
                                     class="d-flex justify-content-center align-items-center"
@@ -421,35 +397,28 @@
                                     <div class="text-center">
                                         <i
                                             class="bi bi-bar-chart"
-                                            style="font-size: 2.5rem; color: #94a3b8;"
+                                            style="font-size: 2.5rem; color: var(--text-muted);"
                                         ></i>
                                         <p
                                             class="mt-2"
-                                            style="color: #64748b;"
+                                            style="color: var(--text-secondary);"
                                         >Sin datos</p>
                                     </div>
                                 </div>
                             @endif
                         </div>
-
-                        {{-- Ventas por Grupo + Lista (2 columnas) --}}
                         <div
                             class="row g-3"
                             style="min-height: 220px;"
                         >
                             <div class="col-6">
-                                <div
-                                    class="h-100 rounded p-3 shadow-sm"
-                                    style="background: white; border-radius: 12px;"
-                                >
+                                <div class="h-100 card-chart rounded p-3 shadow-sm">
                                     <h6
                                         class="mb-2"
-                                        style="font-weight: 600; color: #0f172a; font-size: 0.85rem;"
+                                        style="font-weight: 600; color: var(--text-primary); font-size: 0.85rem;"
                                     >Ventas por Grupo</h6>
                                     @if (count($gruposLabels) > 0)
-                                        <div style="height: 160px;">
-                                            <canvas id="ventasPorGrupoChart"></canvas>
-                                        </div>
+                                        <div style="height: 160px;"><canvas id="ventasPorGrupoChart"></canvas></div>
                                     @else
                                         <div
                                             class="d-flex justify-content-center align-items-center"
@@ -458,11 +427,11 @@
                                             <div class="text-center">
                                                 <i
                                                     class="bi bi-pie-chart"
-                                                    style="font-size: 2rem; color: #94a3b8;"
+                                                    style="font-size: 2rem; color: var(--text-muted);"
                                                 ></i>
                                                 <p
                                                     class="mt-1"
-                                                    style="color: #64748b; font-size: 0.8rem;"
+                                                    style="color: var(--text-secondary); font-size: 0.8rem;"
                                                 >Sin datos</p>
                                             </div>
                                         </div>
@@ -470,18 +439,13 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div
-                                    class="h-100 rounded p-3 shadow-sm"
-                                    style="background: white; border-radius: 12px;"
-                                >
+                                <div class="h-100 card-chart rounded p-3 shadow-sm">
                                     <h6
                                         class="mb-2"
-                                        style="font-weight: 600; color: #0f172a; font-size: 0.85rem;"
+                                        style="font-weight: 600; color: var(--text-primary); font-size: 0.85rem;"
                                     >Ventas por Lista</h6>
                                     @if (count($listaLabels) > 0)
-                                        <div style="height: 160px;">
-                                            <canvas id="ventasPorListaChart"></canvas>
-                                        </div>
+                                        <div style="height: 160px;"><canvas id="ventasPorListaChart"></canvas></div>
                                     @else
                                         <div
                                             class="d-flex justify-content-center align-items-center"
@@ -490,11 +454,11 @@
                                             <div class="text-center">
                                                 <i
                                                     class="bi bi-pie-chart"
-                                                    style="font-size: 2rem; color: #94a3b8;"
+                                                    style="font-size: 2rem; color: var(--text-muted);"
                                                 ></i>
                                                 <p
                                                     class="mt-1"
-                                                    style="color: #64748b; font-size: 0.8rem;"
+                                                    style="color: var(--text-secondary); font-size: 0.8rem;"
                                                 >Sin datos</p>
                                             </div>
                                         </div>
@@ -554,7 +518,6 @@
                     }
                 });
             }
-
             const grupoCanvas = document.getElementById('ventasPorGrupoChart');
             if (grupoCanvas && @json(count($gruposLabels)) > 0) {
                 new Chart(grupoCanvas, {
@@ -586,7 +549,6 @@
                     }
                 });
             }
-
             const listaCanvas = document.getElementById('ventasPorListaChart');
             if (listaCanvas && @json(count($listaLabels)) > 0) {
                 new Chart(listaCanvas, {
@@ -596,8 +558,7 @@
                         datasets: [{
                             data: @json($listaData),
                             backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444',
-                                '#8b5cf6'
-                            ],
+                                '#8b5cf6'],
                             borderWidth: 2,
                             borderColor: '#fff',
                             cutout: '60%'

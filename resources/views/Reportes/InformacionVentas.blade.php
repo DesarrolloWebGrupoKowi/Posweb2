@@ -63,7 +63,7 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 20px;"
                     >
                         <div
                             style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(59, 130, 246, 0.08); border-radius: 50%;">
@@ -80,92 +80,87 @@
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >{{ number_format($totalTickets) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Tickets</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Tickets</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-green-bg); padding: 20px;"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-green-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #059669; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-green-text-icon); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Kilos</span>
                                 <i
                                     class="bi bi-box"
-                                    style="color: #10b981; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-green); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >{{ number_format($totalKilos, 2) }} kg</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Total vendido</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Total vendido</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-orange-bg); padding: 20px;"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(245, 158, 11, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-orange-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #d97706; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-orange-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Prom. Ticket</span>
                                 <i
                                     class="bi bi-cash"
-                                    style="color: #f59e0b; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-orange); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color":
-                                #0f172a;
-                                font-size:
-                                1.5rem;"
-                            >
-                                ${{ $totalTickets > 0 ? number_format($totalImporte / $totalTickets, 2) : '0.00' }}
-                            </h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Por ticket</span>
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
+                            >${{ $totalTickets > 0 ? number_format($totalImporte / $totalTickets, 2) : '0.00' }}</h3>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Por ticket</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-purple-bg); padding: 20px;"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-purple-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Importe Total</span>
                                 <i
                                     class="bi bi-cash-stack"
-                                    style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-purple); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($totalImporte, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">MXN</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">MXN</span>
                         </div>
                     </div>
                 </div>
@@ -179,7 +174,7 @@
                     <h5 class="section-content-title">
                         <i
                             class="bi bi-table me-2"
-                            style="color: #64748b;"
+                            style="color: var(--text-secondary);"
                         ></i>Información de Ventas
                     </h5>
                     <p class="section-content-subtitle">Listado de ventas registradas en el sistema</p>
@@ -210,43 +205,37 @@
                         @forelse ($concentrado as $tConcentrado)
                             @php $NomTienda = $tConcentrado->NomTienda ?? ''; @endphp
 
-                            {{-- Nueva tienda --}}
                             @if ($nombreTienda != $NomTienda)
-                                {{-- Subtotal de la tienda anterior --}}
                                 @if ($nombreTienda != '')
-                                    <tr style="background: #f8f9fa; font-weight: 600; border-bottom: 1px solid #e9edf0">
-                                        <td style="color: #64748b;">
-                                            <i class="bi bi-bar-chart me-1"></i>Subtotal
-                                        </td>
+                                    <tr
+                                        class="bg-table-totals"
+                                        style="border-bottom: 1px solid var(--border-light);"
+                                    >
+                                        <td style="color: var(--text-secondary);"><i
+                                                class="bi bi-bar-chart me-1"></i>Subtotal</td>
                                         <td class="text-center">{{ number_format($subtotalTickets) }}</td>
                                         <td class="text-center">{{ number_format($subtotalKilos, 2) }} kg</td>
                                         <td
                                             class="text-end"
-                                            style="color: #10b981;"
+                                            style="color: var(--success-color);"
                                         >${{ number_format($subtotalImporte, 2) }}</td>
                                     </tr>
-                                    <!-- Separador entre tickets -->
                                     <tr>
                                         <td
                                             colspan="4"
-                                            style="border-bottom: 3px solid #dee2e6; padding: 5px;"
+                                            style="border-bottom: 3px solid var(--border-medium); padding: 5px;"
                                         ></td>
                                     </tr>
                                 @endif
 
-                                {{-- Header de nueva tienda (estilo ticket) --}}
-                                <tr
-                                    style="background: #e2e8f0;"
-                                    {{-- class="table-primary" --}}
-                                    {{-- style="background-color: #e3f2fd; cursor: pointer; color: #0d6efd; border-left: 4px solid #0d6efd; font-weight: 600;" --}}
-                                >
+                                <tr style="background: var(--table-head-secondary-bg);">
                                     <td
                                         colspan="4"
                                         class="p-0"
                                         style="border: none;"
                                     >
                                         <div
-                                            style="padding: 10px 16px; font-weight: 600; color: #0f172a; font-size: 0.9rem;">
+                                            style="padding: 10px 16px; font-weight: 600; color: var(--text-primary); font-size: 0.9rem;">
                                             <i class="bi bi-shop me-2"></i>{{ $NomTienda }}
                                         </div>
                                     </td>
@@ -262,25 +251,16 @@
 
                             <tr>
                                 <td style="font-size: 0.85rem; padding-left: 24px;">
-                                    {{ \Carbon\Carbon::parse($tConcentrado->Fecha)->format('d/m/Y') }}
-                                </td>
-                                <td class="text-center">
-                                    <span {{-- style="background: #eff6ff; color: #3b82f6; padding: 2px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;" --}}>
-                                        {{ $tConcentrado->Tickets }}
-                                    </span>
-                                </td>
+                                    {{ \Carbon\Carbon::parse($tConcentrado->Fecha)->format('d/m/Y') }}</td>
+                                <td class="text-center">{{ $tConcentrado->Tickets }}</td>
                                 <td
                                     class="text-center"
                                     style="font-weight: 500;"
-                                >
-                                    {{ number_format($tConcentrado->cantidad, 2) }} kg
-                                </td>
+                                >{{ number_format($tConcentrado->cantidad, 2) }} kg</td>
                                 <td
                                     class="text-end"
-                                    style="font-weight: 600; color: #10b981;"
-                                >
-                                    ${{ number_format($tConcentrado->Importe, 2) }}
-                                </td>
+                                    style="font-weight: 600; color: var(--success-color);"
+                                >${{ number_format($tConcentrado->Importe, 2) }}</td>
                             </tr>
 
                             @php
@@ -299,48 +279,44 @@
                                 >
                                     <i
                                         class="bi bi-inbox"
-                                        style="font-size: 2.5rem; color: #94a3b8;"
+                                        style="font-size: 2.5rem; color: var(--text-muted);"
                                     ></i>
                                     <p
                                         class="mt-2"
-                                        style="color: #64748b; font-size: 0.85rem;"
+                                        style="color: var(--text-secondary); font-size: 0.85rem;"
                                     >No hay ventas en el rango de fechas seleccionadas</p>
                                 </td>
                             </tr>
                         @endforelse
 
-                        {{-- Subtotal de la última tienda --}}
                         @if ($nombreTienda != '')
-                            <tr style="background: #f8f9fa; font-weight: 600;">
-                                <td style="color: #64748b;">
-                                    <i class="bi bi-bar-chart me-1"></i>Subtotal
+                            <tr class="bg-table-totals">
+                                <td style="color: var(--text-secondary);"><i class="bi bi-bar-chart me-1"></i>Subtotal
                                 </td>
                                 <td class="text-center">{{ number_format($subtotalTickets) }}</td>
                                 <td class="text-center">{{ number_format($subtotalKilos, 2) }} kg</td>
                                 <td
                                     class="text-end"
-                                    style="color: #10b981;"
+                                    style="color: var(--success-color);"
                                 >${{ number_format($subtotalImporte, 2) }}</td>
                             </tr>
-
-                            {{-- Separador final --}}
                             <tr>
                                 <td
                                     colspan="4"
-                                    style="border-bottom: 3px solid #dee2e6; padding: 5px;"
+                                    style="border-bottom: 3px solid var(--border-medium); padding: 5px;"
                                 ></td>
                             </tr>
                         @endif
                     </tbody>
                     @if ($concentrado->count() > 0)
                         <tfoot>
-                            <tr style="background: #f1f5f9; font-weight: 700;">
-                                <td style="color: #0f172a;">Totales Generales</td>
+                            <tr class="bg-table-totals">
+                                <td style="color: var(--text-primary);">Totales Generales</td>
                                 <td class="text-center">{{ number_format($totalTickets) }}</td>
                                 <td class="text-center">{{ number_format($totalKilos, 2) }} kg</td>
                                 <td
                                     class="text-end"
-                                    style="color: #10b981;"
+                                    style="color: var(--success-color);"
                                 >${{ number_format($totalImporte, 2) }}</td>
                             </tr>
                         </tfoot>

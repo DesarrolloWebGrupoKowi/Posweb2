@@ -9,9 +9,9 @@
                 href="/VentaEmpleadosExcel?{{ http_build_query(request()->only(['fecha1', 'fecha2', 'chkNomina', 'numNomina', 'idTienda', 'tipoNomina', 'fechaInterfaz', 'codigoInterfaz', 'soloAdeudos'])) }}"
                 class="btn-header-ghost"
                 title="Exportar a Excel"
-                style="background: #f0fdf4; color: #10b981;"
-                onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-                onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+                style="background: var(--btn-green-bg); color: var(--btn-green-text);"
+                onmouseover="this.style.background='var(--btn-green-hover)'; this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='var(--btn-green-bg)'; this.style.transform='translateY(0)'"
             >
                 <i class="bi bi-file-earmark-excel"></i> Exportar
             </a>
@@ -21,7 +21,6 @@
 
         <!-- Filtros -->
         <x-form.form action="/VentaEmpleados">
-            {{-- Fila 1: Filtros principales --}}
             <x-form.group>
                 <x-form.date
                     name="fecha1"
@@ -50,8 +49,6 @@
                     <x-form.advanced-toggle :active="$filtrosAvanzadosActivos" />
                 </div>
             </x-form.group>
-
-            {{-- Fila 2: Filtros avanzados (ocultos) --}}
             <x-form.advanced-panel :active="$filtrosAvanzadosActivos">
                 <x-form.select
                     name="idTienda"
@@ -84,7 +81,8 @@
                 />
             </x-form.advanced-panel>
         </x-form.form>
-        {{-- SECCIÓN 2: KPIs --}}
+
+        <!-- KPIs -->
         <div class="p-4">
             <div class="row g-3">
                 @php
@@ -96,7 +94,7 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);"
                     >
                         <div
                             style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(59, 130, 246, 0.08); border-radius: 50%;">
@@ -113,9 +111,9 @@
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >{{ $totalTransacciones }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Transacciones</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Transacciones</span>
                         </div>
                     </div>
                 </div>
@@ -123,26 +121,26 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-green-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-green-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #059669; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-green-text-icon); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Ticket Promedio</span>
                                 <i
                                     class="bi bi-receipt"
-                                    style="color: #10b981; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-green); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($ticketPromedio, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">Por transacción</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">Por transacción</span>
                         </div>
                     </div>
                 </div>
@@ -150,26 +148,26 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-orange-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(245, 158, 11, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-orange-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #d97706; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-orange-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Adeudo</span>
                                 <i
                                     class="bi bi-credit-card"
-                                    style="color: #f59e0b; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-orange); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($importeCredito, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">{{ $porcentajeAdeudo }}% del
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">{{ $porcentajeAdeudo }}% del
                                 total</span>
                         </div>
                     </div>
@@ -178,45 +176,41 @@
                 <div class="col-xl-3 col-md-6 col-12">
                     <div
                         class="kpi-card"
-                        style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;"
+                        style="background: var(--kpi-purple-bg);"
                     >
                         <div
-                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.08); border-radius: 50%;">
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: var(--kpi-circle-bg); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span
-                                    style="color: #7c3aed; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
+                                    style="color: var(--kpi-purple-text); font-weight: 600; font-size: 0.8rem; text-transform: uppercase;"
                                 >Importe Total</span>
                                 <i
                                     class="bi bi-cash-stack"
-                                    style="color: #8b5cf6; font-size: 1.3rem; opacity: 0.7;"
+                                    style="color: var(--kpi-icon-purple); font-size: 1.3rem; opacity: 0.7;"
                                 ></i>
                             </div>
                             <h3
                                 class="mb-1"
-                                style="font-weight: 700; color: #0f172a; font-size: 1.5rem;"
+                                style="font-weight: 700; color: var(--kpi-value-color); font-size: 1.5rem;"
                             >${{ number_format($importeTotal, 2) }}</h3>
-                            <span style="color: #94a3b8; font-size: 0.78rem;">MXN</span>
+                            <span style="color: var(--kpi-sub-color); font-size: 0.78rem;">MXN</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- SECCIÓN 3: TABLA Y GRÁFICAS --}}
+        <!-- TABLA Y GRÁFICAS -->
         <div class="px-4 pb-4">
             <div class="row g-4">
-                {{-- TABLA --}}
                 <div class="col-xxl-8">
-                    <div
-                        class="rounded p-4 shadow-sm"
-                        style="background: white; border-radius: 12px;"
-                    >
+                    <div class="card-chart rounded p-4 shadow-sm">
                         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                             <h5
                                 class="mb-0"
-                                style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                                style="font-weight: 600; color: var(--text-primary); font-size: 1rem;"
                             >VENTAS A EMPLEADOS</h5>
                             <div class="d-flex gap-2">
                                 <div class="btn-group">
@@ -224,20 +218,19 @@
                                         class="btn btn-sm active"
                                         id="btnVistaTabla"
                                         onclick="cambiarVista('tabla')"
-                                        style="background: #1e293b; color: white; border: none; border-radius: 6px 0 0 6px; padding: 6px 12px; font-size: 0.8rem;"
+                                        style="background: var(--gradient-start); color: white; border: none; border-radius: 6px 0 0 6px; padding: 6px 12px; font-size: 0.8rem;"
                                     >📋 Tabla</button>
                                     <button
                                         class="btn btn-sm"
                                         id="btnVistaTickets"
                                         onclick="cambiarVista('tickets')"
-                                        style="background: #f1f5f9; color: #475569; border: none; border-radius: 0 6px 6px 0; padding: 6px 12px; font-size: 0.8rem;"
+                                        style="background: var(--bg-subtle); color: var(--text-subtle); border: none; border-radius: 0 6px 6px 0; padding: 6px 12px; font-size: 0.8rem;"
                                     >🎫 Tickets</button>
                                 </div>
                                 <button
-                                    class="btn btn-sm d-flex align-items-center btn-animated gap-1"
+                                    class="btn btn-sm d-flex align-items-center btn-animated btn-expand gap-1"
                                     onclick="toggleExpandirTabla()"
                                     id="btnExpandir"
-                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem;"
                                 >
                                     <i class="bi bi-arrows-fullscreen"></i>
                                     <span id="btnExpandirTexto">Expandir</span>
@@ -245,7 +238,7 @@
                             </div>
                         </div>
 
-                        {{-- Vista Tabla --}}
+                        <!-- Vista Tabla -->
                         <div
                             id="vistaTabla"
                             class="table-responsive"
@@ -277,7 +270,7 @@
                                                 {{ \Carbon\Carbon::parse($ventaEmpleado->FechaVenta)->format('d/m/Y H:i') }}
                                             </td>
                                             <td style="font-weight: 500;">{{ $ventaEmpleado->NomTienda }}</td>
-                                            <td style="font-weight: 600; color: #0f172a;">
+                                            <td style="font-weight: 600; color: var(--text-primary);">
                                                 {{ $ventaEmpleado->NumNomina }}</td>
                                             <td>{{ $ventaEmpleado->Nombre }} {{ $ventaEmpleado->Apellidos }}</td>
                                             <td>{{ $ventaEmpleado->Empresa }}</td>
@@ -313,16 +306,16 @@
                                             >
                                                 <i
                                                     class="bi bi-inbox"
-                                                    style="font-size: 2.5rem; color: #94a3b8;"
+                                                    style="font-size: 2.5rem; color: var(--text-muted);"
                                                 ></i>
                                                 <p
                                                     class="mt-2"
-                                                    style="color: #64748b; font-size: 0.85rem;"
+                                                    style="color: var(--text-secondary); font-size: 0.85rem;"
                                                 >No hay ventas para mostrar</p>
                                                 <a
                                                     href="/VentaEmpleados"
                                                     class="btn btn-sm d-flex align-items-center mx-auto mt-2 gap-1"
-                                                    style="background: #f1f5f9; color: #475569; border: none; border-radius: 8px; padding: 8px 16px; width: fit-content;"
+                                                    style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; width: fit-content;"
                                                 >
                                                     <i class="bi bi-x-circle"></i> Resetear filtros
                                                 </a>
@@ -333,7 +326,7 @@
                             </table>
                         </div>
 
-                        {{-- Vista Tickets --}}
+                        <!-- Vista Tickets -->
                         <div
                             id="vistaTickets"
                             class="table-responsive"
@@ -371,8 +364,8 @@
                                                 {{ \Carbon\Carbon::parse($firstItem->FechaVenta)->format('d/m/Y H:i') }}
                                             </td>
                                             <td style="font-weight: 500;">{{ $firstItem->NomTienda }}</td>
-                                            <td style="font-weight: 600; color: #0f172a;">{{ $firstItem->NumNomina }}
-                                            </td>
+                                            <td style="font-weight: 600; color: var(--text-primary);">
+                                                {{ $firstItem->NumNomina }}</td>
                                             <td>{{ $firstItem->Nombre }} {{ $firstItem->Apellidos }}</td>
                                             <td>{{ $firstItem->Empresa }}</td>
                                             <td
@@ -381,7 +374,7 @@
                                             >{{ $items->count() }}</td>
                                             <td
                                                 class="text-end"
-                                                style="font-weight: 600; color: #10b981;"
+                                                style="font-weight: 600; color: var(--success-color);"
                                             >${{ number_format($encabezadoTotal, 2) }}</td>
                                         </tr>
                                         <tr>
@@ -395,7 +388,7 @@
                                                 >
                                                     <div
                                                         class="p-3"
-                                                        style="background: #f8fafc;"
+                                                        style="background: var(--bg-light);"
                                                     >
                                                         <table class="table-hover table-custom mb-0 table">
                                                             <thead>
@@ -434,14 +427,15 @@
                                                                 @endforeach
                                                             </tbody>
                                                             <tfoot>
-                                                                <tr style="background: #f1f5f9;">
+                                                                <tr class="bg-table-totals">
                                                                     <td
                                                                         colspan="3"
                                                                         class="fw-bold text-end"
+                                                                        style="color: var(--text-primary);"
                                                                     >Total:</td>
                                                                     <td
                                                                         class="fw-bold text-end"
-                                                                        style="color: #10b981;"
+                                                                        style="color: var(--success-color);"
                                                                     >${{ number_format($encabezadoTotal, 2) }}</td>
                                                                     <td colspan="2"></td>
                                                                 </tr>
@@ -458,25 +452,20 @@
                     </div>
                 </div>
 
-                {{-- GRÁFICA --}}
+                <!-- GRÁFICA -->
                 <div class="col-xxl-4">
-                    <div
-                        class="rounded p-4 shadow-sm"
-                        style="background: white; border-radius: 12px;"
-                    >
+                    <div class="card-chart rounded p-4 shadow-sm">
                         <h5
                             class="mb-3"
-                            style="font-weight: 600; color: #0f172a; font-size: 1rem;"
+                            style="font-weight: 600; color: var(--text-primary); font-size: 1rem;"
                         >
                             <i
                                 class="bi bi-graph-up me-2"
-                                style="color: #64748b;"
+                                style="color: var(--text-secondary);"
                             ></i>Ventas por Día
                         </h5>
                         @if ($ventasEmpleado && count($ventasEmpleado) > 0)
-                            <div style="height: 250px;">
-                                <canvas id="ventasPorDiaChart"></canvas>
-                            </div>
+                            <div style="height: 250px;"><canvas id="ventasPorDiaChart"></canvas></div>
                         @else
                             <div
                                 class="d-flex justify-content-center align-items-center"
@@ -485,11 +474,11 @@
                                 <div class="text-center">
                                     <i
                                         class="bi bi-bar-chart"
-                                        style="font-size: 2.5rem; color: #94a3b8;"
+                                        style="font-size: 2.5rem; color: var(--text-muted);"
                                     ></i>
                                     <p
                                         class="mt-2"
-                                        style="color: #64748b;"
+                                        style="color: var(--text-secondary);"
                                     >Sin datos</p>
                                 </div>
                             </div>
@@ -499,59 +488,44 @@
             </div>
         </div>
     </x-card-gradient-header>
+
     @section('scripts')
         <script>
-            // ====================================================================================================
-            // FUNCIONES DE VISTA (TABLA / TICKETS)
-            // ====================================================================================================
             function cambiarVista(vista) {
                 const vistaTabla = document.getElementById('vistaTabla');
                 const vistaTickets = document.getElementById('vistaTickets');
                 const btnTabla = document.getElementById('btnVistaTabla');
                 const btnTickets = document.getElementById('btnVistaTickets');
-
                 if (vista === 'tabla') {
                     vistaTabla.style.display = '';
                     vistaTickets.style.display = 'none';
-                    btnTabla.style.background = '#1e293b';
+                    btnTabla.style.background = 'var(--gradient-start)';
                     btnTabla.style.color = 'white';
-                    btnTickets.style.background = '#f1f5f9';
-                    btnTickets.style.color = '#475569';
+                    btnTickets.style.background = 'var(--bg-subtle)';
+                    btnTickets.style.color = 'var(--text-subtle)';
                 } else {
                     vistaTabla.style.display = 'none';
                     vistaTickets.style.display = '';
-                    btnTickets.style.background = '#1e293b';
+                    btnTickets.style.background = 'var(--gradient-start)';
                     btnTickets.style.color = 'white';
-                    btnTabla.style.background = '#f1f5f9';
-                    btnTabla.style.color = '#475569';
+                    btnTabla.style.background = 'var(--bg-subtle)';
+                    btnTabla.style.color = 'var(--text-subtle)';
                 }
             }
 
-            // ====================================================================================================
-            // EXPANDIR/CONTRACTAR TABLA (FULL SCREEN)
-            // ====================================================================================================
-            let tablaExpandida = false;
-            let tablaOriginalParent = null;
-            let tablaOriginalNextSibling = null;
-            let tablaOriginalStyles = {};
+            let tablaExpandida = false,
+                tablaOriginalParent = null,
+                tablaOriginalNextSibling = null,
+                tablaOriginalStyles = {};
 
             function toggleExpandirTabla() {
-                // Buscar el contenedor correcto (el div que contiene la tabla)
-                const contenedorCard = document.querySelector('.col-xxl-8 > .rounded') ||
-                    document.getElementById('vistaTabla')?.closest('.rounded') ||
-                    document.querySelector('.col-xxl-8 .rounded');
-
-                if (!contenedorCard) {
-                    console.error('No se encontró el contenedor de la tabla');
-                    return;
-                }
-
-                const btnTexto = document.getElementById('btnExpandirTexto');
-                const btnExpandir = document.getElementById('btnExpandir');
-                const icono = btnExpandir?.querySelector('i');
-
+                const contenedorCard = document.querySelector('.col-xxl-8 > .rounded') || document.getElementById('vistaTabla')
+                    ?.closest('.rounded') || document.querySelector('.col-xxl-8 .rounded');
+                if (!contenedorCard) return;
+                const btnTexto = document.getElementById('btnExpandirTexto'),
+                    btnExpandir = document.getElementById('btnExpandir'),
+                    icono = btnExpandir?.querySelector('i');
                 if (!tablaExpandida) {
-                    // GUARDAR estado original
                     tablaOriginalParent = contenedorCard.parentNode;
                     tablaOriginalNextSibling = contenedorCard.nextSibling;
                     tablaOriginalStyles = {
@@ -569,8 +543,6 @@
                         padding: contenedorCard.style.padding,
                         transition: contenedorCard.style.transition
                     };
-
-                    // EXPANDIR a full screen
                     contenedorCard.style.position = 'fixed';
                     contenedorCard.style.top = '52px';
                     contenedorCard.style.left = '0';
@@ -581,23 +553,15 @@
                     contenedorCard.style.borderRadius = '0';
                     contenedorCard.style.maxWidth = '100vw';
                     contenedorCard.style.overflow = 'auto';
-                    contenedorCard.style.background = '#f8fafc';
+                    contenedorCard.style.background = 'var(--card-bg)';
                     contenedorCard.style.padding = '24px';
                     contenedorCard.style.transition = 'all 0.3s ease';
-
                     document.body.appendChild(contenedorCard);
-
                     if (btnTexto) btnTexto.textContent = 'Contraer';
-                    if (btnExpandir) {
-                        btnExpandir.style.background = '#1e293b';
-                        btnExpandir.style.color = 'white';
-                    }
                     if (icono) icono.className = 'bi bi-arrows-collapse';
-
                     tablaExpandida = true;
                     document.addEventListener('keydown', cerrarConEsc);
                 } else {
-                    // CONTRAER
                     contenedorCard.style.position = tablaOriginalStyles.position || '';
                     contenedorCard.style.top = tablaOriginalStyles.top || '';
                     contenedorCard.style.left = tablaOriginalStyles.left || '';
@@ -610,7 +574,6 @@
                     contenedorCard.style.overflow = tablaOriginalStyles.overflow || '';
                     contenedorCard.style.background = tablaOriginalStyles.background || '';
                     contenedorCard.style.padding = tablaOriginalStyles.padding || '';
-
                     if (tablaOriginalParent) {
                         if (tablaOriginalNextSibling) {
                             tablaOriginalParent.insertBefore(contenedorCard, tablaOriginalNextSibling);
@@ -618,14 +581,8 @@
                             tablaOriginalParent.appendChild(contenedorCard);
                         }
                     }
-
                     if (btnTexto) btnTexto.textContent = 'Expandir';
-                    if (btnExpandir) {
-                        btnExpandir.style.background = '#f1f5f9';
-                        btnExpandir.style.color = '#475569';
-                    }
                     if (icono) icono.className = 'bi bi-arrows-fullscreen';
-
                     tablaExpandida = false;
                     document.removeEventListener('keydown', cerrarConEsc);
                 }
@@ -637,21 +594,7 @@
                 }
             }
 
-            // ====================================================================================================
-            // INICIALIZACIÓN
-            // ====================================================================================================
             document.addEventListener('DOMContentLoaded', function() {
-                // Checkbox de nómina
-                const chk = document.getElementById('chkNomina');
-                const num = document.getElementById('numNomina');
-                if (chk && num) {
-                    chk.addEventListener('change', () => {
-                        num.disabled = !chk.checked;
-                        if (!chk.checked) num.value = '';
-                    });
-                }
-
-                // Gráfica
                 const ctx = document.getElementById('ventasPorDiaChart')?.getContext('2d');
                 @php
                     $ventasPorDia = $ventasEmpleado
@@ -663,6 +606,10 @@
                         });
                 @endphp
                 if (ctx && @json($ventasPorDia->keys()).length > 0) {
+                    var gradientStart = getComputedStyle(document.documentElement).getPropertyValue('--gradient-start')
+                        .trim() || '#1e293b';
+                    var chartFill = getComputedStyle(document.documentElement).getPropertyValue('--chart-fill')
+                    .trim() || 'rgba(30,41,59,0.1)';
                     new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -670,8 +617,8 @@
                             datasets: [{
                                 label: 'Ventas',
                                 data: {!! json_encode($ventasPorDia->values()) !!},
-                                borderColor: '#1e293b',
-                                backgroundColor: 'rgba(30,41,59,0.1)',
+                                borderColor: gradientStart,
+                                backgroundColor: chartFill,
                                 borderWidth: 2,
                                 fill: true,
                                 tension: 0.4

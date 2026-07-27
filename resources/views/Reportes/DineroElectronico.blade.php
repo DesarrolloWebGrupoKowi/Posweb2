@@ -5,20 +5,20 @@
         subtitle="Reporte de dinero electrónico por tienda"
     >
         <x-slot:buttons>
-            <x-header.buttons.home-button />
-            <x-header.buttons.refresh-button />
             @if (!empty($fecha1) && !empty($fecha2))
                 <a
                     href="/ExportReporteDineroElectronido?{{ http_build_query(request()->only(['idTienda', 'fecha1', 'fecha2'])) }}"
                     class="btn-header-ghost"
                     title="Exportar a Excel"
-                    style="background: #f0fdf4; color: #10b981;"
-                    onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+                    style="background: var(--btn-green-bg); color: var(--btn-green-text);"
+                    onmouseover="this.style.background='var(--btn-green-hover)'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.background='var(--btn-green-bg)'; this.style.transform='translateY(0)'"
                 >
                     <i class="bi bi-file-earmark-excel"></i> Exportar
                 </a>
             @endif
+            <x-header.buttons.home-button />
+            <x-header.buttons.refresh-button />
         </x-slot:buttons>
 
         <!-- Filtros -->

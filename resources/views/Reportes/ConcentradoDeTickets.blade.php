@@ -9,9 +9,9 @@
                 href="/ExportReporteConcentradoDeTickets?{{ http_build_query(request()->only(['idTienda', 'fecha1', 'fecha2'])) }}"
                 class="btn-header-ghost"
                 title="Exportar a Excel"
-                style="background: #f0fdf4; color: #10b981;"
-                onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-1px)'"
-                onmouseout="this.style.background='#f0fdf4'; this.style.transform='translateY(0)'"
+                style="background: var(--btn-green-bg); color: var(--btn-green-text);"
+                onmouseover="this.style.background='var(--btn-green-hover)'; this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='var(--btn-green-bg)'; this.style.transform='translateY(0)'"
             >
                 <i class="bi bi-file-earmark-excel"></i> Exportar
             </a>
