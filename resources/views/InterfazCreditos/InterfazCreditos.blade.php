@@ -99,7 +99,7 @@
 
         <!-- Resultados -->
         <div
-            class="d-flex flex-column flex-grow-1 card-chart rounded p-4 shadow-sm"
+            class="d-flex flex-column flex-grow-1 rounded p-4 shadow-sm"
             style="min-height: 0; overflow: hidden;"
         >
             <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0 flex-wrap">

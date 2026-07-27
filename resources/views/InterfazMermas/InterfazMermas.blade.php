@@ -58,7 +58,7 @@
 
         <!-- Resultados -->
         <div
-            class="d-flex flex-column flex-grow-1 card-chart rounded p-4 shadow-sm"
+            class="d-flex flex-column flex-grow-1 rounded p-4 shadow-sm"
             style="min-height: 0; overflow: hidden;"
         >
             <div class="table-responsive flex-grow-1">

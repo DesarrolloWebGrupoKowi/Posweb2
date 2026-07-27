@@ -58,7 +58,19 @@
         </x-form.form>
 
         <!-- Resultados -->
-        <div class="card-chart rounded p-4 shadow-sm">
+        <div class="rounded p-4 shadow-sm">
+            <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                <div>
+                    <h5 class="section-content-title">
+                        <i
+                            class="bi bi-table me-2"
+                            style="color: var(--text-secondary);"
+                        ></i>Pedidos Rutas
+                    </h5>
+                    <p class="section-content-subtitle">Listado de pedidos por tipo de orden y fecha</p>
+                </div>
+            </div>
+
             @if ($filtrosAplicados)
                 <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
                     <div>
