@@ -10,6 +10,7 @@ class EstatusFacturasController extends Controller
 {
     public function index(Request $request)
     {
+        $tipo_factura = $request->filled('tipo_factura');
         // return
         $pedidos = XXKW_HEADERS_IVENTAS::select(
             'Source_Transaction_Number',
@@ -39,11 +40,25 @@ class EstatusFacturasController extends Controller
                 // return $query->where('ORDER_TYPE', $request->order_type)
                 //     ->whereDate('Transaction_On', $request->fecha);
             })
-            ->where('FACTURA', 1)
-            ->whereNotNull('UUID')
+            ->when($request->filled('tipo_factura'), function ($query) use ($request) {
+                if ($request->tipo_factura === 'pos_factura') {
+                    return $query->where('FACTURA', 1)->whereNotNull('UUID');
+                } elseif ($request->tipo_factura === 'pos_contado') {
+                    return $query->whereNull('FACTURA');
+                } elseif ($request->tipo_factura === 'rutas_factura') {
+                    return $query->where('FACTURA', 1)->whereNull('UUID');
+                } elseif ($request->tipo_factura === 'rutas_contado') {
+                    return $query->whereNull('FACTURA')->where('Source_Transaction_Identifier', 'like', 'RG%');
+                }
+                // return $query->whereRaw('1 = 0');
+            })
+            // Si no hay filtros, forzar resultado vacío
+            ->when(!$tipo_factura, function ($query) {
+                $query->whereRaw('1 = 0');
+            })
+
             ->orderBy('Source_Transaction_Number')
             ->get();
-        // }
 
         return view('EstatusFacturas/index', compact('pedidos'));
     }

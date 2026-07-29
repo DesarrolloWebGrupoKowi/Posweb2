@@ -54,7 +54,7 @@ class InterfazRosticeroController extends Controller
                 // $lote->leftJoin('CLOUD_TABLES.dbo.XXKW_ONHAND_TIENDAS', 'XXKW_ONHAND_TIENDAS.INVENTORY_ITEM_ID', 'XXKW_ITEMS.INVENTORY_ITEM_ID')
                 ->where('XXKW_ONHAND_TIENDAS.SUBINVENTORY_CODE', $almacen)
                 ->where('XXKW_ITEMS.ORGANIZATION_NAME', $organization_Name)
-                ->whereDate('EXPIRATION', '>', date('d-m-Y'))
+                ->whereDate('EXPIRATION', '>=', date('d-m-Y'))
                 ->orderBy('EXPIRATION', 'desc');
         }])
             ->select(
