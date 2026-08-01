@@ -894,7 +894,7 @@ class CortesTiendaController extends Controller
                 ->where('IdTienda', $idTienda)
                 ->whereDate('FechaVenta', $fecha)
                 ->where('StatusVenta', 0)
-                ->whereIn('IdTipoPago', [2, 7])
+                ->whereIn('IdTipoPago', [2])
                 ->where('TipoNomina', 3)
                 // ->where('a.IdDatCaja', $idDatCaja)
                 ->when($idDatCaja > 0, function ($query) use ($idDatCaja) {
