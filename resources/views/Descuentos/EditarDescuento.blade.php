@@ -328,6 +328,7 @@
                                             style="border: 1px solid #e2e8f0; border-left: none; padding: 8px 12px; font-size: 0.85rem;"
                                             placeholder="Buscar artículo"
                                             autocomplete="off"
+                                            oninput="this.value = this.value.toUpperCase()"
                                             {{ $estaInactiva ? 'disabled' : '' }}
                                         >
                                         <datalist id="articulos">
