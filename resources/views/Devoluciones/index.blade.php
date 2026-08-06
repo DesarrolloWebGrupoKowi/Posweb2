@@ -1792,10 +1792,10 @@
 
             // URLs de la API
             const apiUrls = {
-                crearPedido: 'http://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/Devolucion',
-                crearRecepcion: 'http://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/Recepcion',
-                confirmarRecepcion: 'http://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/ConfirmRecepcion',
-                crearFactura: 'http://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/SendArRecepcion'
+                crearPedido: 'https://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/Devolucion',
+                crearRecepcion: 'https://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/Recepcion',
+                confirmarRecepcion: 'https://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/ConfirmRecepcion',
+                crearFactura: 'https://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/SendArRecepcion'
             };
 
             // Configuración de cada acción
@@ -1919,7 +1919,7 @@
                 const url = apiUrls[currentAction];
                 let urlCompuesta = '';
 
-                //http://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/Recepcion?Devolucion=DEV_ANT_23&Employee=NAVOJOA 5, FACTURISTA
+                //https://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/Recepcion?Devolucion=DEV_ANT_23&Employee=NAVOJOA 5, FACTURISTA
                 if (currentAction == 'crearRecepcion') {
                     if (!currentEmployeName || currentEmployeName.trim() === '') {
                         modalConfirmar.hide();

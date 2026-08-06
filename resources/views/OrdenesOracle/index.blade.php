@@ -528,10 +528,10 @@
             const ordenUpper = orden.toUpperCase();
 
             if (ordenUpper.startsWith('DEV')) {
-                url = 'http://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/GetDevolucionOracle';
+                url = 'https://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/GetDevolucionOracle';
             } else {
                 // Si no coincide con ningún prefijo conocido, usar GetSalesOracle por defecto
-                url = 'http://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/GetSalesOracle';
+                url = 'https://oracledevolucionrest.kowi.com.mx/api/NotaCreditoAr/GetSalesOracle';
             }
 
             $.ajax({

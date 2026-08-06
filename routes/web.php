@@ -10,6 +10,7 @@ use App\Http\Controllers\PlazasController;
 use App\Http\Controllers\FamiliaArticulosController;
 use App\Http\Controllers\GruposController;
 use App\Http\Controllers\ArticulosController;
+use App\Http\Controllers\AutoservicioFacturacionController;
 use App\Http\Controllers\ListasPrecioController;
 use App\Http\Controllers\MenuPoswebController;
 use App\Http\Controllers\TipoMenuController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\ClientesCloudController;
 use App\Http\Controllers\CajasController;
 use App\Http\Controllers\LimiteCreditoController;
 use App\Http\Controllers\BancosController;
+use App\Http\Controllers\ClientesAutoservicioController;
 use App\Http\Controllers\MovimientosProductoController;
 use App\Http\Controllers\TablasUpdateController;
 use App\Http\Controllers\TipoArticulosController;
@@ -354,6 +356,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/ReporteStock', 'App\Http\Controllers\StockTiendaController@ReporteStock');
     Route::get('/ReporteStockAdmin', 'App\Http\Controllers\StockTiendaController@ReporteStockAdmin');
     Route::get('/UpdateStockViewAdmin', 'App\Http\Controllers\StockTiendaController@UpdateStockViewAdmin');
+    Route::get('/DescargarPlantillaStock/{idTienda}', 'App\Http\Controllers\StockTiendaController@descargarPlantillaStock');
     Route::post('/UpdateStockAdmin/{id}', 'App\Http\Controllers\StockTiendaController@UpdateStockAdmin');
 
     // Tipo Pago Tienda
@@ -554,6 +557,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/TicketFacturacion/Habilitar', [TicketFacturacionController::class, 'habilitar']);
     Route::post('/TicketFacturacion/Desactivar/{id}', [TicketFacturacionController::class, 'desactivar']);
 }); // Termina Middleware Auth
+
+// ORDENEDES DE VENTAS AUTOSERVICIOS
+Route::middleware('auth')->group(function () {
+    // Clientes Autoservicio
+    Route::get('/ClientesAutoservicio', [ClientesAutoservicioController::class, 'index'])->name('autoservicio.index');
+    Route::get('/api/autoservicio/buscar-clientes', [ClientesAutoservicioController::class, 'buscarClientes']);
+    Route::get('/api/autoservicio/buscar-shipto', [ClientesAutoservicioController::class, 'buscarShipTo']);
+    Route::get('/api/autoservicio/buscar-billto', [ClientesAutoservicioController::class, 'buscarBillTo']);
+    Route::get('/api/autoservicio/buscar-precios', [ClientesAutoservicioController::class, 'buscarPrecios']);
+    Route::get('/api/autoservicio/buscar-tipo-orden', [ClientesAutoservicioController::class, 'buscarTipoOrden']);
+    Route::post('/ClientesAutoservicio/guardar', [ClientesAutoservicioController::class, 'guardar'])->name('autoservicio.guardar');
+
+    // Interfaz de Autoservicio
+    Route::get('/AutoservicioFacturacion', [AutoservicioFacturacionController::class, 'index'])->name('autoservicio.facturacion');
+    Route::post('/AutoservicioFacturacion/enviar', [AutoservicioFacturacionController::class, 'enviar'])->name('autoservicio.enviar');
+});
 
 // GRUPO ROSTICERO
 Route::middleware('auth')->group(function () {

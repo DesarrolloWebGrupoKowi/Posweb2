@@ -213,7 +213,30 @@ class StockTiendaController extends Controller
         return view('Stock.UpdateStockAdmin', compact('tiendas', 'idTienda', 'stocks'));
     }
 
-    public function UpdateStockAdmin($id, Request $request)
+    public function descargarPlantillaStock(int $idTienda)
+    {
+        $stocks = DB::table('DatInventario')
+            ->join('CatArticulos', 'DatInventario.CodArticulo', '=', 'CatArticulos.CodArticulo')
+            ->where('IdTienda', $idTienda)
+            ->where('CatArticulos.Status', 0)
+            ->select('DatInventario.CodArticulo', 'StockArticulo')
+            ->orderBy('CodArticulo')
+            ->get();
+
+        // Usar punto y coma como separador para Excel en español
+        $csv = "Codigo;Stock\n";
+        foreach ($stocks as $stock) {
+            $csv .= "{$stock->CodArticulo};{$stock->StockArticulo}\n";
+        }
+
+        // Agregar BOM para UTF-8 (para que Excel reconozca caracteres especiales)
+        $csv = "\xEF\xBB\xBF" . $csv;
+
+        return response($csv)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="plantilla_stock.csv"');
+    }
+    public function UpdateStockAdmin(int $id, Request $request)
     {
         // return $id;
         $stocks = $request->stock;

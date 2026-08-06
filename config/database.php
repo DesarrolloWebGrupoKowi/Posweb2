@@ -156,6 +156,32 @@ return [
             'prefix_indexes' => true,
         ],
 
+        'CORTE' => [
+            'driver' => 'sqlsrv',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST_CORTE', 'localhost'),
+            'port' => env('DB_PORT_CORTE', '1433'),
+            'database' => env('DB_DATABASE_CORTE', 'forge'),
+            'username' => env('DB_USERNAME_CORTE', 'forge'),
+            'password' => env('DB_PASSWORD_CORTE', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+        ],
+
+        'PACKINGLIST' => [
+            'driver' => 'sqlsrv',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST_PACKINGLIST', 'localhost'),
+            'port' => env('DB_PORT_PACKINGLIST', '1433'),
+            'database' => env('DB_DATABASE_PACKINGLIST', 'forge'),
+            'username' => env('DB_USERNAME_PACKINGLIST', 'forge'),
+            'password' => env('DB_PASSWORD_PACKINGLIST', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+        ],
+
     ],
 
     /*

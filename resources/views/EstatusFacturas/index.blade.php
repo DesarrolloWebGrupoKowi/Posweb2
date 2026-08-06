@@ -439,6 +439,18 @@
                     if (btnReintentar) {
                         btnReintentar.classList.remove('d-none');
                         console.log(`🔁 Botón Reintentar mostrado para pedido ${pedido}`);
+
+                        // ✅ EJECUTAR AUTOMÁTICAMENTE EL REINTENTO
+                        // Mostrar spinner
+                        e.innerHTML =
+                            `<span class="spinner-border spinner-border-sm text-primary" role="status"></span>`;
+                        e.dataset.cargando = 'true';
+
+                        // Ocultar el botón mientras se procesa
+                        btnReintentar.classList.add('d-none');
+
+                        // Ejecutar la consulta UUID
+                        fetchBuscarUUIDConTimeout(pedido, e, uuidLocal);
                     }
                 }
             });
