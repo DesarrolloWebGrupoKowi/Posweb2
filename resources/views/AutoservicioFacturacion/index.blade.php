@@ -94,50 +94,11 @@
                                 </button>
                             @endif
 
-                            {{-- Paso 3: Despacho --}}
-                            @if ($packingorder && $packingorder->STATUS === 'PROCESADO')
-                                <button
-                                    type="button"
-                                    id="btnAccion"
-                                    class="btn btn-sm d-flex align-items-center gap-2"
-                                    style="background: #fefce8; color: #854d0e; border: 1px solid #fef08a; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;"
-                                    onmouseover="this.style.background='#fef9c3'; this.style.borderColor='#fde047';"
-                                    onmouseout="this.style.background='#fefce8'; this.style.borderColor='#fef08a';"
-                                    onclick="despacharPedido()"
-                                >
-                                    <i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario
-                                </button>
-                            @endif
-
-                            {{-- Paso 4: Generar Factura --}}
-                            @if ($packingorder && $packingorder->STATUS === 'DESPACHADO')
-                                <button
-                                    type="button"
-                                    id="btnAccion"
-                                    class="btn btn-sm d-flex align-items-center gap-2"
-                                    style="background: #faf5ff; color: #6b21a8; border: 1px solid #e9d5ff; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;"
-                                    onmouseover="this.style.background='#f3e8ff'; this.style.borderColor='#d8b4fe';"
-                                    onmouseout="this.style.background='#faf5ff'; this.style.borderColor='#e9d5ff';"
-                                    onclick="generarFactura()"
-                                >
-                                    <i class="bi bi-receipt me-2"></i> Generar Factura
-                                </button>
-                            @endif
-
-                            {{-- Error --}}
-                            {{-- @if ($packingorder && $packingorder->MENSAJE_ERROR !== null)
-                                <button
-                                    type="button"
-                                    id="btnAccion"
-                                    class="btn btn-sm d-flex align-items-center gap-2"
-                                    style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;"
-                                    onmouseover="this.style.background='#fee2e2'; this.style.borderColor='#fca5a5';"
-                                    onmouseout="this.style.background='#fef2f2'; this.style.borderColor='#fecaca';"
-                                    onclick="reintentarPedido()"
-                                >
-                                    <i class="bi bi-arrow-repeat me-2"></i> Reintentar
-                                </button>
-                            @endif --}}
+                            <div
+                                id="botonesOracleAccion"
+                                class="d-flex align-items-center gap-2"
+                            >
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -285,13 +246,32 @@
                                     <span class="info-titulo">
                                         <i class="bi bi-cloud me-1"></i>Estatus Oracle
                                     </span>
-                                    <span class="info-dato">
-                                        <span
-                                            class="tags-yellow"
-                                            style="font-size: 0.8rem;"
-                                        >
-                                            <i class="bi bi-hourglass-split me-1"></i>Pendiente
-                                        </span>
+                                    <span
+                                        class="info-dato"
+                                        id="estatusOracle"
+                                    >
+                                        @if ($packingorder && $packingorder->STATUS === 'PROCESADO')
+                                            {{-- Mostrar spinner mientras carga --}}
+                                            <span
+                                                class="text-muted"
+                                                style="font-size: 0.8rem;"
+                                            >
+                                                <span
+                                                    class="spinner-border spinner-border-sm me-1"
+                                                    role="status"
+                                                    style="width: 0.8rem; height: 0.8rem;"
+                                                ></span>
+                                                Consultando...
+                                            </span>
+                                        @else
+                                            {{-- Sin pedido o no procesado --}}
+                                            <span
+                                                class="tags-yellow"
+                                                style="font-size: 0.8rem;"
+                                            >
+                                                <i class="bi bi-hourglass-split me-1"></i>Pendiente
+                                            </span>
+                                        @endif
                                     </span>
                                 </div>
                             </div>
@@ -324,7 +304,8 @@
                             <!-- Fila 3: Direcciones -->
                             <div class="col-md-6 mt-0">
                                 <div class="info-row">
-                                    <span class="info-titulo"><i class="bi bi-truck me-1"></i>SHIP_TO (Envío)</span>
+                                    <span class="info-titulo"><i class="bi bi-truck me-1"></i>SHIP_TO
+                                        (Envío)</span>
                                     <span
                                         class="info-dato"
                                         style="font-family: monospace; font-size: 0.78rem;"
@@ -1673,7 +1654,6 @@
             if (!btn) return;
 
             const folio = '{{ $packingorder->Source_Transaction_Identifier ?? '' }}';
-
             if (!folio) {
                 mostrarToastError(['No se encontró el folio del pedido']);
                 return;
@@ -1684,20 +1664,16 @@
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Enviando...';
             btn.style.opacity = '1';
 
-            // Llamar a la API de Oracle
-            fetch(`https://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${folio}&Origen=AUT`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                })
+            fetch(`https://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${folio}&Origen=AUT`)
                 .then(response => response.json())
                 .then(result => {
                     if (result.ok) {
-                        const orderNumber = result.dato?.orderNumber || '';
-                        const mensaje = result.dato?.messageText || result.message || 'Pedido enviado correctamente';
-                        mostrarToast(`${mensaje} ${orderNumber ? '| Orden: ' + orderNumber : ''}`, 'success');
-                        setTimeout(() => location.reload(), 2000);
+                        btn.innerHTML =
+                            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando respuesta de Oracle...';
+                        // Esperar hasta que el estatus cambie (ya no sea null)
+                        esperarCambioEstatus(folio, 'Awaiting Shipping', () => {
+                            location.reload(); // Recargar para mostrar los nuevos botones
+                        });
                     } else {
                         const errorMsg = result.message || 'Error desconocido';
                         mostrarToastError(['Error al enviar: ' + errorMsg]);
@@ -1713,78 +1689,78 @@
         }
 
         // BOTÓN 3: DESPACHAR INVENTARIO
-        function despacharPedido() {
-            const btn = document.getElementById('btnAccion');
-            if (!btn) return;
+        // function despacharPedido() {
+        //     const btn = document.getElementById('btnAccion');
+        //     if (!btn) return;
 
-            const pedido = '{{ $packingorder->Source_Transaction_Identifier ?? '' }}';
+        //     const pedido = '{{ $packingorder->Source_Transaction_Identifier ?? '' }}';
 
-            if (!pedido) {
-                mostrarToastError(['No se encontró el número de pedido']);
-                return;
-            }
+        //     if (!pedido) {
+        //         mostrarToastError(['No se encontró el número de pedido']);
+        //         return;
+        //     }
 
-            btn.disabled = true;
-            const origHTML = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
-            btn.style.opacity = '1';
+        //     btn.disabled = true;
+        //     const origHTML = btn.innerHTML;
+        //     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
+        //     btn.style.opacity = '1';
 
-            fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.ok) {
-                        mostrarToast('Inventario despachado correctamente', 'success');
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        mostrarToastError(['Error al despachar: ' + (data.message || 'Error desconocido')]);
-                        btn.disabled = false;
-                        btn.innerHTML = origHTML;
-                    }
-                })
-                .catch(error => {
-                    mostrarToastError(['Error de conexión: ' + error.message]);
-                    btn.disabled = false;
-                    btn.innerHTML = origHTML;
-                });
-        }
+        //     fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`)
+        //         .then(r => r.json())
+        //         .then(data => {
+        //             if (data.ok) {
+        //                 mostrarToast('Inventario despachado correctamente', 'success');
+        //                 setTimeout(() => location.reload(), 1500);
+        //             } else {
+        //                 mostrarToastError(['Error al despachar: ' + (data.message || 'Error desconocido')]);
+        //                 btn.disabled = false;
+        //                 btn.innerHTML = origHTML;
+        //             }
+        //         })
+        //         .catch(error => {
+        //             mostrarToastError(['Error de conexión: ' + error.message]);
+        //             btn.disabled = false;
+        //             btn.innerHTML = origHTML;
+        //         });
+        // }
 
-        // BOTÓN 4: GENERAR FACTURA
-        function generarFactura() {
-            const btn = document.getElementById('btnAccion');
-            if (!btn) return;
+        // // BOTÓN 4: GENERAR FACTURA
+        // function generarFactura() {
+        //     const btn = document.getElementById('btnAccion');
+        //     if (!btn) return;
 
-            const pedido = '{{ $packingorder->Source_Transaction_Identifier ?? '' }}';
+        //     const pedido = '{{ $packingorder->Source_Transaction_Identifier ?? '' }}';
 
-            if (!pedido) {
-                mostrarToastError(['No se encontró el número de pedido']);
-                return;
-            }
+        //     if (!pedido) {
+        //         mostrarToastError(['No se encontró el número de pedido']);
+        //         return;
+        //     }
 
-            btn.disabled = true;
-            const origHTML = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generando factura...';
-            btn.style.opacity = '1';
+        //     btn.disabled = true;
+        //     const origHTML = btn.innerHTML;
+        //     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generando factura...';
+        //     btn.style.opacity = '1';
 
-            fetch(`https://oraclefacturasrest.kowi.com.mx/api/Documentos/Factura?Orden=${pedido}`, {
-                    method: 'POST'
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.ok) {
-                        mostrarToast('Factura generada correctamente', 'success');
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        mostrarToastError(['Error al generar factura: ' + (data.message || 'Error desconocido')]);
-                        btn.disabled = false;
-                        btn.innerHTML = origHTML;
-                    }
-                })
-                .catch(error => {
-                    mostrarToastError(['Error de conexión: ' + error.message]);
-                    btn.disabled = false;
-                    btn.innerHTML = origHTML;
-                });
-        }
+        //     fetch(`https://oraclefacturasrest.kowi.com.mx/api/Documentos/Factura?Orden=${pedido}`, {
+        //             method: 'POST'
+        //         })
+        //         .then(r => r.json())
+        //         .then(data => {
+        //             if (data.ok) {
+        //                 mostrarToast('Factura generada correctamente', 'success');
+        //                 setTimeout(() => location.reload(), 1500);
+        //             } else {
+        //                 mostrarToastError(['Error al generar factura: ' + (data.message || 'Error desconocido')]);
+        //                 btn.disabled = false;
+        //                 btn.innerHTML = origHTML;
+        //             }
+        //         })
+        //         .catch(error => {
+        //             mostrarToastError(['Error de conexión: ' + error.message]);
+        //             btn.disabled = false;
+        //             btn.innerHTML = origHTML;
+        //         });
+        // }
 
         // ============================================================
         // MOSTRAR TOAST
@@ -1872,6 +1848,217 @@
                     if (toast.parentElement) toast.remove();
                 }, 300);
             }, 8000);
+        }
+
+        // ============================================================
+        // CONSULTAR ESTATUS ORACLE AL CARGAR
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            @if ($packingorder && $packingorder->STATUS === 'PROCESADO')
+                consultarEstatusOracle();
+            @endif
+        });
+
+        // ============================================================
+        // FUNCIÓN PRINCIPAL: CONSULTAR ESTATUS ORACLE
+        // ============================================================
+        function consultarEstatusOracle() {
+            const pedido = '{{ $packingorder->Source_Transaction_Identifier ?? '' }}';
+            if (!pedido) return;
+
+            const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
+            const estatusContainer = document.getElementById('estatusOracle');
+            const contenedorBotones = document.getElementById('botonesOracleAccion');
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok && data.dato?.lines) {
+                        const estatusLineas = data.dato.lines.map(line => line.status);
+                        const estatusUnicos = [...new Set(estatusLineas)];
+
+                        if (estatusUnicos.length === 1) {
+                            const estatusPedido = estatusUnicos[0];
+                            actualizarTagEstatus(estatusPedido, estatusContainer);
+
+                            if (contenedorBotones) {
+                                contenedorBotones.innerHTML = '';
+                                if (estatusPedido === 'Awaiting Shipping') {
+                                    botonDespachoInventario(contenedorBotones, pedido);
+                                } else if (estatusPedido === 'Awaiting Billing') {
+                                    botonGenerarFactura(contenedorBotones, pedido);
+                                } else if (estatusPedido === 'Closed') {
+                                    contenedorBotones.innerHTML = `
+                                <span class="tags-green" style="font-size: 0.8rem;">
+                                    <i class="bi bi-check-circle me-1"></i>Completado
+                                </span>`;
+                                }
+                            }
+                        } else if (estatusUnicos.length > 1) {
+                            actualizarTagEstatus(estatusUnicos.join(', '), estatusContainer);
+                        }
+                    } else {
+                        if (estatusContainer) {
+                            estatusContainer.innerHTML = `
+                        <span class="tags-red" style="font-size: 0.8rem;">
+                            <i class="bi bi-x-circle me-1"></i>Sin datos
+                        </span>`;
+                        }
+                    }
+                })
+                .catch(() => {
+                    if (estatusContainer) {
+                        estatusContainer.innerHTML = `
+                    <span class="tags-red" style="font-size: 0.8rem;">
+                        <i class="bi bi-cloud-slash me-1"></i>Error de conexión
+                    </span>`;
+                    }
+                });
+        }
+
+        function actualizarTagEstatus(estatus, container) {
+            if (!container) return;
+
+            let clase = 'tags-green';
+            let icono = 'bi-check-circle';
+
+            if (estatus === 'Canceled') {
+                clase = 'tags-red';
+                icono = 'bi-x-circle';
+            } else if (estatus === 'Awaiting Shipping' || estatus === 'Awaiting Billing') {
+                clase = 'tags-yellow';
+                icono = 'bi-hourglass-split';
+            } else if (estatus === 'Closed') {
+                clase = 'tags-green';
+                icono = 'bi-check-circle';
+            }
+
+            container.innerHTML = `
+                <span class="${clase}" style="font-size: 0.8rem;">
+                    <i class="bi ${icono} me-1"></i>${estatus}
+                </span>`;
+        }
+
+        // ============================================================
+        // POLLING: ESPERAR CAMBIO DE ESTATUS
+        // ============================================================
+        function esperarCambioEstatus(pedido, estatusEsperado, callback) {
+            const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
+            const tagEstatus = document.getElementById('tagEstatusOracle');
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok && data.dato?.lines) {
+                        const estatusLineas = data.dato.lines.map(line => line.status);
+                        const estatusUnicos = [...new Set(estatusLineas)];
+
+                        if (estatusUnicos.length === 1) {
+                            const estatusPedido = estatusUnicos[0];
+                            actualizarTagEstatus(estatusPedido);
+
+                            if (estatusPedido === estatusEsperado) {
+                                // ¡Llegó al estatus esperado!
+                                callback();
+                            } else {
+                                // Seguir esperando (consultar cada 5 segundos)
+                                setTimeout(() => esperarCambioEstatus(pedido, estatusEsperado, callback), 5000);
+                            }
+                        } else {
+                            // Múltiples estatus, seguir esperando
+                            setTimeout(() => esperarCambioEstatus(pedido, estatusEsperado, callback), 5000);
+                        }
+                    } else {
+                        // Sin datos, seguir esperando
+                        setTimeout(() => esperarCambioEstatus(pedido, estatusEsperado, callback), 5000);
+                    }
+                })
+                .catch(() => {
+                    // Error, seguir esperando
+                    setTimeout(() => esperarCambioEstatus(pedido, estatusEsperado, callback), 5000);
+                });
+        }
+
+        // ============================================================
+        // BOTÓN DESPACHO INVENTARIO
+        // ============================================================
+        function botonDespachoInventario(contenedor, pedido) {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm d-flex align-items-center gap-2';
+            btn.style.cssText =
+                'background: #fefce8; color: #854d0e; border: 1px solid #fef08a; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;';
+            btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+
+            btn.addEventListener('click', () => {
+                btn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '1';
+
+                fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.ok) {
+                            btn.innerHTML =
+                                '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
+                            // Esperar hasta que cambie a Awaiting Billing
+                            esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
+                                consultarEstatusOracle(); // Refrescar todo
+                            });
+                        } else {
+                            btn.innerHTML = '❌ Error';
+                            btn.style.pointerEvents = 'auto';
+                        }
+                    })
+                    .catch(() => {
+                        btn.innerHTML = '❌ Error';
+                        btn.style.pointerEvents = 'auto';
+                    });
+            });
+
+            contenedor.appendChild(btn);
+        }
+
+        // ============================================================
+        // BOTÓN GENERAR FACTURA
+        // ============================================================
+        function botonGenerarFactura(contenedor, pedido) {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm d-flex align-items-center gap-2';
+            btn.style.cssText =
+                'background: #faf5ff; color: #6b21a8; border: 1px solid #e9d5ff; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;';
+            btn.innerHTML = '<i class="bi bi-receipt me-2"></i> Generar Factura';
+
+            btn.addEventListener('click', () => {
+                btn.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generando...';
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '1';
+
+                fetch(`https://oraclefacturasrest.kowi.com.mx/api/Documentos/Factura?Orden=${pedido}`, {
+                        method: 'POST'
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.ok) {
+                            btn.innerHTML =
+                                '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
+                            // Esperar hasta que cambie a Closed
+                            esperarCambioEstatus(pedido, 'Closed', () => {
+                                consultarEstatusOracle(); // Refrescar todo - el botón desaparecerá
+                            });
+                        } else {
+                            btn.innerHTML = '❌ Error';
+                            btn.style.pointerEvents = 'auto';
+                        }
+                    })
+                    .catch(() => {
+                        btn.innerHTML = '❌ Error';
+                        btn.style.pointerEvents = 'auto';
+                    });
+            });
+
+            contenedor.appendChild(btn);
         }
     </script>
 </x-page-container>

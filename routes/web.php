@@ -572,6 +572,10 @@ Route::middleware('auth')->group(function () {
     // Interfaz de Autoservicio
     Route::get('/AutoservicioFacturacion', [AutoservicioFacturacionController::class, 'index'])->name('autoservicio.facturacion');
     Route::post('/AutoservicioFacturacion/enviar', [AutoservicioFacturacionController::class, 'enviar'])->name('autoservicio.enviar');
+
+    // Reporte de Interfaz Autoservicio
+    Route::get('/AutoservicioReporte', [AutoservicioFacturacionController::class, 'reporte'])->name('autoservicio.reporte');
+    Route::get('/api/autoservicio/detalle/{folio}', [AutoservicioFacturacionController::class, 'detalleLineas']);
 });
 
 // GRUPO ROSTICERO

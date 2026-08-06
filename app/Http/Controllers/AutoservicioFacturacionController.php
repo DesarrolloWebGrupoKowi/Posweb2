@@ -9,14 +9,10 @@ use Illuminate\Support\Facades\Log;
 
 class AutoservicioFacturacionController extends Controller
 {
-    private $dbCorte = 'CORTE';
     private $dbPackingList = 'PACKINGLIST';
     private $dbCloud = 'Cloud_Interface';
     private $dbTables = 'Cloud_Tables';
 
-    /**
-     * Vista principal
-     */
     public function index(Request $request)
     {
         // Datos para rellenar los combos
@@ -345,5 +341,93 @@ class AutoservicioFacturacionController extends Controller
             ]);
             return back()->with('msjdelete', 'Error al enviar: ' . $e->getMessage());
         }
+    }
+
+    public function reporte(Request $request)
+    {
+        $fecha = $request->get('fecha', date('Y-m-d'));
+        $orden = $request->get('orden', ''); // Nuevo: filtro por tipo de orden
+        $estatus = $request->get('estatus', '');
+        $cliente = $request->get('cliente', '');
+
+        $headers = DB::connection($this->dbCloud)
+            ->table('XXKW_AUTOSERVICIO_HEADERS')
+            ->select(
+                'Source_Transaction_Identifier',
+                'Source_Transaction_Number',
+                'Buying_Party_Name',
+                'Buying_Party_Type',
+                'Transaction_On',
+                'Requesting_Business_Unit',
+                'Batch_Name',
+                'STATUS',
+                'ORDER_TYPE',
+                'MENSAJE_ERROR',
+                'CustomerPONumber',
+                'UCFDI',
+                'METODO_PAGO',
+                'FORMA_PAGO'
+            )
+            ->whereDate('Transaction_On', $fecha) // Obligatorio: filtrar por fecha
+            ->when($orden, function ($query) use ($orden) {
+                $query->where('ORDER_TYPE', $orden); // Filtrar por tipo de orden
+            })
+            ->when($estatus, function ($query) use ($estatus) {
+                if ($estatus === 'NULL') {
+                    $query->whereNull('STATUS');
+                } else {
+                    $query->where('STATUS', $estatus);
+                }
+            })
+            ->when($cliente, function ($query) use ($cliente) {
+                $query->where(function ($q) use ($cliente) {
+                    $q->where('Buying_Party_Name', 'like', '%' . $cliente . '%')
+                        ->orWhere('CustomerPONumber', 'like', '%' . $cliente . '%');
+                });
+            })
+            ->orderBy('Transaction_On', 'DESC')
+            ->orderBy('Source_Transaction_Identifier', 'DESC')
+            ->paginate(20);
+
+        // Calcular totales
+        foreach ($headers as $header) {
+            $header->total_lineas = DB::connection($this->dbCloud)
+                ->table('XXKW_AUTOSERVICIO_LINES')
+                ->where('Source_Transaction_Identifier', $header->Source_Transaction_Identifier)
+                ->count();
+
+            $header->total_kilos = DB::connection($this->dbCloud)
+                ->table('XXKW_AUTOSERVICIO_LINES')
+                ->where('Source_Transaction_Identifier', $header->Source_Transaction_Identifier)
+                ->where('Ordered_UOM', 'KILOGRAMO')
+                ->sum('Ordered_Quantity');
+
+            $header->total_importe = DB::connection($this->dbCloud)
+                ->table('XXKW_AUTOSERVICIO_LINES')
+                ->where('Source_Transaction_Identifier', $header->Source_Transaction_Identifier)
+                ->sum(DB::raw('Ordered_Quantity * ADJUSTMENT_AMOUNT'));
+        }
+
+        // Obtener tipos de orden para el filtro
+        $tiposOrden = DB::connection($this->dbCloud)
+            ->table('XXKW_AUTOSERVICIO_HEADERS')
+            ->select('ORDER_TYPE')
+            ->distinct()
+            ->whereNotNull('ORDER_TYPE')
+            ->orderBy('ORDER_TYPE')
+            ->pluck('ORDER_TYPE');
+
+        return view('AutoservicioFacturacion.reporte', compact('headers', 'fecha', 'orden', 'estatus', 'cliente', 'tiposOrden'));
+    }
+
+    public function detalleLineas(string $folio)
+    {
+        $lineas = DB::connection($this->dbCloud)
+            ->table('XXKW_AUTOSERVICIO_LINES')
+            ->where('Source_Transaction_Identifier', $folio)
+            ->orderBy('Source_Transaction_Line_Number')
+            ->get();
+
+        return response()->json($lineas);
     }
 }
