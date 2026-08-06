@@ -1685,7 +1685,7 @@
             btn.style.opacity = '1';
 
             // Llamar a la API de Oracle
-            fetch(`https://oracleorderrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${folio}&Origen=AUT`, {
+            fetch(`https://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${folio}&Origen=AUT`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json'
