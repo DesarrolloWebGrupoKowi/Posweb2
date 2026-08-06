@@ -16,6 +16,15 @@ class ClientesAutoservicioController extends Controller
     public function index(Request $request)
     {
         $filtro = $request->get('filtro', '');
+        $subinventario = $request->get('subinventario', '');
+
+        $subInventario = DB::connection($this->dbCloud)
+            ->table('XXKW_ORGANIZATIONS')
+            ->select('ORGANIZATION_CODE', 'ORGANIZATION_NAME')
+            ->where('BUSINESS_UNIT_NAME', 'UO_02_ALIME_KOWI')
+            ->whereNotIn('ORGANIZATION_CODE', ['APC', 'ACO', 'APR', 'ARF'])
+            ->orderBy('ORGANIZATION_CODE')
+            ->get();
 
         $clientes = DB::connection($this->dbCorte)
             ->table('GCSCTEPK')
@@ -32,15 +41,19 @@ class ClientesAutoservicioController extends Controller
                 'PRICE_LIST_ID',
                 'ORDER_TYPE'
             )
+            ->whereNotNull('SUBINVENTORY_NAME')
             ->when($filtro, function ($query) use ($filtro) {
                 $query->where('Nombre', 'like', '%' . $filtro . '%')
                     ->orWhere('Cliente', 'like', '%' . $filtro . '%');
+            })
+            ->when($subinventario, function ($query) use ($subinventario) {
+                $query->where('SUBINVENTORY_NAME', $subinventario);
             })
             ->orderBy('Cliente')
             ->paginate(10)
             ->appends(request()->query());
 
-        return view('ClientesAutoservicio.index', compact('clientes', 'filtro'));
+        return view('ClientesAutoservicio.index', compact('subInventario', 'clientes', 'filtro'));
     }
 
     /**

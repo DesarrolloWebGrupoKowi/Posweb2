@@ -17,8 +17,16 @@
                     label="Buscar cliente"
                     icon="search"
                     placeholder="Nombre o código del cliente..."
-                    col="col-md-5"
+                    col="col-md-4"
                     :autofocus="true"
+                />
+                <x-form.select
+                    name="subinventario"
+                    label="Subinventario"
+                    icon="building"
+                    col="col-md-2"
+                    :options="$subInventario->pluck('ORGANIZATION_NAME', 'ORGANIZATION_CODE')->toArray()"
+                    placeholder="Todos los almacenes"
                 />
             </x-form.group>
             <div class="col-md-2 d-flex gap-2">
@@ -190,7 +198,7 @@
                         @empty
                             <tr>
                                 <td
-                                    colspan="9"
+                                    colspan="11"
                                     class="py-5 text-center"
                                 >
                                     <i
