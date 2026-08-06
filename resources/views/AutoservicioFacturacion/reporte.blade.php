@@ -195,7 +195,7 @@
                         @empty
                             <tr>
                                 <td
-                                    colspan="8"
+                                    colspan="10"
                                     class="py-5 text-center"
                                 >
                                     <i
