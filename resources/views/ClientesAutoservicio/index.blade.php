@@ -151,7 +151,10 @@
                                         <span class="">-</span>
                                     @endif
                                 </td>
-                                <td class="text-center">
+                                <td
+                                    class="text-center"
+                                    style="padding-top: -4rem;"
+                                >
                                     @if ($configurado)
                                         <span
                                             class="tags-green"
@@ -170,7 +173,10 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="text-center">
+                                <td
+                                    class="text-center"
+                                    style="padding-top: .4rem;"
+                                >
                                     <div class="d-flex justify-content-center gap-1">
                                         <!-- Botón Ver -->
                                         <button
