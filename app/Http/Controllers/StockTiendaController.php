@@ -192,14 +192,14 @@ class StockTiendaController extends Controller
             ->where('IdTienda', $idTienda)
             ->where('DatInventario.StockArticulo', '>', 0)
             ->where('b.Status', 0)
-            ->orderBy('b.NomArticulo')
+            ->orderBy('b.CodArticulo')
             ->get();
 
         $stocksLess = DatInventario::leftJoin('CatArticulos as b', 'b.CodArticulo', 'DatInventario.CodArticulo')
             ->where('IdTienda', $idTienda)
             ->where('DatInventario.StockArticulo', '<=', 0)
             ->where('b.Status', 0)
-            ->orderBy('b.NomArticulo')
+            ->orderBy('b.CodArticulo')
             ->get();
 
         $stocks = [];
