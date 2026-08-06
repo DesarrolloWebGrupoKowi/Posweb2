@@ -30,7 +30,7 @@
             </div>
         </x-form.form>
 
-        @if (isset($header))
+        @if (isset($header) && $header != null)
             <!-- Resultados -->
             <div class="p-4">
                 <!-- Subtítulo + Botón de Acción -->

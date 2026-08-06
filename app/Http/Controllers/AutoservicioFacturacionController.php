@@ -402,6 +402,12 @@ class AutoservicioFacturacionController extends Controller
                 ->where('Ordered_UOM', 'KILOGRAMO')
                 ->sum('Ordered_Quantity');
 
+            $header->total_piezas = DB::connection($this->dbCloud)
+                ->table('XXKW_AUTOSERVICIO_LINES')
+                ->where('Source_Transaction_Identifier', $header->Source_Transaction_Identifier)
+                ->where('Ordered_UOM', 'PIEZA.')
+                ->sum('Ordered_Quantity');
+
             $header->total_importe = DB::connection($this->dbCloud)
                 ->table('XXKW_AUTOSERVICIO_LINES')
                 ->where('Source_Transaction_Identifier', $header->Source_Transaction_Identifier)

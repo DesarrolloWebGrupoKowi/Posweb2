@@ -85,6 +85,7 @@
                             <th class="text-center"><i class="bi bi-circle me-1"></i>Estatus</th>
                             <th class="text-center"><i class="bi bi-cloud me-1"></i>Oracle</th>
                             <th class="text-end"><i class="bi bi-box me-1"></i>Kilos</th>
+                            <th class="text-end"><i class="bi bi-box me-1"></i>Piezas</th>
                             <th class="text-end"><i class="bi bi-cash me-1"></i>Total</th>
                             <th class="text-center"><i class="bi bi-info-circle me-1"></i>Detalle</th>
                         </tr>
@@ -165,6 +166,12 @@
                                     style="font-weight: 500;"
                                 >
                                     {{ number_format($header->total_kilos, 2) }} kg
+                                </td>
+                                <td
+                                    class="text-end"
+                                    style="font-weight: 500;"
+                                >
+                                    {{ number_format($header->total_piezas, 2) }} pz
                                 </td>
                                 <!-- Total -->
                                 <td
