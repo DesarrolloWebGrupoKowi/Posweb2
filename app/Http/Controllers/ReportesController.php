@@ -26,6 +26,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ReportesController extends Controller
 {
@@ -937,6 +939,7 @@ class ReportesController extends Controller
                     'DD.PrecioArticulo',
                     DB::raw('COUNT(DD.CantArticulo) AS cantidad'),
                     'CA.UOM',
+                    'CP.IdPaquete',
                     'CP.NomPaquete'
                 )
                 ->whereDate('DE.FechaVenta', '>=', $fechaInicio)
@@ -954,7 +957,17 @@ class ReportesController extends Controller
                             ->orWhere('CA.NomArticulo', 'like', '%' . $codArticulo . '%');
                     });
                 })
-                ->groupBy('DE.IdTienda', 'DD.IdArticulo', 'CA.CodArticulo', 'CA.NomArticulo', 'DD.PrecioArticulo', 'CA.UOM', 'CP.NomPaquete', 'CT.NomTienda')
+                ->groupBy(
+                    'DE.IdTienda',
+                    'DD.IdArticulo',
+                    'CA.CodArticulo',
+                    'CA.NomArticulo',
+                    'DD.PrecioArticulo',
+                    'CA.UOM',
+                    'CP.IdPaquete',
+                    'CP.NomPaquete',
+                    'CT.NomTienda'
+                )
                 ->orderBy('DE.IdTienda')
                 ->orderBy('CA.CodArticulo')
                 ->get();
@@ -972,6 +985,7 @@ class ReportesController extends Controller
                     'DD.PrecioArticulo',
                     DB::raw('COUNT(DD.CantArticulo) AS cantidad'),
                     'CA.UOM',
+                    'CP.IdPaquete',
                     'CP.NomPaquete'
                 )
                 ->whereDate('DE.FechaVenta', '>=', $fechaInicio)
@@ -989,57 +1003,84 @@ class ReportesController extends Controller
                             ->orWhere('CA.NomArticulo', 'like', '%' . $codArticulo . '%');
                     });
                 })
-                ->groupBy('DD.IdArticulo', 'CA.CodArticulo', 'CA.NomArticulo', 'DD.PrecioArticulo', 'CA.UOM', 'CP.NomPaquete')
+                ->groupBy(
+                    'DD.IdArticulo',
+                    'CA.CodArticulo',
+                    'CA.NomArticulo',
+                    'DD.PrecioArticulo',
+                    'CA.UOM',
+                    'CP.IdPaquete',
+                    'CP.NomPaquete'
+                )
                 ->orderBy('CA.CodArticulo')
                 ->get();
 
             $headers = ['Código', 'Artículo', 'Precio', 'Cantidad', 'UOM', 'Paquete'];
         }
 
-        // Crear CSV
-        $filename = 'Concentrado_Paquetes_' . date('Ymd_His') . '.csv';
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
 
-        $callback = function () use ($data, $headers) {
-            $file = fopen('php://output', 'w');
-            // BOM para UTF-8
-            fputs($file, "\xEF\xBB\xBF");
-            // Encabezados
-            fputcsv($file, $headers, ';');
-            // Datos
-            foreach ($data as $item) {
-                $row = [];
-                foreach ($headers as $header) {
-                    switch ($header) {
-                        case 'Tienda':
-                            $row[] = $item->NomTienda ?? '';
-                            break;
-                        case 'Código':
-                            $row[] = $item->CodArticulo ?? '';
-                            break;
-                        case 'Artículo':
-                            $row[] = $item->NomArticulo ?? '';
-                            break;
-                        case 'Precio':
-                            $row[] = number_format($item->PrecioArticulo ?? 0, 2);
-                            break;
-                        case 'Cantidad':
-                            $row[] = number_format($item->cantidad ?? 0, 2);
-                            break;
-                        case 'UOM':
-                            $row[] = $item->UOM ?? '';
-                            break;
-                        case 'Paquete':
-                            $row[] = $item->NomPaquete ?? '';
-                            break;
-                    }
+        // Encabezados
+        $columna = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($columna . '1', $header);
+            $sheet->getStyle($columna . '1')->getFont()->setBold(true);
+            $sheet->getStyle($columna . '1')->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('1e293b');
+            $sheet->getStyle($columna . '1')->getFont()->getColor()->setRGB('ffffff');
+            $columna++;
+        }
+
+        // Datos
+        // Datos
+        $fila = 2;
+        foreach ($data as $item) {
+            $columna = 'A';
+            foreach ($headers as $header) {
+                switch ($header) {
+                    case 'Tienda':
+                        $sheet->setCellValue($columna . $fila, $item->NomTienda ?? '');
+                        break;
+                    case 'Código':
+                        $sheet->setCellValue($columna . $fila, $item->CodArticulo ?? '');
+                        break;
+                    case 'Artículo':
+                        $sheet->setCellValue($columna . $fila, $item->NomArticulo ?? '');
+                        break;
+                    case 'Precio':
+                        $sheet->setCellValue($columna . $fila, $item->PrecioArticulo ?? 0);
+                        break;
+                    case 'Cantidad':
+                        $sheet->setCellValue($columna . $fila, $item->cantidad ?? 0);
+                        break;
+                    case 'UOM':
+                        $sheet->setCellValue($columna . $fila, $item->UOM ?? '');
+                        break;
+                    case 'Paquete':
+                        $sheet->setCellValue($columna . $fila, $item->NomPaquete ?? '');
+                        break;
                 }
-                fputcsv($file, $row, ';');
+                $columna++;
             }
-            fclose($file);
-        };
+            $fila++;
+        }
 
-        return response()->stream($callback, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+        // Auto-ajustar columnas
+        $ultimaColumna = chr(64 + count($headers)); // A=65, B=66, etc.
+        foreach (range('A', $ultimaColumna) as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = 'Concentrado_Paquetes_' . date('Ymd_His') . '.xlsx';
+
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->stream(function () use ($writer) {
+            $writer->save('php://output');
+        }, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
