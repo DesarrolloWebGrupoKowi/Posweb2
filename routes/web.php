@@ -471,6 +471,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/ExportsReporteDescuentos', 'App\Http\Controllers\ReportesController@exportsDescuentos')->name('ExportsReporteDescuentos');
     Route::get('/ReportePaquetes', 'App\Http\Controllers\ReportesController@reportePaquetes')->name('ReportePaquetes');
     Route::get('/ExportsReportePaquetes', 'App\Http\Controllers\ReportesController@exportsPaquetes')->name('ExportsReportePaquetes');
+    Route::get('/ConcentradoPaquetes', 'App\Http\Controllers\ReportesController@concentradoPaquetes')->name('ConcentradoPaquetes');
+    Route::get('/ExportarConcentradoPaquetes', 'App\Http\Controllers\ReportesController@exportarConcentradoPaquetes')->name('ExportsConcentradoPaquetes');
     Route::get('/ReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeTickets')->name('ReporteConcentradoDeTickets');
     Route::get('/ExportReporteConcentradoDeTickets', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeTickets')->name('ExportReporteConcentradoDeTickets');
     Route::get('/ReportePorTipoDePrecio', 'App\Http\Controllers\ReportesController@ReportePorTipoDePrecio')->name('ReportePorTipoDePrecio');

@@ -1,9 +1,9 @@
-<x-page-container title="Concentrado de Paquetes">
+<x-page-container title="Reporte de Paquetes">
 
     <!-- SECCIÓN 1: FILTROS -->
     <x-card-gradient-header
         icon="gift"
-        title="Concentrado de Paquetes"
+        title="Reporte de Paquetes"
         subtitle="Reporte de paquetes comercializados por ticket"
     >
         <x-slot:buttons>

@@ -787,6 +787,263 @@ class ReportesController extends Controller
         return Excel::download(new ReportePaquetes($query), $name);
     }
 
+    // Concentrado de paquetes por articulos
+    public function concentradoPaquetes(Request $request)
+    {
+        $idTienda = $request->get('idTienda', '');
+        $fechaInicio = $request->get('fecha_inicio', date('Y-m-01'));
+        $fechaFin = $request->get('fecha_fin', date('Y-m-t'));
+        $codArticulo = $request->get('cod_articulo', '');
+        $vista = $request->get('vista', 'general'); // 'general' por defecto
+
+        // Tiendas para el filtro
+        $tiendas = DB::table('CatTiendas')
+            ->where('Status', 0)
+            ->orderBy('NomTienda')
+            ->get();
+
+        if ($vista === 'agrupada') {
+            // Consulta agrupada por tienda
+            $data = DB::table('DatEncabezado AS DE')
+                ->join('DatDetalle AS DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
+                ->join('CatArticulos AS CA', 'CA.IdArticulo', '=', 'DD.IdArticulo')
+                ->leftJoin('CatPaquetes AS CP', 'CP.IdPaquete', '=', 'DD.IdPaquete')
+                ->join('CatTiendas AS CT', 'CT.IdTienda', '=', 'DE.IdTienda')
+                ->select(
+                    'DD.IdArticulo',
+                    'CA.CodArticulo',
+                    'CA.NomArticulo',
+                    'DD.PrecioArticulo',
+                    DB::raw('COUNT(DD.CantArticulo) AS cantidad'),
+                    'CA.UOM',
+                    'CP.IdPaquete',
+                    'CP.NomPaquete',
+                    'CT.NomTienda'
+                )
+                ->whereDate('DE.FechaVenta', '>=', $fechaInicio)
+                ->whereDate('DE.FechaVenta', '<=', $fechaFin)
+                ->where('CA.Status', 0)
+                ->where('DE.StatusVenta', 0)
+                ->whereNotNull('DD.IdPaquete')
+                ->whereNull('CP.IdPreparado')
+                ->when($idTienda, function ($q) use ($idTienda) {
+                    $q->where('DE.IdTienda', $idTienda);
+                })
+                ->when($codArticulo, function ($q) use ($codArticulo) {
+                    $q->where(function ($sub) use ($codArticulo) {
+                        $sub->where('CA.CodArticulo', 'like', '%' . $codArticulo . '%')
+                            ->orWhere('CA.NomArticulo', 'like', '%' . $codArticulo . '%');
+                    });
+                })
+                ->groupBy(
+                    'DE.IdTienda',
+                    'DD.IdArticulo',
+                    'CA.CodArticulo',
+                    'CA.NomArticulo',
+                    'DD.PrecioArticulo',
+                    'CA.UOM',
+                    'CP.IdPaquete',
+                    'CP.NomPaquete',
+                    'CT.NomTienda'
+                )
+                ->orderBy('DE.IdTienda')
+                ->orderBy('CA.CodArticulo')
+                ->orderBy('DD.PrecioArticulo')
+                ->get();
+        } else {
+            // Consulta general (sin agrupar por tienda)
+            $data = DB::table('DatEncabezado AS DE')
+                ->join('DatDetalle AS DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
+                ->join('CatArticulos AS CA', 'CA.IdArticulo', '=', 'DD.IdArticulo')
+                ->leftJoin('CatPaquetes AS CP', 'CP.IdPaquete', '=', 'DD.IdPaquete')
+                ->join('CatTiendas AS CT', 'CT.IdTienda', '=', 'DE.IdTienda')
+                ->select(
+                    'DD.IdArticulo',
+                    'CA.CodArticulo',
+                    'CA.NomArticulo',
+                    'DD.PrecioArticulo',
+                    DB::raw('COUNT(DD.CantArticulo) AS cantidad'),
+                    'CA.UOM',
+                    'CP.IdPaquete',
+                    'CP.NomPaquete'
+                )
+                ->whereDate('DE.FechaVenta', '>=', $fechaInicio)
+                ->whereDate('DE.FechaVenta', '<=', $fechaFin)
+                ->where('CA.Status', 0)
+                ->where('DE.StatusVenta', 0)
+                ->whereNotNull('DD.IdPaquete')
+                ->whereNull('CP.IdPreparado')
+                ->when($idTienda, function ($q) use ($idTienda) {
+                    $q->where('DE.IdTienda', $idTienda);
+                })
+                ->when($codArticulo, function ($q) use ($codArticulo) {
+                    $q->where(function ($sub) use ($codArticulo) {
+                        $sub->where('CA.CodArticulo', 'like', '%' . $codArticulo . '%')
+                            ->orWhere('CA.NomArticulo', 'like', '%' . $codArticulo . '%');
+                    });
+                })
+                ->groupBy(
+                    'DD.IdArticulo',
+                    'CA.CodArticulo',
+                    'CA.NomArticulo',
+                    'DD.PrecioArticulo',
+                    'CA.UOM',
+                    'CP.IdPaquete',
+                    'CP.NomPaquete'
+                )
+                ->orderBy('CA.CodArticulo')
+                ->orderBy('DD.PrecioArticulo')
+                ->get();
+        }
+
+        // KPIs
+        $kpis = [
+            'total_paquetes' => $data->groupBy('NomPaquete')->count(),
+            'total_importe' => $data->sum(function ($item) {
+                return $item->cantidad * $item->PrecioArticulo;
+            }),
+        ];
+
+        return view('Reportes.PaquetesConcentrado', compact(
+            'data',
+            'tiendas',
+            'idTienda',
+            'fechaInicio',
+            'fechaFin',
+            'codArticulo',
+            'vista',
+            'kpis'
+        ));
+    }
+
+    public function exportarConcentradoPaquetes(Request $request)
+    {
+        $idTienda = $request->get('idTienda', '');
+        $fechaInicio = $request->get('fecha_inicio', date('Y-m-01'));
+        $fechaFin = $request->get('fecha_fin', date('Y-m-t'));
+        $codArticulo = $request->get('cod_articulo', '');
+        $vista = $request->get('vista', 'general');
+
+        if ($vista === 'agrupada') {
+            $data = DB::table('DatEncabezado AS DE')
+                ->join('DatDetalle AS DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
+                ->join('CatArticulos AS CA', 'CA.IdArticulo', '=', 'DD.IdArticulo')
+                ->leftJoin('CatPaquetes AS CP', 'CP.IdPaquete', '=', 'DD.IdPaquete')
+                ->join('CatTiendas AS CT', 'CT.IdTienda', '=', 'DE.IdTienda')
+                ->select(
+                    'CT.NomTienda',
+                    'CA.CodArticulo',
+                    'CA.NomArticulo',
+                    'DD.PrecioArticulo',
+                    DB::raw('COUNT(DD.CantArticulo) AS cantidad'),
+                    'CA.UOM',
+                    'CP.NomPaquete'
+                )
+                ->whereDate('DE.FechaVenta', '>=', $fechaInicio)
+                ->whereDate('DE.FechaVenta', '<=', $fechaFin)
+                ->where('CA.Status', 0)
+                ->where('DE.StatusVenta', 0)
+                ->whereNotNull('DD.IdPaquete')
+                ->whereNull('CP.IdPreparado')
+                ->when($idTienda, function ($q) use ($idTienda) {
+                    $q->where('DE.IdTienda', $idTienda);
+                })
+                ->when($codArticulo, function ($q) use ($codArticulo) {
+                    $q->where(function ($sub) use ($codArticulo) {
+                        $sub->where('CA.CodArticulo', 'like', '%' . $codArticulo . '%')
+                            ->orWhere('CA.NomArticulo', 'like', '%' . $codArticulo . '%');
+                    });
+                })
+                ->groupBy('DE.IdTienda', 'DD.IdArticulo', 'CA.CodArticulo', 'CA.NomArticulo', 'DD.PrecioArticulo', 'CA.UOM', 'CP.NomPaquete', 'CT.NomTienda')
+                ->orderBy('DE.IdTienda')
+                ->orderBy('CA.CodArticulo')
+                ->get();
+
+            $headers = ['Tienda', 'Código', 'Artículo', 'Precio', 'Cantidad', 'UOM', 'Paquete'];
+        } else {
+            $data = DB::table('DatEncabezado AS DE')
+                ->join('DatDetalle AS DD', 'DD.IdEncabezado', '=', 'DE.IdEncabezado')
+                ->join('CatArticulos AS CA', 'CA.IdArticulo', '=', 'DD.IdArticulo')
+                ->leftJoin('CatPaquetes AS CP', 'CP.IdPaquete', '=', 'DD.IdPaquete')
+                ->join('CatTiendas AS CT', 'CT.IdTienda', '=', 'DE.IdTienda')
+                ->select(
+                    'CA.CodArticulo',
+                    'CA.NomArticulo',
+                    'DD.PrecioArticulo',
+                    DB::raw('COUNT(DD.CantArticulo) AS cantidad'),
+                    'CA.UOM',
+                    'CP.NomPaquete'
+                )
+                ->whereDate('DE.FechaVenta', '>=', $fechaInicio)
+                ->whereDate('DE.FechaVenta', '<=', $fechaFin)
+                ->where('CA.Status', 0)
+                ->where('DE.StatusVenta', 0)
+                ->whereNotNull('DD.IdPaquete')
+                ->whereNull('CP.IdPreparado')
+                ->when($idTienda, function ($q) use ($idTienda) {
+                    $q->where('DE.IdTienda', $idTienda);
+                })
+                ->when($codArticulo, function ($q) use ($codArticulo) {
+                    $q->where(function ($sub) use ($codArticulo) {
+                        $sub->where('CA.CodArticulo', 'like', '%' . $codArticulo . '%')
+                            ->orWhere('CA.NomArticulo', 'like', '%' . $codArticulo . '%');
+                    });
+                })
+                ->groupBy('DD.IdArticulo', 'CA.CodArticulo', 'CA.NomArticulo', 'DD.PrecioArticulo', 'CA.UOM', 'CP.NomPaquete')
+                ->orderBy('CA.CodArticulo')
+                ->get();
+
+            $headers = ['Código', 'Artículo', 'Precio', 'Cantidad', 'UOM', 'Paquete'];
+        }
+
+        // Crear CSV
+        $filename = 'Concentrado_Paquetes_' . date('Ymd_His') . '.csv';
+
+        $callback = function () use ($data, $headers) {
+            $file = fopen('php://output', 'w');
+            // BOM para UTF-8
+            fputs($file, "\xEF\xBB\xBF");
+            // Encabezados
+            fputcsv($file, $headers, ';');
+            // Datos
+            foreach ($data as $item) {
+                $row = [];
+                foreach ($headers as $header) {
+                    switch ($header) {
+                        case 'Tienda':
+                            $row[] = $item->NomTienda ?? '';
+                            break;
+                        case 'Código':
+                            $row[] = $item->CodArticulo ?? '';
+                            break;
+                        case 'Artículo':
+                            $row[] = $item->NomArticulo ?? '';
+                            break;
+                        case 'Precio':
+                            $row[] = number_format($item->PrecioArticulo ?? 0, 2);
+                            break;
+                        case 'Cantidad':
+                            $row[] = number_format($item->cantidad ?? 0, 2);
+                            break;
+                        case 'UOM':
+                            $row[] = $item->UOM ?? '';
+                            break;
+                        case 'Paquete':
+                            $row[] = $item->NomPaquete ?? '';
+                            break;
+                    }
+                }
+                fputcsv($file, $row, ';');
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
     public function ReporteConcentradoDeTickets(Request $request)
     {
         $idTienda = $request->idTienda;
