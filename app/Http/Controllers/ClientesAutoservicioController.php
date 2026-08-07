@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class ClientesAutoservicioController extends Controller
 {
     private $dbCorte = 'CORTE';
-    private $dbCloud = 'Cloud_Tables';
+    private $dbTables = 'Cloud_Tables';
 
     /**
      * Vista principal - Lista de clientes de GCSCTEPK
@@ -18,7 +18,7 @@ class ClientesAutoservicioController extends Controller
         $filtro = $request->get('filtro', '');
         $subinventario = $request->get('subinventario', '');
 
-        $subInventario = DB::connection($this->dbCloud)
+        $subInventario = DB::connection($this->dbTables)
             ->table('XXKW_ORGANIZATIONS')
             ->select('ORGANIZATION_CODE', 'ORGANIZATION_NAME')
             ->where('BUSINESS_UNIT_NAME', 'UO_02_ALIME_KOWI')
@@ -63,7 +63,7 @@ class ClientesAutoservicioController extends Controller
     {
         $nombre = $request->get('nombre', '');
 
-        $clientes = DB::connection($this->dbCloud)
+        $clientes = DB::connection($this->dbTables)
             ->table('XXKW_CUSTOMERS')
             ->select('ID_CLIENTE', 'NOMBRE', 'TIPO_CLIENTE', 'TERMINOS')
             ->where('NOMBRE', 'like', '%' . $nombre . '%')
@@ -82,7 +82,7 @@ class ClientesAutoservicioController extends Controller
     {
         $nombre = $request->get('nombre', '');
 
-        $direcciones = DB::connection($this->dbCloud)
+        $direcciones = DB::connection($this->dbTables)
             ->table('XXKW_CUSTOMERS')
             ->select(
                 'SHIP_TO',
@@ -105,7 +105,7 @@ class ClientesAutoservicioController extends Controller
     {
         $nombre = $request->get('nombre', '');
 
-        $direcciones = DB::connection($this->dbCloud)
+        $direcciones = DB::connection($this->dbTables)
             ->table('XXKW_CUSTOMERS')
             ->select(
                 'BILL_TO',
@@ -128,7 +128,7 @@ class ClientesAutoservicioController extends Controller
     {
         $nombre = $request->get('nombre', '');
 
-        $precios = DB::connection($this->dbCloud)
+        $precios = DB::connection($this->dbTables)
             ->table('XXKW_LIST_PRICE')
             ->select('PRICE_LIST_ID', 'NAME', 'DESCRIPTION')
             ->where('NAME', 'like', '%' . $nombre . '%')
@@ -146,7 +146,7 @@ class ClientesAutoservicioController extends Controller
     {
         // $nombre = $request->get('nombre', '');
         //SELECT * FROM XXKW_OM_ORDER_TYPES WHERE LANGUAGE = 'E' AND MEANING LIKE '%AUTOSERVICIOS%' AND MEANING NOT LIKE '%DEVOLUCION%'
-        $tipoOrden = DB::connection($this->dbCloud)
+        $tipoOrden = DB::connection($this->dbTables)
             ->table('XXKW_OM_ORDER_TYPES')
             ->select('LOOKUP_CODE', 'MEANING')
             ->where('LANGUAGE', 'E')

@@ -931,6 +931,7 @@ table > tbody > tr > td {
     margin-top: 2rem;
     border-radius: 20px;
     overflow: hidden;
+    margin-bottom: 0;
 }
 
 .modal-header {

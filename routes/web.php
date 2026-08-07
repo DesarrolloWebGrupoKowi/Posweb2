@@ -24,7 +24,6 @@ use App\Http\Controllers\MovimientosProductoController;
 use App\Http\Controllers\TablasUpdateController;
 use App\Http\Controllers\TipoArticulosController;
 use App\Http\Controllers\CuentasMermaController;
-use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\TiposMermaController;
 use App\Http\Controllers\LimiteCreditoEspecialController;
 use App\Http\Controllers\TicketFacturacionController;

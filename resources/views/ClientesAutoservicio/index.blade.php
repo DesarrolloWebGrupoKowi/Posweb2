@@ -510,6 +510,13 @@
             }
         }
 
+        if (paso >= 2) {
+            const valorBusqueda = document.getElementById('buscarCliente').value.trim();
+            if (valorBusqueda) {
+                clienteNombre = valorBusqueda; // Actualizar la variable global
+            }
+        }
+
         pasoActual = paso;
 
         // Mostrar paso correcto
