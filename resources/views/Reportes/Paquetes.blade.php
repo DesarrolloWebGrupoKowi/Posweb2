@@ -342,6 +342,8 @@
                             <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
                             <th><i class="bi bi-folder me-1"></i>Familia</th>
                             <th><i class="bi bi-gift me-1"></i>Paquete</th>
+                            <th><i class="bi bi-truck me-1"></i>Pedido</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -383,7 +385,7 @@
                         @forelse ($groupedByTicket as $ticketId => $ticketData)
                             <!-- Cabecera del ticket -->
                             <tr style="background: var(--table-head-secondary-bg);">
-                                <td colspan="9">
+                                <td colspan="10">
                                     <i
                                         class="bi bi-ticket-perforated me-2"
                                         style="color: var(--text-subtle);"
@@ -423,6 +425,7 @@
                                         <td style="font-size: 0.85rem;">{{ $item->FechaVenta }}</td>
                                         <td>{{ $item->NomFamilia }}</td>
                                         <td><span class="tags-yellow">{{ $item->NomPaquete }}</span></td>
+                                        <td><span class="tags-blue">{{ $item->Source_Transaction_Identifier }}</span></td>
                                     </tr>
                                     @php
                                         $totalPeso += $item->CantArticulo;
@@ -464,6 +467,7 @@
                                             <span style="color: var(--text-muted); font-size: 0.8rem;">-</span>
                                         @endif
                                     </td>
+                                    <td><span class="tags-blue">{{ $item->Source_Transaction_Identifier }}</span></td>
                                 </tr>
                                 @php
                                     $totalPeso += $item->CantArticulo;
@@ -475,14 +479,14 @@
                             <!-- Separador entre tickets -->
                             <tr>
                                 <td
-                                    colspan="9"
+                                    colspan="10"
                                     style="border-bottom: 2px solid var(--border-medium); padding: 0;"
                                 ></td>
                             </tr>
                         @empty
                             <tr>
                                 <td
-                                    colspan="9"
+                                    colspan="10"
                                     class="py-5 text-center"
                                 >
                                     <i
@@ -525,7 +529,7 @@
                                     class="text-end"
                                     style="color: var(--text-primary);"
                                 >${{ number_format($totalImporte, 2) }}</td>
-                                <td colspan="3"></td>
+                                <td colspan="4"></td>
                             </tr>
                         </tfoot>
                     @endif

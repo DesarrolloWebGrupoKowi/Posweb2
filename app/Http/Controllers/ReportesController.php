@@ -535,6 +535,7 @@ class ReportesController extends Controller
                 'CP.NomPaquete',
                 'CT.NomTienda',
                 DB::raw("CONVERT(VARCHAR(10), DE.FechaVenta, 103) as FechaVenta"),
+                'DD.IdArticulo',
                 'CA.CodArticulo',
                 'CA.NomArticulo',
                 'CF.NomFamilia',
@@ -542,7 +543,8 @@ class ReportesController extends Controller
                 'DD.CantArticulo',
                 'DD.PrecioArticulo',
                 'DD.IvaArticulo',
-                'DD.ImporteArticulo'
+                'DD.ImporteArticulo',
+                'DD.Linea'
             )
             ->where('DE.StatusVenta', 0)
             ->whereIn('DE.IdEncabezado', function ($subquery) use ($idPaquete, $nomPaquete) {
@@ -761,10 +763,28 @@ class ReportesController extends Controller
             ->orderBy('NomPaquete')
             ->get();
 
-
-
         // return
         $data = $this->queryPaquetes($request);
+
+        // Obtener todos los IDs
+        $ids = collect($data)->pluck('IdEncabezado')->unique()->toArray();
+
+        // Una sola consulta para todos
+        $resultados = DB::table('DatCortesTienda')
+            ->whereIn('IdEncabezado', $ids)
+            ->select('IdEncabezado', 'Source_Transaction_Identifier', 'IdArticulo', 'linea')
+            ->groupBy('IdEncabezado', 'Source_Transaction_Identifier', 'IdArticulo', 'linea')
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->IdEncabezado . '|' . $item->IdArticulo . '|' . $item->linea;
+            });
+
+        foreach ($data as $item) {
+            $key = $item->IdEncabezado . '|' . $item->IdArticulo . '|' . $item->Linea;
+            $item->Source_Transaction_Identifier = isset($resultados[$key])
+                ? $resultados[$key]->Source_Transaction_Identifier
+                : null;
+        }
 
         // Calcular KPIs de paquetes
         $paquetesKPIs = $this->getPaquetesKPIs($data);
