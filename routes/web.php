@@ -27,6 +27,7 @@ use App\Http\Controllers\CuentasMermaController;
 use App\Http\Controllers\TiposMermaController;
 use App\Http\Controllers\LimiteCreditoEspecialController;
 use App\Http\Controllers\TicketFacturacionController;
+use App\Http\Controllers\UsuariosPorSucursalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -543,6 +544,7 @@ Route::middleware('auth')->group(function () {
 
     // Ordenes Oracle
     Route::get('/OrdenesOracle', 'App\Http\Controllers\OrdenesOracleController@index');
+    Route::get('/buscar-ticket', [App\Http\Controllers\OrdenesOracleController::class, 'buscarTicket']);
 
     // Ordenes Oracle
     Route::get('/EstatusFacturas', 'App\Http\Controllers\EstatusFacturasController@index')->name('facturasdiarias.index');
@@ -563,6 +565,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     // Clientes Autoservicio
     Route::get('/ClientesAutoservicio', [ClientesAutoservicioController::class, 'index'])->name('autoservicio.index');
+    Route::post('/ClientesAutoservicio/agregar', [ClientesAutoservicioController::class, 'agregarCliente'])->name('clientes-autoservicio.agregar');
+    Route::put('/ClientesAutoservicio/editar', [ClientesAutoservicioController::class, 'editarCliente'])->name('clientes-autoservicio.editar');
     Route::get('/api/autoservicio/buscar-clientes', [ClientesAutoservicioController::class, 'buscarClientes']);
     Route::get('/api/autoservicio/buscar-shipto', [ClientesAutoservicioController::class, 'buscarShipTo']);
     Route::get('/api/autoservicio/buscar-billto', [ClientesAutoservicioController::class, 'buscarBillTo']);
@@ -577,6 +581,11 @@ Route::middleware('auth')->group(function () {
     // Reporte de Interfaz Autoservicio
     Route::get('/AutoservicioReporte', [AutoservicioFacturacionController::class, 'reporte'])->name('autoservicio.reporte');
     Route::get('/api/autoservicio/detalle/{folio}', [AutoservicioFacturacionController::class, 'detalleLineas']);
+
+    // Relacionar Usuarios a Sucursal Packinglist
+    Route::get('/UsuariosPorSucursal', [UsuariosPorSucursalController::class, 'index'])->name('usuarios.sucursal');
+    Route::get('/api/usuarios-sucursales/{idUsuario}', [UsuariosPorSucursalController::class, 'getSucursalesUsuario']);
+    Route::post('/UsuariosPorSucursal/asignar', [UsuariosPorSucursalController::class, 'asignarSucursales']);
 });
 
 // GRUPO ROSTICERO
