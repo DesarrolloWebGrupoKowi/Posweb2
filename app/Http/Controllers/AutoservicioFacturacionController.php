@@ -147,6 +147,8 @@ class AutoservicioFacturacionController extends Controller
             // $customerPONumber = $header['Destino'] ?? '';
             $customerPONumber = $header['cliente'] ?? '';
             $paymentTerm = $header['TERMINOS'] ?? '30 DIAS';
+            $organizationCode = $header['ORGANIZATION_CODE'] ?? null;
+            $SubinventoryCode = $header['SUBINVENTORY_CODE'] ?? null;
 
             $erroresHeader = [];
 
@@ -279,7 +281,9 @@ class AutoservicioFacturacionController extends Controller
                 @OrderType=?,
                 @CreateBy=?,
                 @CustomerPONumber=?,
-                @Pakinglist=?
+                @Pakinglist=?,
+                @OrganizationCode=?,
+                @SubinventoryCode=?
             ", [
                 $orderType,
                 $sourceTransactionIdentifier,
@@ -296,7 +300,9 @@ class AutoservicioFacturacionController extends Controller
                 $orderType,
                 Auth::user()->IdUsuario ?? 11,
                 $customerPONumber,
-                $packList
+                $packList,
+                $organizationCode,
+                $SubinventoryCode
             ]);
 
             // ============================================================
@@ -346,9 +352,10 @@ class AutoservicioFacturacionController extends Controller
     public function reporte(Request $request)
     {
         $fecha = $request->get('fecha', date('Y-m-d'));
-        $orden = $request->get('orden', ''); // Nuevo: filtro por tipo de orden
+        $organizacion = $request->get('organizacion', ''); // Nuevo: filtro por tipo de orden
         $estatus = $request->get('estatus', '');
         $cliente = $request->get('cliente', '');
+        $packingsPorFolio = [];
 
         $headers = DB::connection($this->dbCloud)
             ->table('XXKW_AUTOSERVICIO_HEADERS')
@@ -366,11 +373,13 @@ class AutoservicioFacturacionController extends Controller
                 'CustomerPONumber',
                 'UCFDI',
                 'METODO_PAGO',
-                'FORMA_PAGO'
+                'FORMA_PAGO',
+                'ORGANIZATION_CODE',
+                'SUBINVENTORY_CODE'
             )
             ->whereDate('Transaction_On', $fecha) // Obligatorio: filtrar por fecha
-            ->when($orden, function ($query) use ($orden) {
-                $query->where('ORDER_TYPE', $orden); // Filtrar por tipo de orden
+            ->when($organizacion, function ($query) use ($organizacion) {
+                $query->where('ORGANIZATION_CODE', $organizacion); // Filtrar por tipo de orden
             })
             ->when($estatus, function ($query) use ($estatus) {
                 if ($estatus === 'NULL') {
@@ -388,6 +397,21 @@ class AutoservicioFacturacionController extends Controller
             ->orderBy('Transaction_On', 'DESC')
             ->orderBy('Source_Transaction_Identifier', 'DESC')
             ->paginate(20);
+
+        // Validar que haya headers antes de continuar
+        if ($headers->isNotEmpty()) {
+            // Construir arreglo de sources desde los headers paginados
+            $sources = collect($headers->items())->pluck('Source_Transaction_Identifier')->toArray();
+
+            $packings =  DB::connection($this->dbCloud)
+                ->table('XXKW_AUTOSERVICIO_PACKINGORDER')
+                ->select('Source_Transaction_Identifier', 'PACKINGLIST')
+                ->whereIn('Source_Transaction_Identifier', $sources)
+                ->get();
+
+            $packingsPorFolio = $packings->pluck('PACKINGLIST', 'Source_Transaction_Identifier');
+        }
+
 
         // Calcular totales
         foreach ($headers as $header) {
@@ -415,15 +439,24 @@ class AutoservicioFacturacionController extends Controller
         }
 
         // Obtener tipos de orden para el filtro
-        $tiposOrden = DB::connection($this->dbCloud)
-            ->table('XXKW_AUTOSERVICIO_HEADERS')
-            ->select('ORDER_TYPE')
-            ->distinct()
-            ->whereNotNull('ORDER_TYPE')
-            ->orderBy('ORDER_TYPE')
-            ->pluck('ORDER_TYPE');
+        $tiposOrden =  DB::connection($this->dbTables)
+            ->table('XXKW_ORGANIZATIONS')
+            ->select('ORGANIZATION_CODE', 'ORGANIZATION_NAME')
+            ->where('BUSINESS_UNIT_NAME', 'UO_02_ALIME_KOWI')
+            ->whereNotIn('ORGANIZATION_CODE', ['APC', 'ACO', 'APR', 'ARF'])
+            ->orderBy('ORGANIZATION_CODE')
+            ->get();
 
-        return view('AutoservicioFacturacion.reporte', compact('headers', 'fecha', 'orden', 'estatus', 'cliente', 'tiposOrden'));
+        // return$tiposOrden = DB::connection($this->dbCloud)
+        // ->table('XXKW_AUTOSERVICIO_HEADERS')
+        // ->select('ORDER_TYPE')
+        // ->distinct()
+        // ->whereNotNull('ORDER_TYPE')
+        // ->orderBy('ORDER_TYPE')
+        // ->pluck('ORDER_TYPE');
+
+
+        return view('AutoservicioFacturacion.reporte', compact('headers', 'packingsPorFolio', 'fecha', 'estatus', 'cliente', 'tiposOrden'));
     }
 
     public function detalleLineas(string $folio)

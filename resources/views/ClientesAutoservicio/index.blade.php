@@ -51,6 +51,19 @@
                     </h5>
                     <p class="section-content-subtitle">{{ $clientes->total() }} clientes registrados</p>
                 </div>
+                <!-- ✅ BOTÓN AGREGAR CLIENTE -->
+                <div>
+                    <button
+                        type="button"
+                        class="btn d-flex align-items-center gap-2"
+                        style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); color: white; border: none; border-radius: 8px; padding: 8px 20px; font-weight: 500; transition: all 0.2s;"
+                        onclick="abrirAgregarCliente()"
+                        onmouseover="this.style.opacity='0.85';"
+                        onmouseout="this.style.opacity='1';"
+                    >
+                        <i class="bi bi-person-plus"></i> Agregar Cliente
+                    </button>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -60,6 +73,8 @@
                             <th><i class="bi bi-hash me-1"></i>Cliente</th>
                             <th><i class="bi bi-building me-1"></i>Nombre</th>
                             <th><i class="bi bi-geo-alt me-1"></i>Dirección</th>
+                            <th><i class="bi bi-geo-alt me-1"></i>Organización</th>
+                            <th><i class="bi bi-building me-1"></i>Sucursal</th>
                             <th><i class="bi bi-person-badge me-1"></i>ID Cliente</th>
                             <th><i class="bi bi-tag me-1"></i>Tipo</th>
                             <th><i class="bi bi-truck me-1"></i>Envío</th>
@@ -102,7 +117,7 @@
                             @endphp
                             <tr>
                                 <td style="font-weight: 600; color: var(--text-primary);">{{ $cliente->Cliente }}</td>
-                                <td>{{ $cliente->Nombre }}</td>
+                                <td style="text-wrap: nowrap;">{{ $cliente->Nombre }}</td>
                                 <td>
                                     <span
                                         class="text-truncate d-inline-block"
@@ -113,6 +128,22 @@
                                     </span>
                                 </td>
                                 <td>
+                                    <span
+                                        class="text-truncate d-inline-block"
+                                        style="max-width: 200px;"
+                                        title="{{ $cliente->SUBINVENTORY_NAME ?: '-' }}"
+                                    >
+                                        {{ $cliente->SUBINVENTORY_NAME ?: '-' }}
+                                        ({{ $cliente->SUBINVENTORY_CLOUD ?: '-' }})
+                                    </span>
+                                </td>
+                                <td>
+                                    <span title="{{ $cliente->SUCURSAL ?: '-' }}">
+                                        {{ $cliente->SUCURSAL ?: '-' }}
+                                    </span>
+                                </td>
+
+                                <td>
                                     @if ($cliente->ID_CLIENTE)
                                         <span class="">{{ $cliente->ID_CLIENTE }}</span>
                                     @else
@@ -122,7 +153,7 @@
                                 <td>{{ $cliente->TIPO_CLIENTE ?: '-' }}</td>
                                 <td>
                                     @if ($cliente->SHIP_TO)
-                                        <span class=""><i
+                                        <span style="text-wrap: nowrap;"><i
                                                 class="bi bi-check-circle me-1"></i>{{ $cliente->SHIP_TO }}</span>
                                     @else
                                         <span class="">-</span>
@@ -131,7 +162,7 @@
                                 <td>
                                     @if ($cliente->BILL_TO)
                                         {{-- <span class=""><i class="bi bi-check-circle me-1"></i>Configurado</span> --}}
-                                        <span class=""><i
+                                        <span style="text-wrap: nowrap;"><i
                                                 class="bi bi-check-circle me-1"></i>{{ $cliente->BILL_TO }}</span>
                                     @else
                                         <span class="">-</span>
@@ -188,6 +219,18 @@
                                         >
                                             <i class="bi bi-eye"></i>
                                         </button>
+
+                                        <!-- Botón Editar -->
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-animated d-flex align-items-center gap-1"
+                                            style="background: var(--btn-amber-bg); color: var(--btn-amber-text); border: 1px solid var(--btn-amber-hover); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem;"
+                                            onclick="abrirEditarCliente({{ json_encode($cliente) }})"
+                                            title="Editar cliente"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
                                         <!-- Botón Configurar -->
                                         <button
                                             type="button"
@@ -227,6 +270,8 @@
 
     @include('ClientesAutoservicio.ModalWizard')
     @include('ClientesAutoservicio.ModalVerCliente')
+    @include('ClientesAutoservicio.ModalAgregarCliente')
+    @include('ClientesAutoservicio.ModalEditarCliente')
 
 </x-page-container>
 
@@ -1246,4 +1291,488 @@
             }
         }
     }
+
+    // ============================================================
+    // ABRIR MODAL AGREGAR CLIENTE (SIMPLIFICADA)
+    // ============================================================
+    function abrirAgregarCliente() {
+        // Resetear el formulario
+        const form = document.getElementById('formAgregarCliente');
+        if (form) form.reset();
+
+        // Limpiar errores
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.form-text.text-danger').forEach(el => el.textContent = '');
+
+        // Restaurar botón
+        const btn = document.getElementById('btnGuardarCliente');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle"></i> Guardar Cliente';
+            btn.style.opacity = '1';
+        }
+
+        // Limpiar backdrops residuales por si acaso
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+
+        // Mostrar el modal
+        const modalElement = document.getElementById('ModalAgregarCliente');
+        const modal = new bootstrap.Modal(modalElement, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
+        modal.show();
+    }
+
+    // ============================================================
+    // RESTO DEL CÓDIGO (guardarCliente, eventos, etc.)
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Evento para el botón de guardar
+        const btnGuardar = document.getElementById('btnGuardarCliente');
+        if (btnGuardar) {
+            btnGuardar.addEventListener('click', function(e) {
+                e.preventDefault();
+                guardarCliente();
+            });
+        }
+
+        // Evento para Enter en el formulario
+        const form = document.getElementById('formAgregarCliente');
+        if (form) {
+            form.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    guardarCliente();
+                }
+            });
+        }
+    });
+
+    function guardarCliente() {
+        const btn = document.getElementById('btnGuardarCliente');
+
+        // Validar campos
+        const nombre = document.getElementById('nuevoNombre');
+        const direccion = document.getElementById('nuevoDireccion');
+        const subinvName = document.getElementById('nuevoSubinvName');
+        const subinvCloud = document.getElementById('nuevoSubinvCloud');
+        const sucursal = document.getElementById('nuevoSucursal'); // ← NUEVO
+
+        let valid = true;
+
+        // Limpiar errores previos
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.form-text.text-danger').forEach(el => el.textContent = '');
+
+        // Validar Nombre
+        if (!nombre.value.trim()) {
+            nombre.classList.add('is-invalid');
+            document.getElementById('error-nombre').textContent = 'El nombre del cliente es obligatorio';
+            valid = false;
+        }
+
+        // Validar Dirección
+        if (!direccion.value.trim()) {
+            direccion.classList.add('is-invalid');
+            document.getElementById('error-direccion').textContent = 'La dirección es obligatoria';
+            valid = false;
+        }
+
+        // Validar Subinventario Name
+        if (!subinvName.value.trim()) {
+            subinvName.classList.add('is-invalid');
+            document.getElementById('error-subinventario_name').textContent =
+                'El nombre del subinventario es obligatorio';
+            valid = false;
+        }
+
+        // Validar Subinventario Cloud
+        if (!subinvCloud.value.trim()) {
+            subinvCloud.classList.add('is-invalid');
+            document.getElementById('error-subinventario_cloud').textContent = 'El subinventario cloud es obligatorio';
+            valid = false;
+        }
+
+        // ✅ Validar Sucursal (NUEVO)
+        if (!sucursal.value) {
+            sucursal.classList.add('is-invalid');
+            document.getElementById('error-sucursal').textContent = 'La sucursal es obligatoria';
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        // Deshabilitar botón y mostrar spinner
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Guardando...';
+        btn.style.opacity = '0.7';
+
+        // Preparar datos
+        const datos = {
+            nombre: nombre.value.trim(),
+            direccion: direccion.value.trim(),
+            subinventario_name: subinvName.value.trim(),
+            subinventario_cloud: subinvCloud.value.trim(),
+            sucursal: sucursal.value, // ← NUEVO
+            _token: document.querySelector('input[name="_token"]')?.value || ''
+        };
+
+        // Enviar al servidor
+        fetch('/ClientesAutoservicio/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarToast(`Cliente "${datos.nombre}" agregado correctamente (ID: ${data.cliente_id})`,
+                        'success');
+
+                    const modalElement = document.getElementById('ModalAgregarCliente');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    } else {
+                        const newModal = new bootstrap.Modal(modalElement);
+                        newModal.hide();
+                    }
+
+                    setTimeout(() => {
+                        location.href = `/ClientesAutoservicio?filtro=${datos.nombre}`;
+                    }, 1500);
+
+                } else {
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(campo => {
+                            const inputMap = {
+                                'nombre': 'nuevoNombre',
+                                'direccion': 'nuevoDireccion',
+                                'subinventario_name': 'nuevoSubinvName',
+                                'subinventario_cloud': 'nuevoSubinvCloud',
+                                'sucursal': 'nuevoSucursal' // ← NUEVO
+                            };
+                            const inputId = inputMap[campo];
+                            if (inputId) {
+                                const input = document.getElementById(inputId);
+                                if (input) input.classList.add('is-invalid');
+                                const errorId = 'error-' + campo;
+                                const errorEl = document.getElementById(errorId);
+                                if (errorEl) {
+                                    errorEl.textContent = data.errors[campo][0];
+                                }
+                            }
+                        });
+                        mostrarToast('Corrige los errores en el formulario', 'warning');
+                    } else {
+                        mostrarToast(data.message || 'Error al agregar cliente', 'danger');
+                    }
+
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-check-circle"></i> Guardar Cliente';
+                    btn.style.opacity = '1';
+                }
+            })
+            .catch(error => {
+                mostrarToast('Error de conexión: ' + error.message, 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle"></i> Guardar Cliente';
+                btn.style.opacity = '1';
+            });
+    }
+
+    // ============================================================
+    // RESET AL CERRAR EL MODAL (CON LIMPIEZA DE BACKDROP)
+    // ============================================================
+
+    document.getElementById('ModalAgregarCliente').addEventListener('hidden.bs.modal', function() {
+        // 1. Limpiar el formulario
+        const form = document.getElementById('formAgregarCliente');
+        if (form) form.reset();
+
+        // 2. Limpiar errores
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.form-text.text-danger').forEach(el => el.textContent = '');
+
+        // 3. Restaurar botón
+        const btn = document.getElementById('btnGuardarCliente');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle"></i> Guardar Cliente';
+            btn.style.opacity = '1';
+        }
+
+        // 4. ⭐ ELIMINAR EL BACKDROP SOBRANTE
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+
+        // 5. Restaurar el scroll del body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+    });
+
+    // ============================================================
+    // EVENTO ADICIONAL: ANTES DE CERRAR
+    // ============================================================
+
+    document.getElementById('ModalAgregarCliente').addEventListener('hide.bs.modal', function() {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+    });
+    // ============================================================
+    // ABRIR MODAL EDITAR CLIENTE
+    // ============================================================
+
+    function abrirEditarCliente(cliente) {
+        // Limpiar backdrops residuales
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+
+        // Limpiar errores
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.form-text.text-danger').forEach(el => el.textContent = '');
+
+        // Cargar datos del cliente en el formulario
+        document.getElementById('editarClienteId').value = cliente.Cliente;
+        document.getElementById('editarNombre').value = cliente.Nombre || '';
+        document.getElementById('editarDireccion').value = cliente.Direccion || '';
+        document.getElementById('editarSubinvName').value = cliente.SUBINVENTORY_NAME || '';
+        document.getElementById('editarSubinvCloud').value = cliente.SUBINVENTORY_CLOUD || '';
+
+        // ✅ Cargar Sucursal (NUEVO)
+        const sucursalSelect = document.getElementById('editarSucursal');
+        if (sucursalSelect) {
+            sucursalSelect.value = cliente.SUCURSAL || '';
+        }
+
+        // Restaurar botón
+        const btn = document.getElementById('btnEditarCliente');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-pencil-square"></i> Actualizar Cliente';
+            btn.style.opacity = '1';
+        }
+
+        // Mostrar el modal
+        const modalElement = document.getElementById('ModalEditarCliente');
+        const modal = new bootstrap.Modal(modalElement, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
+        modal.show();
+    }
+
+    // ============================================================
+    // GUARDAR EDICIÓN DE CLIENTE
+    // ============================================================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Evento para el botón de actualizar
+        const btnEditar = document.getElementById('btnEditarCliente');
+        if (btnEditar) {
+            btnEditar.addEventListener('click', function(e) {
+                e.preventDefault();
+                editarCliente();
+            });
+        }
+
+        // Evento para Enter en el formulario
+        const form = document.getElementById('formEditarCliente');
+        if (form) {
+            form.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    editarCliente();
+                }
+            });
+        }
+    });
+
+    function editarCliente() {
+        const btn = document.getElementById('btnEditarCliente');
+
+        // Validar campos
+        const clienteId = document.getElementById('editarClienteId');
+        const nombre = document.getElementById('editarNombre');
+        const direccion = document.getElementById('editarDireccion');
+        const subinvName = document.getElementById('editarSubinvName');
+        const subinvCloud = document.getElementById('editarSubinvCloud');
+        const sucursal = document.getElementById('editarSucursal'); // ← NUEVO
+
+        let valid = true;
+
+        // Limpiar errores previos
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.form-text.text-danger').forEach(el => el.textContent = '');
+
+        // Validar Nombre
+        if (!nombre.value.trim()) {
+            nombre.classList.add('is-invalid');
+            document.getElementById('error-editar-nombre').textContent = 'El nombre del cliente es obligatorio';
+            valid = false;
+        }
+
+        // Validar Dirección
+        if (!direccion.value.trim()) {
+            direccion.classList.add('is-invalid');
+            document.getElementById('error-editar-direccion').textContent = 'La dirección es obligatoria';
+            valid = false;
+        }
+
+        // Validar Subinventario Name
+        if (!subinvName.value.trim()) {
+            subinvName.classList.add('is-invalid');
+            document.getElementById('error-editar-subinventario_name').textContent =
+                'El nombre del subinventario es obligatorio';
+            valid = false;
+        }
+
+        // Validar Subinventario Cloud
+        if (!subinvCloud.value.trim()) {
+            subinvCloud.classList.add('is-invalid');
+            document.getElementById('error-editar-subinventario_cloud').textContent =
+                'El subinventario cloud es obligatorio';
+            valid = false;
+        }
+
+        // ✅ Validar Sucursal (NUEVO)
+        if (!sucursal.value) {
+            sucursal.classList.add('is-invalid');
+            document.getElementById('error-editar-sucursal').textContent = 'La sucursal es obligatoria';
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        // Deshabilitar botón y mostrar spinner
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Actualizando...';
+        btn.style.opacity = '0.7';
+
+        // Preparar datos
+        const datos = {
+            cliente_id: clienteId.value.trim(),
+            nombre: nombre.value.trim(),
+            direccion: direccion.value.trim(),
+            subinventario_name: subinvName.value.trim(),
+            subinventario_cloud: subinvCloud.value.trim(),
+            sucursal: sucursal.value, // ← NUEVO
+            _token: document.querySelector('input[name="_token"]')?.value || '',
+            _method: 'PUT'
+        };
+
+        // Enviar al servidor
+        fetch('/ClientesAutoservicio/editar', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarToast(`Cliente "${datos.nombre}" actualizado correctamente`, 'success');
+
+                    const modalElement = document.getElementById('ModalEditarCliente');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    } else {
+                        const newModal = new bootstrap.Modal(modalElement);
+                        newModal.hide();
+                    }
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(campo => {
+                            const inputMap = {
+                                'nombre': 'editarNombre',
+                                'direccion': 'editarDireccion',
+                                'subinventario_name': 'editarSubinvName',
+                                'subinventario_cloud': 'editarSubinvCloud',
+                                'sucursal': 'editarSucursal' // ← NUEVO
+                            };
+                            const inputId = inputMap[campo];
+                            if (inputId) {
+                                const input = document.getElementById(inputId);
+                                if (input) input.classList.add('is-invalid');
+                                const errorId = 'error-editar-' + campo;
+                                const errorEl = document.getElementById(errorId);
+                                if (errorEl) {
+                                    errorEl.textContent = data.errors[campo][0];
+                                }
+                            }
+                        });
+                        mostrarToast('Corrige los errores en el formulario', 'warning');
+                    } else {
+                        mostrarToast(data.message || 'Error al actualizar cliente', 'danger');
+                    }
+
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-pencil-square"></i> Actualizar Cliente';
+                    btn.style.opacity = '1';
+                }
+            })
+            .catch(error => {
+                mostrarToast('Error de conexión: ' + error.message, 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-pencil-square"></i> Actualizar Cliente';
+                btn.style.opacity = '1';
+            });
+    }
+
+    // ============================================================
+    // RESET AL CERRAR EL MODAL DE EDICIÓN
+    // ============================================================
+
+    document.getElementById('ModalEditarCliente').addEventListener('hidden.bs.modal', function() {
+        // 1. Limpiar errores
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.form-text.text-danger').forEach(el => el.textContent = '');
+
+        // 2. Restaurar botón
+        const btn = document.getElementById('btnEditarCliente');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-pencil-square"></i> Actualizar Cliente';
+            btn.style.opacity = '1';
+        }
+
+        // 3. Eliminar backdrops sobrantes
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+
+        // 4. Restaurar el scroll del body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+    });
+
+    document.getElementById('ModalEditarCliente').addEventListener('hide.bs.modal', function() {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+    });
 </script>

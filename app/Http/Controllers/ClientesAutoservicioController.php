@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ClientesAutoservicioController extends Controller
@@ -32,6 +33,9 @@ class ClientesAutoservicioController extends Controller
                 'Cliente',
                 'Nombre',
                 'Direccion',
+                'SUBINVENTORY_NAME',
+                'SUBINVENTORY_CLOUD',
+                'SUCURSAL',
                 'ID_CLIENTE',
                 'NOMBRE_CLIENTE',
                 'TIPO_CLIENTE',
@@ -53,7 +57,179 @@ class ClientesAutoservicioController extends Controller
             ->paginate(10)
             ->appends(request()->query());
 
-        return view('ClientesAutoservicio.index', compact('subInventario', 'clientes', 'filtro'));
+
+        $sucursalesAsignadas = DB::table('CatUsuariosSucursales')
+            ->where('IdUsuario', Auth::user()->IdUsuario)->pluck('IdSucursal');
+
+        $sucursales = collect(
+            DB::connection('CORTE')->select("EXEC SP_Sucursales")
+        )->whereIn('id_sucursal', $sucursalesAsignadas)->values();
+
+        return view('ClientesAutoservicio.index', compact('subInventario', 'clientes', 'sucursales', 'filtro'));
+    }
+
+    public function agregarCliente(Request $request)
+    {
+        try {
+            // Validar campos (incluyendo unicidad de Nombre)
+            $request->validate([
+                'nombre' => 'required|string|max:255|unique:CORTE.GCSCTEPK,Nombre',
+                'direccion' => 'required|string|max:500',
+                'subinventario_name' => 'required|string|max:100',
+                'subinventario_cloud' => 'required|string|max:100',
+                'sucursal' => 'required|string|max:50',
+            ], [
+                // Mensajes personalizados en español
+                'nombre.required' => 'El nombre del cliente es obligatorio',
+                'nombre.string' => 'El nombre del cliente debe ser texto',
+                'nombre.max' => 'El nombre del cliente no puede exceder los 255 caracteres',
+                'nombre.unique' => 'Ya existe un cliente con ese nombre',
+
+                'direccion.required' => 'La dirección es obligatoria',
+                'direccion.string' => 'La dirección debe ser texto',
+                'direccion.max' => 'La dirección no puede exceder los 500 caracteres',
+
+                'subinventario_name.required' => 'El nombre del subinventario es obligatorio',
+                'subinventario_name.string' => 'El nombre del subinventario debe ser texto',
+                'subinventario_name.max' => 'El nombre del subinventario no puede exceder los 100 caracteres',
+
+                'subinventario_cloud.required' => 'El subinventario cloud es obligatorio',
+                'subinventario_cloud.string' => 'El subinventario cloud debe ser texto',
+                'subinventario_cloud.max' => 'El subinventario cloud no puede exceder los 100 caracteres',
+
+                'sucursal.required' => 'La sucursal es obligatoria',
+                'sucursal.string' => 'La sucursal debe ser texto',
+                'sucursal.max' => 'La sucursal no puede exceder los 50 caracteres',
+            ]);
+
+            // Obtener el siguiente ID disponible
+            $result = DB::connection('CORTE')
+                ->select("SELECT dbo.fn_GetNextAvailableClienteId() as NextId");
+            $nextId = $result[0]->NextId ?? 1;
+
+            // Insertar nuevo cliente con SUCURSAL
+            DB::connection('CORTE')->insert(
+                "INSERT INTO GCSCTEPK (Cliente, Nombre, Direccion, SUBINVENTORY_ID, SUBINVENTORY_NAME, SUBINVENTORY_CLOUD, SUCURSAL)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [
+                    $nextId,
+                    $request->nombre,
+                    $request->direccion,
+                    0, // SUBINVENTORY_ID fijo en 0
+                    $request->subinventario_name,
+                    $request->subinventario_cloud,
+                    $request->sucursal
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cliente agregado correctamente',
+                'cliente_id' => $nextId
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Verificar si es error de duplicado
+            if (str_contains($e->getMessage(), 'UNIQUE') || str_contains($e->getMessage(), 'duplicate')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ya existe un cliente con ese nombre'
+                ], 409);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al agregar cliente: ' . $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al agregar cliente: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function editarCliente(Request $request)
+    {
+        try {
+            // Validar campos (excluyendo el cliente actual para la unicidad)
+            $request->validate([
+                'cliente_id' => 'required|integer|exists:CORTE.GCSCTEPK,Cliente',
+                'nombre' => 'required|string|max:255|unique:CORTE.GCSCTEPK,Nombre,' . $request->cliente_id . ',Cliente',
+                'direccion' => 'required|string|max:500',
+                'subinventario_name' => 'required|string|max:100',
+                'subinventario_cloud' => 'required|string|max:100',
+                'sucursal' => 'required|string|max:50',
+            ], [
+                'cliente_id.required' => 'El ID del cliente es obligatorio',
+                'cliente_id.exists' => 'El cliente no existe en el sistema',
+                'nombre.required' => 'El nombre del cliente es obligatorio',
+                'nombre.string' => 'El nombre del cliente debe ser texto',
+                'nombre.max' => 'El nombre del cliente no puede exceder los 255 caracteres',
+                'nombre.unique' => 'Ya existe un cliente con ese nombre',
+                'direccion.required' => 'La dirección es obligatoria',
+                'direccion.string' => 'La dirección debe ser texto',
+                'direccion.max' => 'La dirección no puede exceder los 500 caracteres',
+                'subinventario_name.required' => 'El nombre del subinventario es obligatorio',
+                'subinventario_name.string' => 'El nombre del subinventario debe ser texto',
+                'subinventario_name.max' => 'El nombre del subinventario no puede exceder los 100 caracteres',
+                'subinventario_cloud.required' => 'El subinventario cloud es obligatorio',
+                'subinventario_cloud.string' => 'El subinventario cloud debe ser texto',
+                'subinventario_cloud.max' => 'El subinventario cloud no puede exceder los 100 caracteres',
+                'sucursal.required' => 'La sucursal es obligatoria',
+                'sucursal.string' => 'La sucursal debe ser texto',
+                'sucursal.max' => 'La sucursal no puede exceder los 50 caracteres',
+            ]);
+
+            // Actualizar cliente
+            DB::connection('CORTE')->update(
+                "UPDATE GCSCTEPK
+                 SET Nombre = ?, Direccion = ?, SUBINVENTORY_NAME = ?, SUBINVENTORY_CLOUD = ?, SUCURSAL = ?
+                 WHERE Cliente = ?",
+                [
+                    $request->nombre,
+                    $request->direccion,
+                    $request->subinventario_name,
+                    $request->subinventario_cloud,
+                    $request->sucursal,
+                    $request->cliente_id
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cliente actualizado correctamente',
+                'cliente_id' => $request->cliente_id
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), 'UNIQUE') || str_contains($e->getMessage(), 'duplicate')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ya existe un cliente con ese nombre'
+                ], 409);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar cliente: ' . $e->getMessage()
+            ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar cliente: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

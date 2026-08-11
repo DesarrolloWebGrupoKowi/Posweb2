@@ -21,13 +21,12 @@
                     :autofocus="true"
                 />
                 <x-form.select
-                    name="orden"
-                    label="Tipo Orden"
+                    name="organizacion"
+                    label="Organización"
                     icon="tag"
                     col="col-md-2"
-                    :options="collect($tiposOrden)->mapWithKeys(fn($t) => [$t => $t])->toArray()"
+                    :options="$tiposOrden->pluck('ORGANIZATION_NAME', 'ORGANIZATION_CODE')->toArray()"
                     placeholder="Todas"
-                    :selected="$orden"
                 />
                 <x-form.select
                     name="estatus"
@@ -81,13 +80,15 @@
                         <tr>
                             <th><i class="bi bi-building me-1"></i>Cliente / Referencia</th>
                             <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
+                            <th><i class="bi bi-building me-1"></i>Organización</th>
+                            <th><i class="bi bi-box-seam me-1"></i>Packing List</th>
                             <th><i class="bi bi-hash me-1"></i>Folio</th>
                             <th class="text-center"><i class="bi bi-circle me-1"></i>Estatus</th>
                             <th class="text-center"><i class="bi bi-cloud me-1"></i>Oracle</th>
                             <th class="text-end"><i class="bi bi-box me-1"></i>Kilos</th>
                             <th class="text-end"><i class="bi bi-box me-1"></i>Piezas</th>
                             <th class="text-end"><i class="bi bi-cash me-1"></i>Total</th>
-                            <th class="text-center"><i class="bi bi-info-circle me-1"></i>Detalle</th>
+                            <th class="text-center"><i class="bi bi-gear me-1"></i>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -107,6 +108,24 @@
                                 </td>
                                 <td style="font-size: 0.85rem;">
                                     {{ $header->Transaction_On ? \Carbon\Carbon::parse($header->Transaction_On)->format('d/m/Y H:i') : '-' }}
+                                </td>
+                                <td>
+                                    <span style="color: var(--text-secondary); font-weight: 500">
+                                        <i class="bi bi-building me-1"></i>
+                                        <span>
+                                            {{ $header->ORGANIZATION_CODE ? $header->ORGANIZATION_CODE : '-' }}
+                                        </span>
+                                        (<span>
+                                            {{ $header->SUBINVENTORY_CODE ? $header->SUBINVENTORY_CODE : '-' }}
+                                        </span>)
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span style="color: var(--text-secondary); font-weight: 500">
+                                        <i class="bi bi-box-seam me-1"></i>
+                                        <span>{{ $packingsPorFolio[$header->Source_Transaction_Identifier] }}</span>
+                                    </span>
                                 </td>
                                 <td>
                                     <span
@@ -180,22 +199,31 @@
                                 >
                                     ${{ number_format($header->total_importe, 2) }}
                                 </td>
-                                <!-- Detalle -->
-                                <td class="text-center">
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-animated d-flex align-items-center mx-auto gap-1"
-                                        style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: 1px solid var(--btn-gray-hover); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem;"
-                                        onclick="verDetalle('{{ $header->Source_Transaction_Identifier }}')"
-                                    >
-                                        <i class="bi bi-eye"></i> Ver
-                                    </button>
+                                <!-- Acciones -->
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-animated d-flex align-items-center gap-1"
+                                            style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: 1px solid var(--btn-gray-hover); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem;"
+                                            onclick="verDetalle('{{ $header->Source_Transaction_Identifier }}')"
+                                        >
+                                            <i class="bi bi-eye"></i> Ver
+                                        </button>
+                                        <a
+                                            href="/AutoservicioFacturacion?packlist={{ $packingsPorFolio[$header->Source_Transaction_Identifier] }}"
+                                            target="_blank"
+                                            class="btn-gray"
+                                        >
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td
-                                    colspan="10"
+                                    colspan="11"
                                     class="py-5 text-center"
                                 >
                                     <i
@@ -216,83 +244,7 @@
         </div>
     </x-card-gradient-header>
 
-    <!-- Modal Detalle -->
-    <div
-        class="modal fade"
-        id="ModalDetalle"
-        tabindex="-1"
-        aria-hidden="true"
-    >
-        <div
-            class="modal-dialog modal-lg"
-            style="margin-top: 5vh;"
-        >
-            <div
-                class="modal-content border-0 shadow"
-                style="border-radius: 10px; overflow: hidden;"
-            >
-                <div
-                    class="modal-header border-bottom-0 px-4 pb-0 pt-3"
-                    style="background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);"
-                >
-                    <h5
-                        class="mb-0 text-white"
-                        style="font-weight: 600; font-size: 1.1rem;"
-                    >
-                        <div class="d-flex align-items-center gap-3 pb-2">
-                            <div
-                                class="rounded-circle d-flex align-items-center justify-content-center"
-                                style="background-color: var(--card-header-icon-bg); width: 32px; height: 32px;"
-                            >
-                                <i class="bi bi-list-ul"></i>
-                            </div>
-                            <span>Detalle del Pedido: <strong id="detalleFolio"></strong></span>
-                        </div>
-                    </h5>
-                </div>
-                <div class="modal-body p-4">
-                    <div
-                        class="table-responsive"
-                        style="max-height: 50vh; overflow-y: auto;"
-                    >
-                        <table
-                            class="table-sm mb-0 table"
-                            id="tablaDetalle"
-                        >
-                            <thead style="position: sticky; top: 0; background: var(--bg-subtle);">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Código</th>
-                                    <th class="text-end">Cantidad</th>
-                                    <th>UOM</th>
-                                    <th class="text-end">Precio</th>
-                                    <th class="text-end">Importe</th>
-                                </tr>
-                            </thead>
-                            <tbody id="detalleBody">
-                                <tr>
-                                    <td
-                                        colspan="6"
-                                        class="py-4 text-center"
-                                    >Cargando...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
-                    <button
-                        type="button"
-                        class="btn d-flex align-items-center gap-1"
-                        data-bs-dismiss="modal"
-                        style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500;"
-                    >
-                        <i class="bi bi-x"></i> Cerrar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('AutoservicioFacturacion.modaldetalle')
 
 </x-page-container>
 
