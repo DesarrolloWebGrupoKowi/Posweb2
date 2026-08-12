@@ -267,12 +267,12 @@ class ClientesAutoservicioController extends Controller
             ->table('XXKW_CUSTOMERS')
             ->select(
                 'SHIP_TO',
-                DB::raw("CONCAT('Calle:', CALLE, ' ', COLONIA, ' Numero Ext:', NUMEXT, ' ', 'Codigo Postal:', CODIGO_POSTAL, ' ', CIUDAD, ' ', ESTADO) as direccion")
+                DB::raw("CONCAT('Calle:', CALLE, ' ', COLONIA, ' Numero Ext:', NUMEXT, ' ', 'Codigo Postal:', CODIGO_POSTAL, ' ', CIUDAD, ' ', ESTADO, ' Sitio: ', PARTY_SITE_NUMBER) as direccion")
             )
             ->where('NOMBRE', 'like', '%' . $nombre . '%')
             ->where('CODIGO_ENVIO', 'SHIP_TO')
             ->whereNotNull('SHIP_TO')
-            ->groupBy('SHIP_TO', DB::raw("CONCAT('Calle:', CALLE, ' ', COLONIA, ' Numero Ext:', NUMEXT, ' ', 'Codigo Postal:', CODIGO_POSTAL, ' ', CIUDAD, ' ', ESTADO)"))
+            ->groupBy('SHIP_TO', DB::raw("CONCAT('Calle:', CALLE, ' ', COLONIA, ' Numero Ext:', NUMEXT, ' ', 'Codigo Postal:', CODIGO_POSTAL, ' ', CIUDAD, ' ', ESTADO, ' Sitio: ', PARTY_SITE_NUMBER)"))
             ->orderBy('SHIP_TO')
             ->get();
 
