@@ -18,6 +18,7 @@ class ClientesAutoservicioController extends Controller
     {
         $filtro = $request->get('filtro', '');
         $subinventario = $request->get('subinventario', '');
+        $sucursal = $request->get('sucursales', '');
 
         $subInventario = DB::connection($this->dbTables)
             ->table('XXKW_ORGANIZATIONS')
@@ -26,6 +27,13 @@ class ClientesAutoservicioController extends Controller
             ->whereNotIn('ORGANIZATION_CODE', ['APC', 'ACO', 'APR', 'ARF'])
             ->orderBy('ORGANIZATION_CODE')
             ->get();
+
+        $sucursalesAsignadas = DB::table('CatUsuariosSucursales')
+            ->where('IdUsuario', Auth::user()->IdUsuario)->pluck('IdSucursal');
+
+        $sucursales = collect(
+            DB::connection('CORTE')->select("EXEC SP_Sucursales")
+        )->whereIn('id_sucursal', $sucursalesAsignadas)->values();
 
         $clientes = DB::connection($this->dbCorte)
             ->table('GCSCTEPK')
@@ -46,24 +54,21 @@ class ClientesAutoservicioController extends Controller
                 'ORDER_TYPE'
             )
             ->whereNotNull('SUBINVENTORY_NAME')
+            ->when($subinventario, function ($query) use ($subinventario) {
+                $query->where('SUBINVENTORY_NAME', $subinventario);
+            })
+            ->when($sucursal, function ($query) use ($sucursal) {
+                $query->where('SUCURSAL', $sucursal);
+            })
+            ->whereIn('SUCURSAL', $sucursalesAsignadas)
             ->when($filtro, function ($query) use ($filtro) {
                 $query->where('Nombre', 'like', '%' . $filtro . '%')
                     ->orWhere('Cliente', 'like', '%' . $filtro . '%');
-            })
-            ->when($subinventario, function ($query) use ($subinventario) {
-                $query->where('SUBINVENTORY_NAME', $subinventario);
             })
             ->orderBy('Cliente')
             ->paginate(10)
             ->appends(request()->query());
 
-
-        $sucursalesAsignadas = DB::table('CatUsuariosSucursales')
-            ->where('IdUsuario', Auth::user()->IdUsuario)->pluck('IdSucursal');
-
-        $sucursales = collect(
-            DB::connection('CORTE')->select("EXEC SP_Sucursales")
-        )->whereIn('id_sucursal', $sucursalesAsignadas)->values();
 
         return view('ClientesAutoservicio.index', compact('subInventario', 'clientes', 'sucursales', 'filtro'));
     }

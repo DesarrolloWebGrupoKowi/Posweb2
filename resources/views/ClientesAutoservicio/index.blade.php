@@ -20,14 +20,24 @@
                     col="col-md-4"
                     :autofocus="true"
                 />
-                <x-form.select
-                    name="subinventario"
-                    label="Subinventario"
-                    icon="building"
-                    col="col-md-2"
-                    :options="$subInventario->pluck('ORGANIZATION_NAME', 'ORGANIZATION_CODE')->toArray()"
-                    placeholder="Todos los almacenes"
-                />
+                @if (count($sucursales) > 1)
+                    <x-form.select
+                        name="subinventario"
+                        label="Almacenes"
+                        icon="building"
+                        col="col-md-2"
+                        :options="$subInventario->pluck('ORGANIZATION_NAME', 'ORGANIZATION_CODE')->toArray()"
+                        placeholder="Todos los almacenes"
+                    />
+                    <x-form.select
+                        name="sucursales"
+                        label="Sucursales"
+                        icon="building"
+                        col="col-md-2"
+                        :options="$sucursales->pluck('Sucursal', 'id_sucursal')->toArray()"
+                        placeholder="Todas las sucursales"
+                    />
+                @endif
             </x-form.group>
             <div class="col-md-2 d-flex gap-2">
                 <x-form.submit
@@ -67,12 +77,12 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table-hover table-custom table">
+                <table class="table-hover table-custom table-sm table-compact table">
                     <thead>
                         <tr>
                             <th><i class="bi bi-hash me-1"></i>Cliente</th>
                             <th><i class="bi bi-building me-1"></i>Nombre</th>
-                            <th><i class="bi bi-geo-alt me-1"></i>Dirección</th>
+                            {{-- <th><i class="bi bi-geo-alt me-1"></i>Dirección</th> --}}
                             <th><i class="bi bi-geo-alt me-1"></i>Organización</th>
                             <th><i class="bi bi-building me-1"></i>Sucursal</th>
                             <th><i class="bi bi-person-badge me-1"></i>ID Cliente</th>
@@ -117,8 +127,15 @@
                             @endphp
                             <tr>
                                 <td style="font-weight: 600; color: var(--text-primary);">{{ $cliente->Cliente }}</td>
-                                <td style="text-wrap: nowrap;">{{ $cliente->Nombre }}</td>
-                                <td>
+                                <td class="text-truncate">
+                                    {{-- <span
+                                        class="text-truncate d-inline-block"
+                                        style="text-wrap: nowrap; max-width: 300px;"
+                                    > --}}
+                                    {{ $cliente->Nombre }}
+                                    {{-- </span> --}}
+                                </td>
+                                {{-- <td>
                                     <span
                                         class="text-truncate d-inline-block"
                                         style="max-width: 200px;"
@@ -126,7 +143,7 @@
                                     >
                                         {{ $cliente->Direccion ?: '-' }}
                                     </span>
-                                </td>
+                                </td> --}}
                                 <td>
                                     <span
                                         class="text-truncate d-inline-block"
@@ -341,6 +358,25 @@
 
     .radio-seleccion.seleccionado td {
         font-weight: 600;
+    }
+
+    .table-compact {
+        font-size: 0.8rem;
+    }
+
+    .table-compact td,
+    .table-compact th {
+        padding: 0.2rem 0.4rem;
+        vertical-align: middle;
+    }
+
+    .table-compact .btn-sm {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+    }
+
+    .table-compact .btn-sm i {
+        font-size: 0.8rem;
     }
 </style>
 
