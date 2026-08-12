@@ -326,7 +326,7 @@ class ClientesAutoservicioController extends Controller
             ->table('XXKW_OM_ORDER_TYPES')
             ->select('LOOKUP_CODE', 'MEANING')
             ->where('LANGUAGE', 'E')
-            ->where('MEANING', 'like', '%AUTOSERVICIOS%')
+            // ->where('MEANING', 'like', '%AUTOSERVICIOS%')
             ->where('MEANING', 'not like', '%DEVOLUCION%')
             ->orderBy('LOOKUP_CODE')
             ->get();
