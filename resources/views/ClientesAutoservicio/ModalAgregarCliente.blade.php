@@ -190,24 +190,37 @@
                             style="font-size: 0.78rem; color: var(--danger-color);"
                         ></div>
                     </div>
+
                     <!-- Campo: Sucursal -->
                     <div class="col-12">
                         <label
                             for="nuevoSucursal"
-                            class="form-label fw-semibold"
-                            style="font-size: 0.85rem; color: #475569;"
+                            class="form-label fw-medium mb-2"
+                            style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
                             <i class="bi bi-building me-1"></i>Sucursal
                         </label>
                         <select
                             id="nuevoSucursal"
                             class="form-select"
-                            style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 8px 12px; font-size: 0.9rem;"
+                            style="border: 1px solid var(--border-input); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer;"
+                            tabindex="5"
+                            @if ($sucursales->count() == 1) disabled @endif
                         >
-                            <option value="">Seleccionar sucursal...</option>
-                            @foreach ($sucursales as $sucursal)
-                                <option value="{{ $sucursal->id_sucursal }}">{{ $sucursal->Sucursal }}</option>
-                            @endforeach
+                            @if ($sucursales->count() == 1)
+                                @php $sucursalUnica = $sucursales->first(); @endphp
+                                <option
+                                    value="{{ $sucursalUnica->id_sucursal }}"
+                                    selected
+                                >
+                                    {{ $sucursalUnica->Sucursal }}
+                                </option>
+                            @else
+                                <option value="">Seleccionar sucursal...</option>
+                                @foreach ($sucursales as $sucursal)
+                                    <option value="{{ $sucursal->id_sucursal }}">{{ $sucursal->Sucursal }}</option>
+                                @endforeach
+                            @endif
                         </select>
                         <div
                             id="error-sucursal"
