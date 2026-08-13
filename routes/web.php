@@ -566,7 +566,7 @@ Route::middleware('auth')->group(function () {
     // Clientes Autoservicio
     Route::get('/ClientesAutoservicio', [ClientesAutoservicioController::class, 'index'])->name('autoservicio.index');
     Route::post('/ClientesAutoservicio/agregar', [ClientesAutoservicioController::class, 'agregarCliente'])->name('clientes-autoservicio.agregar');
-    Route::put('/ClientesAutoservicio/editar', [ClientesAutoservicioController::class, 'editarCliente'])->name('clientes-autoservicio.editar');
+    Route::post('/ClientesAutoservicio/editar', [ClientesAutoservicioController::class, 'editarCliente'])->name('clientes-autoservicio.editar');
     Route::get('/api/autoservicio/buscar-clientes', [ClientesAutoservicioController::class, 'buscarClientes']);
     Route::get('/api/autoservicio/buscar-shipto', [ClientesAutoservicioController::class, 'buscarShipTo']);
     Route::get('/api/autoservicio/buscar-billto', [ClientesAutoservicioController::class, 'buscarBillTo']);

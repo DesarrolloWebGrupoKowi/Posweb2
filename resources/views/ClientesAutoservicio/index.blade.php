@@ -1724,12 +1724,11 @@
 
         // Enviar al servidor
         fetch('/ClientesAutoservicio/editar', {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
-                        '',
-                    _method: 'PUT'
+                        ''
                 },
                 body: JSON.stringify(datos)
             })
