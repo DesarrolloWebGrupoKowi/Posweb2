@@ -1719,7 +1719,7 @@
             subinventario_cloud: subinvCloud.value.trim(),
             sucursal: sucursal.value, // ← NUEVO
             _token: document.querySelector('input[name="_token"]')?.value || '',
-            _method: 'PUT'
+            _method: 'POST'
         };
 
         // Enviar al servidor
