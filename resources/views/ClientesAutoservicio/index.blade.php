@@ -1334,7 +1334,16 @@
     function abrirAgregarCliente() {
         // Resetear el formulario
         const form = document.getElementById('formAgregarCliente');
-        if (form) form.reset();
+
+        // if (form) form.reset();
+
+        // Autofocus al primer input del formulario
+        if (form) {
+            const primerInput = form.querySelector('#nuevoNombre');
+            if (primerInput) {
+                setTimeout(() => primerInput.focus(), 500);
+            }
+        }
 
         // Limpiar errores
         document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
@@ -1718,7 +1727,9 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                        '',
+                    _method: 'PUT'
                 },
                 body: JSON.stringify(datos)
             })

@@ -125,7 +125,7 @@ class UsuariosPorSucursalController extends Controller
                 DB::table('CatUsuariosSucursales')->insert([
                     'IdUsuario' => $idUsuario,
                     'IdSucursal' => $idSucursal,
-                    'FechaAsignacion' => now(),
+                    'FechaAsignacion' => date('d-m-Y H:i:s'),
                     'AsignadoPor' => Auth::user()->IdUsuario ?? null
                 ]);
             }
