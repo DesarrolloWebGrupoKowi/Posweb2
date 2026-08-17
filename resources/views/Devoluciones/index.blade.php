@@ -210,7 +210,8 @@
                                         >
                                             Orden Venta
                                         </label>
-                                        <p style="color: #334155; font-size: 0.9rem; font-weight: 500; margin-bottom: 0;">
+                                        <p
+                                            style="color: #334155; font-size: 0.9rem; font-weight: 500; margin-bottom: 0;">
                                             {{ $devolucionSeleccionada->OrdenVenta ?? '-' }}
                                         </p>
                                     </div>
@@ -223,7 +224,8 @@
                                         >
                                             Cliente
                                         </label>
-                                        <p style="color: #334155; font-size: 0.9rem; font-weight: 500; margin-bottom: 0;">
+                                        <p
+                                            style="color: #334155; font-size: 0.9rem; font-weight: 500; margin-bottom: 0;">
                                             @if ($devolucionSeleccionada->Buying_Party_Number)
                                                 <span
                                                     class="d-block text-muted"
@@ -711,7 +713,8 @@
                                             <th><i class="bi bi-receipt me-1"></i>Orden Orig.</th>
                                             <th style="width: 50px;"><i class="bi bi-hash me-1"></i>Línea Orig.</th>
                                             @if ($estatusOracle)
-                                                <th class="text-center"><i class="bi bi-oracle me-1"></i>Estatus Oracle
+                                                <th class="text-center"><i class="bi bi-oracle me-1"></i>Estatus
+                                                    Oracle
                                                 </th>
                                             @endif
                                         </tr>
@@ -828,7 +831,8 @@
                                                                     class="badge"
                                                                     style="background: #fefce8; color: #854d0e; font-weight: 500; font-size: 0.7rem; padding: 3px 8px; border-radius: 4px;"
                                                                 >
-                                                                    <i class="bi bi-clock-fill me-1"></i>Awaiting Billing
+                                                                    <i class="bi bi-clock-fill me-1"></i>Awaiting
+                                                                    Billing
                                                                 </span>
                                                             @elseif ($statusLower === 'closed')
                                                                 <span
@@ -893,14 +897,19 @@
                                                     class="py-2"
                                                 >
                                                     <div class="d-flex justify-content-end align-items-center gap-3">
-                                                        <span style="color: #64748b; font-size: 0.8rem; font-weight: 500;">
+                                                        <span
+                                                            style="color: #64748b; font-size: 0.8rem; font-weight: 500;"
+                                                        >
                                                             Total de líneas: <strong
                                                                 style="color: #0f172a;">{{ $lineas->count() }}</strong>
                                                         </span>
                                                         <span style="color: #cbd5e1;">|</span>
                                                         <span
-                                                            style="color: #64748b; font-size: 0.8rem; font-weight: 500;">Total:</span>
-                                                        <span style="color: #dc2626; font-size: 1.1rem; font-weight: 700;">
+                                                            style="color: #64748b; font-size: 0.8rem; font-weight: 500;"
+                                                        >Total:</span>
+                                                        <span
+                                                            style="color: #dc2626; font-size: 1.1rem; font-weight: 700;"
+                                                        >
                                                             @php
                                                                 $total = $lineas->sum(function ($linea) {
                                                                     return $linea->Ordered_Quantity *
@@ -927,7 +936,7 @@
                 @else
                     <!-- ========== MODO LISTA: No hay folio seleccionado ========== -->
                     <div
-                        class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3">
+                        class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3 gap-3 p-4 pb-0">
                         <div>
                             <h5 class="section-content-title">
                                 <i
@@ -939,25 +948,27 @@
                         </div>
                     </div>
 
-                    <div class="table-responsive">
+                    <div class="table-responsive p-4 pt-0">
                         <table class="table-hover table-custom table">
                             <thead>
                                 <tr>
-                                    <th><i class="bi bi-receipt me-1"></i>Folio</th>
-                                    <th><i class="bi bi-clipboard-check me-1"></i>Orden Venta</th>
-                                    <th><i class="bi bi-person me-1"></i>Cliente</th>
+                                    <th><i class="bi bi-receipt me-1"></i>Folio / Cliente</th>
+                                    {{-- <th><i class="bi bi-receipt me-1"></i>Folio</th>
+                                    <th><i class="bi bi-person me-1"></i>Cliente</th> --}}
                                     <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
+                                    <th><i class="bi bi-clipboard-check me-1"></i>Orden Venta</th>
                                     <th><i class="bi bi-calendar-check me-1"></i>Transacción</th>
                                     <th><i class="bi bi-receipt-cutoff me-1"></i>Receipt Number</th>
                                     <th><i class="bi bi-hash me-1"></i>Receipt ID</th>
                                     <th><i class="bi bi-box-seam me-1"></i>Batch</th>
-                                    <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Total</th>
-                                    <th><i class="bi bi-currency-dollar me-1"></i>Moneda</th>
                                     <th><i
                                             class="bi bi-circle-fill me-1"
                                             style="font-size: 0.5rem;"
                                         ></i>Estatus</th>
-                                    <th><i class="bi bi-exclamation-triangle me-1"></i>Error</th>
+                                    <th class="text-center"><i class="bi bi-cloud me-1"></i>Oracle</th>
+                                    {{-- <th><i class="bi bi-exclamation-triangle me-1"></i>Error</th> --}}
+                                    <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Total</th>
+                                    {{-- <th><i class="bi bi-currency-dollar me-1"></i>Moneda</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -968,17 +979,24 @@
                                         onclick="window.location.href='/Devoluciones?folio={{ urlencode($devolucion->Source_Transaction_Identifier) }}&orden={{ urlencode(request('orden')) }}'"
                                         title="{{ $devolucion->MENSAJE_ERROR ? 'Error: ' . $devolucion->MENSAJE_ERROR : 'Ver detalle' }}"
                                     >
-                                        <td style="font-weight: 600; color: #0f172a;">
-                                            {{ $devolucion->Source_Transaction_Identifier }}
+                                        <td>
+                                            <span
+                                                class="tags-blue"
+                                                style="font-size: 0.7rem; margin-right: 4px;"
+                                            >
+                                                {{ $devolucion->Source_Transaction_Identifier }}
+                                            </span>
+                                            <span style="font-weight: 500;"> {{ $devolucion->Buying_Party_Name }}
+                                            </span>
                                         </td>
-                                        <td>{{ $devolucion->OrdenVenta }}</td>
-                                        <td>{{ $devolucion->Buying_Party_Name }}</td>
+                                        {{-- <td>{{ $devolucion->Buying_Party_Name }}</td> --}}
                                         <td style="color: #64748b;">
                                             {{ $devolucion->Created_at ? \Carbon\Carbon::parse($devolucion->Created_at)->format('d/m/Y H:i') : '-' }}
                                         </td>
                                         <td style="color: #64748b;">
                                             {{ $devolucion->Transaction_On ? $devolucion->Transaction_On : '-' }}
                                         </td>
+                                        <td>{{ $devolucion->OrdenVenta }}</td>
                                         <td>
                                             @if ($devolucion->ReceiptNumber)
                                                 <span
@@ -1011,6 +1029,41 @@
                                                 <span style="color: #94a3b8;">-</span>
                                             @endif
                                         </td>
+                                        <td>
+                                            @if ($status === 'PROCESADO')
+                                                <span class="tags-green">
+                                                    <i class="bi bi-check-circle me-1"></i>Procesado
+                                                </span>
+                                            @elseif ($status === 'ERROR')
+                                                <span class="tags-red">
+                                                    <i class="bi bi-x-circle me-1"></i>Error
+                                                </span>
+                                            @else
+                                                <span class="tags-yellow">
+                                                    <i class="bi bi-hourglass-split me-1"></i>Pendiente
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <!-- Estatus Oracle -->
+                                        <td class="text-center">
+                                            @if ($status === 'PROCESADO')
+                                                <span
+                                                    class="status-oracle"
+                                                    data-pedido="{{ $devolucion->Source_Transaction_Identifier }}"
+                                                    style="font-size: 0.7rem;"
+                                                >
+                                                    <span
+                                                        class="spinner-border spinner-border-sm text-muted"
+                                                        style="width: 0.6rem; height: 0.6rem;"
+                                                    ></span>
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="text-muted"
+                                                    style="font-size: 0.7rem;"
+                                                >-</span>
+                                            @endif
+                                        </td>
                                         <td
                                             class="text-end"
                                             style="font-weight: 500; color: #dc2626;"
@@ -1022,30 +1075,15 @@
                                             @endphp
                                             -${{ number_format(abs($total), 2) }}
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             <span
                                                 class="badge"
                                                 style="background: #f1f5f9; color: #64748b; font-weight: 500; font-size: 0.8rem; padding: 3px 8px; border-radius: 4px;"
                                             >
                                                 {{ $devolucion->Transactional_Currency_Code }}
                                             </span>
-                                        </td>
-                                        <td>
-                                            @if ($status === 'PROCESADO')
-                                                <span class="badge-status badge-active">
-                                                    <i class="bi bi-check-circle me-1"></i>Procesado
-                                                </span>
-                                            @elseif ($status === 'ERROR')
-                                                <span class="badge-status badge-inactive">
-                                                    <i class="bi bi-x-circle me-1"></i>Error
-                                                </span>
-                                            @else
-                                                <span class="badge-status badge-pending">
-                                                    <i class="bi bi-hourglass-split me-1"></i>Pendiente
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td>
+                                        </td> --}}
+                                        {{-- <td>
                                             @if ($devolucion->MENSAJE_ERROR && $status === 'ERROR')
                                                 <span
                                                     class="d-inline-flex align-items-center gap-1"
@@ -1083,7 +1121,7 @@
                                             @else
                                                 <span style="color: #94a3b8;">-</span>
                                             @endif
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                 @empty
                                     <tr>
@@ -1265,6 +1303,41 @@
             </div>
         </x-card-gradient-header>
         <script>
+            // ============================================================
+            // CONSULTAR ESTATUS ORACLE PARA FILAS PROCESADAS
+            // ============================================================
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.status-oracle').forEach(item => {
+                    const pedido = item.dataset.pedido;
+                    const apiUrl =
+                        `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
+
+                    fetch(apiUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.ok && data.dato?.lines) {
+                                const estatusLineas = data.dato.lines.map(line => line.status);
+                                const estatusUnicos = [...new Set(estatusLineas)];
+                                const estatus = estatusUnicos.join(', ');
+
+                                let clase = 'tags-green';
+                                if (estatus === 'Canceled') clase = 'tags-red';
+                                else if (estatus.includes('Awaiting')) clase = 'tags-yellow';
+
+                                item.innerHTML =
+                                    `<span class="${clase}">${estatus}</span>`;
+                            } else {
+                                item.innerHTML =
+                                    '<span class="text-muted">-</span>';
+                            }
+                        })
+                        .catch(() => {
+                            item.innerHTML =
+                                '<span class="text-muted">Error</span>';
+                        });
+                });
+            });
+
             // Inicializar el botón cuando el DOM esté listo
             document.addEventListener('DOMContentLoaded', function() {
                 const btnActualizarDetalle = document.getElementById('btnActualizarDetalle');

@@ -233,7 +233,8 @@
                                             @if (!$packingorder->Batch_Name && !$packingorder->MENSAJE_ERROR)
                                                 <small style="color: var(--text-muted);">
                                                     Folio:
-                                                    <strong>{{ $packingorder->Source_Transaction_Identifier }}</strong>
+                                                    <span
+                                                        style="font-weight: 500">{{ $packingorder->Source_Transaction_Identifier }}</span>
                                                 </small>
                                             @endif
                                         @endif
@@ -1664,7 +1665,8 @@
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Enviando...';
             btn.style.opacity = '1';
 
-            fetch(`https://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${folio}&Origen=AUT`)
+            // fetch(`http://qaoracleorderrest/api/SalesOrder/PostSales?OrdenVta=${folio}&Origen=AUT`) // TODO: PROD
+            fetch(`https://oracleordenrest.kowi.com.mx/api/SalesOrder/PostSales?OrdenVta=${folio}&Origen=AUT`) // TODO: PROD
                 .then(response => response.json())
                 .then(result => {
                     if (result.ok) {
@@ -1980,7 +1982,7 @@
         }
 
         // ============================================================
-        // BOTÓN DESPACHO INVENTARIO
+        // BOTÓN DESPACHO INVENTARIO (CON VALIDACIÓN DE INVENTARIO)
         // ============================================================
         function botonDespachoInventario(contenedor, pedido) {
             const btn = document.createElement('button');
@@ -1991,32 +1993,154 @@
 
             btn.addEventListener('click', () => {
                 btn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
+                    '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Validando inventario...';
                 btn.style.pointerEvents = 'none';
                 btn.style.opacity = '1';
 
-                fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`)
+                // 1. Obtener Org y Subinv del header
+                const org = '{{ $header->ORGANIZATION_CODE ?? '' }}';
+                const subinv = '{{ $header->SUBINVENTORY_CODE ?? '' }}';
+
+                if (!org || !subinv) {
+                    mostrarToastError(['No se encontró la información de almacén (ORG/SUBINV)']);
+                    btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                    btn.style.pointerEvents = 'auto';
+                    return;
+                }
+
+                // 2. Consultar inventario disponible
+                fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Ohnhand?Org=${org}&Subinv=${subinv}`)
                     .then(r => r.json())
                     .then(data => {
-                        if (data.ok) {
+                        if (data.ok && data.listado) {
+                            // 3. Validar que haya inventario suficiente para cada línea
+                            const lineasSinInventario = validarInventario(data);
+
+                            if (lineasSinInventario.length > 0) {
+                                // Hay líneas sin inventario suficiente - mostrar errores detallados
+                                let mensajes = ['⚠️ No hay inventario suficiente para:'];
+                                lineasSinInventario.forEach(l => {
+                                    mensajes.push(
+                                        `• ${l.codigo} - ${l.producto}: Solicita ${l.cantidad}, Disponible ${l.inventario}, Faltan ${l.faltante}`
+                                    );
+                                });
+                                mostrarToastError(mensajes);
+
+                                btn.innerHTML =
+                                    '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                                btn.style.pointerEvents = 'auto';
+                                return;
+                            }
+
+                            // 4. Todo OK, proceder con el despacho
                             btn.innerHTML =
-                                '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
-                            // Esperar hasta que cambie a Awaiting Billing
-                            esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
-                                consultarEstatusOracle(); // Refrescar todo
-                            });
+                                '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
+
+                            fetch(
+                                    `https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`
+                                )
+                                .then(r => r.json())
+                                .then(despachoData => {
+                                    if (despachoData.ok) {
+                                        btn.innerHTML =
+                                            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
+                                        mostrarToast('Despacho exitoso, actualizando estatus...',
+                                            'success');
+                                        esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
+                                            consultarEstatusOracle();
+                                        });
+                                    } else {
+                                        btn.innerHTML = '❌ Error al despachar';
+                                        btn.style.pointerEvents = 'auto';
+                                        mostrarToastError(['Error al despachar: ' + (despachoData.message ||
+                                            'Error desconocido')]);
+                                    }
+                                })
+                                .catch(() => {
+                                    btn.innerHTML = '❌ Error de conexión';
+                                    btn.style.pointerEvents = 'auto';
+                                    mostrarToastError(['Error de conexión al servicio de despacho']);
+                                });
                         } else {
-                            btn.innerHTML = '❌ Error';
+                            mostrarToastError(['No se pudo consultar el inventario: ' + (data.message ||
+                                'Error desconocido')]);
+                            btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
                             btn.style.pointerEvents = 'auto';
                         }
                     })
                     .catch(() => {
-                        btn.innerHTML = '❌ Error';
+                        mostrarToastError(['Error al conectar con el servicio de inventario']);
+                        btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
                         btn.style.pointerEvents = 'auto';
                     });
             });
 
             contenedor.appendChild(btn);
+        }
+
+        // ============================================================
+        // VALIDAR INVENTARIO CONTRA LÍNEAS DEL PEDIDO
+        // ============================================================
+        function validarInventario(inventarioData) {
+            const lineasSinInventario = [];
+
+            // Crear un mapa de inventario por itemNumber para búsqueda rápida
+            const inventarioMap = {};
+            if (inventarioData && inventarioData.listado) {
+                inventarioData.listado.forEach(item => {
+                    inventarioMap[item.itemNumber] = item.primaryQuantity || 0;
+                });
+            }
+
+            // Obtener todas las líneas de la tabla
+            const filas = document.querySelectorAll('#tablaLineas tbody tr.linea-item:not(.linea-eliminada)');
+
+            filas.forEach(fila => {
+                if (fila.style.display === 'none') return;
+
+                // Obtener el código desde el dataset o desde la celda
+                let codigo = fila.dataset.codigo;
+                if (!codigo) {
+                    const celdaCodigo = fila.querySelector('td:nth-child(2)');
+                    codigo = celdaCodigo ? celdaCodigo.textContent.trim() : '';
+                }
+
+                // Obtener la cantidad
+                let cantidad = 0;
+                const cantidadInput = fila.querySelector('.cantidad-input');
+                const cantidadTexto = fila.querySelector('.cantidad-texto');
+
+                if (cantidadInput && cantidadInput.style.display !== 'none') {
+                    cantidad = parseFloat(cantidadInput.value) || 0;
+                } else if (cantidadTexto) {
+                    cantidad = parseFloat(cantidadTexto.textContent.replace(/,/g, '')) || 0;
+                } else {
+                    const celdas = fila.querySelectorAll('td');
+                    if (celdas.length >= 5) {
+                        cantidad = parseFloat(celdas[4].textContent.trim().replace(/,/g, '')) || 0;
+                    }
+                }
+
+                // Obtener el nombre del producto
+                const productoTexto = fila.querySelector('.producto-texto');
+                const producto = productoTexto ? productoTexto.textContent.trim() : (codigo || '?');
+
+                // Obtener el inventario disponible para este código
+                const inventarioDisponible = inventarioMap[codigo] || 0;
+
+                // Si la cantidad solicitada es mayor que el inventario disponible
+                if (cantidad > 0 && cantidad > inventarioDisponible) {
+                    lineasSinInventario.push({
+                        codigo: codigo,
+                        producto: producto,
+                        cantidad: cantidad,
+                        inventario: inventarioDisponible,
+                        faltante: cantidad - inventarioDisponible
+                    });
+                }
+            });
+
+            return lineasSinInventario;
         }
 
         // ============================================================
