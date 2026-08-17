@@ -156,7 +156,7 @@
                             class="form-label fw-medium mb-2"
                             style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            <i class="bi bi-building me-1"></i>Subinventario (Nombre) <span
+                            <i class="bi bi-building me-1"></i>Organización<span
                                 style="color: var(--danger-color);"
                             >*</span>
                         </label>
@@ -192,7 +192,7 @@
                             class="form-label fw-medium mb-2"
                             style="color: var(--text-secondary); font-size: 0.85rem;"
                         >
-                            <i class="bi bi-cloud me-1"></i>Subinventario (Cloud) <span
+                            <i class="bi bi-cloud me-1"></i>Almacen<span
                                 style="color: var(--danger-color);"
                             >*</span>
                         </label>
