@@ -2289,71 +2289,97 @@
                     return;
                 }
 
-                // 2. Consultar inventario disponible
-                fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Ohnhand?Org=${org}&Subinv=${subinv}`)
+                fetch(
+                        `https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`
+                    )
                     .then(r => r.json())
-                    .then(data => {
-                        if (data.ok && data.listado) {
-                            // 3. Validar que haya inventario suficiente para cada línea
-                            const lineasSinInventario = validarInventario(data);
-
-                            if (lineasSinInventario.length > 0) {
-                                // Hay líneas sin inventario suficiente - mostrar errores detallados
-                                let mensajes = ['⚠️ No hay inventario suficiente para:'];
-                                lineasSinInventario.forEach(l => {
-                                    mensajes.push(
-                                        `• ${l.codigo} - ${l.producto}: Solicita ${l.cantidad}, Disponible ${l.inventario}, Faltan ${l.faltante}`
-                                    );
-                                });
-                                mostrarToastError(mensajes);
-
-                                btn.innerHTML =
-                                    '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
-                                btn.style.pointerEvents = 'auto';
-                                return;
-                            }
-
-                            // 4. Todo OK, proceder con el despacho
+                    .then(despachoData => {
+                        if (despachoData.ok) {
                             btn.innerHTML =
-                                '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
-
-                            fetch(
-                                    `https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`
-                                )
-                                .then(r => r.json())
-                                .then(despachoData => {
-                                    if (despachoData.ok) {
-                                        btn.innerHTML =
-                                            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
-                                        mostrarToast('Despacho exitoso, actualizando estatus...',
-                                            'success');
-                                        esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
-                                            consultarEstatusOracle();
-                                        });
-                                    } else {
-                                        btn.innerHTML = '❌ Error al despachar';
-                                        btn.style.pointerEvents = 'auto';
-                                        mostrarToastError(['Error al despachar: ' + (despachoData.message ||
-                                            'Error desconocido')]);
-                                    }
-                                })
-                                .catch(() => {
-                                    btn.innerHTML = '❌ Error de conexión';
-                                    btn.style.pointerEvents = 'auto';
-                                    mostrarToastError(['Error de conexión al servicio de despacho']);
-                                });
+                                '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
+                            mostrarToast('Despacho exitoso, actualizando estatus...',
+                                'success');
+                            esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
+                                consultarEstatusOracle();
+                            });
                         } else {
-                            mostrarToastError(['No se pudo consultar el inventario: ' + (data.message ||
-                                'Error desconocido')]);
-                            btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                            btn.innerHTML = '❌ Error al despachar';
                             btn.style.pointerEvents = 'auto';
+                            mostrarToastError(['Error al despachar: ' + (despachoData.message ||
+                                'Error desconocido')]);
                         }
                     })
                     .catch(() => {
-                        mostrarToastError(['Error al conectar con el servicio de inventario']);
-                        btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                        btn.innerHTML = '❌ Error de conexión';
                         btn.style.pointerEvents = 'auto';
+                        mostrarToastError(['Error de conexión al servicio de despacho']);
                     });
+
+                // 2. Consultar inventario disponible
+                // fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Ohnhand?Org=${org}&Subinv=${subinv}`)
+                //     .then(r => r.json())
+                //     .then(data => {
+                //         if (data.ok && data.listado) {
+                //             // 3. Validar que haya inventario suficiente para cada línea
+                //             const lineasSinInventario = validarInventario(data);
+
+                //             if (lineasSinInventario.length > 0) {
+                //                 // Hay líneas sin inventario suficiente - mostrar errores detallados
+                //                 let mensajes = ['⚠️ No hay inventario suficiente para:'];
+                //                 lineasSinInventario.forEach(l => {
+                //                     mensajes.push(
+                //                         `• ${l.codigo} - ${l.producto}: Solicita ${l.cantidad}, Disponible ${l.inventario}, Faltan ${l.faltante}`
+                //                     );
+                //                 });
+                //                 mostrarToastError(mensajes);
+
+                //                 btn.innerHTML =
+                //                     '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                //                 btn.style.pointerEvents = 'auto';
+                //                 return;
+                //             }
+
+                //             // 4. Todo OK, proceder con el despacho
+                //             btn.innerHTML =
+                //                 '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
+
+                //             fetch(
+                //                     `https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`
+                //                 )
+                //                 .then(r => r.json())
+                //                 .then(despachoData => {
+                //                     if (despachoData.ok) {
+                //                         btn.innerHTML =
+                //                             '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
+                //                         mostrarToast('Despacho exitoso, actualizando estatus...',
+                //                             'success');
+                //                         esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
+                //                             consultarEstatusOracle();
+                //                         });
+                //                     } else {
+                //                         btn.innerHTML = '❌ Error al despachar';
+                //                         btn.style.pointerEvents = 'auto';
+                //                         mostrarToastError(['Error al despachar: ' + (despachoData.message ||
+                //                             'Error desconocido')]);
+                //                     }
+                //                 })
+                //                 .catch(() => {
+                //                     btn.innerHTML = '❌ Error de conexión';
+                //                     btn.style.pointerEvents = 'auto';
+                //                     mostrarToastError(['Error de conexión al servicio de despacho']);
+                //                 });
+                //         } else {
+                //             mostrarToastError(['No se pudo consultar el inventario: ' + (data.message ||
+                //                 'Error desconocido')]);
+                //             btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                //             btn.style.pointerEvents = 'auto';
+                //         }
+                //     })
+                //     .catch(() => {
+                //         mostrarToastError(['Error al conectar con el servicio de inventario']);
+                //         btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                //         btn.style.pointerEvents = 'auto';
+                //     });
             });
 
             contenedor.appendChild(btn);
