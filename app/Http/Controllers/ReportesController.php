@@ -957,7 +957,7 @@ class ReportesController extends Controller
                     'CA.CodArticulo',
                     'CA.NomArticulo',
                     'DD.PrecioArticulo',
-                    DB::raw('COUNT(DD.CantArticulo) AS cantidad'),
+                    DB::raw('SUM(DD.CantArticulo) AS cantidad'),
                     'CA.UOM',
                     'CP.IdPaquete',
                     'CP.NomPaquete'
@@ -1003,7 +1003,7 @@ class ReportesController extends Controller
                     'CA.CodArticulo',
                     'CA.NomArticulo',
                     'DD.PrecioArticulo',
-                    DB::raw('COUNT(DD.CantArticulo) AS cantidad'),
+                    DB::raw('SUM(DD.CantArticulo) AS cantidad'),
                     'CA.UOM',
                     'CP.IdPaquete',
                     'CP.NomPaquete'

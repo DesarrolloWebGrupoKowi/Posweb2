@@ -305,28 +305,85 @@
                             <!-- Fila 3: Direcciones -->
                             <div class="col-md-6 mt-0">
                                 <div class="info-row">
-                                    <span class="info-titulo"><i class="bi bi-truck me-1"></i>SHIP_TO
-                                        (Envío)</span>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="info-titulo">
+                                            <i class="bi bi-truck me-1"></i>SHIP_TO (Envío)
+                                        </span>
+                                        @if (!$packingorder)
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-cambiar-direccion"
+                                                onclick="abrirBuscadorDireccion('ship')"
+                                                style="background: var(--btn-blue-bg); color: var(--btn-blue-text); border: 1px solid var(--btn-blue-hover); border-radius: 6px; padding: 2px 8px; font-size: 0.7rem;"
+                                            >
+                                                <i class="bi bi-pencil"></i> Cambiar
+                                            </button>
+                                        @endif
+                                    </div>
                                     <span
                                         class="info-dato"
                                         style="font-family: monospace; font-size: 0.78rem;"
-                                    >{{ $header->SHIP_TO ?? '-' }}</span>
+                                        id="shipToActual"
+                                    >
+                                        {{ $header->SHIP_TO ?? '-' }}
+                                    </span>
                                     @if ($ship_to && $ship_to->direccion)
-                                        <span class="info-direccion">{{ $ship_to->direccion }}</span>
+                                        <span
+                                            class="info-direccion"
+                                            id="shipToDireccion"
+                                        >
+                                            {{ $ship_to->direccion }}
+                                        </span>
                                     @endif
+                                    <!-- Input hidden para el valor -->
+                                    <input
+                                        type="hidden"
+                                        name="ship_to"
+                                        id="shipToInput"
+                                        value="{{ $header->SHIP_TO ?? '' }}"
+                                    >
                                 </div>
                             </div>
+
                             <div class="col-md-6 mt-0">
                                 <div class="info-row">
-                                    <span class="info-titulo"><i class="bi bi-receipt me-1"></i>BILL_TO
-                                        (Facturación)</span>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <span class="info-titulo">
+                                            <i class="bi bi-receipt me-1"></i>BILL_TO (Facturación)
+                                        </span>
+                                        @if (!$packingorder)
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-cambiar-direccion"
+                                                onclick="abrirBuscadorDireccion('bill')"
+                                                style="background: var(--btn-blue-bg); color: var(--btn-blue-text); border: 1px solid var(--btn-blue-hover); border-radius: 6px; padding: 2px 8px; font-size: 0.7rem;"
+                                            >
+                                                <i class="bi bi-pencil"></i> Cambiar
+                                            </button>
+                                        @endif
+                                    </div>
                                     <span
                                         class="info-dato"
                                         style="font-family: monospace; font-size: 0.78rem;"
-                                    >{{ $header->BILL_TO ?? '-' }}</span>
+                                        id="billToActual"
+                                    >
+                                        {{ $header->BILL_TO ?? '-' }}
+                                    </span>
                                     @if ($bill_to && $bill_to->direccion)
-                                        <span class="info-direccion">{{ $bill_to->direccion }}</span>
+                                        <span
+                                            class="info-direccion"
+                                            id="billToDireccion"
+                                        >
+                                            {{ $bill_to->direccion }}
+                                        </span>
                                     @endif
+                                    <!-- Input hidden para el valor -->
+                                    <input
+                                        type="hidden"
+                                        name="bill_to"
+                                        id="billToInput"
+                                        value="{{ $header->BILL_TO ?? '' }}"
+                                    >
                                 </div>
                             </div>
                         </div>
@@ -592,6 +649,20 @@
                                 type="hidden"
                                 name="header_data"
                                 value="{{ json_encode($header) }}"
+                            >
+
+                            <!-- Agregar campos de direcciones -->
+                            <input
+                                type="hidden"
+                                name="ship_to"
+                                id="shipToInput"
+                                value="{{ $header->SHIP_TO ?? '' }}"
+                            >
+                            <input
+                                type="hidden"
+                                name="bill_to"
+                                id="billToInput"
+                                value="{{ $header->BILL_TO ?? '' }}"
                             >
 
                             @php
@@ -1067,9 +1138,52 @@
                     facturación</p>
             </div>
         @endif
+
+        @include('AutoservicioFacturacion.modalbuscardirecciones')
     </x-card-gradient-header>
 
     <style>
+        /* En la sección <style> */
+        .radio-seleccion {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-seleccion:hover {
+            background: var(--bg-subtle) !important;
+        }
+
+        .radio-seleccion.seleccionado {
+            background: var(--btn-blue-bg) !important;
+        }
+
+        .radio-seleccion.seleccionado td {
+            font-weight: 600;
+        }
+
+        .btn-cambiar-direccion {
+            transition: all 0.2s;
+        }
+
+        .btn-cambiar-direccion:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        .buscador-btn {
+            background: var(--gradient-start) !important;
+            color: white !important;
+            border: none !important;
+            padding: 8px 16px !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .buscador-btn:hover {
+            background: var(--gradient-end) !important;
+        }
+
         /* ============================================================ */
         /* SECCIÓN FACTURACIÓN */
         /* ============================================================ */
@@ -1165,6 +1279,173 @@
     </style>
 
     <script>
+        // ============================================================
+        // CONFIGURACION DE DIRECCIONES
+        // ============================================================
+        // Variables para el modal de direcciones
+        let tipoDireccionActual = ''; // 'ship' o 'bill'
+        let direccionSeleccionada = null;
+
+        // Abrir modal para cambiar dirección
+        function abrirBuscadorDireccion(tipo) {
+            tipoDireccionActual = tipo;
+            direccionSeleccionada = null;
+
+            // Actualizar título
+            document.getElementById('tituloTipoDireccion').textContent = tipo === 'ship' ? 'Envío (SHIP_TO)' :
+                'Facturación (BILL_TO)';
+
+            // Limpiar lista
+            document.getElementById('listaDirecciones').innerHTML = '';
+            document.getElementById('filtroDireccionContainer').style.display = 'none';
+            document.getElementById('buscarDireccionNombre').value = '';
+            document.getElementById('filtroDireccion').value = '';
+
+            // Cargar direcciones del cliente actual
+            const idCliente = '{{ $header->ID_CLIENTE ?? '' }}';
+            const nombreCliente = '{{ $header->NOMBRE_CLIENTE ?? ($header->cliente ?? '') }}';
+
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('ModalBuscadorDireccion'));
+            modal.show();
+
+            // Buscar con el cliente actual
+            buscarDirecciones(nombreCliente, idCliente);
+        }
+
+        // Buscar direcciones
+        function buscarDirecciones(nombre, idCliente = null) {
+            console.log('Buscando direcciones');
+            console.log(nombre);
+            console.log(idCliente);
+
+            const lista = document.getElementById('listaDirecciones');
+            const tipo = tipoDireccionActual;
+
+            // Si no se proporciona idCliente, usar el del header
+            if (!idCliente) {
+                idCliente = '{{ $header->ID_CLIENTE ?? '' }}';
+            }
+
+            lista.innerHTML =
+                '<div class="text-center py-4"><span class="spinner-border spinner-border-sm" style="color: var(--text-muted);"></span> Buscando direcciones...</div>';
+
+            const params = new URLSearchParams();
+            if (idCliente) params.append('id_cliente', idCliente);
+            if (nombre) params.append('nombre', nombre);
+            console.log(`/api/autoservicio/buscar-direcciones/${tipo}?${params.toString()}`);
+            fetch(`/api/autoservicio/buscar-direcciones/${tipo}?${params.toString()}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        lista.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-search" style="font-size: 2rem; color: var(--text-muted);"></i>
+                        <p style="color: var(--text-muted);">No se encontraron direcciones</p>
+                    </div>`;
+                        return;
+                    }
+
+                    // Mostrar filtro secundario
+                    document.getElementById('filtroDireccionContainer').style.display = '';
+                    document.getElementById('contadorDirecciones').textContent = data.length + ' resultados';
+                    document.getElementById('filtroDireccion').value = '';
+
+                    let html = '<table class="table table-sm mb-0"><thead><tr>';
+                    html += '<th></th><th>Código</th><th>Dirección</th><th>Cliente</th>';
+                    html += '</tr></thead><tbody>';
+
+                    data.forEach((d, index) => {
+                        const campo = tipo === 'ship' ? d.SHIP_TO : d.BILL_TO;
+                        html += `
+                <tr class="radio-seleccion" style="cursor: pointer;" onclick="seleccionarDireccion(this, '${campo}', '${d.direccion || ''}')">
+                    <td><input type="radio" name="direccionRadio" class="form-check-input"></td>
+                    <td style="font-weight: 500;">${campo}</td>
+                    <td>${d.direccion || '-'}</td>
+                    <td>${d.NOMBRE || '-'}</td>
+                </tr>`;
+                    });
+
+                    html += '</tbody></table>';
+                    lista.innerHTML = html;
+                })
+                .catch(error => {
+                    lista.innerHTML = '<div class="text-center py-4 text-danger">Error al cargar direcciones: ' + error
+                        .message + '</div>';
+                });
+        }
+
+        // Seleccionar dirección
+        function seleccionarDireccion(fila, codigo, direccion) {
+            // Quitar selección anterior
+            document.querySelectorAll('#listaDirecciones .radio-seleccion').forEach(el => {
+                el.classList.remove('seleccionado');
+                el.querySelector('input[type="radio"]').checked = false;
+            });
+
+            // Marcar como seleccionada
+            fila.classList.add('seleccionado');
+            fila.querySelector('input[type="radio"]').checked = true;
+
+            // Guardar selección
+            direccionSeleccionada = {
+                codigo: codigo,
+                direccion: direccion
+            };
+        }
+
+        // Confirmar selección
+        function confirmarDireccion() {
+            if (!direccionSeleccionada) {
+                mostrarToast('Selecciona una dirección', 'warning');
+                return;
+            }
+
+            // Actualizar la vista
+            if (tipoDireccionActual === 'ship') {
+                document.getElementById('shipToActual').textContent = direccionSeleccionada.codigo;
+                document.getElementById('shipToDireccion').textContent = direccionSeleccionada.direccion || '';
+                document.getElementById('shipToInput').value = direccionSeleccionada.codigo;
+            } else {
+                document.getElementById('billToActual').textContent = direccionSeleccionada.codigo;
+                document.getElementById('billToDireccion').textContent = direccionSeleccionada.direccion || '';
+                document.getElementById('billToInput').value = direccionSeleccionada.codigo;
+            }
+
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('ModalBuscadorDireccion'));
+            if (modal) modal.hide();
+
+            mostrarToast('Dirección actualizada correctamente', 'success');
+        }
+
+        function filtrarLista(idLista, idFiltro, idContador) {
+            const filtro = document.getElementById(idFiltro).value.toLowerCase().trim();
+            const tabla = document.getElementById(idLista);
+            const filas = tabla.querySelectorAll('tbody tr');
+            let visibles = 0;
+            const total = filas.length;
+
+            filas.forEach(fila => {
+                const textoFila = fila.textContent.toLowerCase();
+                if (filtro === '' || textoFila.includes(filtro)) {
+                    fila.style.display = '';
+                    visibles++;
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+
+            const contador = document.getElementById(idContador);
+            if (contador) {
+                if (filtro !== '') {
+                    contador.textContent = `${total} resultados · Mostrando ${visibles}`;
+                } else {
+                    contador.textContent = `${total} resultados`;
+                }
+            }
+        }
+
         // ============================================================
         // ALTERNAR ENTRE KG Y PIEZA
         // ============================================================

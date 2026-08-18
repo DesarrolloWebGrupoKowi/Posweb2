@@ -339,6 +339,40 @@ class ClientesAutoservicioController extends Controller
     }
 
     /**
+     * Buscar direcciones de envío o facturación para un cliente
+     */
+    public function buscarDirecciones(Request $request, string $tipo)
+    {
+        $idCliente = $request->get('id_cliente', '');
+        $nombre = $request->get('nombre', '');
+
+        $campo = $tipo === 'ship' ? 'SHIP_TO' : 'BILL_TO';
+        $codigoEnvio = $tipo === 'ship' ? 'SHIP_TO' : 'BILL_TO';
+
+        $direcciones = DB::connection($this->dbTables)
+            ->table('XXKW_CUSTOMERS')
+            ->select(
+                $campo,
+                'NOMBRE',
+                'ID_CLIENTE',
+                DB::raw("CONCAT('Calle:', CALLE, ' ', COLONIA, ' Numero Ext:', NUMEXT, ' ', 'Codigo Postal:', CODIGO_POSTAL, ' ', CIUDAD, ' ', ESTADO, ' Sitio: ', PARTY_SITE_NUMBER) as direccion")
+            )
+            ->when(!$nombre && $idCliente, function ($query) use ($idCliente) {
+                return $query->where('ID_CLIENTE', $idCliente);
+            })
+            ->when($nombre, function ($query) use ($nombre) {
+                return $query->where('NOMBRE', 'like', '%' . $nombre . '%');
+            })
+            ->where('CODIGO_ENVIO', $codigoEnvio)
+            ->whereNotNull($campo)
+            ->groupBy($campo, 'NOMBRE', 'ID_CLIENTE', DB::raw("CONCAT('Calle:', CALLE, ' ', COLONIA, ' Numero Ext:', NUMEXT, ' ', 'Codigo Postal:', CODIGO_POSTAL, ' ', CIUDAD, ' ', ESTADO, ' Sitio: ', PARTY_SITE_NUMBER)"))
+            ->orderBy($campo)
+            ->get();
+
+        return response()->json($direcciones);
+    }
+
+    /**
      * Guardar configuración
      */
     public function guardar(Request $request)

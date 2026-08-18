@@ -124,7 +124,7 @@ class AutoservicioFacturacionController extends Controller
             'forma_pago.required' => 'El campo forma_pago es obligatorio',
         ]);
 
-        $packList = $request->get('packlist');
+        $packList = $request->has('packlist') ? strtolower($request->get('packlist')) : null;
         $header = json_decode($request->get('header_data'), true);
         $lineas = $request->get('lineas', []);
         $usoCfdi = $request->get('uso_cfdi');
@@ -142,8 +142,11 @@ class AutoservicioFacturacionController extends Controller
             $buyingPartyName = $header['NOMBRE_CLIENTE'] ?? $header['Destino'] ?? null;
             $buyingPartyType = $header['TIPO_CLIENTE'] ?? null;
             $businessUnitName = $header['BusinessUnitName'] ?? 'UO_02_ALIME_KOWI';
-            $siteId = $header['SHIP_TO'] ?? null;
-            $accountSiteId = $header['BILL_TO'] ?? null;
+            // $siteId = $header['SHIP_TO'] ?? null;
+            // $accountSiteId = $header['BILL_TO'] ?? null;
+            $siteId = $request->get('ship_to', $header['SHIP_TO'] ?? null);
+            $accountSiteId = $request->get('bill_to', $header['BILL_TO'] ?? null);
+
             // $customerPONumber = $header['Destino'] ?? '';
             $customerPONumber = $header['cliente'] ?? '';
             $paymentTerm = $header['TERMINOS'] ?? '30 DIAS';

@@ -572,6 +572,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/autoservicio/buscar-billto', [ClientesAutoservicioController::class, 'buscarBillTo']);
     Route::get('/api/autoservicio/buscar-precios', [ClientesAutoservicioController::class, 'buscarPrecios']);
     Route::get('/api/autoservicio/buscar-tipo-orden', [ClientesAutoservicioController::class, 'buscarTipoOrden']);
+    Route::get('/api/autoservicio/buscar-direcciones/{tipo}', [ClientesAutoservicioController::class, 'buscarDirecciones']);
     Route::post('/ClientesAutoservicio/guardar', [ClientesAutoservicioController::class, 'guardar'])->name('autoservicio.guardar');
 
     // Interfaz de Autoservicio
