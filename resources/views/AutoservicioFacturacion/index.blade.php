@@ -363,9 +363,22 @@
                                             <!-- Vista normal -->
                                             <span
                                                 class="info-dato config-view"
+                                                id="orderTypeView"
                                                 style="font-family: monospace; font-size: 0.78rem;"
                                             >
-                                                {!! mostrarValorConfiguracion($header, $packingorder, 'ORDER_TYPE') !!}
+                                                {{-- {{ $header->ORDER_TYPE ?? '-' }} --}}
+                                                @if ($packingorder)
+                                                    @if (($header->ORDER_TYPE ?? '-') !== ($packingorder->ORDER_TYPE ?? '-'))
+                                                        <span
+                                                            style="text-decoration: line-through; color: red;">{{ $header->ORDER_TYPE ?? '-' }}</span>
+                                                        {{ $packingorder->ORDER_TYPE ?? '-' }}
+                                                    @else
+                                                        {{ $header->ORDER_TYPE ?? '-' }}
+                                                    @endif
+                                                @else
+                                                    {{ $header->ORDER_TYPE ?? '-' }}
+                                                @endif
+
                                             </span>
                                             <!-- Input editable -->
                                             @if (!$packingorder)
@@ -392,7 +405,18 @@
                                                 id="organizationCodeView"
                                                 style="font-family: monospace; font-size: 0.78rem;"
                                             >
-                                                {!! mostrarValorConfiguracion($header, $packingorder, 'ORGANIZATION_CODE') !!}
+                                                {{-- {{ $header->ORGANIZATION_CODE ?? '-' }} --}}
+                                                @if ($packingorder)
+                                                    @if (($header->ORGANIZATION_CODE ?? '-') !== ($packingorder->ORGANIZATION_CODE ?? '-'))
+                                                        <span
+                                                            style="text-decoration: line-through; color: red;">{{ $header->ORGANIZATION_CODE ?? '-' }}</span>
+                                                        {{ $packingorder->ORGANIZATION_CODE ?? '-' }}
+                                                    @else
+                                                        {{ $header->ORGANIZATION_CODE ?? '-' }}
+                                                    @endif
+                                                @else
+                                                    {{ $header->ORGANIZATION_CODE ?? '-' }}
+                                                @endif
                                             </span>
                                             <!-- Input editable -->
                                             @if (!$packingorder)
@@ -419,7 +443,18 @@
                                                 id="subinventoryCodeView"
                                                 style="font-family: monospace; font-size: 0.78rem;"
                                             >
-                                                {!! mostrarValorConfiguracion($header, $packingorder, 'SUBINVENTORY_CODE') !!}
+                                                {{-- {{ $header->SUBINVENTORY_CODE ?? '-' }} --}}
+                                                @if ($packingorder)
+                                                    @if (($header->SUBINVENTORY_CODE ?? '-') !== ($packingorder->SUBINVENTORY_CODE ?? '-'))
+                                                        <span
+                                                            style="text-decoration: line-through; color: red;">{{ $header->SUBINVENTORY_CODE ?? '-' }}</span>
+                                                        {{ $packingorder->SUBINVENTORY_CODE ?? '-' }}
+                                                    @else
+                                                        {{ $header->SUBINVENTORY_CODE ?? '-' }}
+                                                    @endif
+                                                @else
+                                                    {{ $header->SUBINVENTORY_CODE ?? '-' }}
+                                                @endif
                                             </span>
                                             <!-- Input editable -->
                                             @if (!$packingorder)
