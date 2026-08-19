@@ -31,6 +31,8 @@ class AutoservicioFacturacionController extends Controller
         $lineas = [];
         $packingorder = null;
         $packingorderlines = [];
+        $ship_to_header = null;
+        $bill_to_header = null;
         $cfdiNombre = null;
         $metodoNombre = null;
         $formaNombre = null;
@@ -56,6 +58,7 @@ class AutoservicioFacturacionController extends Controller
                         ->select(DB::raw("concat('Calle:', CALLE,' ',COLONIA,' Numero Ext:', NUMEXT,' ','Codigo Postal:',CODIGO_POSTAL,' ',CIUDAD,' ',ESTADO) as direccion"))
                         ->where('BILL_TO', $header->BILL_TO)
                         ->first();
+
                     // Ejecutar SP de líneas
                     $lineas = DB::connection($this->dbPackingList)
                         ->select("EXEC SP_AUTOSERVICIO_PACKINGLIST ?", [$packList]);
@@ -82,6 +85,20 @@ class AutoservicioFacturacionController extends Controller
                             ->where('Source_Transaction_Identifier', $packingorder->Source_Transaction_Identifier)
                             ->get();
 
+                        // Dirección de envío HEADER
+                        $ship_to_header = DB::connection($this->dbTables)
+                            ->table('XXKW_CUSTOMERS')
+                            ->select(DB::raw("concat('Calle:', CALLE,' ',COLONIA,' Numero Ext:', NUMEXT,' ','Codigo Postal:',CODIGO_POSTAL,' ',CIUDAD,' ',ESTADO) as direccion"))
+                            ->where('SHIP_TO', $packingorder->Party_Site_Identifier)
+                            ->first();
+
+                        // Dirección de facturación HEADER
+                        $bill_to_header = DB::connection($this->dbTables)
+                            ->table('XXKW_CUSTOMERS')
+                            ->select(DB::raw("concat('Calle:', CALLE,' ',COLONIA,' Numero Ext:', NUMEXT,' ','Codigo Postal:',CODIGO_POSTAL,' ',CIUDAD,' ',ESTADO) as direccion"))
+                            ->where('BILL_TO', $packingorder->Account_Site_Identifier)
+                            ->first();
+
                         $cfdiNombre = $uso_cfdi->firstWhere('FLEX_VALUE', $packingorder->UCFDI)->DESCRIPTION ?? null;
                         $metodoNombre = $metodo_pago->firstWhere('FLEX_VALUE', $packingorder->METODO_PAGO)->DESCRIPTION ?? null;
                         $formaNombre = $forma_pago->firstWhere('FLEX_VALUE', $packingorder->FORMA_PAGO)->DESCRIPTION ?? null;
@@ -103,6 +120,8 @@ class AutoservicioFacturacionController extends Controller
             'bill_to',
             'packingorder',
             'packingorderlines',
+            'ship_to_header',
+            'bill_to_header',
             'cfdiNombre',
             'metodoNombre',
             'formaNombre'
@@ -137,7 +156,6 @@ class AutoservicioFacturacionController extends Controller
             // ============================================================
             // VALIDAR HEADER
             // ============================================================
-            $orderType = $header['ORDER_TYPE'] ?? null;
             $buyingPartyNumberId = $header['ID_CLIENTE'] ?? null;
             $buyingPartyName = $header['NOMBRE_CLIENTE'] ?? $header['Destino'] ?? null;
             $buyingPartyType = $header['TIPO_CLIENTE'] ?? null;
@@ -150,8 +168,13 @@ class AutoservicioFacturacionController extends Controller
             // $customerPONumber = $header['Destino'] ?? '';
             $customerPONumber = $header['cliente'] ?? '';
             $paymentTerm = $header['TERMINOS'] ?? '30 DIAS';
-            $organizationCode = $header['ORGANIZATION_CODE'] ?? null;
-            $SubinventoryCode = $header['SUBINVENTORY_CODE'] ?? null;
+
+            // $orderType = $header['ORDER_TYPE'] ?? null;
+            // $organizationCode = $header['ORGANIZATION_CODE'] ?? null;
+            // $SubinventoryCode = $header['SUBINVENTORY_CODE'] ?? null;
+            $orderType = $request->get('order_type', $header['ORDER_TYPE'] ?? null);
+            $organizationCode = $request->get('organization_code', $header['ORGANIZATION_CODE'] ?? null);
+            $SubinventoryCode = $request->get('subinventory_code', $header['SUBINVENTORY_CODE'] ?? null);
 
             $erroresHeader = [];
 
@@ -399,7 +422,8 @@ class AutoservicioFacturacionController extends Controller
             })
             ->orderBy('Transaction_On', 'DESC')
             ->orderBy('Source_Transaction_Identifier', 'DESC')
-            ->paginate(20);
+            ->paginate(20)
+            ->appends(request()->query());
 
         // Validar que haya headers antes de continuar
         if ($headers->isNotEmpty()) {

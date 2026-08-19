@@ -302,7 +302,141 @@
                                 </div>
                             </div>
 
-                            <!-- Fila 3: Direcciones -->
+                            <!-- Fila 3: Configuración de Pedido -->
+                            <div class="col-12 mt-0">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    @if (!$packingorder)
+                                        <span
+                                            class="info-titulo"
+                                            style="margin-bottom: 0;"
+                                        >
+                                            <i class="bi bi-gear me-1"></i>Configuración de Pedido
+                                        </span>
+                                        <button
+                                            type="button"
+                                            id="btnEditarConfiguracion"
+                                            class="btn btn-sm d-flex align-items-center gap-1"
+                                            style="background: var(--btn-amber-bg); color: var(--btn-amber-text); border: 1px solid var(--btn-amber-hover); border-radius: 8px; padding: 4px 12px; font-size: 0.75rem;"
+                                            onclick="toggleEdicionConfiguracion()"
+                                        >
+                                            <i class="bi bi-pencil"></i> <span id="btnEditarConfigTexto">Editar</span>
+                                        </button>
+                                    @endif
+                                </div>
+                                @php
+                                    function mostrarValorConfiguracion(
+                                        $header,
+                                        $packingorder,
+                                        $campo,
+                                        $campoOpcional = null,
+                                    ) {
+                                        $valorHeader = $header->$campo ?? '-';
+                                        $valorInterfaz = $packingorder->$campo ?? null;
+                                        if ($campoOpcional) {
+                                            $valorInterfaz = $packingorder->$campoOpcional ?? null;
+                                        }
+
+                                        if (
+                                            $packingorder &&
+                                            $valorInterfaz !== null &&
+                                            $valorHeader !== $valorInterfaz
+                                        ) {
+                                            return '<span style="text-decoration: line-through; color: red;">' .
+                                                $valorHeader .
+                                                '</span>' .
+                                                '<i class="bi bi-arrow-right mx-1" style="font-size: 0.7rem;"></i>' .
+                                                '<span style="color: var(--btn-blue-text); font-weight: 600;">' .
+                                                $valorInterfaz .
+                                                '</span>';
+                                        }
+
+                                        return $valorHeader;
+                                    }
+                                @endphp
+                                <div class="row g-3">
+                                    <!-- Order Type -->
+                                    <div class="col-md-4">
+                                        <div class="info-row">
+                                            <span class="info-titulo">
+                                                <i class="bi bi-diagram-3 me-1"></i>Tipo de orden
+                                            </span>
+                                            <!-- Vista normal -->
+                                            <span
+                                                class="info-dato config-view"
+                                                style="font-family: monospace; font-size: 0.78rem;"
+                                            >
+                                                {!! mostrarValorConfiguracion($header, $packingorder, 'ORDER_TYPE') !!}
+                                            </span>
+                                            <!-- Input editable -->
+                                            @if (!$packingorder)
+                                                <input
+                                                    type="text"
+                                                    id="orderTypeInput"
+                                                    class="form-control form-control-sm config-input"
+                                                    value="{{ $header->ORDER_TYPE ?? '' }}"
+                                                    style="display: none; font-family: monospace; font-size: 0.78rem;"
+                                                >
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Organization Code -->
+                                    <div class="col-md-4">
+                                        <div class="info-row">
+                                            <span class="info-titulo">
+                                                <i class="bi bi-building me-1"></i>Organization
+                                            </span>
+                                            <!-- Vista normal -->
+                                            <span
+                                                class="info-dato config-view"
+                                                id="organizationCodeView"
+                                                style="font-family: monospace; font-size: 0.78rem;"
+                                            >
+                                                {!! mostrarValorConfiguracion($header, $packingorder, 'ORGANIZATION_CODE') !!}
+                                            </span>
+                                            <!-- Input editable -->
+                                            @if (!$packingorder)
+                                                <input
+                                                    type="text"
+                                                    id="organizationCodeInput"
+                                                    class="form-control form-control-sm config-input"
+                                                    value="{{ $header->ORGANIZATION_CODE ?? '' }}"
+                                                    style="display: none; font-family: monospace; font-size: 0.78rem;"
+                                                >
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Subinventory Code -->
+                                    <div class="col-md-4">
+                                        <div class="info-row">
+                                            <span class="info-titulo">
+                                                <i class="bi bi-boxes me-1"></i>Almacen
+                                            </span>
+                                            <!-- Vista normal -->
+                                            <span
+                                                class="info-dato config-view"
+                                                id="subinventoryCodeView"
+                                                style="font-family: monospace; font-size: 0.78rem;"
+                                            >
+                                                {!! mostrarValorConfiguracion($header, $packingorder, 'SUBINVENTORY_CODE') !!}
+                                            </span>
+                                            <!-- Input editable -->
+                                            @if (!$packingorder)
+                                                <input
+                                                    type="text"
+                                                    id="subinventoryCodeInput"
+                                                    class="form-control form-control-sm config-input"
+                                                    value="{{ $header->SUBINVENTORY_CODE ?? '' }}"
+                                                    style="display: none; font-family: monospace; font-size: 0.78rem;"
+                                                >
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fila 4: Direcciones -->
                             <div class="col-md-6 mt-0">
                                 <div class="info-row">
                                     <div class="d-flex justify-content-between align-items-start">
@@ -325,23 +459,26 @@
                                         style="font-family: monospace; font-size: 0.78rem;"
                                         id="shipToActual"
                                     >
-                                        {{ $header->SHIP_TO ?? '-' }}
+                                        {!! mostrarValorConfiguracion($header, $packingorder, 'SHIP_TO', 'Party_Site_Identifier') !!}
                                     </span>
                                     @if ($ship_to && $ship_to->direccion)
                                         <span
                                             class="info-direccion"
                                             id="shipToDireccion"
                                         >
-                                            {{ $ship_to->direccion }}
+                                            @if ($packingorder && isset($ship_to_header) && $ship_to->direccion !== $ship_to_header->direccion)
+                                                <span style="text-decoration: line-through; color: red;">
+                                                    {{ $ship_to->direccion }}
+                                                </span>
+                                                <br>
+                                                <span style="color: var(--btn-blue-text); font-weight: 600;">
+                                                    {{ $ship_to_header->direccion }}
+                                                </span>
+                                            @else
+                                                {{ $ship_to->direccion }}
+                                            @endif
                                         </span>
                                     @endif
-                                    <!-- Input hidden para el valor -->
-                                    <input
-                                        type="hidden"
-                                        name="ship_to"
-                                        id="shipToInput"
-                                        value="{{ $header->SHIP_TO ?? '' }}"
-                                    >
                                 </div>
                             </div>
 
@@ -367,23 +504,26 @@
                                         style="font-family: monospace; font-size: 0.78rem;"
                                         id="billToActual"
                                     >
-                                        {{ $header->BILL_TO ?? '-' }}
+                                        {!! mostrarValorConfiguracion($header, $packingorder, 'BILL_TO', 'Account_Site_Identifier') !!}
                                     </span>
                                     @if ($bill_to && $bill_to->direccion)
                                         <span
                                             class="info-direccion"
                                             id="billToDireccion"
                                         >
-                                            {{ $bill_to->direccion }}
+                                            @if ($packingorder && isset($bill_to_header) && $bill_to->direccion !== $bill_to_header->direccion)
+                                                <span style="text-decoration: line-through; color: red;">
+                                                    {{ $bill_to->direccion }}
+                                                </span>
+                                                <br>
+                                                <span style="color: var(--btn-blue-text); font-weight: 600;">
+                                                    {{ $bill_to_header->direccion }}
+                                                </span>
+                                            @else
+                                                {{ $bill_to->direccion }}
+                                            @endif
                                         </span>
                                     @endif
-                                    <!-- Input hidden para el valor -->
-                                    <input
-                                        type="hidden"
-                                        name="bill_to"
-                                        id="billToInput"
-                                        value="{{ $header->BILL_TO ?? '' }}"
-                                    >
                                 </div>
                             </div>
                         </div>
@@ -664,7 +804,25 @@
                                 id="billToInput"
                                 value="{{ $header->BILL_TO ?? '' }}"
                             >
-
+                            <!-- Configuración de pedido -->
+                            <input
+                                type="hidden"
+                                name="order_type"
+                                id="orderTypeHidden"
+                                value="{{ $header->ORDER_TYPE ?? '' }}"
+                            >
+                            <input
+                                type="hidden"
+                                name="organization_code"
+                                id="organizationCodeHidden"
+                                value="{{ $header->ORGANIZATION_CODE ?? '' }}"
+                            >
+                            <input
+                                type="hidden"
+                                name="subinventory_code"
+                                id="subinventoryCodeHidden"
+                                value="{{ $header->SUBINVENTORY_CODE ?? '' }}"
+                            >
                             @php
                                 // Agrupar líneas del PackList por código
                                 $lineasAgrupadas = [];
@@ -1143,6 +1301,20 @@
     </x-card-gradient-header>
 
     <style>
+        .config-input {
+            border: 1px solid var(--border-input) !important;
+            border-radius: 6px !important;
+            padding: 4px 8px !important;
+            background: #fefce8 !important;
+            transition: all 0.2s;
+        }
+
+        .config-input:focus {
+            border-color: var(--btn-amber-text) !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1) !important;
+            background: white !important;
+        }
+
         /* En la sección <style> */
         .radio-seleccion {
             cursor: pointer;
@@ -1279,6 +1451,86 @@
     </style>
 
     <script>
+        // ============================================================
+        // EDITAR CONFIGURACIÓN DE PEDIDO (ORDER_TYPE, ORG, SUBINV)
+        // ============================================================
+        let modoEdicionConfiguracion = false;
+
+        function toggleEdicionConfiguracion() {
+            modoEdicionConfiguracion = !modoEdicionConfiguracion;
+
+            const btnTexto = document.getElementById('btnEditarConfigTexto');
+            const btnEditar = document.getElementById('btnEditarConfiguracion');
+
+            // Mostrar/ocultar vistas e inputs
+            document.querySelectorAll('.config-view').forEach(el => {
+                el.style.display = modoEdicionConfiguracion ? 'none' : '';
+            });
+
+            document.querySelectorAll('.config-input').forEach(el => {
+                el.style.display = modoEdicionConfiguracion ? '' : 'none';
+            });
+
+            if (modoEdicionConfiguracion) {
+                // Modo edición
+                btnTexto.textContent = 'Guardar';
+                btnEditar.style.background = 'var(--btn-green-bg)';
+                btnEditar.style.color = 'var(--btn-green-text)';
+                btnEditar.style.borderColor = 'var(--btn-green-hover)';
+
+                // Focus en el primer input
+                setTimeout(() => {
+                    document.getElementById('orderTypeInput')?.focus();
+                }, 100);
+            } else {
+                // Modo vista - Guardar cambios
+                btnTexto.textContent = 'Editar';
+                btnEditar.style.background = 'var(--btn-amber-bg)';
+                btnEditar.style.color = 'var(--btn-amber-text)';
+                btnEditar.style.borderColor = 'var(--btn-amber-hover)';
+
+                // Actualizar vistas y hidden inputs
+                actualizarConfiguracionPedido();
+
+                mostrarToast('Configuración actualizada', 'success');
+            }
+        }
+
+        function actualizarConfiguracionPedido() {
+            // Order Type
+            const orderTypeInput = document.getElementById('orderTypeInput');
+            const orderTypeView = document.getElementById('orderTypeView');
+            const orderTypeHidden = document.getElementById('orderTypeHidden');
+
+            if (orderTypeInput && orderTypeView && orderTypeHidden) {
+                const valor = orderTypeInput.value.trim();
+                orderTypeView.textContent = valor || '-';
+                orderTypeHidden.value = valor;
+            }
+
+            // Organization Code
+            const orgInput = document.getElementById('organizationCodeInput');
+            const orgView = document.getElementById('organizationCodeView');
+            const orgHidden = document.getElementById('organizationCodeHidden');
+
+            if (orgInput && orgView && orgHidden) {
+                const valor = orgInput.value.trim();
+                orgView.textContent = valor || '-';
+                orgHidden.value = valor;
+            }
+
+            // Subinventory Code
+            const subinvInput = document.getElementById('subinventoryCodeInput');
+            const subinvView = document.getElementById('subinventoryCodeView');
+            const subinvHidden = document.getElementById('subinventoryCodeHidden');
+
+            if (subinvInput && subinvView && subinvHidden) {
+                const valor = subinvInput.value.trim();
+                subinvView.textContent = valor || '-';
+                subinvHidden.value = valor;
+            }
+        }
+
         // ============================================================
         // CONFIGURACION DE DIRECCIONES
         // ============================================================
