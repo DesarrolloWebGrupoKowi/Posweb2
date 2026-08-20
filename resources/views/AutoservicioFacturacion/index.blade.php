@@ -2576,97 +2576,71 @@
                     return;
                 }
 
-                fetch(
-                        `https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`
-                    )
+                // 2. Consultar inventario disponible
+                fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Ohnhand?Org=${org}&Subinv=${subinv}`)
                     .then(r => r.json())
-                    .then(despachoData => {
-                        if (despachoData.ok) {
+                    .then(data => {
+                        if (data.listado) {
+                            // 3. Validar que haya inventario suficiente para cada línea
+                            const lineasSinInventario = validarInventario(data);
+
+                            if (lineasSinInventario.length > 0) {
+                                // Hay líneas sin inventario suficiente - mostrar errores detallados
+                                let mensajes = ['⚠️ No hay inventario suficiente para:'];
+                                lineasSinInventario.forEach(l => {
+                                    mensajes.push(
+                                        `• ${l.codigo} - ${l.producto}: Solicita ${l.cantidad} ${l.uom}, Disponible ${l.inventario} KG, Faltan ${l.faltante} KG`
+                                    );
+                                });
+                                mostrarToastError(mensajes);
+
+                                btn.innerHTML =
+                                    '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                                btn.style.pointerEvents = 'auto';
+                                return;
+                            }
+
+                            // 4. Todo OK, proceder con el despacho
                             btn.innerHTML =
-                                '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
-                            mostrarToast('Despacho exitoso, actualizando estatus...',
-                                'success');
-                            esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
-                                consultarEstatusOracle();
-                            });
+                                '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
+
+                            fetch(
+                                    `https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`
+                                )
+                                .then(r => r.json())
+                                .then(despachoData => {
+                                    if (despachoData.ok) {
+                                        btn.innerHTML =
+                                            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
+                                        mostrarToast('Despacho exitoso, actualizando estatus...',
+                                            'success');
+                                        esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
+                                            consultarEstatusOracle();
+                                        });
+                                    } else {
+                                        btn.innerHTML = '❌ Error al despachar';
+                                        btn.style.pointerEvents = 'auto';
+                                        mostrarToastError(['Error al despachar: ' + (despachoData.message ||
+                                            'Error desconocido')]);
+                                    }
+                                })
+                                .catch(() => {
+                                    btn.innerHTML = '❌ Error de conexión';
+                                    btn.style.pointerEvents = 'auto';
+                                    mostrarToastError(['Error de conexión al servicio de despacho']);
+                                });
                         } else {
-                            btn.innerHTML = '❌ Error al despachar';
-                            btn.style.pointerEvents = 'auto';
-                            mostrarToastError(['Error al despachar: ' + (despachoData.message ||
+                            mostrarToastError(['No se pudo consultar el inventario: ' + (data.message ||
                                 'Error desconocido')]);
+                            btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
+                            btn.style.pointerEvents = 'auto';
                         }
                     })
                     .catch(() => {
-                        btn.innerHTML = '❌ Error de conexión';
+                        mostrarToastError(['Error al conectar con el servicio de inventario']);
+                        btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
                         btn.style.pointerEvents = 'auto';
-                        mostrarToastError(['Error de conexión al servicio de despacho']);
                     });
-
-                // 2. Consultar inventario disponible
-                // fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Ohnhand?Org=${org}&Subinv=${subinv}`)
-                //     .then(r => r.json())
-                //     .then(data => {
-                //         if (data.ok && data.listado) {
-                //             // 3. Validar que haya inventario suficiente para cada línea
-                //             const lineasSinInventario = validarInventario(data);
-
-                //             if (lineasSinInventario.length > 0) {
-                //                 // Hay líneas sin inventario suficiente - mostrar errores detallados
-                //                 let mensajes = ['⚠️ No hay inventario suficiente para:'];
-                //                 lineasSinInventario.forEach(l => {
-                //                     mensajes.push(
-                //                         `• ${l.codigo} - ${l.producto}: Solicita ${l.cantidad}, Disponible ${l.inventario}, Faltan ${l.faltante}`
-                //                     );
-                //                 });
-                //                 mostrarToastError(mensajes);
-
-                //                 btn.innerHTML =
-                //                     '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
-                //                 btn.style.pointerEvents = 'auto';
-                //                 return;
-                //             }
-
-                //             // 4. Todo OK, proceder con el despacho
-                //             btn.innerHTML =
-                //                 '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
-
-                //             fetch(
-                //                     `https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`
-                //                 )
-                //                 .then(r => r.json())
-                //                 .then(despachoData => {
-                //                     if (despachoData.ok) {
-                //                         btn.innerHTML =
-                //                             '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Esperando cambio de estatus...';
-                //                         mostrarToast('Despacho exitoso, actualizando estatus...',
-                //                             'success');
-                //                         esperarCambioEstatus(pedido, 'Awaiting Billing', () => {
-                //                             consultarEstatusOracle();
-                //                         });
-                //                     } else {
-                //                         btn.innerHTML = '❌ Error al despachar';
-                //                         btn.style.pointerEvents = 'auto';
-                //                         mostrarToastError(['Error al despachar: ' + (despachoData.message ||
-                //                             'Error desconocido')]);
-                //                     }
-                //                 })
-                //                 .catch(() => {
-                //                     btn.innerHTML = '❌ Error de conexión';
-                //                     btn.style.pointerEvents = 'auto';
-                //                     mostrarToastError(['Error de conexión al servicio de despacho']);
-                //                 });
-                //         } else {
-                //             mostrarToastError(['No se pudo consultar el inventario: ' + (data.message ||
-                //                 'Error desconocido')]);
-                //             btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
-                //             btn.style.pointerEvents = 'auto';
-                //         }
-                //     })
-                //     .catch(() => {
-                //         mostrarToastError(['Error al conectar con el servicio de inventario']);
-                //         btn.innerHTML = '<i class="bi bi-box-arrow-right me-2"></i> Despachar Inventario';
-                //         btn.style.pointerEvents = 'auto';
-                //     });
             });
 
             contenedor.appendChild(btn);
@@ -2678,58 +2652,127 @@
         function validarInventario(inventarioData) {
             const lineasSinInventario = [];
 
-            // Crear un mapa de inventario por itemNumber para búsqueda rápida
+            // ============================================================
+            // 1. CONSTRUIR MAPA DE CONVERSIONES DESDE LAS LÍNEAS DEL PACKLIST
+            // ============================================================
+            const mapaConversiones = {};
+
+            lineasOriginales.forEach(linea => {
+                const codigo = linea.CODIGO;
+
+                if (!mapaConversiones[codigo]) {
+                    mapaConversiones[codigo] = {
+                        conversionPiezaAKg: null,
+                        lineaKG: null,
+                        nombreProducto: linea.NOMBREPROD || codigo
+                    };
+                }
+
+                // Guardar conversión de PIEZA a KG
+                if ((linea.UOM === 'PIEZA.' || linea.UOM === 'PIEZA') && parseFloat(linea.conversion) > 0) {
+                    mapaConversiones[codigo].conversionPiezaAKg = parseFloat(linea.conversion);
+                }
+
+                // Guardar línea en KG
+                if (linea.UOM === 'KILOGRAMO' || linea.UOM === 'KG') {
+                    mapaConversiones[codigo].lineaKG = linea;
+                }
+            });
+
+            // ============================================================
+            // 2. CREAR MAPA DE INVENTARIO POR ITEM NUMBER
+            // ============================================================
             const inventarioMap = {};
             if (inventarioData && inventarioData.listado) {
                 inventarioData.listado.forEach(item => {
-                    inventarioMap[item.itemNumber] = item.primaryQuantity || 0;
+                    inventarioMap[item.itemNumber] = {
+                        cantidadKG: parseFloat(item.primaryQuantity) || 0,
+                        uom: item.primaryUOMCode || 'KG',
+                        descripcion: item.itemDescription || ''
+                    };
                 });
             }
 
-            // Obtener todas las líneas de la tabla
-            const filas = document.querySelectorAll('#tablaLineas tbody tr.linea-item:not(.linea-eliminada)');
+            // ============================================================
+            // 3. VALIDAR CADA LÍNEA DE LA ORDEN (PACKINGORDERLINES)
+            // ============================================================
+            const lineasOrden = @json($packingorderlines ?? []);
 
-            filas.forEach(fila => {
-                if (fila.style.display === 'none') return;
+            lineasOrden.forEach(linea => {
+                const codigo = linea.Product_Number || linea.PRODUCT_NUMBER;
+                const cantidadPedida = parseFloat(linea.Ordered_Quantity || linea.ORDERED_QUANTITY || 0);
+                const uomPedida = (linea.Ordered_UOM || linea.ORDERED_UOM || '').trim().toUpperCase();
 
-                // Obtener el código desde el dataset o desde la celda
-                let codigo = fila.dataset.codigo;
-                if (!codigo) {
-                    const celdaCodigo = fila.querySelector('td:nth-child(2)');
-                    codigo = celdaCodigo ? celdaCodigo.textContent.trim() : '';
-                }
+                if (!codigo || cantidadPedida <= 0) return;
 
-                // Obtener la cantidad
-                let cantidad = 0;
-                const cantidadInput = fila.querySelector('.cantidad-input');
-                const cantidadTexto = fila.querySelector('.cantidad-texto');
+                // Obtener datos del inventario
+                const inventario = inventarioMap[codigo];
+                const infoProducto = mapaConversiones[codigo];
+                const nombreProducto = infoProducto?.nombreProducto || inventario?.descripcion || codigo;
 
-                if (cantidadInput && cantidadInput.style.display !== 'none') {
-                    cantidad = parseFloat(cantidadInput.value) || 0;
-                } else if (cantidadTexto) {
-                    cantidad = parseFloat(cantidadTexto.textContent.replace(/,/g, '')) || 0;
-                } else {
-                    const celdas = fila.querySelectorAll('td');
-                    if (celdas.length >= 5) {
-                        cantidad = parseFloat(celdas[4].textContent.trim().replace(/,/g, '')) || 0;
-                    }
-                }
-
-                // Obtener el nombre del producto
-                const productoTexto = fila.querySelector('.producto-texto');
-                const producto = productoTexto ? productoTexto.textContent.trim() : (codigo || '?');
-
-                // Obtener el inventario disponible para este código
-                const inventarioDisponible = inventarioMap[codigo] || 0;
-
-                // Si la cantidad solicitada es mayor que el inventario disponible
-                if (cantidad > 0 && cantidad > inventarioDisponible) {
+                if (!inventario) {
+                    // No hay inventario para este producto
                     lineasSinInventario.push({
                         codigo: codigo,
-                        producto: producto,
-                        cantidad: cantidad,
-                        inventario: inventarioDisponible,
-                        faltante: cantidad - inventarioDisponible
+                        producto: nombreProducto,
+                        cantidad: cantidadPedida,
+                        uom: uomPedida,
+                        inventario: 0,
+                        faltante: cantidadPedida,
+                        mensaje: 'No hay inventario'
+                    });
+                    return;
+                }
+
+                // ============================================================
+                // 4. CONVERTIR CANTIDAD PEDIDA A KG
+                // ============================================================
+                let cantidadNecesariaKG = 0;
+
+                if (uomPedida === 'KILOGRAMO' || uomPedida === 'KG') {
+                    // Ya está en KG
+                    cantidadNecesariaKG = cantidadPedida;
+                } else if (uomPedida === 'PIEZA.' || uomPedida === 'PIEZA' || uomPedida === 'PIEZAS') {
+                    // Necesita conversión de PIEZA a KG
+                    const conversion = infoProducto?.conversionPiezaAKg || null;
+
+                    if (conversion && conversion > 0) {
+                        // Usar la conversión del PackList
+                        cantidadNecesariaKG = cantidadPedida * conversion;
+                    } else if (infoProducto?.lineaKG) {
+                        // No hay conversión directa, usar la línea KG equivalente
+                        const cantidadKG = parseFloat(infoProducto.lineaKG.CANTIDAD) || 0;
+                        const cantidadPieza = parseFloat(infoProducto.lineaKG.CANTCNV) || 0;
+
+                        if (cantidadPieza > 0 && cantidadKG > 0) {
+                            // Calcular conversión: KG por pieza
+                            const conversionCalculada = cantidadKG / cantidadPieza;
+                            cantidadNecesariaKG = cantidadPedida * conversionCalculada;
+                        } else {
+                            // Asumir 1:1 si no hay datos suficientes
+                            cantidadNecesariaKG = cantidadPedida;
+                        }
+                    } else {
+                        // Sin información de conversión, asumir 1:1
+                        cantidadNecesariaKG = cantidadPedida;
+                    }
+                } else {
+                    // UOM desconocida, asumir 1:1
+                    cantidadNecesariaKG = cantidadPedida;
+                }
+
+                // ============================================================
+                // 5. COMPARAR CON INVENTARIO DISPONIBLE
+                // ============================================================
+                if (cantidadNecesariaKG > inventario.cantidadKG) {
+                    lineasSinInventario.push({
+                        codigo: codigo,
+                        producto: nombreProducto,
+                        cantidad: cantidadNecesariaKG.toFixed(2),
+                        uom: 'KG',
+                        inventario: inventario.cantidadKG.toFixed(2),
+                        faltante: (cantidadNecesariaKG - inventario.cantidadKG).toFixed(2),
+                        mensaje: `Pedido: ${cantidadPedida} ${uomPedida} = ${cantidadNecesariaKG.toFixed(2)} KG`
                     });
                 }
             });
