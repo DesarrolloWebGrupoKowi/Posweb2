@@ -404,6 +404,9 @@ class AutoservicioFacturacionController extends Controller
                 'SUBINVENTORY_CODE'
             )
             ->whereDate('Transaction_On', $fecha) // Obligatorio: filtrar por fecha
+            ->when(in_array(Auth::user()->IdTipoUsuario, [4, 11]), function ($query) { // Hacemos que las facturistas solo puedan ver sus autoservicios
+                $query->where('Created_by', Auth::user()->IdUsuario);
+            })
             ->when($organizacion, function ($query) use ($organizacion) {
                 $query->where('ORGANIZATION_CODE', $organizacion); // Filtrar por tipo de orden
             })
