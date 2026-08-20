@@ -49,7 +49,6 @@ class LoginController extends Controller
 
         // Si NO hay tienda activa
         if (count($hayTiendaActiva) == 0) {
-            // return 'ndloas';
             if ($usuario && $usuario->IdTipoUsuario == 2) {
                 return back()->withErrors([
                     'NomUsuario' => 'Usuario no pertenece a tienda activa.'
@@ -57,7 +56,6 @@ class LoginController extends Controller
             }
         } else {
             // Si hay tiendas activas, validar que el usuario pertenezca a una tienda activa
-            // return
             $usuarioTienda = DB::table('CatUsuariosTienda as ut')
                 ->join('CatUsuarios as cu', 'ut.IdUsuario', '=', 'cu.IdUsuario')
                 ->join('CatTiendas as ct', 'ut.IdTienda', '=', 'ct.IdTienda')
@@ -79,11 +77,20 @@ class LoginController extends Controller
             ]);
         }
 
-        // return dd($credenciales);
-
         try {
             if (Auth::attempt($credenciales)) {
                 $request->session()->regenerate();
+
+                // ============================================================
+                // ✅ NUEVO: Redirigir a la URL intentada si existe
+                // ============================================================
+                $intendedUrl = session()->pull('url.intended');
+
+                if ($intendedUrl) {
+                    return redirect($intendedUrl);
+                }
+
+                // Redirección por defecto
                 return redirect('/Dashboard');
             } else {
                 session()->flash('msjdelete', 'Las Credenciales No Coinciden');
