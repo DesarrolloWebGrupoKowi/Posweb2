@@ -702,7 +702,11 @@
                 .then(data => {
                     if (data.ok && data.dato?.lines) {
                         const estatusLineas = data.dato.lines.map(line => line.status);
-                        const estatusUnicos = [...new Set(estatusLineas)];
+                        let estatusUnicos = [...new Set(estatusLineas)];
+                        if (estatusUnicos.length > 1) {
+                            estatusUnicos = estatusUnicos.filter(status => status !== "Canceled");
+                        }
+
                         if (estatusUnicos.length >= 1) item.innerHTML =
                             `<span class="tags-green">${estatusUnicos.join(', ')}</span>`;
                         if (estatusUnicos.length == 1) {
