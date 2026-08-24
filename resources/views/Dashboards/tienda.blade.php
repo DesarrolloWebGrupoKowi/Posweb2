@@ -211,13 +211,22 @@
                                         style="color: var(--text-secondary); font-size: 0.85rem;">{{ \Carbon\Carbon::parse($fechaActual)->locale('es')->isoFormat('D [de] MMMM [de] YYYY') }}</small>
                                 @endif
                             </div>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex flex-wrap gap-2">
                                 @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes) && $tiendaActual?->procesarcorte == 0)
                                     <x-dashboard-buttons-procesar
                                         :corteTienda="$corteTienda"
                                         :corteTiendaSolicitudes="$corteTiendaSolicitudes"
                                     />
                                 @endif
+
+                                {{-- Contenedor para botones de acción masiva (se llenarán dinámicamente) --}}
+                                @if (in_array(Auth::user()->IdTipoUsuario, $allowedUserTypes))
+                                    <div
+                                        id="btnGroupAccionesMasivas"
+                                        style="display: none;"
+                                    ></div>
+                                @endif
+
                                 <button
                                     class="btn btn-sm d-flex align-items-center btn-animated btn-expand gap-1"
                                     onclick="toggleExpandirTabla()"
@@ -980,6 +989,426 @@
                 button.innerHTML = '<i class="bi bi-send"></i> ENVIAR';
             }
         }
+        // ====================================================================================================
+        // ACCIONES MASIVAS (BOTONES DE PROCESAMIENTO EN LOTE)
+        // ====================================================================================================
+
+        // Colección para almacenar pedidos que necesitan acciones
+        let pedidosPendientes = {
+            envio: new Set(), // Botones de envío pendiente
+            despacho: new Set(), // Botones de despacho
+            factura: new Set(), // Botones de facturación
+            uuid: new Set() // Botones de envío de UUID
+        };
+
+        // Función para crear botones dinámicos
+        function crearBotonMasivo(id, texto, icono, claseColor, onclick, title) {
+            const boton = document.createElement('button');
+            boton.type = 'button';
+            boton.id = id;
+            boton.className = `btn btn-sm ${claseColor} d-flex align-items-center gap-1 btn-animated`;
+            boton.onclick = onclick;
+            boton.title = title;
+            boton.innerHTML = `<i class="bi ${icono}"></i><span>${texto}</span>`;
+            return boton;
+        }
+
+        // Función para actualizar los botones masivos
+        function actualizarPedidosPendientes() {
+            // Resetear colecciones
+            pedidosPendientes = {
+                envio: new Set(),
+                despacho: new Set(),
+                factura: new Set(),
+                uuid: new Set()
+            };
+
+            // Buscar botones de envío pendiente
+            document.querySelectorAll('.btn-enviar').forEach(btn => {
+                if (!btn.disabled) {
+                    pedidosPendientes.envio.add(btn);
+                }
+            });
+
+            // Buscar botones de acciones de Oracle
+            document.querySelectorAll('.acciones-oracle button').forEach(btn => {
+                const textoBoton = btn.textContent.trim();
+
+                if (textoBoton.includes('DESPACHO')) {
+                    pedidosPendientes.despacho.add(btn);
+                }
+
+                if (textoBoton.includes('GENERAR FACTURA')) {
+                    pedidosPendientes.factura.add(btn);
+                }
+
+                if (textoBoton.includes('ENVIAR UUID')) {
+                    pedidosPendientes.uuid.add(btn);
+                }
+            });
+
+            // Actualizar la interfaz
+            renderizarBotonesMasivos();
+        }
+
+        // Función para renderizar solo los botones necesarios
+        function renderizarBotonesMasivos() {
+            const contenedor = document.getElementById('btnGroupAccionesMasivas');
+            if (!contenedor) return;
+
+            // Limpiar contenedor
+            contenedor.innerHTML = '';
+
+            let hayBotones = false;
+
+            // Botón de Enviar Pendientes
+            if (pedidosPendientes.envio.size > 0) {
+                const boton = crearBotonMasivo(
+                    'btnEnviarTodos',
+                    `Enviar Pendientes (${pedidosPendientes.envio.size})`,
+                    'bi-send',
+                    'btn-amber p-2',
+                    () => procesarBotonesEnLote(pedidosPendientes.envio, 'envío a Oracle'),
+                    'Enviar todos los pedidos pendientes a Oracle'
+                );
+                contenedor.appendChild(boton);
+                hayBotones = true;
+            }
+
+            // Botón de Despachar Todos
+            if (pedidosPendientes.despacho.size > 0) {
+                const boton = crearBotonMasivo(
+                    'btnDespacharTodos',
+                    `Despachar Todos (${pedidosPendientes.despacho.size})`,
+                    'bi-box-seam',
+                    'btn-amber p-2',
+                    () => procesarBotonesEnLote(pedidosPendientes.despacho, 'despacho de inventario'),
+                    'Despachar todos los pedidos en Awaiting Shipping'
+                );
+                contenedor.appendChild(boton);
+                hayBotones = true;
+            }
+
+            // Botón de Facturar Todos
+            if (pedidosPendientes.factura.size > 0) {
+                const boton = crearBotonMasivo(
+                    'btnFacturarTodos',
+                    `Facturar Todos (${pedidosPendientes.factura.size})`,
+                    'bi-receipt-cutoff',
+                    'btn-blue p-2',
+                    () => procesarBotonesEnLote(pedidosPendientes.factura, 'generación de facturas'),
+                    'Generar facturas para todos los pedidos en Awaiting Billing'
+                );
+                contenedor.appendChild(boton);
+                hayBotones = true;
+            }
+
+            // Botón de Enviar UUIDs
+            if (pedidosPendientes.uuid.size > 0) {
+                const boton = crearBotonMasivo(
+                    'btnEnviarUUIDs',
+                    `Enviar UUIDs (${pedidosPendientes.uuid.size})`,
+                    'bi-fingerprint',
+                    'btn-green p-2',
+                    () => procesarBotonesEnLote(pedidosPendientes.uuid, 'envío de UUIDs'),
+                    'Enviar UUIDs pendientes para solicitudes de factura'
+                );
+                contenedor.appendChild(boton);
+                hayBotones = true;
+            }
+
+            // Mostrar u ocultar el contenedor según haya botones o no
+            contenedor.style.display = hayBotones ? 'inline-flex' : 'none';
+            if (hayBotones) {
+                contenedor.style.gap = '0.25rem';
+                contenedor.style.alignItems = 'center';
+            }
+        }
+
+        // Función para deshabilitar todos los botones masivos durante el procesamiento
+        function deshabilitarBotonesMasivos() {
+            const contenedor = document.getElementById('btnGroupAccionesMasivas');
+            if (contenedor) {
+                const botones = contenedor.querySelectorAll('button');
+                botones.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'wait';
+                    btn.classList.remove('btn-animated');
+                });
+            }
+        }
+
+        // FUNCIÓN PRINCIPAL: Procesa botones en lote disparando sus eventos click
+        // Función para crear un toast dinámico
+        function crearToast(tipo, titulo, mensaje, duracion = 5000) {
+            // Crear el contenedor si no existe
+            let contenedor = document.querySelector('.alerts-toast-container');
+            if (!contenedor) {
+                contenedor = document.createElement('div');
+                contenedor.className = 'alerts-toast-container';
+                document.body.appendChild(contenedor);
+            }
+
+            // Configuración según el tipo
+            const config = {
+                success: {
+                    icono: 'bi-check-circle-fill',
+                    clase: 'toast-success'
+                },
+                danger: {
+                    icono: 'bi-exclamation-triangle-fill',
+                    clase: 'toast-danger'
+                },
+                warning: {
+                    icono: 'bi-exclamation-triangle-fill',
+                    clase: 'toast-warning'
+                }
+            };
+
+            const conf = config[tipo] || config.success;
+
+            // Crear el elemento toast
+            const toast = document.createElement('div');
+            toast.className = `toast-alert ${conf.clase} show`;
+            toast.setAttribute('role', 'alert');
+
+            // Construir el contenido
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="bi ${conf.icono}"></i>
+                </div>
+                <div class="toast-content">
+                    <strong>${titulo}</strong>
+                    <span>${mensaje}</span>
+                </div>
+                <button type="button" class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+
+            // Agregar al contenedor
+            contenedor.appendChild(toast);
+
+            // Auto-eliminar después del tiempo especificado
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(120%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    toast.remove();
+                    // Si no hay más toasts, eliminar el contenedor
+                    if (contenedor.children.length === 0) {
+                        contenedor.remove();
+                    }
+                }, 300);
+            }, duracion);
+
+            return toast;
+        }
+
+        // Función para mostrar toast de procesamiento en lote
+        function mostrarToastProcesamiento(resultados, descripcionAccion) {
+            const exitosos = resultados.exitosos;
+            const fallidos = resultados.fallidos;
+
+            let tipo = 'success';
+            let titulo = 'Procesamiento Completado';
+            let mensaje = `${descripcionAccion}: ${exitosos} exitoso(s)`;
+
+            if (fallidos > 0 && exitosos > 0) {
+                tipo = 'warning';
+                titulo = 'Procesamiento Parcial';
+                mensaje = `${descripcionAccion}: ${exitosos} exitoso(s), ${fallidos} fallido(s)`;
+            } else if (fallidos > 0 && exitosos === 0) {
+                tipo = 'danger';
+                titulo = 'Error en Procesamiento';
+                mensaje = `${descripcionAccion}: ${fallidos} fallido(s)`;
+            }
+
+            // Si hay errores específicos, agregarlos al mensaje
+            if (resultados.errores.length > 0) {
+                mensaje += '<br><small class="d-block mt-1">';
+                resultados.errores.slice(0, 3).forEach(err => {
+                    mensaje += `• ${err.pedido}: ${err.error}<br>`;
+                });
+                if (resultados.errores.length > 3) {
+                    mensaje += `• Y ${resultados.errores.length - 3} más...`;
+                }
+                mensaje += '</small>';
+            }
+
+            // Crear el toast (usar innerHTML para permitir HTML en el mensaje)
+            const contenedor = document.querySelector('.alerts-toast-container') || (() => {
+                const div = document.createElement('div');
+                div.className = 'alerts-toast-container';
+                document.body.appendChild(div);
+                return div;
+            })();
+
+            const config = {
+                success: {
+                    icono: 'bi-check-circle-fill',
+                    clase: 'toast-success'
+                },
+                warning: {
+                    icono: 'bi-exclamation-triangle-fill',
+                    clase: 'toast-warning'
+                },
+                danger: {
+                    icono: 'bi-exclamation-triangle-fill',
+                    clase: 'toast-danger'
+                }
+            };
+
+            const conf = config[tipo] || config.success;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-alert ${conf.clase} show`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="bi ${conf.icono}"></i>
+                </div>
+                <div class="toast-content">
+                    <strong>${titulo}</strong>
+                    <span>${mensaje}</span>
+                </div>
+                <button type="button" class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+
+            contenedor.appendChild(toast);
+
+            // Auto-eliminar después de 6 segundos (un poco más para leer errores)
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(120%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    toast.remove();
+                    if (contenedor.children.length === 0) {
+                        contenedor.remove();
+                    }
+                }, 300);
+            }, 6000);
+        }
+
+        // FUNCIÓN PRINCIPAL MODIFICADA: Procesa botones en lote disparando sus eventos click
+        async function procesarBotonesEnLote(coleccionBotones, descripcionAccion) {
+            const botonesArray = Array.from(coleccionBotones);
+
+            if (botonesArray.length === 0) {
+                crearToast('warning', 'Sin Acciones', `No hay pedidos pendientes de ${descripcionAccion}`);
+                return;
+            }
+
+            // if (!confirm(`¿Desea procesar ${botonesArray.length} pedido(s) de ${descripcionAccion}?`)) {
+            //     return;
+            // }
+
+            // Deshabilitar todos los botones masivos durante el procesamiento
+            deshabilitarBotonesMasivos();
+
+            // Mostrar toast de inicio
+            crearToast('success', 'Procesando',
+                `Iniciando ${descripcionAccion} de ${botonesArray.length} pedido(s)...`);
+
+            const resultados = {
+                exitosos: 0,
+                fallidos: 0,
+                errores: []
+            };
+
+            for (const boton of botonesArray) {
+                try {
+                    // Verificar que el botón aún esté habilitado
+                    if (boton.disabled || !boton.isConnected) {
+                        resultados.fallidos++;
+                        continue;
+                    }
+
+                    // Disparar el evento click del botón existente
+                    boton.click();
+
+                    // Esperar un poco para que se procese la acción
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    // Verificar si el botón fue deshabilitado (indicando éxito) o si cambió su estado
+                    if (boton.disabled || !boton.isConnected) {
+                        resultados.exitosos++;
+                    } else {
+                        resultados.exitosos++;
+                    }
+
+                } catch (error) {
+                    resultados.fallidos++;
+                    resultados.errores.push({
+                        pedido: boton.getAttribute('data-pedido') || 'desconocido',
+                        error: error.message
+                    });
+                }
+
+                // Pequeña pausa para no saturar el servidor
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            // Mostrar toast de resumen en lugar de alert
+            // mostrarToastProcesamiento(resultados, descripcionAccion);
+
+            // Recargar la página para actualizar estados
+            // setTimeout(() => location.reload(), 2000);
+        }
+
+        // Modificar la función fetchStatusOracle para actualizar botones masivos
+        const fetchStatusOracleOriginal = fetchStatusOracle;
+        fetchStatusOracle = function(item, btnReload = null) {
+            const resultadoOriginal = fetchStatusOracleOriginal(item, btnReload);
+
+            // Actualizar botones masivos después de cargar estados
+            setTimeout(actualizarPedidosPendientes, 1000);
+
+            return resultadoOriginal;
+        };
+
+        // Modificar la función actualizarFilaConRespuesta para actualizar botones masivos
+        const actualizarFilaConRespuestaOriginal = actualizarFilaConRespuesta;
+        actualizarFilaConRespuesta = function(pedidoId, resultado, button) {
+            actualizarFilaConRespuestaOriginal(pedidoId, resultado, button);
+
+            // Actualizar botones masivos después de procesar
+            setTimeout(actualizarPedidosPendientes, 500);
+        };
+
+        // Inicializar colección al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            actualizarFilasOracle();
+
+            // Esperar a que se carguen los estados de Oracle
+            setTimeout(actualizarPedidosPendientes, 3000);
+
+            // También actualizar cuando se expanda la tabla
+            const btnExpandir = document.getElementById('btnExpandir');
+            if (btnExpandir) {
+                btnExpandir.addEventListener('click', () => {
+                    setTimeout(actualizarPedidosPendientes, 500);
+                });
+            }
+
+            // Observar cambios en la tabla para actualizar botones
+            const tablaObservada = document.getElementById('vistaTabla');
+            if (tablaObservada) {
+                const observer = new MutationObserver(() => {
+                    setTimeout(actualizarPedidosPendientes, 500);
+                });
+
+                observer.observe(tablaObservada, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        });
 
         // ====================================================================================================
         // EXPANDIR/CONTRACTAR TABLA (FULL SCREEN)
