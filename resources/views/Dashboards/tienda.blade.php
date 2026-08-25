@@ -554,6 +554,11 @@
                                                         @if ($item->UUID ?? false)
                                                             <strong>UUID:</strong> <span>{{ $item->UUID }}</span>
                                                         @endif
+                                                        @if ($item->Source_Origen ?? false)
+                                                            <br>
+                                                            <strong class="text-danger">Source_Origen:</strong>
+                                                            <span class="text-danger">{{ substr($item->Source_Origen, 0, 3) . '_' . substr($item->Source_Origen, 3) }}</span>
+                                                        @endif
                                                     </small>
                                                 </td>
                                             </tr>
