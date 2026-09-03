@@ -466,6 +466,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/ReporteMermasAdmin', 'App\Http\Controllers\ReportesController@ReporteMermasAdmin')->name('ReporteMermasAdmin');
     Route::get('/ReporteMermasAdminExcel', 'App\Http\Controllers\ReportesController@ReporteMermasAdminExcel')->name('ReporteMermasAdminExcel');
     Route::get('/ReporteRosticeroAdmin', 'App\Http\Controllers\ReportesController@ReporteRosticeroAdmin')->name('ReporteRosticeroAdmin');
+    Route::get('/ExportReporteRosticeroAdmin', 'App\Http\Controllers\ReportesController@ExportReporteRosticeroAdminExcel')->name('ExportReporteRosticeroAdminExcel');
     Route::get('/ReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ReporteConcentradoDeArticulos')->name('ReporteConcentradoDeArticulos');
     Route::get('/ExportReporteConcentradoDeArticulos', 'App\Http\Controllers\ReportesController@ExportReporteConcentradoDeArticulos')->name('ExportReporteConcentradoDeArticulos');
     Route::get('/ReporteDescuentos', 'App\Http\Controllers\ReportesController@reporteDescuentos')->name('ReporteDescuentos');

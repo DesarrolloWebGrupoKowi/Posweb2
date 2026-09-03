@@ -5,6 +5,16 @@
         subtitle="Reporte de productos rostisados por tienda"
     >
         <x-slot:buttons>
+            <a
+                href="/ExportReporteRosticeroAdmin?{{ http_build_query(request()->only(['idTienda', 'fecha1', 'fecha2'])) }}"
+                class="btn-header-ghost"
+                title="Exportar a Excel"
+                style="background: var(--btn-green-bg); color: var(--btn-green-text);"
+                onmouseover="this.style.background='var(--btn-green-hover)'; this.style.transform='translateY(-1px)'"
+                onmouseout="this.style.background='var(--btn-green-bg)'; this.style.transform='translateY(0)'"
+            >
+                <i class="bi bi-file-earmark-excel"></i> Exportar
+            </a>
             <x-header.buttons.home-button />
             <x-header.buttons.refresh-button />
         </x-slot:buttons>

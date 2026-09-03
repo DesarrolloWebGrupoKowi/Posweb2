@@ -10,6 +10,7 @@ use App\Exports\GrupoYTipoPrecio;
 use App\Exports\Mermas;
 use App\Exports\ReporteDescuentos;
 use App\Exports\ReportePaquetes;
+use App\Exports\RostisadosExport;
 use App\Exports\VentasPorTipoDePrecioExport;
 use App\Models\CapMerma;
 use App\Models\CatPaquete;
@@ -1762,6 +1763,96 @@ class ReportesController extends Controller
             ->paginate(10);
 
         return view('Reportes.ConcentradoDeRostisados', compact('tiendas', 'idTienda', 'fecha1', 'fecha2', 'concentrado'));
+    }
+
+    public function ExportReporteRosticeroAdminExcel(Request $request)
+    {
+        $idTienda = $request->idTienda;
+        $fecha1 = $request->fecha1;
+        $fecha2 = $request->fecha2;
+
+
+        $concentrado = DatRosticero::with(['Detalle' => function ($q) {
+            $q->select('DatDetalleRosticero.IdRosticero', 'DatDetalleRosticero.CantMermaRecalentado', 'DatDetalleRosticero.Cantidad', 'DatDetalleRosticero.Status', 'CatArticulos.NomArticulo')
+                ->orderBy('Linea');
+        }])
+            ->select(
+                // 'DatRosticero.*',
+                'DatRosticero.IdRosticero',
+                'ct.NomTienda',
+                'DatRosticero.Fecha',
+
+                // 'uBaja.NomUsuario as UsuarioInterfazBaja',
+                DB::raw("CONCAT(eBaja.Nombre, ' ', eBaja.Apellidos) as NombreUsuarioBajaCompleto"),
+
+                // 'uAlta.NomUsuario as UsuarioInterfazAlta',
+                DB::raw("CONCAT(eAlta.Nombre, ' ', eAlta.Apellidos) as NombreUsuarioAltaCompleto"),
+
+                'CAMP.CodArticulo as CodigoMatPrima',
+                'CAMP.NomArticulo as ArticuloMatPrima',
+                'DatRosticero.CantidadMatPrima',
+
+                'CAV.CodArticulo as CodigoVenta',
+                'CAV.NomArticulo as ArticuloVenta',
+                // 'DatRosticero.CantidadMatPrima',
+            )
+            ->leftJoin('CatTiendas as ct', 'ct.IdTienda', 'DatRosticero.IdTienda')
+            ->leftJoin('CatArticulos as CAMP', 'CAMP.CodArticulo', 'DatRosticero.CodigoMatPrima')
+            ->leftJoin('CatArticulos as CAV', 'CAV.CodArticulo', 'DatRosticero.CodigoVenta')
+            ->leftJoin('CatUsuarios as uBaja', 'uBaja.IdUsuario', 'DatRosticero.IdUsuarioInterfazBaja')
+            ->leftJoin('CatEmpleados as eBaja', 'eBaja.NumNomina', 'uBaja.NumNomina')
+            ->leftJoin('CatUsuarios as uAlta', 'uAlta.IdUsuario', 'DatRosticero.IdUsuarioInterfazAlta')
+            ->leftJoin('CatEmpleados as eAlta', 'eAlta.NumNomina', 'uAlta.NumNomina')
+            ->when($idTienda, function ($query) use ($idTienda) {
+                $query->where('DatRosticero.IdTienda', $idTienda);
+            })
+            ->where('DatRosticero.Status', 0)
+            ->whereRaw("cast(DatRosticero.Fecha as date) between '" . $fecha1 . "' and '" . $fecha2 . "'")
+            ->orderBy('DatRosticero.Fecha', 'desc')
+            ->get();
+
+        $reporte = $concentrado->map(function ($rosticero) {
+
+            $detalle = $rosticero->Detalle;
+
+            // Cantidad que salió como baja
+            $bajaCantidad = $detalle
+                ->where('Status', 0)
+                ->whereNull('CantMermaRecalentado')
+                ->sum('Cantidad');
+
+            // Cantidad de merma recalentado
+            $recalentado = $detalle
+                ->where('Status', 0)
+                ->whereNotNull('CantMermaRecalentado')
+                ->sum('CantMermaRecalentado');
+
+            return [
+                'Folio'            => $rosticero->IdRosticero,
+
+                'Tienda'            => $rosticero->NomTienda,
+                'Fecha'            => $rosticero->Fecha,
+
+                'CodigoBaja'     => $rosticero->CodigoMatPrima,
+                'ArticuloBaja'     => $rosticero->ArticuloMatPrima,
+                'CantidadBaja'     => $rosticero->CantidadMatPrima,
+
+                'CodigoAlta'     => $rosticero->CodigoVenta,
+                'ArticuloAlta'     => $rosticero->ArticuloVenta,
+                'CantidadAlta'     => $bajaCantidad,
+
+                'MermaEstandar'    => $rosticero->CantidadMatPrima / 2, // aquí calculamos después
+                'MermaReal'        => $rosticero->CantidadMatPrima - $bajaCantidad, // aquí calculamos después
+
+                'Recalentado'      => $recalentado,
+
+                'Usuario Baja'      => $rosticero->NombreUsuarioBajaCompleto,
+                'Usuario Alta'      => $rosticero->NombreUsuarioAltaCompleto,
+            ];
+        });
+        // return $reporte;
+        $name = 'exports.xlsx';
+        return Excel::download(new RostisadosExport($reporte), $name);
     }
 
     public function ReporteDineroElectronido(Request $request)
