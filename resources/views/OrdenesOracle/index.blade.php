@@ -423,6 +423,9 @@
                     shipToCustomerId: datoGlobal.shipToCustomer?.[0]?.siteId || '',
                     billToCustomerAccountId: datoGlobal.billToCustomer?.[0]?.customerAccountId || '',
                     billToSiteUseId: datoGlobal.billToCustomer?.[0]?.siteUseId || '',
+                    cfdi: datoGlobal.additional?.cfdi || '',
+                    metodoDePago: datoGlobal.additional?.metodoDePago || '',
+                    tipoDePago: datoGlobal.additional?.tipoDePago || '',
                 },
                 lineas: lineas
             };

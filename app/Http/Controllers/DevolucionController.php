@@ -145,6 +145,9 @@ class DevolucionController extends Controller
             'header.shipToCustomerId' => 'required',
             'header.billToCustomerAccountId' => 'required',
             'header.billToSiteUseId' => 'required',
+            'header.cfdi' => 'required',
+            'header.metodoDePago' => 'required',
+            'header.tipoDePago' => 'required',
             'lineas' => 'required|array|min:1',
             'lineas.*.fulfillLineId' => 'required',
             'lineas.*.lineNumber' => 'required',
@@ -173,8 +176,9 @@ class DevolucionController extends Controller
             $RequestedFulfillmentOrganizationId = $header['requestedFulfillmentOrganizationId'];
             $RequestedFulfillmentOrganizationCode = $header['requestedFulfillmentOrganizationCode'];
             $RequestedFulfillmentOrganizationName = $header['requestedFulfillmentOrganizationName'];
-            $MetododePago = 'PUE';
-            $FormaPago = '02';
+            $MetododePago = $header['required']; // 'PUE'
+            $FormaPago = $header['tipoDePago']; // '02'
+            // $UsoCfdi = $header['cfdi']; // 'G02'
             $UsoCfdi = 'G02';
             $SiteId = $header['shipToCustomerId'];
             $CustomerAccountId = $header['billToCustomerAccountId'];
