@@ -176,7 +176,7 @@ class DevolucionController extends Controller
             $RequestedFulfillmentOrganizationId = $header['requestedFulfillmentOrganizationId'];
             $RequestedFulfillmentOrganizationCode = $header['requestedFulfillmentOrganizationCode'];
             $RequestedFulfillmentOrganizationName = $header['requestedFulfillmentOrganizationName'];
-            $MetododePago = $header['required']; // 'PUE'
+            $MetododePago = $header['metodoDePago']; // 'PUE'
             $FormaPago = $header['tipoDePago']; // '02'
             // $UsoCfdi = $header['cfdi']; // 'G02'
             $UsoCfdi = 'G02';

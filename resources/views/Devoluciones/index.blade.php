@@ -318,6 +318,54 @@
                                         <label
                                             style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
                                         >
+                                            Metodo de pago
+                                        </label>
+                                        <p
+                                            class="mb-0"
+                                            style="color: #334155; font-size: 0.9rem; font-weight: 500;"
+                                        >
+                                            {{ $devolucionSeleccionada->METODO_PAGO ?? '-' }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 mt-0">
+                                    <div class="mb-3">
+                                        <label
+                                            style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                                        >
+                                            Forma de pago
+                                        </label>
+                                        <p
+                                            class="mb-0"
+                                            style="color: #334155; font-size: 0.9rem; font-weight: 500;"
+                                        >
+                                            {{ $devolucionSeleccionada->FORMA_PAGO ?? '-' }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 mt-0">
+                                    <div class="mb-3">
+                                        <label
+                                            style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                                        >
+                                            Uso CFDI
+                                        </label>
+                                        <p
+                                            class="mb-0"
+                                            style="color: #334155; font-size: 0.9rem; font-weight: 500;"
+                                        >
+                                            {{ $devolucionSeleccionada->UCFDI ?? '-' }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 mt-0">
+                                    <div class="mb-3">
+                                        <label
+                                            style="color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 4px;"
+                                        >
                                             Moneda / Total
                                         </label>
                                         <div class="d-flex align-items-center gap-2">
