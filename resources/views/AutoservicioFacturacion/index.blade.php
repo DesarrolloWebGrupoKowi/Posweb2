@@ -80,7 +80,11 @@
                             @endif
 
                             {{-- Paso 2: Enviar Pedido a Oracle --}}
-                            @if ($packingorder && $packingorder->STATUS === null && $packingorder->MENSAJE_ERROR === null && $packingorder->STATUSPEDIDO == 1)
+                            @if (
+                                $packingorder &&
+                                    $packingorder->STATUS === null &&
+                                    $packingorder->MENSAJE_ERROR === null &&
+                                    $packingorder->STATUSPEDIDO == 1)
                                 <button
                                     type="button"
                                     id="btnAccion"
@@ -2842,7 +2846,16 @@
                 // Crear formulario dinámicamente
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '{{ route('autoservicio.cancelarpedido', ['folio' => $packList]) }}';
+
+
+                @php
+                    $routeUrl = '';
+                    if (isset($packList) && !empty($packList) && $packList !== null) {
+                        $routeUrl = route('autoservicio.cancelarpedido', ['folio' => $packList]);
+                    }
+                @endphp
+
+                form.action = '{{ $routeUrl }}';
 
                 // Token CSRF
                 const csrf = document.createElement('input');
