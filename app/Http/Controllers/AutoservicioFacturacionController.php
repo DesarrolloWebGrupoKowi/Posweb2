@@ -25,6 +25,7 @@ class AutoservicioFacturacionController extends Controller
 
         // Datos del packing
         $packList = $request->get('packlist', '');
+        $folio = $request->get('folio', '');
         $header = null;
         $ship_to = null;
         $bill_to = null;
@@ -73,10 +74,17 @@ class AutoservicioFacturacionController extends Controller
                             'XXKW_AUTOSERVICIO_HEADERS.SOURCE_TRANSACTION_IDENTIFIER'
                         )
                         ->where('XXKW_AUTOSERVICIO_PACKINGORDER.PACKINGLIST', $packList)
+                        ->when(!empty($folio), function ($query) use ($folio) {
+                            return $query->where('XXKW_AUTOSERVICIO_PACKINGORDER.SOURCE_TRANSACTION_IDENTIFIER', $folio);
+                        }, function ($query) {
+                            return $query->where('XXKW_AUTOSERVICIO_PACKINGORDER.STATUS', 1);
+                        })
                         ->select(
-                            'XXKW_AUTOSERVICIO_HEADERS.*'
+                            'XXKW_AUTOSERVICIO_HEADERS.*',
+                            'XXKW_AUTOSERVICIO_PACKINGORDER.STATUS AS STATUSPEDIDO'
                         )
                         ->first();
+
 
                     if ($packingorder) {
                         // Relacion entre packinglist y lineas
@@ -375,6 +383,22 @@ class AutoservicioFacturacionController extends Controller
         }
     }
 
+    public function cancelarpedido(string $folio, Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            DB::connection($this->dbCloud)
+                ->update("UPDATE XXKW_AUTOSERVICIO_PACKINGORDER SET STATUS = 0 WHERE PACKINGLIST = ?", [$folio]);
+
+            DB::commit();
+            return back()->with('msjAdd', 'Pedido cancelado correctamente');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('msjdelete', 'Error al cancelar: ' . $e->getMessage());
+        }
+    }
+
     public function reporte(Request $request)
     {
         $fecha = $request->get('fecha', date('Y-m-d'));
@@ -435,11 +459,19 @@ class AutoservicioFacturacionController extends Controller
 
             $packings =  DB::connection($this->dbCloud)
                 ->table('XXKW_AUTOSERVICIO_PACKINGORDER')
-                ->select('Source_Transaction_Identifier', 'PACKINGLIST')
+                ->select('Source_Transaction_Identifier', 'PACKINGLIST', 'STATUS')
                 ->whereIn('Source_Transaction_Identifier', $sources)
                 ->get();
 
-            $packingsPorFolio = $packings->pluck('PACKINGLIST', 'Source_Transaction_Identifier');
+            // $packingsPorFolio = $packings->pluck('PACKINGLIST', 'Source_Transaction_Identifier');
+            $packingsPorFolio = $packings->mapWithKeys(function ($item) {
+                return [
+                    $item->Source_Transaction_Identifier => [
+                        'packinglist' => $item->PACKINGLIST,
+                        'status' => $item->STATUS
+                    ]
+                ];
+            });
         }
 
 

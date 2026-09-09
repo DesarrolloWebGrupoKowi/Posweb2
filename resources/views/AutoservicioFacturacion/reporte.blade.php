@@ -124,7 +124,8 @@
                                 <td>
                                     <span style="color: var(--text-secondary); font-weight: 500">
                                         <i class="bi bi-box-seam me-1"></i>
-                                        <span>{{ $packingsPorFolio[$header->Source_Transaction_Identifier] }}</span>
+                                        {{-- <span>{{ $packingsPorFolio[$header->Source_Transaction_Identifier] }}</span> --}}
+                                        <span>{{ $packingsPorFolio[$header->Source_Transaction_Identifier]['packinglist'] }}</span>
                                     </span>
                                 </td>
                                 <td>
@@ -137,7 +138,12 @@
                                 </td>
                                 <!-- Estatus -->
                                 <td class="text-center">
-                                    @if ($header->STATUS === null)
+                                    @if ($packingsPorFolio[$header->Source_Transaction_Identifier]['status'] === "0")
+                                        <span
+                                            class="tags-red"
+                                            style="font-size: 0.7rem;"
+                                        >CANCELADO</span>
+                                    @elseif ($header->STATUS === null)
                                         <span
                                             class="tags-yellow"
                                             style="font-size: 0.7rem;"
@@ -211,7 +217,7 @@
                                             <i class="bi bi-eye"></i> Ver
                                         </button>
                                         <a
-                                            href="/AutoservicioFacturacion?packlist={{ $packingsPorFolio[$header->Source_Transaction_Identifier] }}"
+                                            href="/AutoservicioFacturacion?packlist={{ $packingsPorFolio[$header->Source_Transaction_Identifier]['packinglist'] }}&folio={{ $header->Source_Transaction_Identifier }}"
                                             target="_blank"
                                             class="btn-gray"
                                         >

@@ -579,6 +579,7 @@ Route::middleware('auth')->group(function () {
     // Interfaz de Autoservicio
     Route::get('/AutoservicioFacturacion', [AutoservicioFacturacionController::class, 'index'])->name('autoservicio.facturacion');
     Route::post('/AutoservicioFacturacion/enviar', [AutoservicioFacturacionController::class, 'enviar'])->name('autoservicio.enviar');
+    Route::post('/AutoservicioFacturacion/cancelarpedido/{folio}', [AutoservicioFacturacionController::class, 'cancelarpedido'])->name('autoservicio.cancelarpedido');
 
     // Reporte de Interfaz Autoservicio
     Route::get('/AutoservicioReporte', [AutoservicioFacturacionController::class, 'reporte'])->name('autoservicio.reporte');

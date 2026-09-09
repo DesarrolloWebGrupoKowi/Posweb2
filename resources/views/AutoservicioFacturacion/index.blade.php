@@ -64,7 +64,7 @@
                                 @endif
                             </p>
                         </div>
-                        <div>
+                        <div class="d-flex align-items-center gap-2">
                             {{-- Sin pedido: Botón Generar Pedido --}}
                             @if (!$packingorder)
                                 <button
@@ -80,7 +80,7 @@
                             @endif
 
                             {{-- Paso 2: Enviar Pedido a Oracle --}}
-                            @if ($packingorder && $packingorder->STATUS === null && $packingorder->MENSAJE_ERROR === null)
+                            @if ($packingorder && $packingorder->STATUS === null && $packingorder->MENSAJE_ERROR === null && $packingorder->STATUSPEDIDO == 1)
                                 <button
                                     type="button"
                                     id="btnAccion"
@@ -99,6 +99,59 @@
                                 class="d-flex align-items-center gap-2"
                             >
                             </div>
+
+                            <!-- Botón de opciones con dropdown -->
+                            @if ($packingorder && $packingorder->STATUSPEDIDO == 1)
+                                <div class="dropdown">
+                                    <button
+                                        class="btn btn-sm d-flex align-items-center"
+                                        type="button"
+                                        id="dropdownOpciones"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        style="background: var(--btn-gray-bg); color: var(--btn-gray-text); border: 1px solid var(--btn-gray-hover); border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;"
+                                        onmouseover="this.style.background='var(--bg-hover, #f8f9fa)';"
+                                        onmouseout="this.style.background='transparent';"
+                                        title="Más opciones"
+                                    >
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul
+                                        class="dropdown-menu dropdown-menu-end"
+                                        aria-labelledby="dropdownOpciones"
+                                    >
+                                        <li class="px-2 py-1">
+                                            <button
+                                                class="dropdown-item d-flex align-items-center rounded-3 gap-2"
+                                                type="button"
+                                                onclick="cancelarPedido()"
+                                                style="
+                                            background: var(--tag-red-bg);
+                                            color: var(--tag-red-text);
+                                            font-weight: 600;
+                                            font-size: 0.875rem;
+                                            padding: 0.625rem 1rem;
+                                            transition: all 0.2s ease;
+                                        "
+                                                onmouseover="this.style.background='var(--danger-color)'; this.style.color='white';"
+                                                onmouseout="this.style.background='var(--tag-red-bg)'; this.style.color='var(--tag-red-text)';"
+                                                onmousedown="this.style.transform='scale(0.97)';"
+                                                onmouseup="this.style.transform='scale(1)';"
+                                            >
+                                                <i class="bi bi-x-circle"></i>
+                                                <span>Cancelar Pedido</span>
+                                            </button>
+                                        </li>
+                                        {{-- Puedes agregar más opciones aquí en el futuro --}}
+                                        {{-- <li><hr class="dropdown-divider"></li> --}}
+                                        {{-- <li>
+                                            <button class="dropdown-item" type="button" onclick="otraOpcion()">
+                                                <i class="bi bi-arrow-repeat me-2"></i>Otra Opción
+                                            </button>
+                                        </li> --}}
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -155,6 +208,21 @@
                                                     style="font-size: 0.8rem;"
                                                 >
                                                     <i class="bi bi-x-circle me-1"></i>SIN PEDIDO
+                                                </span>
+                                            @elseif ($packingorder->STATUSPEDIDO == 0)
+                                                {{-- Cancelado por la facturista --}}
+                                                <span
+                                                    class="tags-green"
+                                                    style="font-size: 0.8rem;"
+                                                >
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                    {{ $packingorder->Source_Transaction_Identifier }}
+                                                </span>
+                                                <span
+                                                    class="tags-red"
+                                                    style="font-size: 0.8rem;"
+                                                >
+                                                    <i class="bi bi-x-circle me-1"></i>CANCELADO
                                                 </span>
                                             @elseif ($packingorder->STATUS === null && $packingorder->MENSAJE_ERROR === null)
                                                 {{-- Disponible para enviar --}}
@@ -1333,6 +1401,7 @@
         @endif
 
         @include('AutoservicioFacturacion.modalbuscardirecciones')
+        @include('AutoservicioFacturacion.modalconfirmarcancelacion')
     </x-card-gradient-header>
 
     <style>
@@ -2258,80 +2327,6 @@
                 });
         }
 
-        // BOTÓN 3: DESPACHAR INVENTARIO
-        // function despacharPedido() {
-        //     const btn = document.getElementById('btnAccion');
-        //     if (!btn) return;
-
-        //     const pedido = '{{ $packingorder->Source_Transaction_Identifier ?? '' }}';
-
-        //     if (!pedido) {
-        //         mostrarToastError(['No se encontró el número de pedido']);
-        //         return;
-        //     }
-
-        //     btn.disabled = true;
-        //     const origHTML = btn.innerHTML;
-        //     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Despachando...';
-        //     btn.style.opacity = '1';
-
-        //     fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`)
-        //         .then(r => r.json())
-        //         .then(data => {
-        //             if (data.ok) {
-        //                 mostrarToast('Inventario despachado correctamente', 'success');
-        //                 setTimeout(() => location.reload(), 1500);
-        //             } else {
-        //                 mostrarToastError(['Error al despachar: ' + (data.message || 'Error desconocido')]);
-        //                 btn.disabled = false;
-        //                 btn.innerHTML = origHTML;
-        //             }
-        //         })
-        //         .catch(error => {
-        //             mostrarToastError(['Error de conexión: ' + error.message]);
-        //             btn.disabled = false;
-        //             btn.innerHTML = origHTML;
-        //         });
-        // }
-
-        // // BOTÓN 4: GENERAR FACTURA
-        // function generarFactura() {
-        //     const btn = document.getElementById('btnAccion');
-        //     if (!btn) return;
-
-        //     const pedido = '{{ $packingorder->Source_Transaction_Identifier ?? '' }}';
-
-        //     if (!pedido) {
-        //         mostrarToastError(['No se encontró el número de pedido']);
-        //         return;
-        //     }
-
-        //     btn.disabled = true;
-        //     const origHTML = btn.innerHTML;
-        //     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generando factura...';
-        //     btn.style.opacity = '1';
-
-        //     fetch(`https://oraclefacturasrest.kowi.com.mx/api/Documentos/Factura?Orden=${pedido}`, {
-        //             method: 'POST'
-        //         })
-        //         .then(r => r.json())
-        //         .then(data => {
-        //             if (data.ok) {
-        //                 mostrarToast('Factura generada correctamente', 'success');
-        //                 setTimeout(() => location.reload(), 1500);
-        //             } else {
-        //                 mostrarToastError(['Error al generar factura: ' + (data.message || 'Error desconocido')]);
-        //                 btn.disabled = false;
-        //                 btn.innerHTML = origHTML;
-        //             }
-        //         })
-        //         .catch(error => {
-        //             mostrarToastError(['Error de conexión: ' + error.message]);
-        //             btn.disabled = false;
-        //             btn.innerHTML = origHTML;
-        //         });
-        // }
-
         // ============================================================
         // MOSTRAR TOAST
         // ============================================================
@@ -2820,6 +2815,54 @@
             });
 
             contenedor.appendChild(btn);
+        }
+
+        // ============================================================
+        // BOTÓN CANCELAR PEDIDO
+        // ============================================================
+        function cancelarPedido() {
+            // Mostrar el modal de confirmación
+            const modal = new bootstrap.Modal(document.getElementById('modalConfirmarCancelacion'));
+            modal.show();
+
+            // Referencias a elementos
+            const btnConfirmar = document.getElementById('btnConfirmarCancelacion');
+            const loader = document.getElementById('cancelarLoader');
+            const buttons = document.getElementById('cancelarButtons');
+
+            // Manejar el click en confirmar
+            btnConfirmar.onclick = function() {
+                // Deshabilitar botón y mostrar loader
+                btnConfirmar.disabled = true;
+                btnConfirmar.style.opacity = '0.6';
+                btnConfirmar.style.cursor = 'not-allowed';
+                loader.classList.remove('d-none');
+                buttons.classList.add('d-none');
+
+                // Crear formulario dinámicamente
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route('autoservicio.cancelarpedido', ['folio' => $packList]) }}';
+
+                // Token CSRF
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = document.querySelector('meta[name="csrf-token"]').content;
+                form.appendChild(csrf);
+
+                document.body.appendChild(form);
+                form.submit();
+            };
+
+            // Resetear el modal cuando se cierre
+            document.getElementById('modalConfirmarCancelacion').addEventListener('hidden.bs.modal', function() {
+                btnConfirmar.disabled = false;
+                btnConfirmar.style.opacity = '1';
+                btnConfirmar.style.cursor = 'pointer';
+                loader.classList.add('d-none');
+                buttons.classList.remove('d-none');
+            });
         }
     </script>
 </x-page-container>
