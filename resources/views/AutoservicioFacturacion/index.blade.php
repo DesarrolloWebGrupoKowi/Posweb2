@@ -1110,6 +1110,10 @@
                                                                 value="PIEZA."
                                                                 {{ strtoupper($uom) == 'PIEZA.' ? 'selected' : '' }}
                                                             >PIEZA.</option>
+                                                            <option
+                                                                value="LITRO"
+                                                                {{ strtoupper($uom) == 'LITRO' ? 'selected' : '' }}
+                                                            >LITRO</option>
                                                         </select>
                                                     @endif
                                                 </td>
@@ -1960,6 +1964,7 @@
                     <select class="form-select form-select-sm producto-uom-select" style="font-size: 0.75rem; width: 110px; margin: 0 auto;">
                         <option value="KILOGRAMO">KILOGRAMO</option>
                         <option value="PIEZA.">PIEZA.</option>
+                        <option value="LITRO">LITRO</option>
                     </select>
                 </td>
                 <td class="text-end">
