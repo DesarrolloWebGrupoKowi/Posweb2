@@ -2571,7 +2571,7 @@
 
                 // 1. Obtener Org y Subinv del header
                 const org = '{{ $header->ORGANIZATION_CODE ?? '' }}';
-                const subinv = '{{ $header->SUBINVENTORY_CODE ?? '' }}';
+                const subinv = '{{ $packingorder->SUBINVENTORY_CODE ?? ($header->SUBINVENTORY_CODE ?? "") }}';
 
                 if (!org || !subinv) {
                     mostrarToastError(['No se encontró la información de almacén (ORG/SUBINV)']);
