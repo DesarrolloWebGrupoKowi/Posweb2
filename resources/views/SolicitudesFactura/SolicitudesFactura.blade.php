@@ -40,15 +40,20 @@
                     placeholder="Buscar por Nombre..."
                     col="col-md-2"
                 />
+                <div class="col-md-3">
+                    <x-form.advanced-toggle :active="$filtrosAvanzadosActivos" />
+                </div>
             </x-form.group>
-            <div class="col-md-3 d-flex gap-2">
-                <x-form.submit
-                    text="Buscar"
-                    icon="funnel"
-                    class="flex-grow-1"
+            <x-form.advanced-panel :active="$filtrosAvanzadosActivos">
+                <x-form.text
+                    name="UUID"
+                    label="UUID"
+                    icon="shield-lock"
+                    placeholder="Buscar UUID"
+                    col="col-md-2"
+                    :value="request('UUID')"
                 />
-                <x-form.clear />
-            </div>
+            </x-form.advanced-panel>
         </x-form.form>
 
         {{-- SECCIÓN 2: TABLA --}}
@@ -59,14 +64,15 @@
                         <tr>
                             <th><i class="bi bi-hash me-1"></i>Folio</th>
                             <th><i class="bi bi-ticket me-1"></i>Ticket</th>
-                            <th><i class="bi bi-shield-lock me-1"></i>Folio Encriptado</th>
+                            <th><i class="bi bi-shield-lock me-1"></i>Folio</th>
                             <th><i class="bi bi-shop me-1"></i>Tienda</th>
                             <th><i class="bi bi-calendar3 me-1"></i>Fecha</th>
                             <th><i class="bi bi-file-text me-1"></i>RFC</th>
                             <th><i class="bi bi-person me-1"></i>Nombre</th>
                             <th class="text-end"><i class="bi bi-cash-stack me-1"></i>Total</th>
+                            <th class="text-center"><i class="bi bi-qr-code me-1"></i>UUID</th>
                             <th class="text-center"><i class="bi bi-receipt me-1"></i>Pedido</th>
-                            <th class="text-center"><i class="bi bi-circle me-1"></i>Estatus</th>
+                            {{-- <th class="text-center"><i class="bi bi-circle me-1"></i>Estatus</th> --}}
                             <th class="text-center"><i class="bi bi-gear me-1"></i>Acciones</th>
                         </tr>
                     </thead>
@@ -79,15 +85,16 @@
                                 <td style="font-size: 0.8rem; color: #64748b;">
                                     {{ \Vinkla\Hashids\Facades\Hashids::encode($solicitud->IdEncabezado) }}
                                 </td>
-                                <td style="font-weight: 500;">{{ $solicitud->NomTienda }}</td>
-                                <td style="font-size: 0.85rem;">
+                                <td style="font-weight: 500; font-size: 0.8rem; text-wrap: nowrap;">
+                                    {{ $solicitud->NomTienda }}</td>
+                                <td style="font-weight: 500; font-size: 0.8rem; text-wrap: nowrap;">
                                     {{ \Carbon\Carbon::parse($solicitud->FechaSolicitud)->locale('es')->isoFormat('D MMM YYYY, HH:mm') }}
                                 </td>
-                                <td style="font-weight: 500;">{{ $solicitud->RFC }}</td>
+                                <td style="font-weight: 500; font-size: 0.8rem;">{{ $solicitud->RFC }}</td>
                                 <td>
                                     <span
                                         class="text-truncate"
-                                        style="max-width: 200px; display: inline-block;"
+                                        style="font-weight: 500; font-size: 0.8rem; max-width: 200px; display: inline-block;"
                                         title="{{ $solicitud->NomCliente }}"
                                     >
                                         {{ $solicitud->NomCliente }}
@@ -95,57 +102,66 @@
                                 </td>
                                 <td
                                     class="text-end"
-                                    style="font-weight: 500;"
+                                    style="font-weight: 600; font-size: 0.8rem;"
                                 >${{ number_format($solicitud->TotalFactura, 2) }}</td>
-                                <td class="text-center">
-                                    @if ($solicitud->Source_Transaction_Identifier)
-                                        <span
-                                            style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            {{ $solicitud->Source_Transaction_Identifier }}
-                                        </span>
-                                    @elseif($solicitud->Editar !== null)
-                                        <span
-                                            style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            SIN LIGAR
-                                        </span>
-                                    @else
-                                        <span
-                                            style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >
-                                            SIN PEDIDO
-                                        </span>
-                                    @endif
+                                <td style="text-wrap: nowrap;">
+                                    <span
+                                        style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 500;"
+                                    >
+                                        {{ $solicitud->UUID }}
+                                    </span>
                                 </td>
                                 <td class="text-center">
-                                    @if ($solicitud->Status == 1)
-                                        <span
-                                            style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >Cancelada</span>
-                                    @elseif ($solicitud->Status == 0 && $solicitud->Editar != null)
-                                        <span
-                                            style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                        >SIN PROCESAR</span>
-                                    @else
-                                        @if ($solicitud->InterfaceStatus == 'PROCESADO')
+                                    <div class="d-flex">
+                                        @if ($solicitud->Source_Transaction_Identifier)
                                             <span
-                                                style="background: #f0fdf4; color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                            >{{ $solicitud->InterfaceStatus }}</span>
-                                        @elseif ($solicitud->InterfaceStatus == 'ERROR')
+                                                style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                            >
+                                                {{ $solicitud->Source_Transaction_Identifier }}
+                                            </span>
+                                        @elseif($solicitud->Editar !== null)
                                             <span
                                                 style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                            >{{ $solicitud->InterfaceStatus }}</span>
-                                        @elseif ($solicitud->InterfaceStatus == 'PENDIENTE')
-                                            <span
-                                                style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                            >{{ $solicitud->InterfaceStatus }}</span>
+                                            >
+                                                SIN LIGAR
+                                            </span>
                                         @else
                                             <span
                                                 style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
-                                            >{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}</span>
+                                            >
+                                                SIN PEDIDO
+                                            </span>
                                         @endif
-                                    @endif
+                                        <!-- </td>
+                                        <td class="text-center"> -->
+                                        @if ($solicitud->Status == 1)
+                                            <span
+                                                style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                            >Cancelada</span>
+                                        @elseif ($solicitud->Status == 0 && $solicitud->Editar != null)
+                                            <span
+                                                style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                            >SIN PROCESAR</span>
+                                        @else
+                                            @if ($solicitud->InterfaceStatus == 'PROCESADO')
+                                                <span
+                                                    style="background: #f0fdf4; color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                >{{ $solicitud->InterfaceStatus }}</span>
+                                            @elseif ($solicitud->InterfaceStatus == 'ERROR')
+                                                <span
+                                                    style="background: #fef2f2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                >{{ $solicitud->InterfaceStatus }}</span>
+                                            @elseif ($solicitud->InterfaceStatus == 'PENDIENTE')
+                                                <span
+                                                    style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                >{{ $solicitud->InterfaceStatus }}</span>
+                                            @else
+                                                <span
+                                                    style="background: #fffbeb; color: #f59e0b; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;"
+                                                >{{ $solicitud->InterfaceStatus ?: 'SIN PROCESAR' }}</span>
+                                            @endif
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">

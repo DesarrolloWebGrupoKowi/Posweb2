@@ -34,8 +34,12 @@ class SolicitudesFacturaController extends Controller
         $fecha = $request->fecha;
         $rfc = $request->rfc;
         $nombre = $request->nombre;
+        $uuid = $request->UUID;
 
         $tiendas = $this->tiendas;
+
+
+        $filtrosAvanzadosActivos = $request->filled('UUID');
 
         // Obtener todas las solicitudes
         $solicitudes = SolicitudFactura::select(
@@ -52,7 +56,8 @@ class SolicitudesFacturaController extends Controller
             'SolicitudFactura.Editar',
             'SolicitudFactura.MetodoPago',
             'SolicitudFactura.UsoCFDI',
-            'SolicitudFactura.RegimenFiscal'
+            'SolicitudFactura.RegimenFiscal',
+            'SolicitudFactura.UUID'
         )
             ->leftJoin('CatTiendas', 'CatTiendas.IdTienda', 'SolicitudFactura.IdTienda')
             ->when($fecha, function ($query) use ($fecha) {
@@ -66,6 +71,9 @@ class SolicitudesFacturaController extends Controller
             // })
             ->when($rfc, function ($query) use ($rfc) {
                 $query->where('SolicitudFactura.RFC', $rfc);
+            })
+            ->when($uuid, function ($query) use ($uuid) {
+                $query->where('SolicitudFactura.UUID', $uuid);
             })
             ->when($nombre, function ($query) use ($nombre) {
                 $query->where('SolicitudFactura.NomCliente', 'like', '%' . $nombre . '%');
@@ -144,7 +152,8 @@ class SolicitudesFacturaController extends Controller
 
         return view('SolicitudesFactura.SolicitudesFactura', compact(
             'tiendas',
-            'solicitudes'
+            'solicitudes',
+            'filtrosAvanzadosActivos'
         ));
     }
 
@@ -291,7 +300,7 @@ class SolicitudesFacturaController extends Controller
         return view('SolicitudesFactura.SolicitudFactura', compact('solicitud', 'oracleData', 'ventasDetalle'));
     }
 
-    public function Relacionar(string $id,int $billTo, Request $request)
+    public function Relacionar(string $id, int $billTo, Request $request)
     {
         $cliente = Cliente::where('Bill_To', $billTo)->first();
 
