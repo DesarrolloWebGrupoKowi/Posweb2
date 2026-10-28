@@ -79,6 +79,16 @@
                                     </li>
                                 @endif
                                 <li>
+                                    <a href="{{ route('ayuda') }}" class="dropdown-item">
+                                        Centro de ayuda
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('ayuda.versiones') }}" class="dropdown-item small text-muted">
+                                        Versión {{ config('app.version') }}
+                                    </a>
+                                </li>
+                                <li>
                                     <a class="mt-2 dropdown-item" href="/Logout"
                                         onclick="event.preventDefault();
                                                 document.getElementById('logout-form').submit();">
@@ -167,6 +177,7 @@
     <script src="{{ asset('js/pagination.js') }}"></script>
 
     @yield('scripts')
+    @include('PlantillaBase.novedades')
 </body>
 
 </html>

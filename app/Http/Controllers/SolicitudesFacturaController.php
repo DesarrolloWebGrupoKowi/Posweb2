@@ -35,11 +35,12 @@ class SolicitudesFacturaController extends Controller
         $rfc = $request->rfc;
         $nombre = $request->nombre;
         $uuid = $request->UUID;
+        $folio = trim((string) $request->folio);
 
         $tiendas = $this->tiendas;
 
 
-        $filtrosAvanzadosActivos = $request->filled('UUID');
+        $filtrosAvanzadosActivos = $request->filled('UUID') || $folio !== '';
 
         // Obtener todas las solicitudes
         $solicitudes = SolicitudFactura::select(
@@ -63,9 +64,9 @@ class SolicitudesFacturaController extends Controller
             ->when($fecha, function ($query) use ($fecha) {
                 $query->whereDate('SolicitudFactura.FechaSolicitud', $fecha);
             })
-            // ->when($idSolicitudFactura, function ($query) use ($idSolicitudFactura) {
-            //     $query->where('SolicitudFactura.IdSolicitudFactura', $idSolicitudFactura);
-            // })
+            ->when($folio !== '', function ($query) use ($folio) {
+                $query->where('SolicitudFactura.IdSolicitudFactura', $folio);
+            })
             // ->when($idEncabezado, function ($query) use ($idEncabezado) {
             //     $query->where('SolicitudFactura.IdEncabezado', $idEncabezado);
             // })

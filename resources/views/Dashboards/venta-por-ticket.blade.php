@@ -344,7 +344,7 @@
                                                 <td>{{ $item->NomGrupo ?? 'N/A' }}</td>
                                                 <td>{{ $item->NomFamilia ?? 'N/A' }}</td>
                                                 <td>{{ $item->NomPaquete ?: '-' }}</td>
-                                                <td>{{ $item->Source_Transaction_Identifier ?: '-' }}</td>
+                                                <td>{{ $item->Source_Transaction_Identifier ? preg_replace('/^([A-Za-z]+)(\d)/', '$1_$2', $item->Source_Transaction_Identifier) : '-' }}</td>
                                                 <td>{{ $item->Linea }}</td>
                                             </tr>
                                             {{-- @if (!$esCancelado)
@@ -372,15 +372,26 @@
                                                     colspan="13"
                                                     class="py-2"
                                                 >
-                                                    <small>
-                                                        <strong>📋 Factura:</strong>
-                                                        {{ $solicitudInfo['id_solicitud'] }}
-                                                        @if ($solicitudInfo['nom_cliente'] != 'N/A')
-                                                            - {{ $solicitudInfo['nom_cliente'] }}
-                                                        @endif
-                                                        -
-                                                        ${{ number_format(array_sum(array_column($items, 'ImporteArticulo')), 2) }}
-                                                    </small>
+                                                    <div class="d-flex align-items-center flex-wrap gap-2">
+                                                        <small>
+                                                            <strong>📋 Factura:</strong>
+                                                            {{ $solicitudInfo['id_solicitud'] }}
+                                                            @if ($solicitudInfo['nom_cliente'] != 'N/A')
+                                                                - {{ $solicitudInfo['nom_cliente'] }}
+                                                            @endif
+                                                            -
+                                                            ${{ number_format(array_sum(array_column($items, 'ImporteArticulo')), 2) }}
+                                                        </small>
+                                                        <a
+                                                            href="/SolicitudesFactura?folio={{ urlencode($solicitudInfo['id_solicitud']) }}"
+                                                            target="_blank"
+                                                            class="btn-blue text-decoration-none"
+                                                            style="padding: 2px 10px; font-size: 0.75rem;"
+                                                            title="Abrir la solicitud en Solicitudes de Factura"
+                                                        >
+                                                            <i class="bi bi-box-arrow-up-right"></i> Ver solicitud
+                                                        </a>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             @foreach ($items as $item)
@@ -414,7 +425,7 @@
                                                     <td>{{ $item->NomGrupo ?? 'N/A' }}</td>
                                                     <td>{{ $item->NomFamilia ?? 'N/A' }}</td>
                                                     <td>{{ $item->NomPaquete ?: '-' }}</td>
-                                                    <td>{{ $item->Source_Transaction_Identifier ?: '-' }}</td>
+                                                    <td>{{ $item->Source_Transaction_Identifier ? preg_replace('/^([A-Za-z]+)(\d)/', '$1_$2', $item->Source_Transaction_Identifier) : '-' }}</td>
                                                     <td>{{ $item->Linea }}</td>
                                                 </tr>
                                                 {{-- @php

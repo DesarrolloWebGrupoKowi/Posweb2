@@ -260,6 +260,11 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/Dashboard', 'App\Http\Controllers\DashboardController@Dashboard')->name('dashboard');
 
+    // Centro de ayuda
+    Route::get('/Ayuda', 'App\Http\Controllers\AyudaController@index')->name('ayuda');
+    Route::get('/Ayuda/versiones', 'App\Http\Controllers\AyudaController@versiones')->name('ayuda.versiones');
+    Route::get('/Ayuda/{slug}', 'App\Http\Controllers\AyudaController@show')->name('ayuda.show');
+
     // Cajas (adicionales)
     Route::get('/CajasTienda', 'App\Http\Controllers\CajasController@CajasTienda');
     Route::post('/AgregarCajaTienda', 'App\Http\Controllers\CajasController@AgregarCajaTienda');
@@ -272,7 +277,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/CatClientes/Actualizar', 'App\Http\Controllers\ClientesController@CatClientesActualizar');
 
     // Solicitudes Factura (Admin)
-    Route::get('/SolicitudesFactura', 'App\Http\Controllers\SolicitudesFacturaController@VerSolicitudes');
+    Route::get('/SolicitudesFactura', 'App\Http\Controllers\SolicitudesFacturaController@VerSolicitudes')->name('SolicitudesFactura');
     Route::get('/SolicitudesFactura/{id}', 'App\Http\Controllers\SolicitudesFacturaController@VerSolicitud');
     Route::get('/SolicitudesFactura/Relacionar/{id}/{billTo}', 'App\Http\Controllers\SolicitudesFacturaController@Relacionar');
     Route::get('/SolicitudesFactura/Finalizar/{id}', 'App\Http\Controllers\SolicitudesFacturaController@Finalizar');
@@ -547,20 +552,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/InterfazPedidos/Detallado', 'App\Http\Controllers\InterfazController@detallado')->name('interfaz.detallado');
 
     // Ordenes Oracle
-    Route::get('/OrdenesOracle', 'App\Http\Controllers\OrdenesOracleController@index');
+    Route::get('/OrdenesOracle', 'App\Http\Controllers\OrdenesOracleController@index')->name('OrdenesOracle');
     Route::get('/buscar-ticket', [App\Http\Controllers\OrdenesOracleController::class, 'buscarTicket']);
 
     // Ordenes Oracle
     Route::get('/EstatusFacturas', 'App\Http\Controllers\EstatusFacturasController@index')->name('facturasdiarias.index');
 
     // Devoluciones
-    Route::get('/Devoluciones', 'App\Http\Controllers\DevolucionController@index');
+    Route::get('/Devoluciones', 'App\Http\Controllers\DevolucionController@index')->name('Devoluciones');
     Route::get('/devoluciones/{folio}/refresh', 'App\Http\Controllers\DevolucionController@refresh')->name('devoluciones.refresh');
     Route::get('/api/devoluciones/{folio}', 'App\Http\Controllers\DevolucionController@show');
     Route::post('/api/devoluciones', 'App\Http\Controllers\DevolucionController@store');
 
     // Habilitar tickets viejos para facturar
-    Route::get('/TicketFacturacion', [TicketFacturacionController::class, 'index']);
+    Route::get('/TicketFacturacion', [TicketFacturacionController::class, 'index'])->name('TicketFacturacion');
     Route::post('/TicketFacturacion/Habilitar', [TicketFacturacionController::class, 'habilitar']);
     Route::post('/TicketFacturacion/Desactivar/{id}', [TicketFacturacionController::class, 'desactivar']);
 }); // Termina Middleware Auth

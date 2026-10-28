@@ -26,7 +26,17 @@
                     @endif
                 </div>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex flex-wrap gap-2">
+                @php $manualAyuda = app(\App\Services\AyudaService::class)->manualPorRuta(request()->route()?->getName()); @endphp
+                @if ($manualAyuda)
+                    <a
+                        href="{{ route('ayuda.show', $manualAyuda['slug']) }}"
+                        class="btn-header-ghost text-decoration-none"
+                        title="¿Cómo se usa esta pantalla?"
+                    >
+                        <i class="bi bi-question-circle"></i> Ayuda
+                    </a>
+                @endif
                 {{ $buttons ?? '' }}
             </div>
         </div>

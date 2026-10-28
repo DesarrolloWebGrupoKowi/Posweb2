@@ -46,6 +46,14 @@
             </x-form.group>
             <x-form.advanced-panel :active="$filtrosAvanzadosActivos">
                 <x-form.text
+                    name="folio"
+                    label="Folio"
+                    icon="hash"
+                    placeholder="Folio de la solicitud"
+                    col="col-md-2"
+                    :value="request('folio')"
+                />
+                <x-form.text
                     name="UUID"
                     label="UUID"
                     icon="shield-lock"

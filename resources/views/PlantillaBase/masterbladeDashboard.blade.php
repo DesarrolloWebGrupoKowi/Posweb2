@@ -166,6 +166,22 @@
                                         </li>
                                     @endif
                                     <li>
+                                        <a
+                                            href="{{ route('ayuda') }}"
+                                            class="dropdown-item"
+                                        >
+                                            <i class="bi bi-life-preserver me-2"></i> Centro de ayuda
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="{{ route('ayuda.versiones') }}"
+                                            class="dropdown-item small text-muted"
+                                        >
+                                            <i class="bi bi-stars me-2"></i> Versión {{ config('app.version') }}
+                                        </a>
+                                    </li>
+                                    <li>
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li>
@@ -237,6 +253,7 @@
         });
     </script>
     @yield('scripts')
+    @include('PlantillaBase.novedades')
 </body>
 
 </html>
