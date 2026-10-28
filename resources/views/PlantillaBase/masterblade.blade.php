@@ -17,6 +17,7 @@
     <link href="{{ asset('material-icon/material-icon.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('Icons/font-awesome.min.css') }}">
     <title>@yield('title')</title>
+    @include('PlantillaBase.pwa')
 </head>
 
 <body>

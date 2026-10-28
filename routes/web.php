@@ -453,6 +453,9 @@ Route::middleware('auth')->group(function () {
     Route::get('DashVentaPorTicket/exports', 'App\Http\Controllers\DashVentaPorTicketController@exports')->name('DashVentaPorTicket.exports');
     Route::get('DashTicketsCancelados', 'App\Http\Controllers\DashTicketsCanceladosController@index')->name('DashTicketsCancelados');
     Route::get('DashTicketsCancelados/exports', 'App\Http\Controllers\DashTicketsCanceladosController@exports')->name('DashTicketsCancelados.exports');
+    Route::get('DashEcommerce', 'App\Http\Controllers\DashEcommerceController@Index')->name('DashEcommerce');
+    Route::post('DashEcommerce/procesar-contado', 'App\Http\Controllers\DashEcommerceController@ProcesarContado')->name('DashEcommerce.procesar-contado');
+    Route::post('DashEcommerce/procesar-facturas', 'App\Http\Controllers\DashEcommerceController@ProcesarFacturas')->name('DashEcommerce.procesar-facturas');
 
     // Cortes Tienda
     Route::get('/VerCortesTienda', 'App\Http\Controllers\CortesTiendaController@VerCortesTienda')->name('VerCortesTienda');

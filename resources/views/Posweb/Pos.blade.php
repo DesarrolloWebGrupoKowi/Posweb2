@@ -17,6 +17,7 @@
             height: 2em;
         }
     </style>
+    @include('PlantillaBase.pwa')
 </head>
 
 <body>

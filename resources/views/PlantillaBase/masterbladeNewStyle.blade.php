@@ -17,6 +17,7 @@
     @yield('styles')
 
     <script src="{{ asset('JQuery/jquery-3.6.0.min.js') }}"></script>
+    @include('PlantillaBase.pwa')
 </head>
 
 <body>

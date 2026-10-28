@@ -260,6 +260,7 @@
             }
         }
     </style>
+    @include('PlantillaBase.pwa')
 </head>
 
 <body>
