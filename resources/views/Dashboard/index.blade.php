@@ -168,7 +168,7 @@
     </style>
 
     <!-- Contenido del Dashboard -->
-    <div class="container-fluid width-95 d-flex flex-column gap-4 pt-4">
+    <div class="container-fluid width-95 d-flex flex-column gap-4 py-4">
         <div
             class="card border-0 shadow"
             style="border-radius: 10px; overflow: hidden;"

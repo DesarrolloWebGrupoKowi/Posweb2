@@ -1804,3 +1804,76 @@ table > tbody > tr > td {
 .bg-table-totals {
     background: var(--bg-totals);
 }
+
+/* ============================================================
+   RESPONSIVO MÓVIL: card principal de orilla a orilla
+   Aplica a todas las vistas con page-container / card-gradient-header
+   ============================================================ */
+@media (max-width: 767.98px) {
+    /* Sin margen exterior: la card ocupa todo el ancho y el alto */
+    .container-fluid.width-95 {
+        max-width: 100%;
+        padding: 0 !important;
+        gap: 12px !important;
+    }
+
+    /* Sin bordes ni sombra para que el header quede pegado arriba */
+    .container-fluid.width-95 > .card,
+    .container-fluid.width-95 > .card-section {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* El padding exterior se pasa al interior de la card */
+    .card-section-header {
+        padding: 16px 18px;
+    }
+
+    .card-section-title {
+        font-size: 1.1rem;
+    }
+
+    .container-fluid.width-95 > .card.p-4,
+    .card-section .p-4 {
+        padding: 18px !important;
+    }
+
+    .container-fluid.width-95 > .card .px-4,
+    .card-section .px-4 {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+    }
+
+    .card-section .pb-4 {
+        padding-bottom: 18px !important;
+    }
+
+    .card-section .row.g-4 {
+        --bs-gutter-x: 1rem;
+        --bs-gutter-y: 1rem;
+    }
+
+    .card-section .card-chart.p-4,
+    .card-section .card-chart.p-3 {
+        padding: 12px !important;
+    }
+
+    .kpi-card {
+        padding: 16px;
+    }
+
+    /* Tablas más compactas */
+    .table-custom thead th {
+        padding: 8px;
+    }
+
+    .table-custom tbody td {
+        padding: 6px 8px;
+    }
+
+    .content-table th,
+    .content-table td {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
