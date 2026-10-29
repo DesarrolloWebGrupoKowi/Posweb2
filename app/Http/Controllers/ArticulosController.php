@@ -161,11 +161,6 @@ class ArticulosController extends Controller
         $grupos = Grupo::all();
         $tiposArticulo = TipoArticulo::where('Status', 0)->get();
 
-        $arrayArticulo = Articulo::where('NomArticulo', 'like', '%' . $txtFiltro . '%')
-            ->select('CodArticulo')
-            ->get()
-            ->toArray();
-
         $articulos = DB::connection('Cloud_Tables')->table('XXKW_ITEMS')
             ->select('ITEM_NUMBER', 'DESCRIPTION')
             ->where('ORGANIZATION_NAME', 'MAESTRO DE ARTICULOS')
@@ -176,8 +171,12 @@ class ArticulosController extends Controller
                 $query->where('ITEM_NUMBER', $txtFiltro)
                     ->orWhere('DESCRIPTION', 'like', '%' . $txtFiltro . '%');
             })
-            ->whereNotIn('ITEM_NUMBER', $arrayArticulo)
             ->paginate(10);
+
+        // Codigos de la pagina actual que ya estan en el catalogo
+        $descargados = Articulo::whereIn('CodArticulo', $articulos->pluck('ITEM_NUMBER'))
+            ->pluck('CodArticulo')
+            ->all();
 
         // Si selecciono un articulo, se cargan los datos
         $articulo = DB::connection('Cloud_Tables')
@@ -187,11 +186,17 @@ class ArticulosController extends Controller
             ->where('ITEM_NUMBER', $Item_number)
             ->first();
 
-        return view('Articulos.DescargarArticulo', compact('txtFiltro', 'familias', 'grupos', 'tiposArticulo', 'articulos', 'articulo'));
+        $articuloExiste = $articulo && Articulo::where('CodArticulo', $articulo->ITEM_NUMBER)->exists();
+
+        return view('Articulos.DescargarArticulo', compact('txtFiltro', 'familias', 'grupos', 'tiposArticulo', 'articulos', 'articulo', 'descargados', 'articuloExiste'));
     }
 
     public function LigarArticulo(Request $request)
     {
+        if (Articulo::where('CodArticulo', $request->txtCodArticulo)->exists()) {
+            return back()->with('msjdelete', 'El artículo ' . $request->txtCodArticulo . ' ya existe en el catálogo');
+        }
+
         try {
             DB::beginTransaction();
 
@@ -207,7 +212,7 @@ class ArticulosController extends Controller
             $articulo = new Articulo();
             $articulo->CodArticulo = $request->txtCodArticulo;
             $articulo->NomArticulo = $request->txtNomArticulo;
-            $articulo->Amece = $request->banCodtxtCodAmeceAmece;
+            $articulo->Amece = $request->txtCodAmece;
             $articulo->UOM = $request->txtUOM;
             $articulo->UOM2 = $request->txtUOM;
             $articulo->Peso = $request->txtPeso;

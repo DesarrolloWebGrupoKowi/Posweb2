@@ -77,6 +77,14 @@
                                             <td style="font-weight: 600; color: var(--text-primary);">{{ $item->ITEM_NUMBER }}</td>
                                             <td>{{ $item->DESCRIPTION }}</td>
                                             <td class="text-center">
+                                                @if (in_array($item->ITEM_NUMBER, $descargados))
+                                                    <span
+                                                        class="badge bg-secondary"
+                                                        title="Este artículo ya está en el catálogo"
+                                                    >
+                                                        <i class="fa fa-check"></i> Ya descargado
+                                                    </span>
+                                                @else
                                                 <form
                                                     action="{{ route('articulos.buscar') }}"
                                                     method="GET"
@@ -95,6 +103,7 @@
                                                         <i class="fa fa-cloud-download"></i> Descargar
                                                     </button>
                                                 </form>
+                                                @endif
                                             </td>
                                         </tr>
                                     @empty
@@ -115,7 +124,25 @@
 
                 {{-- Columna Derecha: Formulario o Estado vacío --}}
                 <div class="col-12 col-lg-6">
-                    @if ($articulo)
+                    @if ($articuloExiste)
+                        <div
+                            class="card d-flex align-items-center justify-content-center border-0 p-4"
+                            style="border-radius: 10px; min-height: 400px;"
+                        >
+                            <div class="text-center">
+                                <div class="mb-3">
+                                    <i
+                                        class="fa fa-check-circle"
+                                        style="font-size: 4rem; color: var(--text-secondary);"
+                                    ></i>
+                                </div>
+                                <h5 style="color: var(--text-secondary); font-weight: 600;">Artículo ya descargado</h5>
+                                <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                                    {{ $articulo->ITEM_NUMBER }} - {{ $articulo->DESCRIPTION }} ya existe en el catálogo
+                                </p>
+                            </div>
+                        </div>
+                    @elseif ($articulo)
                         <div
                             class="card border-0 p-4"
                             style="border-radius: 10px"
