@@ -297,6 +297,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/LigarCliente', 'App\Http\Controllers\LigarClientesController@LigarCliente');
     Route::post('/ClientesNuevos/Cancelar/{id}', 'App\Http\Controllers\LigarClientesController@Cancelar');
     Route::get('/ClientesNuevos/Finalizar/{id}', 'App\Http\Controllers\LigarClientesController@Finalizar');
+    Route::post('/ClientesNuevos/ActualizarClientesCloud', 'App\Http\Controllers\LigarClientesController@ActualizarClientesCloud');
+    Route::get('/ClientesNuevos/EstadoClientesCloud', 'App\Http\Controllers\LigarClientesController@EstadoClientesCloud');
     Route::post('/GuardarLigueCliente/{idSolicitudFactura}/{bill_To}', 'App\Http\Controllers\LigarClientesController@GuardarLigueCliente');
     Route::get('/GuardarCheckClienteEditado', 'App\Http\Controllers\LigarClientesController@GuardarCheckClienteEditado');
     Route::get('/VerConstanciaCliente/{idSolicitudFactura}', 'App\Http\Controllers\LigarClientesController@VerConstanciaCliente');

@@ -7,6 +7,49 @@
         <x-slot:buttons>
             <x-header.buttons.home-button />
             <x-header.buttons.refresh-button />
+            <div class="cc-wrap">
+                <button
+                    type="button"
+                    id="btnClientesCloud"
+                    class="btn-header-ghost cc-btn"
+                    onclick="clickClientesCloud(event)"
+                    title="Descarga los clientes de Oracle Cloud al punto de venta"
+                >
+                    <span
+                        class="cc-fill"
+                        id="ccFill"
+                    ></span>
+                    <span
+                        class="cc-content"
+                        id="ccContent"
+                    ><i class="bi bi-cloud-download"></i> Actualizar clientes de Cloud</span>
+                    <span class="cc-bar"><span></span></span>
+                </button>
+                <div
+                    class="cc-pop"
+                    id="ccPop"
+                    role="dialog"
+                    aria-labelledby="ccPopTitle"
+                >
+                    <div
+                        class="cc-pop-title"
+                        id="ccPopTitle"
+                    >¿Descargar clientes de Cloud?</div>
+                    <div class="cc-pop-text">Tarda alrededor de un minuto. Después habrá que esperar 10 minutos para volver a hacerlo.</div>
+                    <div class="cc-pop-actions">
+                        <button
+                            type="button"
+                            class="cc-pop-cancel"
+                            onclick="cerrarPopClientesCloud()"
+                        >Cancelar</button>
+                        <button
+                            type="button"
+                            class="cc-pop-ok"
+                            onclick="actualizarClientesCloud()"
+                        >Descargar</button>
+                    </div>
+                </div>
+            </div>
         </x-slot:buttons>
 
         <x-form.form
@@ -335,4 +378,376 @@
 
         window.getSelection().removeAllRanges();
     }
+
+    // ===== Actualizar clientes de Cloud (job XML_SQL_CUSTOMERS_IMP + Sp_Descarga_CloudTable_Customer) =====
+    const CC_ESPERA_TOTAL = 600;
+    const clientesCloud = {
+        segundosRestantes: {{ (int) $segundosEsperaCloud }},
+        enProceso: {{ $procesoCloudEnCurso ? 'true' : 'false' }},
+        paso: 'job',
+        ultimoEstado: @json($ultimoEstadoCloud),
+        timerEspera: null,
+        timerEstado: null,
+    };
+
+    function formatoTiempoCC(segundos) {
+        return Math.floor(segundos / 60) + ':' + String(segundos % 60).padStart(2, '0');
+    }
+
+    function pintarBotonClientesCloud() {
+        const btn = document.getElementById('btnClientesCloud');
+        const contenido = document.getElementById('ccContent');
+        const relleno = document.getElementById('ccFill');
+
+        btn.classList.remove('cc-proceso', 'cc-espera');
+
+        if (clientesCloud.enProceso) {
+            btn.classList.add('cc-proceso');
+            const texto = clientesCloud.paso === 'sp' ? 'Pasando al punto de venta · 2/2' : 'Descargando de Cloud · 1/2';
+            contenido.innerHTML = '<span class="cc-spin"></span> ' + texto;
+            relleno.style.width = '0%';
+            btn.title = 'Actualización en proceso';
+        } else if (clientesCloud.segundosRestantes > 0) {
+            btn.classList.add('cc-espera');
+            const etiqueta = clientesCloud.ultimoEstado === 'ok' ?
+                '<i class="bi bi-check2"></i> Actualizado · ' :
+                '<i class="bi bi-clock"></i> Disponible en ';
+            contenido.innerHTML = etiqueta + formatoTiempoCC(clientesCloud.segundosRestantes);
+            relleno.style.width = ((1 - clientesCloud.segundosRestantes / CC_ESPERA_TOTAL) * 100).toFixed(1) + '%';
+            const disponible = new Date(Date.now() + clientesCloud.segundosRestantes * 1000);
+            btn.title = 'Disponible a las ' + disponible.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        } else {
+            contenido.innerHTML = '<i class="bi bi-cloud-download"></i> Actualizar clientes de Cloud';
+            relleno.style.width = '0%';
+            btn.title = 'Descarga los clientes de Oracle Cloud al punto de venta';
+        }
+    }
+
+    function iniciarEsperaClientesCloud(segundos) {
+        clientesCloud.segundosRestantes = Math.max(0, parseInt(segundos) || 0);
+        clearInterval(clientesCloud.timerEspera);
+        pintarBotonClientesCloud();
+
+        if (clientesCloud.segundosRestantes > 0) {
+            clientesCloud.timerEspera = setInterval(() => {
+                clientesCloud.segundosRestantes = Math.max(0, clientesCloud.segundosRestantes - 1);
+                if (clientesCloud.segundosRestantes === 0) clearInterval(clientesCloud.timerEspera);
+                pintarBotonClientesCloud();
+            }, 1000);
+        }
+    }
+
+    function clickClientesCloud(e) {
+        e.stopPropagation();
+        const btn = document.getElementById('btnClientesCloud');
+
+        if (clientesCloud.enProceso) return;
+
+        if (clientesCloud.segundosRestantes > 0) {
+            btn.classList.remove('cc-shake');
+            void btn.offsetWidth;
+            btn.classList.add('cc-shake');
+            return;
+        }
+
+        document.getElementById('ccPop').classList.toggle('show');
+    }
+
+    function cerrarPopClientesCloud() {
+        document.getElementById('ccPop').classList.remove('show');
+    }
+
+    function toastClientesCloud(tipo, titulo, mensaje) {
+        const contenedor = document.querySelector('.alerts-toast-container');
+        if (!contenedor) return;
+
+        const iconos = { success: 'bi-check-circle-fill', danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill' };
+        const toast = document.createElement('div');
+        toast.className = 'toast-alert toast-' + tipo + ' show';
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML =
+            '<div class="toast-icon"><i class="bi ' + iconos[tipo] + '"></i></div>' +
+            '<div class="toast-content"><strong></strong><span></span></div>' +
+            '<button type="button" class="toast-close" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>';
+        toast.querySelector('strong').textContent = titulo;
+        toast.querySelector('span').textContent = mensaje;
+        contenedor.appendChild(toast);
+
+        setTimeout(() => toast.remove(), tipo === 'success' ? 5200 : 10000);
+    }
+
+    async function actualizarClientesCloud() {
+        cerrarPopClientesCloud();
+        if (clientesCloud.enProceso || clientesCloud.segundosRestantes > 0) return;
+
+        clientesCloud.enProceso = true;
+        clientesCloud.paso = 'job';
+        pintarBotonClientesCloud();
+
+        try {
+            const resp = await fetch('/ClientesNuevos/ActualizarClientesCloud', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+            });
+            const data = await resp.json();
+
+            if (data.ok || data.enProceso) {
+                if (data.segundosRestantes) clientesCloud.segundosRestantes = data.segundosRestantes;
+                consultarEstadoClientesCloud();
+            } else {
+                clientesCloud.enProceso = false;
+                iniciarEsperaClientesCloud(data.segundosRestantes || 0);
+                toastClientesCloud('warning', 'No se inició', data.mensaje || 'No se pudo iniciar la actualización.');
+            }
+        } catch (e) {
+            clientesCloud.enProceso = false;
+            pintarBotonClientesCloud();
+            toastClientesCloud('danger', 'Sin conexión', 'No se pudo iniciar la actualización de clientes.');
+        }
+    }
+
+    function consultarEstadoClientesCloud() {
+        clearTimeout(clientesCloud.timerEstado);
+        clientesCloud.timerEstado = setTimeout(async () => {
+            try {
+                const resp = await fetch('/ClientesNuevos/EstadoClientesCloud', {
+                    headers: { 'Accept': 'application/json' },
+                });
+                const data = await resp.json();
+
+                if (data.estado === 'job' || data.estado === 'sp') {
+                    clientesCloud.paso = data.estado;
+                    pintarBotonClientesCloud();
+                    consultarEstadoClientesCloud();
+                    return;
+                }
+
+                clientesCloud.enProceso = false;
+                clientesCloud.ultimoEstado = data.estado;
+                iniciarEsperaClientesCloud(data.segundosRestantes);
+
+                if (data.estado === 'ok') {
+                    toastClientesCloud('success', 'Clientes actualizados', 'Ya puede buscar el cliente para ligarlo.');
+                } else if (data.estado === 'error') {
+                    toastClientesCloud('danger', 'No se actualizaron los clientes', data.mensaje);
+                }
+            } catch (e) {
+                // Error de red momentáneo: se vuelve a intentar
+                consultarEstadoClientesCloud();
+            }
+        }, 3000);
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.cc-wrap')) cerrarPopClientesCloud();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') cerrarPopClientesCloud();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        iniciarEsperaClientesCloud(clientesCloud.segundosRestantes);
+        if (clientesCloud.enProceso) {
+            pintarBotonClientesCloud();
+            consultarEstadoClientesCloud();
+        }
+    });
 </script>
+
+<style>
+    .cc-wrap {
+        position: relative;
+        display: inline-block;
+    }
+
+    .cc-btn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cc-content {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Relleno que avanza durante los 10 minutos de espera */
+    .cc-fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 0;
+        background: rgba(56, 189, 248, 0.35);
+        transition: width 1s linear;
+        pointer-events: none;
+    }
+
+    .cc-btn.cc-espera,
+    .cc-btn.cc-proceso {
+        cursor: default;
+    }
+
+    .cc-btn.cc-espera:hover,
+    .cc-btn.cc-proceso:hover {
+        background: var(--btn-ghost-bg);
+        transform: none;
+    }
+
+    /* Barra indeterminada mientras se actualiza */
+    .cc-bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        overflow: hidden;
+        display: none;
+    }
+
+    .cc-bar span {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 40%;
+        background: #38bdf8;
+        animation: ccIndeterminada 1.4s ease-in-out infinite;
+    }
+
+    .cc-btn.cc-proceso .cc-bar {
+        display: block;
+    }
+
+    .cc-spin {
+        width: 13px;
+        height: 13px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: ccGiro 0.8s linear infinite;
+        display: inline-block;
+    }
+
+    .cc-btn.cc-shake {
+        animation: ccSacudir 0.4s ease;
+    }
+
+    /* Popover de confirmación */
+    .cc-pop {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        z-index: 1050;
+        width: 290px;
+        max-width: calc(100vw - 32px);
+        background: #fff;
+        color: #0f172a;
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-6px);
+        transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+    }
+
+    .cc-pop.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .cc-pop::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: 24px;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        transform: rotate(45deg);
+        border-radius: 2px;
+    }
+
+    .cc-pop-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .cc-pop-text {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 12px;
+        line-height: 1.45;
+    }
+
+    .cc-pop-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .cc-pop-actions button {
+        border: none;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 0.8rem;
+        transition: background 0.15s ease;
+    }
+
+    .cc-pop-cancel {
+        background: #f1f5f9;
+        color: #334155;
+    }
+
+    .cc-pop-cancel:hover {
+        background: #e2e8f0;
+    }
+
+    .cc-pop-ok {
+        background: #1e293b;
+        color: #fff;
+    }
+
+    .cc-pop-ok:hover {
+        background: #334155;
+    }
+
+    @keyframes ccIndeterminada {
+        0% {
+            left: -40%;
+        }
+
+        100% {
+            left: 100%;
+        }
+    }
+
+    @keyframes ccGiro {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes ccSacudir {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-4px);
+        }
+
+        75% {
+            transform: translateX(4px);
+        }
+    }
+</style>
