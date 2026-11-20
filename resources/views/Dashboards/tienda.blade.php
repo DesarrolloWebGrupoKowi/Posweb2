@@ -714,7 +714,8 @@
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.ok && data.dato?.lines) {
+                    // Si la orden aun no tiene factura el servicio responde ok:false ("Orden no tiene Factura"), pero las lineas si vienen
+                    if (data.dato?.lines?.length) {
                         const estatusLineas = data.dato.lines.map(line => line.status);
                         let estatusUnicos = [...new Set(estatusLineas)];
                         if (estatusUnicos.length > 1) {
@@ -829,7 +830,8 @@
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.ok && data.dato?.lines) {
+                    // Si la orden aun no tiene factura el servicio responde ok:false ("Orden no tiene Factura"), pero las lineas si vienen
+                    if (data.dato?.lines?.length) {
                         const estatusLineas = data.dato.lines.map(line => line.status);
                         const estatusUnicos = [...new Set(estatusLineas)];
                         if (estatusUnicos.length == 1) {
