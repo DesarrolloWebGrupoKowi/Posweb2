@@ -289,7 +289,7 @@
             const pedido = item.dataset.pedido;
             const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
             fetch(apiUrl).then(response => response.json()).then(data => {
-                if (data.ok && data.dato?.lines) {
+                if (data.dato?.lines?.length) {
                     const estatusLineas = data.dato.lines.map(line => line.status);
                     const estatusUnicos = [...new Set(estatusLineas)];
                     if (estatusUnicos.length > 1) {
@@ -326,7 +326,7 @@
             const item = document.getElementById(`status-oracle-${pedido}`);
             const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
             fetch(apiUrl).then(response => response.json()).then(data => {
-                if (data.ok && data.dato?.lines) {
+                if (data.dato?.lines?.length) {
                     const estatusLineas = data.dato.lines.map(line => line.status);
                     const estatusUnicos = [...new Set(estatusLineas)];
                     if (estatusUnicos.length == 1) {

@@ -583,7 +583,7 @@
                 .then(response => response.json())
                 .then(data => {
                     clearTimeout(timeoutId);
-                    if (data.ok && data.dato?.lines) {
+                    if (data.dato?.lines?.length) {
                         const estatusLineas = data.dato.lines.map(line => line.status);
                         const estatusUnicos = [...new Set(estatusLineas)];
 
@@ -921,7 +921,7 @@
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.ok && data.dato?.lines) {
+                    if (data.dato?.lines?.length) {
                         const estatusLineas = data.dato.lines.map(line => line.status);
                         const estatusUnicos = [...new Set(estatusLineas)];
 

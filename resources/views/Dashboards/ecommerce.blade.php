@@ -414,7 +414,7 @@
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    if (!(data.ok && data.dato?.lines)) {
+                    if (!(data.dato?.lines?.length)) {
                         item.innerHTML = '<span class="tags-red">Sin datos</span>';
                         return;
                     }
@@ -475,7 +475,7 @@
             fetch(`https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`)
                 .then(response => response.json())
                 .then(data => {
-                    const estatusUnicos = data.ok && data.dato?.lines ? [...new Set(data.dato.lines.map(line => line.status))] : [];
+                    const estatusUnicos = data.dato?.lines?.length ? [...new Set(data.dato.lines.map(line => line.status))] : [];
                     if (estatusUnicos.length != 1 || estatusUnicos[0] != estatusSiguiente) return reintentar();
 
                     item.innerHTML = `<span class="tags-green" style="text-wrap:nowrap">${estatusUnicos[0]}</span>`;
