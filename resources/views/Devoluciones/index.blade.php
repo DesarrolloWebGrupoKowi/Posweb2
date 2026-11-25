@@ -2144,7 +2144,7 @@
                             return;
                         }
                         urlCompuesta =
-                            `${url}?Devolucion=${encodeURIComponent(currentFolio)}&Employee=${currentEmployeName}`;
+                            `${url}?Devolucion=${encodeURIComponent(currentFolio)}&Employee=${encodeURIComponent(currentEmployeName)}`;
                     } else {
                         urlCompuesta = `${url}?Devolucion=${encodeURIComponent(currentFolio)}`;
                     }
@@ -2156,7 +2156,8 @@
                     document.getElementById('confirmLoader').classList.remove('d-none');
 
                     // Ejecutar acción
-                    fetch(`${url}?Devolucion=${encodeURIComponent(currentFolio)}`)
+                    // urlCompuesta: en la recepción lleva también el empleado de Oracle (&Employee=)
+                    fetch(urlCompuesta)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`Error HTTP: ${response.status}`);

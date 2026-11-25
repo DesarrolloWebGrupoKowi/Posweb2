@@ -371,6 +371,15 @@
                                                 </td>
                                             @endif
                                         </tr>
+                                        @if ($status === 'PROCESADO' && $sourceTransactionNumber)
+                                            {{-- Ancla de las facturas de Oracle del pedido: despues de este renglon se insertan
+                                                 las facturas (un renglon por factura, alineado a las columnas de la tabla) --}}
+                                            <tr
+                                                id="facturas-{{ $sourceTransactionNumber }}"
+                                                class="ancla-facturas d-none"
+                                                data-fecha-corte="{{ $fechaActual ? substr($fechaActual, 0, 10) : '' }}"
+                                            ></tr>
+                                        @endif
                                         @if (!empty($mensajeError))
                                             <tr
                                                 id="msg-{{ $sourceIdentifier }}"
@@ -701,6 +710,34 @@
         </div>
     </x-card-gradient-header>
 
+    <style>
+        /* Resumen de facturas en la fila del POS (contado) */
+        .estatus-facturas { cursor: pointer; white-space: nowrap; user-select: none; }
+        .estatus-facturas:hover { filter: brightness(0.95); }
+        /* Renglones de factura: usan las mismas columnas que el renglon del POS */
+        tr.fila-factura > td { background: rgba(100, 116, 139, 0.06); font-size: 0.78rem; padding-top: 5px; padding-bottom: 5px; border-bottom: 1px dashed rgba(100, 116, 139, 0.2); vertical-align: middle; }
+        tr.fila-factura.fila-factura-ultima > td { border-bottom: 1px solid rgba(100, 116, 139, 0.25); }
+        /* Franja de color a la izquierda segun el estado de timbrado */
+        tr.fila-factura > td:first-child { box-shadow: inset 3px 0 0 rgba(100, 116, 139, 0.35); }
+        tr.fila-factura[data-estado="sin_timbrar"] > td:first-child { box-shadow: inset 3px 0 0 #f59e0b; }
+        tr.fila-factura[data-estado="timbrada"] > td:first-child { box-shadow: inset 3px 0 0 #22c55e; }
+        tr.fila-factura[data-estado="uuid_no_coincide"] > td:first-child { box-shadow: inset 3px 0 0 #ef4444; }
+        .factura-cliente { padding-left: 34px; }
+        .factura-titulo { color: var(--text-secondary, #64748b); }
+        .factura-detalle { color: var(--text-secondary, #64748b); font-size: 0.72rem; }
+        .factura-importe { color: var(--text-secondary, #64748b); }
+        /* Etiqueta chica de timbrado (mas discreta que las del POS) */
+        .tag-factura { display: inline-flex; align-items: center; gap: 3px; font-size: 0.7rem; font-weight: 500; padding: 1px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid transparent; }
+        .tag-factura-verde { color: var(--tag-green-text); border-color: var(--tag-green-text); }
+        .tag-factura-amarillo { color: var(--tag-yellow-text); border-color: var(--tag-yellow-text); }
+        .tag-factura-rojo { color: var(--tag-red-text); border-color: var(--tag-red-text); }
+        .btn-timbrar { font-size: 0.72rem; padding: 2px 10px; white-space: nowrap; }
+        .uuid-corto { font-family: monospace; font-size: 0.72rem; color: var(--text-secondary, #64748b); }
+        .btn-icono-sm { font-size: 0.75rem; padding: 0 4px; }
+        .btn-icono { border: none; background: transparent; color: var(--text-secondary, #64748b); padding: 2px 5px; border-radius: 6px; font-size: 0.95rem; }
+        .btn-icono:hover { background: rgba(100, 116, 139, 0.15); color: var(--btn-blue-text, #3b82f6); }
+    </style>
+
     <script>
         // ====================================================================================================
         // FUNCIONALIDAD COMPLETA DE ORACLE (STATUS, BOTONES, ENVÍO DE PEDIDOS)
@@ -711,9 +748,11 @@
             const type = item.dataset.type;
             const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
 
+            console.log('[Oracle estatus] Consultando', { pedido, uuidLocal, type, apiUrl });
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
+                    console.log('[Oracle estatus] Respuesta', pedido, data);
                     // Si la orden aun no tiene factura el servicio responde ok:false ("Orden no tiene Factura"), pero las lineas si vienen
                     if (data.dato?.lines?.length) {
                         const estatusLineas = data.dato.lines.map(line => line.status);
@@ -742,11 +781,19 @@
                                 }
                             }
                             if (estatusPedido == 'Closed') {
-                                fetchBuscarUUID(pedido, uuidLocal, item, type);
+                                if (type === 'sf') {
+                                    fetchBuscarUUID(pedido, uuidLocal, item, type);
+                                } else {
+                                    limpiarAccionesContado(pedido);
+                                }
                             }
                         }
                     } else {
                         item.innerHTML = '<span class="tags-red">Sin datos</span>';
+                    }
+                    // Contado: las facturas (con su UUID) ya vienen en esta misma respuesta, se pintan despues del estatus
+                    if (type !== 'sf' && data.dato) {
+                        renderFacturasOracle(pedido, data.dato?.facturas);
                     }
                     if (btnReload) {
                         btnReload.innerHTML = `<span>@include('components.icons.refresh')</span>`;
@@ -757,42 +804,16 @@
 
         function fetchBuscarUUID(pedido, uuidLocal, item, type) {
             const apiUrl = `https://oraclefacturasrest.kowi.com.mx/api/Documentos/FacturaOracle?Orden=${pedido}`;
+            console.log('[Oracle factura] Consultando', { pedido, uuidLocal, type, apiUrl });
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
+                    console.log('[Oracle factura] Respuesta', pedido, data);
                     if (data.ok) {
                         const uuidOracle = data.dato?.uUid;
                         const uuidApex = data.dato?.uUidApex;
                         const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
                         contenedor.innerHTML = ''; //Limpiamos el contenedor de botones
-
-                        // Verificando que este timbrada la factura de contado yponemos los botones para descargar los archivos
-                        if (!type && uuidApex) {
-                            var innerSpan = item.querySelector('span');
-                            if (innerSpan) {
-                                innerSpan.textContent = innerSpan.textContent + ' & Timbrado';
-                            }
-                            if (contenedor) {
-                                contenedor.innerHTML = `
-                                    <a
-                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Pdf?Orden=${pedido}"
-                                        target="_blank"
-                                        class="btn-blue"
-                                        title="PDF"
-                                    >
-                                        <i class="bi bi-download"></i> PDF
-                                    </a>
-                                    <a
-                                        href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/Xml?Orden=${pedido}"
-                                        target="_blank"
-                                        class="btn-gray"
-                                        title="XML"
-                                    >
-                                        <i class="bi bi-download"></i> XML
-                                    </a>
-                                `;
-                            }
-                        }
 
                         // Verificaciones para las que son con solicitudes de factura
                         if (uuidLocal != uuidOracle || uuidLocal != uuidApex) {
@@ -824,6 +845,263 @@
             document.querySelectorAll('.status-oracle').forEach(item => fetchStatusOracle(item));
         }
 
+        // Una factura esta timbrada si Oracle ya tiene su UUID
+        function facturaTimbrada(factura) {
+            return !!(factura?.uUid || factura?.uUidApex);
+        }
+
+        // Estado de timbrado de una factura: timbrada | sin_timbrar | uuid_no_coincide
+        function estadoFactura(factura) {
+            if (!facturaTimbrada(factura)) return 'sin_timbrar';
+            if (factura.uUid && factura.uUidApex && factura.uUid !== factura.uUidApex) return 'uuid_no_coincide';
+            return 'timbrada';
+        }
+
+        function formatoImporte(valor) {
+            return Number(valor || 0).toLocaleString('es-MX', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // UUID recortado: primeros 8 y ultimos 6 caracteres
+        function uuidCorto(uuid) {
+            return uuid && uuid.length > 16 ? `${uuid.slice(0, 8)}…${uuid.slice(-6)}` : (uuid || '');
+        }
+
+        // CONTADO: renglones de factura de un pedido (se insertan despues del ancla #facturas-{pedido})
+        function filasFacturasDe(pedido) {
+            return document.querySelectorAll(`tr.fila-factura[data-pedido="${pedido}"]`);
+        }
+
+        // CONTADO: abre o cierra las facturas del pedido
+        function toggleFacturas(pedido, abrir = null) {
+            const ancla = document.getElementById(`facturas-${pedido}`);
+            if (!ancla) return;
+            const abierta = abrir ?? ancla.dataset.abierta !== '1';
+            ancla.dataset.abierta = abierta ? '1' : '0';
+            filasFacturasDe(pedido).forEach(tr => tr.classList.toggle('d-none', !abierta));
+            const chevron = document.querySelector(`#status-oracle-${pedido} .chevron-facturas`);
+            if (chevron) chevron.className = `bi ${abierta ? 'bi-chevron-up' : 'bi-chevron-down'} chevron-facturas ms-1`;
+        }
+
+        // CONTADO: concatena al estatus de Oracle el resumen de facturas (ej. "Closed · 2 sin timbrar, 1 timbrada")
+        // e inserta un renglon por factura alineado a las columnas de la tabla (inician cerrados)
+        function renderFacturasOracle(pedido, facturas) {
+            const ancla = document.getElementById(`facturas-${pedido}`);
+            const item = document.getElementById(`status-oracle-${pedido}`);
+            if (!ancla || !item) return;
+
+            // Se limpian las facturas pintadas antes (por si se vuelve a consultar el estatus)
+            filasFacturasDe(pedido).forEach(tr => tr.remove());
+
+            // Sin facturas: no se muestra nada extra
+            if (!Array.isArray(facturas) || facturas.length === 0) {
+                toggleFacturas(pedido, false);
+                return;
+            }
+
+            const estados = facturas.map(estadoFactura);
+            const timbradas = estados.filter(e => e === 'timbrada').length;
+            const sinTimbrar = estados.filter(e => e === 'sin_timbrar').length;
+            const noCoinciden = estados.filter(e => e === 'uuid_no_coincide').length;
+
+            const partes = [];
+            if (sinTimbrar) partes.push(`${sinTimbrar} sin timbrar`);
+            if (noCoinciden) partes.push(`${noCoinciden} UUID no coincide`);
+            if (timbradas) partes.push(`${timbradas} timbrada${timbradas > 1 ? 's' : ''}`);
+
+            const clase = noCoinciden ? 'tags-red' : (sinTimbrar ? 'tags-yellow' : 'tags-green');
+            const estatusOracle = item.querySelector('span')?.textContent.trim() || '';
+            item.innerHTML = `
+                <span
+                    class="${clase} estatus-facturas"
+                    title="Ver facturas"
+                    onclick="toggleFacturas('${pedido}')"
+                >${estatusOracle ? estatusOracle + ' · ' : ''}${partes.join(', ')}<i class="bi bi-chevron-down chevron-facturas ms-1"></i></span>
+            `;
+
+            // Mismas columnas que el renglon del POS (la de acciones depende del tipo de usuario)
+            const conAcciones = item.closest('tr')?.cells.length > 6;
+            const fechaCorte = ancla.dataset.fechaCorte || '';
+            ancla.insertAdjacentHTML('afterend',
+                facturas.map((factura, i) => filaFactura(pedido, factura, fechaCorte, conAcciones, i === facturas.length - 1)).join('')
+            );
+
+            // Al cargar inicia cerrada (se abre con clic en el estatus); si se refresca conserva como estaba
+            toggleFacturas(pedido, ancla.dataset.abierta === '1');
+
+            // Recalcular los botones masivos (ej. "Timbrar 5") con las facturas recien pintadas
+            actualizarPedidosPendientes();
+        }
+
+        // Un renglon por factura, cada dato bajo su columna:
+        // Cliente = factura y UUID | Oracle = estado de timbrado | Ventas = importe | Acciones = PDF/XML
+        function filaFactura(pedido, factura, fechaCorte, conAcciones, ultima) {
+            const estado = estadoFactura(factura);
+            const uuid = factura.uUid || factura.uUidApex || '';
+            // Etiquetas mas chicas que las del POS para que se note que es un renglon hijo
+            const etiquetas = {
+                timbrada: '<span class="tag-factura tag-factura-verde"><i class="bi bi-check2"></i> Timbrada</span>',
+                sin_timbrar: '<span class="tag-factura tag-factura-amarillo"><i class="bi bi-clock"></i> Sin timbrar</span>',
+                uuid_no_coincide: '<span class="tag-factura tag-factura-rojo"><i class="bi bi-x"></i> UUID no coincide</span>'
+            };
+            const tituloUuid = estado === 'uuid_no_coincide' ?
+                `Oracle: ${factura.uUid}\nApex: ${factura.uUidApex}` : uuid;
+            const fecha = factura.transactionDate && factura.transactionDate !== fechaCorte ?
+                `<span class="factura-detalle" title="Fecha de la factura">· ${factura.transactionDate}</span>` : '';
+            const uuidHtml = uuid ? `
+                <span class="factura-detalle">·</span>
+                <span class="uuid-corto" title="${tituloUuid}">${uuidCorto(uuid)}</span>
+                <button type="button" class="btn-icono btn-icono-sm" title="Copiar UUID" onclick="copiarTexto('${uuid}', this)">
+                    <i class="bi bi-copy"></i>
+                </button>` : '';
+
+            let acciones = '';
+            if (factura.customerTransactionId) {
+                acciones = estado === 'sin_timbrar' ?
+                    botonTimbrarFactura(pedido, factura) :
+                    botonesDescargaFactura(factura.customerTransactionId);
+            }
+
+            return `
+                <tr
+                    class="fila-factura d-none ${ultima ? 'fila-factura-ultima' : ''}"
+                    data-pedido="${pedido}"
+                    data-transaction-id="${factura.customerTransactionId ?? ''}"
+                    data-transaction-number="${factura.transactionNumber ?? ''}"
+                    data-estado="${estado}"
+                >
+                    <td>
+                        <div class="d-flex align-items-center gap-1 factura-cliente text-nowrap">
+                            <i class="bi bi-arrow-return-right factura-detalle me-1"></i>
+                            <span class="factura-titulo"><i class="bi bi-receipt me-1"></i>Factura <strong>${factura.transactionNumber ?? '-'}</strong></span>
+                            ${fecha}
+                            ${uuidHtml}
+                        </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td class="text-center">${etiquetas[estado]}</td>
+                    <td></td>
+                    <td class="text-end factura-importe">$${formatoImporte(factura.enteredAmount)}</td>
+                    ${conAcciones ? `
+                        <td class="text-center">
+                            <div class="d-flex align-items-center justify-content-center gap-1">${acciones}</div>
+                        </td>` : ''}
+                </tr>
+            `;
+        }
+
+        // ====================================================================================================
+        // TIMBRADO DE FACTURAS DE CONTADO
+        // ====================================================================================================
+        // Se timbra desde el servidor (DashTiendaController@timbrarFacturaOracle): ahi se agrega el correo del usuario logueado
+        const URL_TIMBRAR_FACTURA = @json(route('DashTienda.timbrar-factura'));
+
+        // Tipo de orden de la factura: es el prefijo de transactionType (ej. "ANG FACTURA" → "ANG")
+        function tipoOrdenFactura(factura) {
+            return (factura?.transactionType || '').trim().split(/\s+/)[0] || '';
+        }
+
+        function botonTimbrarFactura(pedido, factura) {
+            return `
+                <button
+                    type="button"
+                    class="btn-amber btn-timbrar"
+                    title="Timbrar factura ${factura.transactionNumber}"
+                    data-pedido="${pedido}"
+                    data-factura="${factura.transactionNumber}"
+                    data-order-type="${tipoOrdenFactura(factura)}"
+                    onclick="timbrarFactura(this)"
+                ><i class="bi bi-patch-check"></i> TIMBRAR</button>
+            `;
+        }
+
+        function timbrarFactura(btn) {
+            const { pedido, factura, orderType } = btn.dataset;
+            if (!factura || !orderType) {
+                crearToast('danger', 'Error al timbrar', `Pedido ${pedido}: la factura no trae número o tipo de orden`);
+                return;
+            }
+            const textoOriginal = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Timbrando...';
+
+            fetch(URL_TIMBRAR_FACTURA, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ orden: pedido, order_type: orderType, factura })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    console.log('[Timbrar factura] Respuesta', { pedido, factura, orderType }, data);
+                    if (!data.ok) throw new Error(data.message || 'No se pudo timbrar');
+                    crearToast('success', 'Factura timbrada', `Pedido ${pedido}, factura ${factura}`);
+                    // Se vuelve a consultar el estatus para refrescar las facturas del pedido
+                    const item = document.getElementById(`status-oracle-${pedido}`);
+                    if (item) fetchStatusOracle(item);
+                })
+                .catch(error => {
+                    console.error('[Timbrar factura] Error', { pedido, factura }, error);
+                    btn.disabled = false;
+                    btn.innerHTML = textoOriginal;
+                    crearToast('danger', 'Error al timbrar', `Pedido ${pedido}: ${error.message}`);
+                });
+        }
+
+        // CONTADO: descarga de PDF y XML por factura (customerTransactionId)
+        function botonesDescargaFactura(custId) {
+            const id = encodeURIComponent(custId);
+            return `
+                <a
+                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/PdfCust?CustId=${id}"
+                    target="_blank"
+                    class="btn-icono"
+                    title="Descargar PDF"
+                ><i class="bi bi-file-earmark-pdf"></i></a>
+                <a
+                    href="https://oraclefacturasrest.kowi.com.mx/api/Documentos/XmlCust?CustId=${id}"
+                    target="_blank"
+                    class="btn-icono"
+                    title="Descargar XML"
+                ><i class="bi bi-file-earmark-code"></i></a>
+            `;
+        }
+
+        // Copia al portapapeles (con respaldo para sitios sin https)
+        function copiarTexto(texto, btn) {
+            const marcarCopiado = () => {
+                if (!btn) return;
+                const icono = btn.querySelector('i');
+                icono.className = 'bi bi-check2 text-success';
+                setTimeout(() => icono.className = 'bi bi-copy', 1500);
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(texto).then(marcarCopiado);
+                return;
+            }
+            const area = document.createElement('textarea');
+            area.value = texto;
+            area.style.position = 'fixed';
+            area.style.opacity = '0';
+            document.body.appendChild(area);
+            area.select();
+            document.execCommand('copy');
+            area.remove();
+            marcarCopiado();
+        }
+
+        // CONTADO: con el pedido cerrado las descargas van por factura, la celda de acciones queda vacia
+        function limpiarAccionesContado(pedido) {
+            const contenedor = document.querySelector(`.buttons-oracle-${pedido}`);
+            if (contenedor) contenedor.innerHTML = '<span class="text-muted">-</span>';
+        }
+
         function getStatusLoop(pedido, uuidLocal, estatusSiguiente, type) {
             const item = document.getElementById(`status-oracle-${pedido}`);
             const apiUrl = `https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle?OrdenVta=${pedido}`;
@@ -844,7 +1122,12 @@
                                     botonGenerarFactura(contenedor, pedido, uuidLocal, type);
                                 }
                             } else if (estatusPedido == 'Closed' && estatusSiguiente == 'Closed') {
-                                fetchBuscarUUID(pedido, uuidLocal, item, type);
+                                if (type === 'sf') {
+                                    fetchBuscarUUID(pedido, uuidLocal, item, type);
+                                } else {
+                                    renderFacturasOracle(pedido, data.dato?.facturas);
+                                    limpiarAccionesContado(pedido);
+                                }
                             } else {
                                 setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente, type), 3000);
                             }
@@ -858,7 +1141,7 @@
                 .catch(() => setTimeout(() => getStatusLoop(pedido, uuidLocal, estatusSiguiente, type), 3000));
         }
 
-        function botonDespachoInventario(contenedor, pedido, uuidLocal) {
+        function botonDespachoInventario(contenedor, pedido, uuidLocal, type) {
             const btn = document.createElement('button');
             btn.className = 'btn-amber';
             btn.style.whiteSpace = 'nowrap';
@@ -869,7 +1152,7 @@
                 fetch(`https://oracledespachorest.kowi.com.mx/api/PickWave/Despacho?Orden=${pedido}`)
                     .then(r => r.json())
                     .then(data => {
-                        if (data.ok) getStatusLoop(pedido, uuidLocal, 'Awaiting Billing');
+                        if (data.ok) getStatusLoop(pedido, uuidLocal, 'Awaiting Billing', type);
                         else btn.innerHTML = '❌ Error';
                     }).catch(() => btn.innerHTML = '❌ Error');
             });
@@ -922,7 +1205,7 @@
             contenedor.appendChild(btn);
         }
 
-        document.addEventListener('DOMContentLoaded', () => actualizarFilasOracle());
+        // La carga inicial de estatus (actualizarFilasOracle) se hace en el DOMContentLoaded de los botones masivos
 
         // ====================================================================================================
         // ENVÍO DE PEDIDOS (BTN-ENVIAR)
@@ -1005,7 +1288,8 @@
             envio: new Set(), // Botones de envío pendiente
             despacho: new Set(), // Botones de despacho
             factura: new Set(), // Botones de facturación
-            uuid: new Set() // Botones de envío de UUID
+            uuid: new Set(), // Botones de envío de UUID
+            timbrar: new Set() // Botones de timbrado de facturas de contado
         };
 
         // Función para crear botones dinámicos
@@ -1027,8 +1311,16 @@
                 envio: new Set(),
                 despacho: new Set(),
                 factura: new Set(),
-                uuid: new Set()
+                uuid: new Set(),
+                timbrar: new Set()
             };
+
+            // Botones de timbrar de las facturas de contado (aunque el renglon de la factura este cerrado)
+            document.querySelectorAll('.btn-timbrar').forEach(btn => {
+                if (!btn.disabled) {
+                    pedidosPendientes.timbrar.add(btn);
+                }
+            });
 
             // Buscar botones de envío pendiente
             document.querySelectorAll('.btn-enviar').forEach(btn => {
@@ -1119,6 +1411,21 @@
                     'btn-green p-2',
                     () => procesarBotonesEnLote(pedidosPendientes.uuid, 'envío de UUIDs'),
                     'Enviar UUIDs pendientes para solicitudes de factura'
+                );
+                contenedor.appendChild(boton);
+                hayBotones = true;
+            }
+
+            // Botón de Timbrar Facturas (contado)
+            if (pedidosPendientes.timbrar.size > 0) {
+                const boton = crearBotonMasivo(
+                    'btnTimbrarTodas',
+                    `Timbrar ${pedidosPendientes.timbrar.size}`,
+                    'bi-patch-check',
+                    'btn-amber p-2',
+                    // Una factura cada 10 segundos
+                    () => procesarBotonesEnLote(pedidosPendientes.timbrar, 'timbrado de facturas', 10000),
+                    'Timbrar todas las facturas de contado sin timbrar'
                 );
                 contenedor.appendChild(boton);
                 hayBotones = true;
@@ -1303,7 +1610,8 @@
         }
 
         // FUNCIÓN PRINCIPAL MODIFICADA: Procesa botones en lote disparando sus eventos click
-        async function procesarBotonesEnLote(coleccionBotones, descripcionAccion) {
+        // esperaMs: tiempo despues de cada clic antes de mandar el siguiente (timbrado usa 10 s para no encimarlos)
+        async function procesarBotonesEnLote(coleccionBotones, descripcionAccion, esperaMs = 1000) {
             const botonesArray = Array.from(coleccionBotones);
 
             if (botonesArray.length === 0) {
@@ -1339,8 +1647,8 @@
                     // Disparar el evento click del botón existente
                     boton.click();
 
-                    // Esperar un poco para que se procese la acción
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    // Esperar a que se procese la acción antes de mandar la siguiente
+                    await new Promise(resolve => setTimeout(resolve, esperaMs));
 
                     // Verificar si el botón fue deshabilitado (indicando éxito) o si cambió su estado
                     if (boton.disabled || !boton.isConnected) {

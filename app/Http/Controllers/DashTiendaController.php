@@ -9,6 +9,7 @@ use App\Services\TiendaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -526,6 +527,67 @@ class DashTiendaController extends Controller
                 'errors' => null
             ], 500);
         }
+    }
+
+    // Timbra una factura de contado de Oracle. El correo al que llega es el del usuario logueado (CatUsuarios.Correo).
+    // Sin reintentos: si el servicio tarda o falla no se vuelve a mandar, para no timbrar dos veces.
+    public function timbrarFacturaOracle(Request $request)
+    {
+        $validated = $request->validate([
+            'orden' => 'required|string|max:50',
+            'order_type' => 'required|string|max:10',
+            'factura' => 'required|string|max:30',
+        ]);
+
+        $correo = trim((string) (Auth::user()->Correo ?? ''));
+        if ($correo === '') {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Tu usuario no tiene correo registrado; pide que lo capturen para poder timbrar',
+            ], 422);
+        }
+
+        $params = [
+            'OrdenVenta' => $validated['orden'],
+            'OrdetType' => $validated['order_type'], // asi viene escrito el parametro en el servicio
+            'Factura' => $validated['factura'],
+            'CorreoCliente' => $correo,
+        ];
+        $url = 'https://timbradokowirest.kowi.com.mx/api/Timbrar/PostTimbrarFactura?' . http_build_query($params);
+
+        Log::info('Timbrado: enviando factura', $params + ['usuario' => Auth::user()->NumNomina ?? null]);
+
+        try {
+            $response = Http::withoutVerifying()->timeout(120)->get($url);
+        } catch (\Exception $e) {
+            Log::error('Timbrado: error de conexion', $params + ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'ok' => false,
+                'message' => 'No se pudo conectar con el servicio de timbrado: ' . $e->getMessage(),
+            ], 500);
+        }
+
+        // El servicio responde { timbradoOk, uuid, fechaTimbrado, codigo, mensaje, xmlBase64, selloCFD, selloSAT, ... }.
+        // Al navegador solo se regresa lo necesario (el XML y los sellos no hacen falta: se descargan de Oracle).
+        $data = $response->json();
+        $resultado = is_array($data) ? [
+            'ok' => (bool) ($data['timbradoOk'] ?? false),
+            'message' => $data['mensaje'] ?? null,
+            'uuid' => $data['uuid'] ?? null,
+            'fechaTimbrado' => $data['fechaTimbrado'] ?? null,
+            'codigo' => $data['codigo'] ?? null,
+        ] : [
+            'ok' => false,
+            'message' => trim(strip_tags($response->body())) ?: 'El servicio de timbrado respondió ' . $response->status(),
+        ];
+        if (!$resultado['ok'] && empty($resultado['message'])) {
+            $resultado['message'] = 'El servicio de timbrado no timbró la factura (código ' . ($resultado['codigo'] ?? $response->status()) . ')';
+        }
+
+        Log::info('Timbrado: respuesta', $params + ['status' => $response->status()] + $resultado);
+
+        return response()->json($resultado, $response->successful() ? 200 : $response->status(), [], JSON_UNESCAPED_UNICODE);
     }
 
     // Metodos para enviar correos al cliente

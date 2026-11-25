@@ -158,8 +158,12 @@ class DevolucionController extends Controller
             'lineas.*.cantidad' => 'required|numeric|gt:0',
         ]);
 
+        // Los SP corren en Cloud_Interface: la transacción tiene que ser de esa conexión para que el rollback
+        // deshaga el encabezado y las líneas si algo falla a la mitad
+        $cloud = DB::connection('Cloud_Interface');
+
         try {
-            DB::beginTransaction();
+            $cloud->beginTransaction();
 
             $header = $request->header;
 
@@ -273,7 +277,7 @@ class DevolucionController extends Controller
 
             DB::connection('Cloud_Interface')->statement("EXEC SP_CREDIT_FOLIO ?", [$OrderTypeVenta]);
 
-            DB::commit();
+            $cloud->commit();
 
             return response()->json([
                 'success' => true,
@@ -281,7 +285,9 @@ class DevolucionController extends Controller
                 'folio' => $Source_Transaction_Identifier,
             ], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
+            if ($cloud->transactionLevel() > 0) {
+                $cloud->rollBack();
+            }
 
             Log::error('Error al crear devolución: ' . $e->getMessage(), [
                 'request' => $request->all(),

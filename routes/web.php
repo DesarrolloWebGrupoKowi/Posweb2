@@ -453,7 +453,8 @@ Route::middleware('auth')->group(function () {
     Route::get('DashTienda', 'App\Http\Controllers\DashTiendaController@Index')->name('DashTienda');
     Route::get('DashTienda/grafica', 'App\Http\Controllers\DashTiendaController@Grafica')->name('DashTienda.grafica');
     Route::post('DashTienda/enviar-pedido/{orden}', 'App\Http\Controllers\DashTiendaController@enviarPedidoOracle')->name('DashTienda.enviar-pedido');
-    Route::post('DashTienda/enviar-correo', 'App\Http\Controllers\DashTiendaController@enviarCorreoOracle')->name('DashTienda.enviar-correo-cliente');
+    Route::post('DashTienda/timbrar-factura', 'App\Http\Controllers\DashTiendaController@timbrarFacturaOracle')->name('DashTienda.timbrar-factura');
+    Route::post('DashTienda/enviar-correo','App\Http\Controllers\DashTiendaController@enviarCorreoOracle')->name('DashTienda.enviar-correo-cliente');
     Route::get('DashCorte', 'App\Http\Controllers\DashCorteController@Index')->name('DashCorte');
     Route::get('DashTiendaAdmin', 'App\Http\Controllers\DashTiendaAdminController@Index')->name('DashTiendaAdmin');
     Route::get('DashVentaPorTicket', 'App\Http\Controllers\DashVentaPorTicketController@index')->name('DashVentaPorTicket');
