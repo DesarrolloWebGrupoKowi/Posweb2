@@ -930,9 +930,6 @@
 
             // Al cargar inicia cerrada (se abre con clic en el estatus); si se refresca conserva como estaba
             toggleFacturas(pedido, ancla.dataset.abierta === '1');
-
-            // Recalcular los botones masivos (ej. "Timbrar 5") con las facturas recien pintadas
-            actualizarPedidosPendientes();
         }
 
         // Un renglon por factura, cada dato bajo su columna:
@@ -1014,19 +1011,36 @@
                     data-factura="${factura.transactionNumber}"
                     data-order-type="${tipoOrdenFactura(factura)}"
                     onclick="timbrarFactura(this)"
+                    ${timbradoEnCurso ? 'disabled' : ''}
                 ><i class="bi bi-patch-check"></i> TIMBRAR</button>
             `;
         }
 
+        // Solo se timbra una factura a la vez: mientras una esta en proceso los demas botones TIMBRAR quedan deshabilitados
+        let timbradoEnCurso = false;
+
+        function bloquearTimbrado(bloquear) {
+            timbradoEnCurso = bloquear;
+            document.querySelectorAll('.btn-timbrar').forEach(b => {
+                if (!b.dataset.timbrando) b.disabled = bloquear;
+            });
+        }
+
         function timbrarFactura(btn) {
             const { pedido, factura, orderType } = btn.dataset;
+            if (timbradoEnCurso) {
+                crearToast('warning', 'Timbrado en proceso', 'Espera a que termine la factura que se está timbrando');
+                return;
+            }
             if (!factura || !orderType) {
                 crearToast('danger', 'Error al timbrar', `Pedido ${pedido}: la factura no trae número o tipo de orden`);
                 return;
             }
             const textoOriginal = btn.innerHTML;
+            btn.dataset.timbrando = '1';
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Timbrando...';
+            bloquearTimbrado(true);
 
             fetch(URL_TIMBRAR_FACTURA, {
                     method: 'POST',
@@ -1042,16 +1056,18 @@
                     console.log('[Timbrar factura] Respuesta', { pedido, factura, orderType }, data);
                     if (!data.ok) throw new Error(data.message || 'No se pudo timbrar');
                     crearToast('success', 'Factura timbrada', `Pedido ${pedido}, factura ${factura}`);
+                    btn.innerHTML = '<i class="bi bi-check2"></i> Timbrada';
                     // Se vuelve a consultar el estatus para refrescar las facturas del pedido
                     const item = document.getElementById(`status-oracle-${pedido}`);
                     if (item) fetchStatusOracle(item);
                 })
                 .catch(error => {
                     console.error('[Timbrar factura] Error', { pedido, factura }, error);
-                    btn.disabled = false;
+                    delete btn.dataset.timbrando;
                     btn.innerHTML = textoOriginal;
                     crearToast('danger', 'Error al timbrar', `Pedido ${pedido}: ${error.message}`);
-                });
+                })
+                .finally(() => bloquearTimbrado(false));
         }
 
         // CONTADO: descarga de PDF y XML por factura (customerTransactionId)
@@ -1288,8 +1304,7 @@
             envio: new Set(), // Botones de envío pendiente
             despacho: new Set(), // Botones de despacho
             factura: new Set(), // Botones de facturación
-            uuid: new Set(), // Botones de envío de UUID
-            timbrar: new Set() // Botones de timbrado de facturas de contado
+            uuid: new Set() // Botones de envío de UUID
         };
 
         // Función para crear botones dinámicos
@@ -1311,16 +1326,8 @@
                 envio: new Set(),
                 despacho: new Set(),
                 factura: new Set(),
-                uuid: new Set(),
-                timbrar: new Set()
+                uuid: new Set()
             };
-
-            // Botones de timbrar de las facturas de contado (aunque el renglon de la factura este cerrado)
-            document.querySelectorAll('.btn-timbrar').forEach(btn => {
-                if (!btn.disabled) {
-                    pedidosPendientes.timbrar.add(btn);
-                }
-            });
 
             // Buscar botones de envío pendiente
             document.querySelectorAll('.btn-enviar').forEach(btn => {
@@ -1416,20 +1423,6 @@
                 hayBotones = true;
             }
 
-            // Botón de Timbrar Facturas (contado)
-            if (pedidosPendientes.timbrar.size > 0) {
-                const boton = crearBotonMasivo(
-                    'btnTimbrarTodas',
-                    `Timbrar ${pedidosPendientes.timbrar.size}`,
-                    'bi-patch-check',
-                    'btn-amber p-2',
-                    // Una factura cada 10 segundos
-                    () => procesarBotonesEnLote(pedidosPendientes.timbrar, 'timbrado de facturas', 10000),
-                    'Timbrar todas las facturas de contado sin timbrar'
-                );
-                contenedor.appendChild(boton);
-                hayBotones = true;
-            }
 
             // Mostrar u ocultar el contenedor según haya botones o no
             contenedor.style.display = hayBotones ? 'inline-flex' : 'none';
@@ -1610,8 +1603,7 @@
         }
 
         // FUNCIÓN PRINCIPAL MODIFICADA: Procesa botones en lote disparando sus eventos click
-        // esperaMs: tiempo despues de cada clic antes de mandar el siguiente (timbrado usa 10 s para no encimarlos)
-        async function procesarBotonesEnLote(coleccionBotones, descripcionAccion, esperaMs = 1000) {
+        async function procesarBotonesEnLote(coleccionBotones, descripcionAccion) {
             const botonesArray = Array.from(coleccionBotones);
 
             if (botonesArray.length === 0) {
@@ -1647,8 +1639,8 @@
                     // Disparar el evento click del botón existente
                     boton.click();
 
-                    // Esperar a que se procese la acción antes de mandar la siguiente
-                    await new Promise(resolve => setTimeout(resolve, esperaMs));
+                    // Esperar un poco para que se procese la acción
+                    await new Promise(resolve => setTimeout(resolve, 1000));
 
                     // Verificar si el botón fue deshabilitado (indicando éxito) o si cambió su estado
                     if (boton.disabled || !boton.isConnected) {
