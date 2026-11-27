@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -531,8 +532,16 @@ class DashTiendaController extends Controller
 
     // Timbra una factura de contado de Oracle. El correo al que llega es el del usuario logueado (CatUsuarios.Correo).
     // Sin reintentos: si el servicio tarda o falla no se vuelve a mandar, para no timbrar dos veces.
+    // Protecciones contra doble timbrado (paso con POS_770538, 26/11/2026: PHP corto la peticion a los 30 s, el
+    // servicio si timbro, la pantalla mostro error y se volvio a mandar):
+    //  1. Se da tiempo suficiente a PHP para esperar al servicio (set_time_limit).
+    //  2. Candado por factura: mientras se timbra, y hasta 5 min si la peticion se corta, no se acepta otro intento.
+    //  3. Antes de mandar se consulta Oracle: si la factura ya tiene UUID no se manda.
     public function timbrarFacturaOracle(Request $request)
     {
+        set_time_limit(180);
+        ignore_user_abort(true); // si el navegador se cierra, se termina y queda en el log
+
         $validated = $request->validate([
             'orden' => 'required|string|max:50',
             'order_type' => 'required|string|max:10',
@@ -553,18 +562,50 @@ class DashTiendaController extends Controller
             'Factura' => $validated['factura'],
             'CorreoCliente' => $correo,
         ];
+        $usuario = Auth::user()->NumNomina ?? null;
+
+        $candado = 'timbrado:' . $params['OrdenVenta'] . ':' . $params['Factura'];
+        if (!Cache::add($candado, $usuario ?? '-', now()->addMinutes(5))) {
+            Log::warning('Timbrado: intento bloqueado, la factura ya se esta timbrando', $params + ['usuario' => $usuario]);
+
+            return response()->json([
+                'ok' => false,
+                'incierto' => true,
+                'message' => "La factura {$params['Factura']} ya se mandó a timbrar hace poco. Espera unos minutos y actualiza el pedido antes de volver a intentar.",
+            ], 409);
+        }
+
+        // Si Oracle ya tiene UUID de esta factura no se vuelve a timbrar
+        $yaTimbrada = $this->uuidFacturaOracle($params['OrdenVenta'], $params['Factura']);
+        if ($yaTimbrada === null) {
+            Cache::forget($candado);
+
+            return response()->json(['ok' => false, 'message' => 'No se pudo revisar la factura en Oracle; intenta de nuevo en un momento.'], 503);
+        }
+        if ($yaTimbrada !== '') {
+            Log::warning('Timbrado: intento bloqueado, la factura ya tiene UUID', $params + ['usuario' => $usuario, 'uuid' => $yaTimbrada]);
+
+            return response()->json([
+                'ok' => false,
+                'yaTimbrada' => true,
+                'message' => "La factura {$params['Factura']} ya está timbrada (UUID {$yaTimbrada}).",
+            ], 409);
+        }
+
         $url = 'https://timbradokowirest.kowi.com.mx/api/Timbrar/PostTimbrarFactura?' . http_build_query($params);
 
-        Log::info('Timbrado: enviando factura', $params + ['usuario' => Auth::user()->NumNomina ?? null]);
+        Log::info('Timbrado: enviando factura', $params + ['usuario' => $usuario]);
 
         try {
-            $response = Http::withoutVerifying()->timeout(120)->get($url);
+            $response = Http::withoutVerifying()->timeout(150)->get($url);
         } catch (\Exception $e) {
+            // El candado se queda los 5 min: el servicio pudo haber timbrado aunque aqui no llego la respuesta
             Log::error('Timbrado: error de conexion', $params + ['error' => $e->getMessage()]);
 
             return response()->json([
                 'ok' => false,
-                'message' => 'No se pudo conectar con el servicio de timbrado: ' . $e->getMessage(),
+                'incierto' => true,
+                'message' => 'No llegó la respuesta del servicio de timbrado; la factura pudo haberse timbrado. Actualiza el pedido en unos minutos antes de volver a intentar.',
             ], 500);
         }
 
@@ -587,7 +628,37 @@ class DashTiendaController extends Controller
 
         Log::info('Timbrado: respuesta', $params + ['status' => $response->status()] + $resultado);
 
+        // Si el servicio contesto que no timbro, se puede reintentar ya; si timbro, el candado se queda
+        // para que no se mande otra vez mientras Oracle refleja el UUID
+        if (!$resultado['ok']) {
+            Cache::forget($candado);
+        }
+
         return response()->json($resultado, $response->successful() ? 200 : $response->status(), [], JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * UUID que Oracle tiene para la factura del pedido: '' si no tiene (sin timbrar o no aparece), o null si no se
+     * pudo consultar Oracle. Toma el de Oracle o el de Apex, el que exista.
+     */
+    private function uuidFacturaOracle(string $orden, string $factura): ?string
+    {
+        try {
+            $respuesta = Http::withoutVerifying()->timeout(30)
+                ->get('https://oracleordenrest.kowi.com.mx/api/SalesOrder/GetSalesOracle', ['OrdenVta' => $orden]);
+        } catch (\Exception $e) {
+            Log::error('Timbrado: no se pudo consultar la orden en Oracle', ['orden' => $orden, 'error' => $e->getMessage()]);
+
+            return null;
+        }
+        if (!$respuesta->successful()) {
+            return null;
+        }
+
+        $facturaOracle = collect($respuesta->json('dato.facturas') ?? [])
+            ->first(fn ($f) => (string) ($f['transactionNumber'] ?? '') === $factura);
+
+        return trim((string) ($facturaOracle['uUid'] ?? '')) ?: trim((string) ($facturaOracle['uUidApex'] ?? ''));
     }
 
     // Metodos para enviar correos al cliente

@@ -1051,21 +1051,39 @@
                     },
                     body: JSON.stringify({ orden: pedido, order_type: orderType, factura })
                 })
-                .then(r => r.json())
+                // Si no llega un JSON (p. ej. el servidor corto la peticion) no se sabe si el servicio timbro
+                .then(r => r.json().catch(() => ({
+                    ok: false,
+                    incierto: true,
+                    message: `No llegó la respuesta del servidor (${r.status}); la factura pudo haberse timbrado.`
+                })))
+                .catch(() => ({
+                    ok: false,
+                    incierto: true,
+                    message: 'Se perdió la conexión mientras se timbraba; la factura pudo haberse timbrado.'
+                }))
                 .then(data => {
                     console.log('[Timbrar factura] Respuesta', { pedido, factura, orderType }, data);
-                    if (!data.ok) throw new Error(data.message || 'No se pudo timbrar');
-                    crearToast('success', 'Factura timbrada', `Pedido ${pedido}, factura ${factura}`);
-                    btn.innerHTML = '<i class="bi bi-check2"></i> Timbrada';
-                    // Se vuelve a consultar el estatus para refrescar las facturas del pedido
                     const item = document.getElementById(`status-oracle-${pedido}`);
+
+                    if (data.ok) {
+                        crearToast('success', 'Factura timbrada', `Pedido ${pedido}, factura ${factura}`);
+                        btn.innerHTML = '<i class="bi bi-check2"></i> Timbrada';
+                    } else if (data.incierto || data.yaTimbrada) {
+                        // No se libera el boton: se vuelve a consultar Oracle y ahi se ve si quedo timbrada.
+                        // El servidor ademas bloquea esa factura unos minutos para que no se mande otra vez.
+                        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Revisar';
+                        crearToast('warning', 'Revisa la factura antes de reintentar', `Pedido ${pedido}: ${data.message}`);
+                    } else {
+                        // El servicio contesto que no timbro: se puede reintentar
+                        delete btn.dataset.timbrando;
+                        btn.innerHTML = textoOriginal;
+                        crearToast('danger', 'Error al timbrar', `Pedido ${pedido}: ${data.message || 'No se pudo timbrar'}`);
+                        return;
+                    }
+
+                    // Se vuelve a consultar el estatus para refrescar las facturas del pedido
                     if (item) fetchStatusOracle(item);
-                })
-                .catch(error => {
-                    console.error('[Timbrar factura] Error', { pedido, factura }, error);
-                    delete btn.dataset.timbrando;
-                    btn.innerHTML = textoOriginal;
-                    crearToast('danger', 'Error al timbrar', `Pedido ${pedido}: ${error.message}`);
                 })
                 .finally(() => bloquearTimbrado(false));
         }
